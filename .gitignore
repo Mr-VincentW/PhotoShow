@@ -1,0 +1,9 @@
+# Exclude all FIS output directories.
+dev/
+chrome*/
+firefox*/
+edge*/
+
+# Exclude webpack output and dependency directories.
+node_modules/
+dist/
