@@ -1,0 +1,417 @@
+﻿/**
+ * Copyright (c) 2012-2020 Vincent W., MIT-licensed.
+ * @fileOverview PhotoShow popup page style.
+ * @author Vincent | vincentwang863@gmail.com
+ * @version 1.0.0.0 | 2012-12-07 | Vincent    // Initial version.
+ * @version 2.0.0.0 | 2013-01-03 | Vincent    // Updates: Support turnning on/off PhotoShow for individual website.
+ * @version 3.0.0.0 | 2018-11-08 | Vincent    // Updates: Reconstruction.
+ * @version 3.0.0.1 | 2018-11-16 | Vincent    // Updates: Remove background image of stateToggleBtn.
+ * @version 3.1.0.0 | 2018-11-17 | Vincent    // Updates: Replace image resources with font icons.
+ * @version 3.2.1.0 | 2018-12-01 | Vincent    // Updates: Transform to LESS.
+ * @version 3.4.0.0 | 2019-01-24 | Vincent    // Updates: Add activation mode control.
+ * @version 3.8.2.2 | 2019-06-09 | Vincent    // Updates: Disable animation for toggle button during initialization.
+ * @version 3.8.4.0 | 2019-06-20 | Vincent    // Updates: Add hover style for activation mode radio buttons.
+ * @version 4.0.0.0 | 2019-11-07 | Vincent    // Updates: Add VIEW MODE feature;
+ *                                            // Updates: Add shadow for the viewer and allow it to be hidden by user settings;
+ *                                            // Updates: Allow PhotoShow logo in the viewer to be hidden by user settings;
+ *                                            // Updates: Add new hotkeys 'Esc', 'Home', 'End', 'PageUp', 'PageDown', 'Arrow Left', 'Arrow Right', M', 'L', 'A' and 'P';
+ *                                            // Updates: Change hotkeys for image rotation;
+ *                                            // Updates: Optimize the popup page styles;
+ *                                            // Updates: Optimize all the icons.
+ * @version 4.0.3.0 | 2019-11-23 | Vincent    // Updates: Add 'share' links.
+ * @version 4.0.12.0 | 2020-01-24 | Vincent   // Updates: Add GitHub link.
+ */
+
+// Color definitions
+@PHOTOSHOW_BLUE: #6CBCEF;
+@PHOTOSHOW_RED: #DB4B37;
+
+// Font icon
+@font-face {
+  font-family: photoShowIconFont;
+  src: url('../resources/photoShowIcons.woff2') format('woff2'),
+    url('../resources/photoShowIcons.woff') format('woff');
+}
+
+.icon {
+  -webkit-font-smoothing: antialiased;
+  speak: none;
+  font-family: photoShowIconFont;
+  font-style: normal;
+  font-weight: 400;
+  font-size: 16px;
+  font-variant: normal;
+  text-transform: none;
+  line-height: 1;
+  outline: 0;
+  vertical-align: middle;
+
+  &:before {
+    display: inline-block;
+  }
+
+  &-logo:before {
+    content: '\e900';
+    background: #52A3F5;
+    color: #FFF;
+  }
+
+  &-bubble-check:before {
+    content: '\e905';
+  }
+
+  &-bubble-warn:before {
+    content: '\e906';
+  }
+
+  &-activation:before {
+    content: '\e907';
+  }
+
+  &-view-mode:before {
+    content: '\e908';
+  }
+
+  &-logo-display:before {
+    content: '\e909';
+  }
+
+  &-shadow-display:before {
+    content: '\e90a';
+  }
+
+  &-keyboard:before {
+    content: '\e90b';
+  }
+
+  &-share:before {
+    content: '\e90c';
+  }
+
+  &-facebook:before {
+    content: '\e90d';
+  }
+
+  &-twitter:before {
+    content: '\e90e';
+  }
+
+  &-weibo:before {
+    content: '\e90f';
+  }
+
+  &-qzone:before {
+    content: '\e910';
+  }
+
+  &-reddit:before {
+    content: '\e911';
+  }
+
+  &-tumblr:before {
+    content: '\e912';
+  }
+
+  &-mail:before {
+    content: '\e913';
+  }
+
+  &-github:before {
+    content: '\e914';
+  }
+}
+
+// Page style
+html, body,
+h1, h2, h3, p, em, i,
+dl, dt, dd, ul, ol, li,
+input {
+  margin: 0;
+  padding: 0;
+  font-style: normal;
+  list-style: none;
+}
+
+body {
+  padding: 10px 12px;
+  -webkit-font-smoothing: antialiased;
+  -webkit-text-size-adjust: 100%;
+  font-size: 14px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Microsoft Yahei', '\5b8b\4f53', sans-serif;
+  line-height: 1.5;
+  color: #333;
+  white-space: nowrap;
+  user-select: none;
+}
+
+h1, h2, h3 {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI Light', 'Microsoft Yahei Light', '\5b8b\4f53', sans-serif;
+  display: inline;
+}
+
+// Header
+.header {
+  margin-bottom: 10px;
+
+  .icon-logo {
+    display: inline-block;
+    width: 48px;
+    height: 48px;
+    font-size: 48px;
+    margin-right: 10px;
+  }
+
+  #name {
+    display: inline-block;
+    font-size: 20px;
+    vertical-align: middle;
+  }
+
+  #updateDate {
+    position: absolute;
+    color: #999;
+    font-size: 12px;
+    top: 10px;
+    right: 12px;
+    opacity: 1;
+    transition: 0.2s 0.1s;
+  }
+}
+
+// State toggle
+.state-toggle {
+  transition: 0.2s;
+  padding: 3px 0;
+  border-bottom: solid 1px @PHOTOSHOW_BLUE;
+
+  &.disabled {
+    background: fade(@PHOTOSHOW_RED, 20%);
+    border-bottom-color: @PHOTOSHOW_RED;
+    box-shadow: -25px 0 0 0 fade(@PHOTOSHOW_RED, 20%), 25px 0 0 0 fade(@PHOTOSHOW_RED, 20%);
+
+    .state-icon {
+      color: @PHOTOSHOW_RED;
+    }
+
+    .state-toggle-btn {
+      background: @PHOTOSHOW_RED;
+
+      &:after {
+        right: 18px;
+      }
+    }
+  }
+
+  &.no-ani {
+    &, & *, & *:after {
+      transition: none !important;
+    }
+  }
+
+  .state-icon {
+    transition: 0.2s;
+    display: inline-block;
+    color: @PHOTOSHOW_BLUE;
+    width: 18px;
+    margin-right: 5px;
+  }
+
+  #stateMsg {
+    line-height: 26px;
+    font-size: 14px;
+  }
+
+  .state-toggle-btn {
+    transition: 0.2s;
+    position: relative;
+    display: block;
+    width: 36px;
+    height: 20px;
+    margin-top: 3px;
+    cursor: pointer;
+    float: right;
+    background: @PHOTOSHOW_BLUE;
+    border-radius: 2px;
+    box-shadow: inset 1px 1px 2px rgba(0, 0, 0, 0.2);
+
+    &:after {
+      content: '';
+      transition: 0.2s;
+      position: absolute;
+      display: block;
+      width: 16px;
+      height: 16px;
+      background: #FFF;
+      border-radius: 1px;
+      right: 2px;
+      top: 2px;
+      box-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+    }
+  }
+}
+
+// Description
+dl.desc {
+  margin-top: 8px;
+
+  dt {
+    color: @PHOTOSHOW_BLUE;
+
+    * {
+      vertical-align: middle;
+    }
+
+    .icon {
+      width: 18px;
+      margin-right: 5px;
+      display: inline-block;
+    }
+
+    h3 {
+      font-size: 14px;
+    }
+  }
+
+  dd {
+    color: #666;
+    padding: 0 24px;
+  }
+
+  &.radios, &.checkboxes {
+    dd {
+      label {
+        transition: color 0.4s;
+        * {
+          vertical-align: middle;
+        }
+
+        &:hover {
+          transition: color 0.1s;
+          cursor: pointer;
+          color: @PHOTOSHOW_BLUE;
+        }
+
+        input {
+          margin-right: 2px;
+        }
+      }
+    }
+  }
+
+  &.radios {
+    dd {
+      label {
+        display: inline-block;
+        min-width: 80px;
+
+        &:last-child {
+          min-width: auto;
+        }
+      }
+    }
+
+    &.activation-mode {
+      dd {
+        #activationModeDesc+span {
+          padding: 0 35px;
+        }
+      }
+    }
+  }
+
+  &.hotkeys-spec {
+    dd table {
+      border-collapse: collapse;
+      border-spacing: 0;
+      width: 100%;
+      line-height: 1.4;
+
+      tr {
+        transition: background 0.4s;
+        border-bottom: dashed 1px #DDD;
+
+        &:hover {
+          transition: background 0.1s;
+          background: fade(@PHOTOSHOW_BLUE, 20%);
+        }
+
+        td {
+          &:first-child {
+            padding-right: 0.75em;
+            text-align: right;
+          }
+
+          &:last-child {
+            padding-left: 0.75em;
+            color: #999;
+          }
+        }
+      }
+    }
+  }
+
+  &.share {
+    dt, dd {
+      display: inline;
+      vertical-align: middle;
+    }
+
+    dd {
+      font-size: 0;
+      padding: 0 0 0 6px;
+
+      a {
+        transition: 0.2s;
+        display: inline-block;
+        padding: 2px;
+        margin-left: 8px;
+        font-size: 16px;
+
+        &:hover {
+          transition: 0.1s;
+          transform: scale(1.25);
+        }
+      }
+
+      i {
+        display: inline-block;
+        height: 14px;
+        border-right: dashed 1px #DDD;
+        vertical-align: middle;
+        margin-left: 12px;
+      }
+
+      .icon-mail {
+        color: @PHOTOSHOW_BLUE;
+      }
+
+      .icon-github {
+        color: #24292E;
+      }
+
+      .icon-facebook {
+        color: #4267B2;
+      }
+
+      .icon-twitter {
+        color: #1DA1F2;
+      }
+
+      .icon-weibo {
+        color: #E6162D;
+      }
+
+      .icon-qzone {
+        color: #FFCF00;
+      }
+
+      .icon-reddit {
+        color: #FF4500;
+      }
+
+      .icon-tumblr {
+        color: #001935;
+      }
+    }
+  }
+}

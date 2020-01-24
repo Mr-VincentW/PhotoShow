@@ -1,0 +1,395 @@
+﻿/**
+ * Copyright (c) 2012-2020 Vincent W., MIT-licensed.
+ * @fileOverview PhotoShow content style.
+ * @author Vincent | vincentwang863@gmail.com
+ * @version 1.0.0.0 | 2012-12-01 | Vincent    // Initial version.
+ * @version 2.0.0.0 | 2013-01-03 | Vincent    // Updates: Add PhotoShow tag to the photo viewer.
+ * @version 3.0.0.0 | 2018-11-08 | Vincent    // Updates: Reconstruction.
+ * @version 3.1.0.0 | 2018-11-17 | Vincent    // Updates: Replace image resources with font icons.
+ * @version 3.1.1.0 | 2018-11-19 | Vincent    // Updates: Add 'photoshow-' prefix to icon class names;
+ *                                            // Updates: Add 'photoshow-icon-load-dot-ani' animation for image loading tip.
+ * @version 3.2.1.0 | 2018-12-01 | Vincent    // Updates: Transform to LESS.
+ * @version 3.4.3.0 | 2019-03-12 | Vincent    // Bug Fix: Fix the style rule that will cause some pages irresponsive.
+ * @version 3.6.0.1 | 2019-05-20 | Vincent    // Updates: Move photoshow icon outsite the view box.
+ * @version 3.9.0.0 | 2019-09-22 | Vincent    // Bug Fix: Remove globally appended pointerNone style for all pseudo elements.
+ * @version 3.9.1.0 | 2019-09-25 | Vincent    // Updates: Fix the shivering problem of the loading icon.
+ * @version 4.0.0.0 | 2019-11-07 | Vincent    // Updates: Add VIEW MODE feature;
+ *                                            // Updates: Add shadow for the viewer and allow it to be hidden by user settings;
+ *                                            // Updates: Allow PhotoShow logo in the viewer to be hidden by user settings;
+ *                                            // Updates: Locate the viewer automatically on all sides of the trigger image;
+ *                                            // Updates: Add end-reach prompt for image scrolling;
+ *                                            // Updates: Add new hotkeys 'Esc', 'Home', 'End', 'PageUp', 'PageDown', 'Arrow Left', 'Arrow Right', M', 'L', 'A' and 'P';
+ *                                            // Updates: Hide PhotoShow logo in the viewer when the image is too small;
+ *                                            // Updates: Optimize viewer displaying animation;
+ *                                            // Updates: Optimize all the icons.
+ * @version 4.0.8.0 | 2020-01-04 | Vincent    // Updates: Change all 'icon' to 'icons' literally to avoid conflicts with some wildcard-matching style rules (selector: [class*="icon-"]) on 500px.com.
+ */
+
+// Color definitions
+@PHOTOSHOW_BLUE: #6CBCEF;
+
+// Font icon
+@font-face {
+  font-family: photoShowIconFont;
+  src: url('chrome-extension://__MSG_@@extension_id__/resources/photoShowIcons.woff2') format('woff2'),
+    url('chrome-extension://__MSG_@@extension_id__/resources/photoShowIcons.woff') format('woff');
+}
+
+@keyframes photoshow-icons-load-ani {
+  0% {
+    content: '\e901';
+  }
+
+  25% {
+    content: '\e902';
+  }
+
+  50% {
+    content: '\e903';
+  }
+
+  75% {
+    transform: rotate(0deg);
+    content: '\e904';
+  }
+
+  100% {
+    transform: rotate(180deg);
+    content: '\e904';
+  }
+}
+
+@keyframes photoshow-icons-load-dot-ani {
+  0% {
+    content: '';
+  }
+
+  25% {
+    content: '.';
+  }
+
+  50% {
+    content: '..';
+  }
+
+  75% {
+    content: '...';
+  }
+}
+
+@keyframes photoshow-viewer-top-end-ani {
+  0% {
+    opacity: 0.1;
+    height: 0;
+    top: 0;
+  }
+
+  20% {
+    opacity: 0.5;
+    height: 50px;
+    top: -25px;
+  }
+
+  100% {
+    opacity: 0.1;
+    height: 0;
+    top: 0;
+  }
+}
+
+@keyframes photoshow-viewer-right-end-ani {
+  0% {
+    opacity: 0.1;
+    width: 0;
+    right: 0;
+  }
+
+  20% {
+    opacity: 0.5;
+    width: 50px;
+    right: -25px;
+  }
+
+  100% {
+    opacity: 0.1;
+    width: 0;
+    right: 0;
+  }
+}
+
+@keyframes photoshow-viewer-bottom-end-ani {
+  0% {
+    opacity: 0.1;
+    height: 0;
+    bottom: 0;
+  }
+
+  20% {
+    opacity: 0.5;
+    height: 50px;
+    bottom: -25px;
+  }
+
+  100% {
+    opacity: 0.1;
+    height: 0;
+    bottom: 0;
+  }
+}
+
+@keyframes photoshow-viewer-left-end-ani {
+  0% {
+    opacity: 0.1;
+    width: 0;
+    left: 0;
+  }
+
+  20% {
+    opacity: 0.5;
+    width: 50px;
+    left: -25px;
+  }
+
+  100% {
+    opacity: 0.1;
+    width: 0;
+    left: 0;
+  }
+}
+
+@keyframes photoshow-viewer-view-mode-switching-ani {
+  0% {
+    opacity: 0;
+    transform: scale(1);
+  }
+
+  40% {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  100% {
+    opacity: 0;
+    transform: scale(2);
+  }
+}
+
+.photoshow-icons {
+  -webkit-font-smoothing: antialiased;
+  speak: none;
+  font-family: photoShowIconFont;
+  font-style: normal;
+  font-weight: 400;
+  font-size: 16px;
+  font-variant: normal;
+  text-transform: none;
+  line-height: 1;
+  outline: 0;
+  vertical-align: middle;
+
+  &:before {
+    display: inline-block;
+  }
+
+  &-logo:before {
+    content: '\e900';
+    color: #FFF;
+  }
+
+  &-load {
+    &:before {
+      content: '\e901';
+      display: inline-block;
+      animation: photoshow-icons-load-ani 1.5s linear 0s infinite;
+    }
+
+    &+*:after {
+      content: '';
+      display: inline-block;
+      width: 1em;
+      text-align: left;
+      animation: photoshow-icons-load-dot-ani 1.5s linear 0s infinite;
+    }
+  }
+
+  &-bubble-warn:before {
+    content: '\e906';
+  }
+}
+
+// Viewer style
+#photoShowViewer {
+  display: block;
+  width: 220px;
+  min-width: 220px;
+  height: 40px;
+  min-height: 40px;
+  background: rgba(248, 248, 248, 0.9);
+  box-sizing: border-box;
+  border: solid 1px #FFF;
+  border-radius: 1px;
+  position: fixed;
+  z-index: 2147483647;
+  box-shadow: 0 0 3px rgba(0, 0, 0, 0.5);
+  opacity: 0;
+  pointer-events: none;
+  margin: 0 0 0 0;
+  overflow: hidden;
+
+  &.img-shown {
+    min-width: unset;
+    min-height: unset;
+    overflow: visible;
+
+    .photoshow-img-wrapper {
+      display: block;
+    }
+
+    .photoshow-msg {
+      display: none;
+    }
+  }
+
+  &.logo-hidden .photoshow-icons-logo{
+    transition: none;
+    opacity: 0;
+  }
+
+  &.top-end, &.right-end, &.bottom-end, &.left-end {
+    .photoshow-img-wrapper:after {
+      content: '';
+      position: absolute;
+      display: block;
+      opacity: 0.1;
+      background: radial-gradient(closest-side at center, @PHOTOSHOW_BLUE 99%, transparent);
+    }
+  }
+
+  &.top-end .photoshow-img-wrapper:after{
+    width: 100%;
+    height: 0;
+    top: 0;
+    left: 0;
+    animation: photoshow-viewer-top-end-ani 1s linear 0s forwards;
+  }
+
+  &.right-end .photoshow-img-wrapper:after{
+    width: 0;
+    height: 100%;
+    top: 0;
+    right: 0;
+    animation: photoshow-viewer-right-end-ani 1s linear 0s forwards;
+  }
+
+  &.bottom-end .photoshow-img-wrapper:after{
+    width: 100%;
+    height: 0;
+    bottom: 0;
+    left: 0;
+    animation: photoshow-viewer-bottom-end-ani 1s linear 0s forwards;
+  }
+
+  &.left-end .photoshow-img-wrapper:after{
+    width: 0;
+    height: 100%;
+    top: 0;
+    left: 0;
+    animation: photoshow-viewer-left-end-ani 1s linear 0s forwards;
+  }
+
+  &.view-mode-switching {
+    .photoshow-view-mode-switch-tip {
+      animation: photoshow-viewer-view-mode-switching-ani 0.8s ease 0s forwards;
+    }
+  }
+
+  .photoshow-viewer-shadow {
+    position: absolute;
+    width: 0;
+    height: 0;
+    background: gray;
+    clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
+  }
+
+  .photoshow-img-wrapper {
+    position: relative;
+    display: none;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+
+    img {
+      width: 100%;
+      height: 100%;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      border-radius: 1px;
+    }
+
+    .photoshow-view-mode-switch-tip {
+      position: absolute;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      left: 0;
+      background: fade(gray, 75%);
+      text-align: center;
+      color: #FFF;
+      mix-blend-mode: multiply;
+      opacity: 0;
+    }
+  }
+
+  .photoshow-msg {
+    display: block;
+    text-align: center;
+    line-height: 40px;
+    font-size: 0;
+    font-family: -apple-system, system-ui, BlinkMacSystemFont, 'Segoe UI', 'Microsoft Yahei', '\5b8b\4f53', sans-serif;
+
+    * {
+      color: #333;
+      display: inline-block;
+      vertical-align: middle;
+      font-style: normal;
+    }
+
+    i {
+      font-size: 14px;
+    }
+
+    .photoshow-icons {
+      margin-right: 0.25em;
+    }
+  }
+
+  .photoshow-icons-logo {
+    position: absolute;
+    display: block;
+    right: 0;
+    bottom: 0;
+    padding-left: 2px;
+    border: solid 1px #FFF;
+    border-width: 1px 0 0 1px;
+    border-radius: 90% 0 0;
+    background: #52A3F5;
+    transition: opacity 0s 0.2s;
+    opacity: 1;
+
+    &:before {
+      display: block;
+      height: 14px;
+    }
+  }
+}
+
+// Viewer mask style
+#photoShowViewerMaskDef {
+  position: absolute;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+  z-index: -1;
+}

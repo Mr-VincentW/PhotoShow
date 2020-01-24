@@ -1,0 +1,247 @@
+﻿/**
+ * Copyright (c) 2012-2020 Vincent W., MIT-licensed.
+ * @fileOverview PhotoShow localization messages (Chinese Traditional).
+ * @author Vincent | vincentwang863@gmail.com
+ * @version 3.0.0.0 | 2018-11-08 | Vincent    // Initial version.
+ * @version 3.1.0.0 | 2018-11-17 | Vincent    // Updates: Add image loading messages.
+ * @version 3.4.0.0 | 2019-01-24 | Vincent    // Updates: Add context menu title;
+ *                                            // Updates: Add activation mode items.
+ * @version 3.8.3.0 | 2019-06-09 | Vincent    // Updates: Add 'hotkeyOpenImageInNewTab'.
+ *                                            // Updates: Optimize several terms.
+ * @version 4.0.0.0 | 2019-11-07 | Vincent    // Updates: Adapt all items to version 4.0.
+ * @version 4.0.3.0 | 2019-11-23 | Vincent    // Updates: Literal optimization;
+ *                                            // Updates: Add 'share' related items.
+ * @version 4.0.5.0 | 2019-12-16 | Vincent    // Updates: Add 'feedbackMailBody'.
+ * @version 4.0.12.0 | 2020-01-24 | Vincent   // Updates: Add descriptions for all messages.
+ */
+
+{
+  ////////////////////////////////////////////////////////////////////////////////
+  // 通用信息。
+  "extensionName": {
+    "message": "浮圖秀",
+    "description": "擴展名稱，翻譯成目標語言時，理想情況下最好能保持發音接近該中文名稱並保持語義一致。"
+  },
+  "extensionDesc": {
+    "message": "看大圖無需再點，鼠標輕移，見你想見！ ——獻給所有你鍾愛的網站及屏幕前的你。",
+    "description": "擴展描述，顯示在瀏覽器擴展管理頁、應用市場等地方；最大長度為 132 個字符。"
+  },
+
+  ////////////////////////////////////////////////////////////////////////////////
+  // 圖片預覽窗口及右鍵菜單中的信息。
+  "imageLoadingTip": {
+    "message": "圖片加載中",
+    "description": "圖片加載時的提示。"
+  },
+  "imageLoadingFailTip": {
+    "message": "圖片加載失敗！",
+    "description": "圖片加載失敗時的提示。"
+  },
+  "imageSavingNamePrefix": {
+    "message": "浮圖秀圖片",
+    "description": "浮圖秀所保存圖片的文件名前綴。"
+  },
+  "contextMenuTitle_open": {
+    "message": "在新標籤頁中查看高分辨率圖片",
+    "description": "右鍵菜單項。"
+  },
+  "contextMenuTitle_save": {
+    "message": "保存高分辨率圖片",
+    "description": "右鍵菜單項。"
+  },
+
+  ////////////////////////////////////////////////////////////////////////////////
+  // 彈出窗口中的設置相關信息。
+  // 頂欄區：
+  "photoShowEnabledMsg": {
+    "message": "浮圖秀已對當前網站啟用。",
+    "description": "浮圖秀對當前網站啟用時的消息。"
+  },
+  "photoShowDisabledMsg": {
+    "message": "浮圖秀已對當前網站關閉。",
+    "description": "浮圖秀對當前網站關閉時的消息。"
+  },
+  "photoShowUnavailableMsg": {
+    "message": "浮圖秀尚未支持當前網站，如有需要，您可以向開發者反饋。",
+    "description": "浮圖秀不支持當前網站時的消息。"
+  },
+  "extensionUpdateDate": {
+    "message": "更新：2020年1月24日",
+    "description": "當前所安裝浮圖秀版本的更新時間。"
+  },
+  "stateToggleOnTitle": {
+    "message": "點擊對當前網站關閉浮圖秀。",
+    "description": "浮圖秀啟閉按鈕的鼠標懸停提示（開啟狀態下）。"
+  },
+  "stateToggleOffTitle": {
+    "message": "點擊對當前網站啟用浮圖秀。",
+    "description": "浮圖秀啟閉按鈕的鼠標懸停提示（關閉狀態下）。"
+  },
+
+  // “激活模式”區：
+  "activationModeHeader": {
+    "message": "保存高分辨率圖片",
+    "description": "區塊標題。"
+  },
+  "activationModeDesc": {
+    "message": "鼠標懸停",
+    "description": "觸發圖片預覽窗口顯示的操作描述。"
+  },
+  "activationModeOption_None": {
+    "message": "無",
+    "description": "選項“無需額外操作（僅鼠標移過即可）”的描述。"
+  },
+
+  // “視圖模式”區：
+  "viewModeHeader": {
+    "message": "視圖模式",
+    "description": "區塊標題。"
+  },
+  "viewModeOption_Mini": {
+    "message": "迷你",
+    "description": "模式名。"
+  },
+  "viewModeOptionTitle_Mini": {
+    "message": "圖片預覽窗口以不超過源縮略圖旁側空間 1/8 的面積顯示",
+    "description": "相應模式的鼠標懸停提示。"
+  },
+  "viewModeOption_Light": {
+    "message": "輕量",
+    "description": "模式名。"
+  },
+  "viewModeOptionTitle_Light": {
+    "message": "圖片預覽窗口以不超過源縮略圖旁側空間 1/4 的面積顯示",
+    "description": "相應模式的鼠標懸停提示。"
+  },
+  "viewModeOption_Auto": {
+    "message": "自動",
+    "description": "模式名。"
+  },
+  "viewModeOptionTitle_Auto": {
+    "message": "圖片預覽窗口自適應源縮略圖旁側空間",
+    "description": "相應模式的鼠標懸停提示。"
+  },
+  "viewModeOption_Panoramic": {
+    "message": "全景",
+    "description": "模式名。"
+  },
+  "viewModeOptionTitle_Panoramic": {
+    "message": "圖片預覽窗口根據需要盡可能大地呈現，圖片以其原始尺寸顯示",
+    "description": "相應模式的鼠標懸停提示。"
+  },
+
+  // “圖標顯示”區：
+  "logoDisplayHeader": {
+    "message": "圖標顯示",
+    "description": "區塊標題。"
+  },
+  "logoDisplayDesc": {
+    "message": "在圖片預覽窗口內顯示浮圖秀圖標",
+    "description": "設置項描述。"
+  },
+
+  // “陰影顯示”區：
+  "shadowDisplayHeader": {
+    "message": "陰影顯示",
+    "description": "區塊標題。"
+  },
+  "shadowDisplayDesc": {
+    "message": "在圖片預覽窗口和源縮略圖之間顯示陰影",
+    "description": "設置項描述。"
+  },
+
+  // “熱鍵操作”區：
+  "hotkeysHeader": {
+    "message": "熱鍵操作",
+    "description": "區塊標題。"
+  },
+  "hotkey_Esc": {
+    "message": "<td>Esc</td><td>關閉圖片預覽窗口</td>",
+    "description": "熱鍵名稱及相應操作描述。"
+  },
+  "hotkey_RotationCCW": {
+    "message": "<td>Shift + Ctrl + ←</td><td>逆時針旋轉圖片</td>",
+    "description": "熱鍵名稱及相應操作描述。"
+  },
+  "hotkey_RotationCW": {
+    "message": "<td>Shift + Ctrl + →</td><td>順時針旋轉圖片</td>",
+    "description": "熱鍵名稱及相應操作描述。"
+  },
+  "hotkey_Scroll": {
+    "message": "<td>↑ / → / ↓ / ←</td><td>向 上 / 右 / 下 / 左 捲動圖片</td>",
+    "description": "熱鍵名稱及相應操作描述。"
+  },
+  "hotkey_ScrollByPage": {
+    "message": "<td>PgUp / PgDn</td><td>按圖片可視高度向 上 / 下 捲動圖片</td>",
+    "description": "熱鍵名稱及相應操作描述。"
+  },
+  "hotkey_ScrollToEnds": {
+    "message": "<td>Home / End</td><td>捲動到圖片 頂端 / 底部</td>",
+    "description": "熱鍵名稱及相應操作描述。"
+  },
+  "hotkey_OpenImageInNewTab": {
+    "message": "<td>Tab</td><td>在新標籤頁中查看高分辨率圖片</td>",
+    "description": "熱鍵名稱及相應操作描述。"
+  },
+  "hotkey_ViewModeSwitch": {
+    "message": "<td>M / L / A / P</td><td>切換視圖模式</td>",
+    "description": "熱鍵名稱及相應操作描述。"
+  },
+  "hotkey_ImageSaving": {
+    "message": "<td>S</td><td>保存高分辨率圖片</td>",
+    "description": "熱鍵名稱及相應操作描述。"
+  },
+
+  // “聯繫方式” 區：
+  "shareHeader": {
+    "message": "聯繫方式",
+    "description": "區塊標題。"
+  },
+  "shareIconTitles": {
+    "message": "聯繫作者,GitHub,Facebook,推特,微博,QQ 空間,Reddit,湯博樂",
+    "description": "全部聯繫方式圖標的鼠標懸停提示（以半角逗號間隔）。"
+  },
+  "shareText": {
+    "message": "我剛發現一款極棒的瀏覽器插件，用來查看頁面中的圖片有奇效！快來一試！",
+    "description": "用於用戶分享的預定義帖子內容。"
+  },
+  "feedbackMailSubject": {
+    "message": "浮圖秀用戶反饋",
+    "description": "用戶反饋郵件的標題。"
+  },
+  "feedbackMailBody": {
+    "message": "<b style=\"line-height:1.5;padding:0.25em;color:#333\" contenteditable=\"false\">$problemTitle$</b><p style=\"color:#999;line-height:1.5\">$problemDescGuide$</p><br /><br /><br /><br /><br /><table style=\"border-top:solid 1px #6cbcef;border-bottom:solid 1px #6cbcef;line-height:1.5;color:#333\"><tr contenteditable=\"false\"><td style=\"text-align:right;vertical-align:top;font-weight:bold;padding:0.25em;white-space:nowrap;color:#6CBCEF\">$browserTitle$</td><td style=\"padding:0.25em\">$browser$</td></tr><tr contenteditable=\"false\"><td style=\"text-align:right;vertical-align:top;font-weight:bold;padding:0.25em;white-space:nowrap;color:#6CBCEF\">$photoShowVersionTitle$</td><td style=\"padding:0.25em\">$photoShowVersion$</td></tr><tr><td style=\"text-align:right;vertical-align:top;font-weight:bold;padding:0.25em;white-space:nowrap;color:#6CBCEF\" contenteditable=\"false\">$relatedPageTitle$</td><td style=\"padding:0.25em\">$relatedPage$</td></tr></table>",
+    "description": "用戶反饋郵件的正文。（本條消息內容無需翻譯但下列 PLACEHOLDERS 的內容需要。）",
+    "placeholders": {
+      "problemTitle": {
+        "content": "我遇到的問題：",
+        "description": "引導用戶描述所遇到問題的引導語。"
+      },
+      "problemDescGuide": {
+        "content": "（請在此描述您遇到的問題或提出建議。）",
+        "description": "指示描述問題的區域。"
+      },
+      "browserTitle": {
+        "content": "瀏覽器信息：",
+        "description": "附加信息標題 —— 瀏覽器版本、操作系統等基本用戶環境信息。"
+      },
+      "photoShowVersionTitle": {
+        "content": "浮圖秀版本：",
+        "description": "附加信息標題 —— 浮圖秀版本。"
+      },
+      "relatedPageTitle": {
+        "content": "相關頁面：",
+        "description": "附加信息標題 —— 用戶當前瀏覽頁面的地址，對於追踪問題可能有幫助，允許用戶在發送反饋前刪除。"
+      },
+      "browser": {
+        "content": "$1"
+      },
+      "photoShowVersion": {
+        "content": "$2"
+      },
+      "relatedPage": {
+        "content": "$3"
+      }
+    }
+  }
+}

@@ -1,0 +1,107 @@
+﻿<!doctype html>
+<!--
+ * Copyright (c) 2012-2020 Vincent W., MIT-licensed.
+ * @fileOverview PhotoShow popup page.
+ * @author Vincent | vincentwang863@gmail.com
+ * @version 1.0.0.0 | 2012-12-07 | Vincent    // Initial version.
+ * @version 2.0.0.0 | 2013-01-03 | Vincent    // Updates: Support turnning on/off PhotoShow for individual website.
+ * @version 3.0.0.0 | 2018-11-08 | Vincent    // Updates: Reconstruction.
+ * @version 3.1.0.0 | 2018-11-17 | Vincent    // Updates: Replace image resources with font icons.
+ * @version 3.4.0.0 | 2019-01-24 | Vincent    // Updates: Add activation mode control.
+ * @version 3.5.0.0 | 2019-04-08 | Vincent    // Updates: Get version string from extension manifest.
+ * @version 3.8.6.0 | 2019-07-18 | Vincent    // Updates: Update jQuery to 3.4.1.
+ * @version 4.0.0.0 | 2019-11-07 | Vincent    // Updates: Add VIEW MODE feature;
+ *                                            // Updates: Add shadow for the viewer and allow it to be hidden by user settings;
+ *                                            // Updates: Allow PhotoShow logo in the viewer to be hidden by user settings;
+ *                                            // Updates: Add new hotkeys 'Esc', 'Home', 'End', 'PageUp', 'PageDown', 'Arrow Left', 'Arrow Right', M', 'L', 'A' and 'P';
+ *                                            // Updates: Change hotkeys for image rotation;
+ *                                            // Updates: Optimize the popup page styles;
+ *                                            // Updates: Optimize all the icons.
+ * @version 4.0.3.0 | 2019-11-23 | Vincent    // Updates: Add 'share' links.
+ * @version 4.0.12.0 | 2020-01-24 | Vincent   // Updates: Add GitHub link.
+-->
+
+<html>
+  <head>
+    <meta charset="utf-8">
+    <link rel="stylesheet" type="text/css" href="popup.css">
+    <script type="text/javascript" src="../jquery-3.4.1.min.js"></script>
+  </head>
+  <body>
+    <div class="header">
+      <em class="icon icon-logo"></em>
+      <h1 id="name"></h1>
+      <span id="updateDate"></span>
+    </div>
+    <div id="stateToggle" class="state-toggle">
+      <em class="icon icon-bubble-check state-icon"></em>
+      <h3 id="stateMsg"></h3>
+      <span id="stateToggleBtn" class="state-toggle-btn"></span>
+    </div>
+    <div>
+      <dl class="desc radios activation-mode" item="activationMode" id="activationModeSection">
+        <dt>
+          <em class="icon icon-activation"></em>
+          <h3></h3>
+        </dt>
+        <dd>
+          <span id="activationModeDesc"></span><span>+</span>
+          <label><input type="radio" name="activationModeRadio" checked value="" /><span id="activationModeOption_None"></span></label>
+          <label><input type="radio" name="activationModeRadio" value="shift"/><span>Shift</span></label>
+          <label><input type="radio" name="activationModeRadio" value="ctrl"/><span>Ctrl</span></label>
+          <label><input type="radio" name="activationModeRadio" value="alt"/><span>Alt</span></label>
+        </dd>
+      </dl>
+      <dl class="desc radios" item="viewMode" id="viewModeSection">
+        <dt>
+          <em class="icon icon-view-mode"></em>
+          <h3></h3>
+        </dt>
+        <dd></dd>
+      </dl>
+      <dl class="desc checkboxes" item="logoDisplay" id="logoDisplaySection">
+        <dt>
+          <em class="icon icon-logo-display"></em>
+          <h3></h3>
+        </dt>
+        <dd>
+          <label><input type="checkbox" checked /><span id="logoDisplayDesc"></span></label>
+        </dd>
+      </dl>
+      <dl class="desc checkboxes" item="shadowDisplay" id="shadowDisplaySection">
+        <dt>
+          <em class="icon icon-shadow-display"></em>
+          <h3></h3>
+        </dt>
+        <dd>
+          <label><input type="checkbox" checked /><span id="shadowDisplayDesc"></span></label>
+        </dd>
+      </dl>
+      <dl class="desc hotkeys-spec" id="hotkeysSection">
+        <dt>
+          <em class="icon icon-keyboard"></em>
+          <h3></h3>
+        </dt>
+        <dd></dd>
+      </dl>
+      <dl class="desc share" id="shareSection">
+        <dt>
+          <em class="icon icon-share"></em>
+          <h3></h3>
+        </dt>
+        <dd>
+          <a target="_blank" class="icon icon-mail"></a>
+          <a target="_blank" class="icon icon-github"></a>
+          <i></i>
+          <a target="_blank" class="icon icon-facebook"></a>
+          <a target="_blank" class="icon icon-twitter"></a>
+          <a target="_blank" class="icon icon-weibo"></a>
+          <a target="_blank" class="icon icon-qzone"></a>
+          <a target="_blank" class="icon icon-reddit"></a>
+          <a target="_blank" class="icon icon-tumblr"></a>
+        </dd>
+      </dl>
+    </div>
+  </body>
+  <script type="text/javascript" src="popup.js"></script>
+</html>
