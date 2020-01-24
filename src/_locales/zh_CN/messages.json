@@ -1,0 +1,249 @@
+﻿/**
+ * Copyright (c) 2012-2020 Vincent W., MIT-licensed.
+ * @fileOverview PhotoShow localization messages (Chinese Simplified).
+ * @author Vincent | vincentwang863@gmail.com
+ * @version 1.0.0.0 | 2012-11-30 | Vincent    // Initial version.
+ * @version 2.0.0.0 | 2013-01-03 | Vincent    // Updates: Add several new files.
+ * @version 3.0.0.0 | 2018-11-08 | Vincent    // Updates: Reconstruction.
+ * @version 3.1.0.0 | 2018-11-17 | Vincent    // Updates: Add image loading messages.
+ * @version 3.4.0.0 | 2019-01-24 | Vincent    // Updates: Add context menu title;
+ *                                            // Updates: Add activation mode items.
+ * @version 3.8.3.0 | 2019-06-09 | Vincent    // Updates: Add 'hotkeyOpenImageInNewTab'.
+ *                                            // Updates: Optimize several terms.
+ * @version 4.0.0.0 | 2019-11-07 | Vincent    // Updates: Adapt all items to version 4.0.
+ * @version 4.0.3.0 | 2019-11-23 | Vincent    // Updates: Literal optimization;
+ *                                            // Updates: Add 'share' related items.
+ * @version 4.0.5.0 | 2019-12-16 | Vincent    // Updates: Add 'feedbackMailBody'.
+ * @version 4.0.12.0 | 2020-01-24 | Vincent   // Updates: Add descriptions for all messages.
+ */
+
+{
+  ////////////////////////////////////////////////////////////////////////////////
+  // 通用信息。
+  "extensionName": {
+    "message": "浮图秀",
+    "description": "扩展名称，翻译成目标语言时，理想情况下最好能保持发音接近该中文名称并保持语义一致。"
+  },
+  "extensionDesc": {
+    "message": "看大图无需再点，鼠标轻移，见你想见！——献给所有你钟爱的网站及屏幕前的你。",
+    "description": "扩展描述，显示在浏览器扩展管理页、应用市场等地方；最大长度为 132 个字符。"
+  },
+
+  ////////////////////////////////////////////////////////////////////////////////
+  // 图片预览窗口及右键菜单中的信息。
+  "imageLoadingTip": {
+    "message": "图片加载中",
+    "description": "图片加载时的提示。"
+  },
+  "imageLoadingFailTip": {
+    "message": "图片加载失败！",
+    "description": "图片加载失败时的提示。"
+  },
+  "imageSavingNamePrefix": {
+    "message": "浮图秀图片",
+    "description": "浮图秀所保存图片的文件名前缀。"
+  },
+  "contextMenuTitle_open": {
+    "message": "在新标签页中查看高分辨率图片",
+    "description": "右键菜单项。"
+  },
+  "contextMenuTitle_save": {
+    "message": "保存高分辨率图片",
+    "description": "右键菜单项。"
+  },
+
+  ////////////////////////////////////////////////////////////////////////////////
+  // 弹出窗口中的设置相关信息。
+  // 顶栏区：
+  "photoShowEnabledMsg": {
+    "message": "浮图秀已对当前网站启用。",
+    "description": "浮图秀对当前网站启用时的消息。"
+  },
+  "photoShowDisabledMsg": {
+    "message": "浮图秀已对当前网站关闭。",
+    "description": "浮图秀对当前网站关闭时的消息。"
+  },
+  "photoShowUnavailableMsg": {
+    "message": "浮图秀尚未支持当前网站，如有需要，您可以向开发者反馈。",
+    "description": "浮图秀不支持当前网站时的消息。"
+  },
+  "extensionUpdateDate": {
+    "message": "更新：",
+    "description": "当前所安装浮图秀版本的更新时间。"
+  },
+  "stateToggleOnTitle": {
+    "message": "点击对当前网站关闭浮图秀。",
+    "description": "浮图秀启闭按钮的鼠标悬停提示（开启状态下）。"
+  },
+  "stateToggleOffTitle": {
+    "message": "点击对当前网站启用浮图秀。",
+    "description": "浮图秀启闭按钮的鼠标悬停提示（关闭状态下）。"
+  },
+
+  // “激活模式”区：
+  "activationModeHeader": {
+    "message": "保存高分辨率图片",
+    "description": "区块标题。"
+  },
+  "activationModeDesc": {
+    "message": "鼠标悬停",
+    "description": "触发图片预览窗口显示的操作描述。"
+  },
+  "activationModeOption_None": {
+    "message": "无",
+    "description": "选项“无需额外操作（仅鼠标移过即可）”的描述。"
+  },
+
+  // “视图模式”区：
+  "viewModeHeader": {
+    "message": "视图模式",
+    "description": "区块标题。"
+  },
+  "viewModeOption_Mini": {
+    "message": "迷你",
+    "description": "模式名。"
+  },
+  "viewModeOptionTitle_Mini": {
+    "message": "图片预览窗口以不超过源缩略图旁侧空间 1/8 的面积显示",
+    "description": "相应模式的鼠标悬停提示。"
+  },
+  "viewModeOption_Light": {
+    "message": "轻量",
+    "description": "模式名。"
+  },
+  "viewModeOptionTitle_Light": {
+    "message": "图片预览窗口以不超过源缩略图旁侧空间 1/4 的面积显示",
+    "description": "相应模式的鼠标悬停提示。"
+  },
+  "viewModeOption_Auto": {
+    "message": "自动",
+    "description": "模式名。"
+  },
+  "viewModeOptionTitle_Auto": {
+    "message": "图片预览窗口自适应源缩略图旁侧空间",
+    "description": "相应模式的鼠标悬停提示。"
+  },
+  "viewModeOption_Panoramic": {
+    "message": "全景",
+    "description": "模式名。"
+  },
+  "viewModeOptionTitle_Panoramic": {
+    "message": "图片预览窗口根据需要尽可能大地呈现，图片以其原始尺寸显示",
+    "description": "相应模式的鼠标悬停提示。"
+  },
+
+  // “图标显示”区：
+  "logoDisplayHeader": {
+    "message": "图标显示",
+    "description": "区块标题。"
+  },
+  "logoDisplayDesc": {
+    "message": "在图片预览窗口内显示浮图秀图标",
+    "description": "设置项描述。"
+  },
+
+  // “阴影显示”区：
+  "shadowDisplayHeader": {
+    "message": "阴影显示",
+    "description": "区块标题。"
+  },
+  "shadowDisplayDesc": {
+    "message": "在图片预览窗口和源缩略图之间显示阴影",
+    "description": "设置项描述。"
+  },
+
+  // “热键操作”区：
+  "hotkeysHeader": {
+    "message": "热键操作",
+    "description": "区块标题。"
+  },
+  "hotkey_Esc": {
+    "message": "关闭图片预览窗口",
+    "description": "热键操作描述。"
+  },
+  "hotkey_RotationCCW": {
+    "message": "逆时针旋转图片",
+    "description": "热键操作描述。"
+  },
+  "hotkey_RotationCW": {
+    "message": "顺时针旋转图片",
+    "description": "热键操作描述。"
+  },
+  "hotkey_Scroll": {
+    "message": "向 上 / 右 / 下 / 左 卷动图片",
+    "description": "热键操作描述。"
+  },
+  "hotkey_ScrollByPage": {
+    "message": "按图片可视高度向 上 / 下 卷动图片",
+    "description": "热键操作描述。"
+  },
+  "hotkey_ScrollToEnds": {
+    "message": "卷动到图片 顶端 / 底部",
+    "description": "热键操作描述。"
+  },
+  "hotkey_OpenImageInNewTab": {
+    "message": "在新标签页中查看高分辨率图片",
+    "description": "热键操作描述。"
+  },
+  "hotkey_ViewModeSwitch": {
+    "message": "切换视图模式",
+    "description": "热键操作描述。"
+  },
+  "hotkey_ImageSaving": {
+    "message": "保存高分辨率图片",
+    "description": "热键操作描述。"
+  },
+
+  // “联系方式” 区：
+  "shareHeader": {
+    "message": "联系方式",
+    "description": "区块标题。"
+  },
+  "shareIconTitles": {
+    "message": "联系作者,GitHub,Facebook,推特,微博,QQ 空间,Reddit,汤博乐",
+    "description": "全部联系方式图标的鼠标悬停提示（以半角逗号间隔）。"
+  },
+  "shareText": {
+    "message": "我刚发现一款极棒的浏览器插件，用来查看页面中的图片有奇效！快来一试！",
+    "description": "用于用户分享的预定义帖子内容。"
+  },
+  "feedbackMailSubject": {
+    "message": "浮图秀用户反馈",
+    "description": "用户反馈邮件的标题。"
+  },
+  "feedbackMailBody": {
+    "message": "<b style=\"line-height:1.5;padding:0.25em;color:#333\" contenteditable=\"false\">$problemTitle$</b><p style=\"color:#999;line-height:1.5\">$problemDescGuide$</p><br /><br /><br /><br /><br /><table style=\"border-top:solid 1px #6cbcef;border-bottom:solid 1px #6cbcef;line-height:1.5;color:#333\"><tr contenteditable=\"false\"><td style=\"text-align:right;vertical-align:top;font-weight:bold;padding:0.25em;white-space:nowrap;color:#6CBCEF\">$browserTitle$</td><td style=\"padding:0.25em\">$browser$</td></tr><tr contenteditable=\"false\"><td style=\"text-align:right;vertical-align:top;font-weight:bold;padding:0.25em;white-space:nowrap;color:#6CBCEF\">$photoShowVersionTitle$</td><td style=\"padding:0.25em\">$photoShowVersion$</td></tr><tr><td style=\"text-align:right;vertical-align:top;font-weight:bold;padding:0.25em;white-space:nowrap;color:#6CBCEF\" contenteditable=\"false\">$relatedPageTitle$</td><td style=\"padding:0.25em\">$relatedPage$</td></tr></table>",
+    "description": "用户反馈邮件的正文。（本条消息内容无需翻译但下列 PLACEHOLDERS 的内容需要。）",
+    "placeholders": {
+      "problemTitle": {
+        "content": "我遇到的问题：",
+        "description": "引导用户描述所遇到问题的引导语。"
+      },
+      "problemDescGuide": {
+        "content": "（请在此描述您遇到的问题或提出建议。）",
+        "description": "指示描述问题的区域。"
+      },
+      "browserTitle": {
+        "content": "浏览器信息：",
+        "description": "附加信息标题 —— 浏览器版本、操作系统等基本用户环境信息。"
+      },
+      "photoShowVersionTitle": {
+        "content": "浮图秀版本：",
+        "description": "附加信息标题 —— 浮图秀版本。"
+      },
+      "relatedPageTitle": {
+        "content": "相关页面：",
+        "description": "附加信息标题 —— 用户当前浏览页面的地址，对于追踪问题可能有帮助，允许用户在发送反馈前删除。"
+      },
+      "browser": {
+        "content": "$1"
+      },
+      "photoShowVersion": {
+        "content": "$2"
+      },
+      "relatedPage": {
+        "content": "$3"
+      }
+    }
+  }
+}

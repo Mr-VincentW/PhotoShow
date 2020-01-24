@@ -1,0 +1,242 @@
+﻿/**
+ * Copyright (c) 2012-2020 Vincent W., MIT-licensed.
+ * @fileOverview PhotoShow localization messages (British English).
+ * @author Vincent | vincentwang863@gmail.com
+ * @version 3.8.4.0 | 2019-06-20 | Vincent    // Initial version.
+ * @version 4.0.0.0 | 2019-11-07 | Vincent    // Updates: Adapt all items to version 4.0.
+ * @version 4.0.3.0 | 2019-11-23 | Vincent    // Updates: Literal optimization;
+ *                                            // Updates: Add 'share' related items.
+ * @version 4.0.5.0 | 2019-12-16 | Vincent    // Updates: Add 'feedbackMailBody'.
+ * @version 4.0.12.0 | 2020-01-24 | Vincent   // Updates: Add descriptions for all messages.
+ */
+
+{
+  ////////////////////////////////////////////////////////////////////////////////
+  // General information.
+  "extensionName": {
+    "message": "PhotoShow",
+    "description": "Name of the extension which is supposed to be translated into a target language, ideally keeping semantically consistent and phonetically similar to its English version."
+  },
+  "extensionDesc": {
+    "message": "View high-definition images by hovering mouse on thumbnails, for all your beloved websites and you.",
+    "description": "Description of the extension displaying on the browser extension management page and in the extension store etc., limited to 132 characters."
+  },
+
+  ////////////////////////////////////////////////////////////////////////////////
+  // Information displayed in image viewer or context menu.
+  "imageLoadingTip": {
+    "message": "Image loading",
+    "description": "Message displayed when images are being loaded."
+  },
+  "imageLoadingFailTip": {
+    "message": "Image loading failed!",
+    "description": "Message displayed when image loading fails."
+  },
+  "imageSavingNamePrefix": {
+    "message": "PhotoShowImage",
+    "description": "The file name prefix of the image that is saved by PhotoShow."
+  },
+  "contextMenuTitle_open": {
+    "message": "Open high-definition image in new tab",
+    "description": "Context menu item."
+  },
+  "contextMenuTitle_save": {
+    "message": "Save high-definition image",
+    "description": "Context menu item."
+  },
+
+  ////////////////////////////////////////////////////////////////////////////////
+  // Information for the setting items on the popup page.
+  // Header section:
+  "photoShowEnabledMsg": {
+    "message": "PhotoShow is enabled on this website.",
+    "description": "Message displayed when PhotoShow is enabled for current website."
+  },
+  "photoShowDisabledMsg": {
+    "message": "PhotoShow is disabled on this website.",
+    "description": "Message displayed when PhotoShow is disabled for current website."
+  },
+  "photoShowUnavailableMsg": {
+    "message": "PhotoShow does not support for this website, should it be needed, please contact the author.",
+    "description": "Message displayed when PhotoShow does not support for current website."
+  },
+  "extensionUpdateDate": {
+    "message": "Update:",
+    "description": "Update time of current installed version of PhotoShow."
+  },
+  "stateToggleOnTitle": {
+    "message": "Click to disable PhotoShow on this website.",
+    "description": "Mouse hovering tip for PhotoShow toggle button when it is 'ON'."
+  },
+  "stateToggleOffTitle": {
+    "message": "Click to enable PhotoShow on this website.",
+    "description": "Mouse hovering tip for PhotoShow toggle button when it is 'OFF'."
+  },
+
+  // Section ACTIVATION MODE:
+  "activationModeHeader": {
+    "message": "ACTIVATION MODE",
+    "description": "Section title."
+  },
+  "activationModeDesc": {
+    "message": "Mouse hover",
+    "description": "Description for the operation of triggerring a image viewer display."
+  },
+  "activationModeOption_None": {
+    "message": "None",
+    "description": "Description of the option that requires no other operations when triggering the image viewer display (only mouse hover required)."
+  },
+
+  // Section VIEW MODE:
+  "viewModeHeader": {
+    "message": "VIEW MODE",
+    "description": "Section title."
+  },
+  "viewModeOption_Mini": {
+    "message": "Mini",
+    "description": "Mode name."
+  },
+  "viewModeOptionTitle_Mini": {
+    "message": "The viewer displays within 1/8 in area of the available space on one side of the source thumbnail",
+    "description": "Corresponding mouse hovering tip."
+  },
+  "viewModeOption_Light": {
+    "message": "Light",
+    "description": "Mode name."
+  },
+  "viewModeOptionTitle_Light": {
+    "message": "The viewer displays within 1/4 in area of the available space on one side of the source thumbnail",
+    "description": "Corresponding mouse hovering tip."
+  },
+  "viewModeOption_Auto": {
+    "message": "Auto",
+    "description": "Mode name."
+  },
+  "viewModeOptionTitle_Auto": {
+    "message": "The viewer automatically adapts its size to the available space on one side of the source thumbnail",
+    "description": "Corresponding mouse hovering tip."
+  },
+  "viewModeOption_Panoramic": {
+    "message": "Panoramic",
+    "description": "Mode name."
+  },
+  "viewModeOptionTitle_Panoramic": {
+    "message": "The viewer takes as large space as needed and the image displays in its original size",
+    "description": "Corresponding mouse hovering tip."
+  },
+
+  // Section LOGO DISPLAY:
+  "logoDisplayHeader": {
+    "message": "LOGO DISPLAY",
+    "description": "Section title."
+  },
+  "logoDisplayDesc": {
+    "message": "Display PhotoShow logo within the viewer",
+    "description": "Setting item description."
+  },
+
+  // Section SHADOW DISPLAY:
+  "shadowDisplayHeader": {
+    "message": "SHADOW DISPLAY",
+    "description": "Section title."
+  },
+  "shadowDisplayDesc": {
+    "message": "Display shadow between the viewer and the source thumbnail",
+    "description": "Setting item description."
+  },
+
+  // Section HOTKEYS:
+  "hotkeysHeader": {
+    "message": "HOTKEYS",
+    "description": "Section title."
+  },
+  "hotkey_Esc": {
+    "message": "Close image viewer",
+    "description": "Hotykey operation description."
+  },
+  "hotkey_RotationCCW": {
+    "message": "Rotate anticlockwise",
+    "description": "Hotykey operation description."
+  },
+  "hotkey_RotationCW": {
+    "message": "Rotate clockwise",
+    "description": "Hotykey operation description."
+  },
+  "hotkey_Scroll": {
+    "message": "Scroll up / right / down / left",
+    "description": "Hotykey operation description."
+  },
+  "hotkey_ScrollByPage": {
+    "message": "Scroll up / down by image visible height",
+    "description": "Hotykey operation description."
+  },
+  "hotkey_ScrollToEnds": {
+    "message": "Scroll up to the top / down to the bottom",
+    "description": "Hotykey operation description."
+  },
+  "hotkey_OpenImageInNewTab": {
+    "message": "Open high-definition image in new tab",
+    "description": "Hotykey operation description."
+  },
+  "hotkey_ViewModeSwitch": {
+    "message": "Switch view mode",
+    "description": "Hotykey operation description."
+  },
+  "hotkey_ImageSaving": {
+    "message": "Save high-definition image",
+    "description": "Hotykey operation description."
+  },
+
+  // Section CONTACT:
+  "shareHeader": {
+    "message": "CONTACT",
+    "description": "Section title."
+  },
+  "shareIconTitles": {
+    "message": "Contact the author,GitHub,Facebook,Twitter,Weibo,Qzone,Reddit,Tumblr",
+    "description": "Mouse hovering tips for all the contact icons (Separated with half-width commas)."
+  },
+  "shareText": {
+    "message": "I've just found an excellent browser extension that works wonders on image viewing! Have a try and you'll love it too!",
+    "description": "Predefined post content for users to share on their social networking platforms."
+  },
+  "feedbackMailSubject": {
+    "message": "PhotoShow User Feedback",
+    "description": "Subject of the user feedback email."
+  },
+  "feedbackMailBody": {
+    "message": "<b style=\"line-height:1.5;padding:0.25em;color:#333\" contenteditable=\"false\">$problemTitle$</b><p style=\"color:#999;line-height:1.5\">$problemDescGuide$</p><br /><br /><br /><br /><br /><table style=\"border-top:solid 1px #6cbcef;border-bottom:solid 1px #6cbcef;line-height:1.5;color:#333\"><tr contenteditable=\"false\"><td style=\"text-align:right;vertical-align:top;font-weight:bold;padding:0.25em;white-space:nowrap;color:#6CBCEF\">$browserTitle$</td><td style=\"padding:0.25em\">$browser$</td></tr><tr contenteditable=\"false\"><td style=\"text-align:right;vertical-align:top;font-weight:bold;padding:0.25em;white-space:nowrap;color:#6CBCEF\">$photoShowVersionTitle$</td><td style=\"padding:0.25em\">$photoShowVersion$</td></tr><tr><td style=\"text-align:right;vertical-align:top;font-weight:bold;padding:0.25em;white-space:nowrap;color:#6CBCEF\" contenteditable=\"false\">$relatedPageTitle$</td><td style=\"padding:0.25em\">$relatedPage$</td></tr></table>",
+    "description": "Content of the user feedback email. (The above message does not need to be translated, but the following PLACEHOLDERS do.)",
+    "placeholders": {
+      "problemTitle": {
+        "content": "The problems I encountered:",
+        "description": "Guide for users to describe the problems encountered when using PhotoShow."
+      },
+      "problemDescGuide": {
+        "content": "(Please describe the problems or your suggestions here.)",
+        "description": "Indicating where to write down their feedback."
+      },
+      "browserTitle": {
+        "content": "BROWSER INFORMATION:",
+        "description": "Title of the attached information - The browser version, platform and other basic information about the user environment."
+      },
+      "photoShowVersionTitle": {
+        "content": "PHOTOSHOW VERSION:",
+        "description": "Title of the attached information - The version number of PhotoShow."
+      },
+      "relatedPageTitle": {
+        "content": "RELATED PAGE:",
+        "description": "Title of the attached information - The URL of the website that is being visited, which might potentially be helpful for bug tracking and can be deleted by the user before sending."
+      },
+      "browser": {
+        "content": "$1"
+      },
+      "photoShowVersion": {
+        "content": "$2"
+      },
+      "relatedPage": {
+        "content": "$3"
+      }
+    }
+  }
+}

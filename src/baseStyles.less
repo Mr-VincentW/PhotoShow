@@ -1,0 +1,98 @@
+// Color definitions
+@PHOTOSHOW_BLUE: #6CBCEF;
+@PHOTOSHOW_RED: #DB4B37;
+
+// Font icon
+@font-face {
+  font-family: photoShowIconFont;
+  src: url('./resources/photoShowIcons.woff2') format('woff2'),
+    url('./resources/photoShowIcons.woff') format('woff');
+}
+
+.icons {
+  -webkit-font-smoothing: antialiased;
+  speak: none;
+  font-family: photoShowIconFont;
+  font-style: normal;
+  font-weight: 400;
+  font-size: 16px;
+  font-variant: normal;
+  text-transform: none;
+  line-height: 1;
+  outline: 0;
+  vertical-align: middle;
+
+  &:before {
+    display: inline-block;
+  }
+
+  &-logo:before {
+    content: '\e900';
+    background: #52A3F5;
+    color: #FFF;
+  }
+
+  &-bubble-check:before {
+    content: '\e905';
+  }
+
+  &-bubble-warn:before {
+    content: '\e906';
+  }
+
+  &-activation:before {
+    content: '\e907';
+  }
+
+  &-view-mode:before {
+    content: '\e908';
+  }
+
+  &-logo-display:before {
+    content: '\e909';
+  }
+
+  &-shadow-display:before {
+    content: '\e90a';
+  }
+
+  &-keyboard:before {
+    content: '\e90b';
+  }
+
+  &-share:before {
+    content: '\e90c';
+  }
+
+  &-facebook:before {
+    content: '\e90d';
+  }
+
+  &-twitter:before {
+    content: '\e90e';
+  }
+
+  &-weibo:before {
+    content: '\e90f';
+  }
+
+  &-qzone:before {
+    content: '\e910';
+  }
+
+  &-reddit:before {
+    content: '\e911';
+  }
+
+  &-tumblr:before {
+    content: '\e912';
+  }
+
+  &-mail:before {
+    content: '\e913';
+  }
+
+  &-github:before {
+    content: '\e914';
+  }
+}
