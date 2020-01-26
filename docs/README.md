@@ -33,10 +33,13 @@ You may search and install the certain version of **PhotoShow** for your browser
 ## How to Use it
 It's pretty easy - for websites that are supported by **PhotoShow** (Listed [here](#websites-that-are-supported)), hover your mouse on an image thumbnail, if **PhotoShow** can parse its URL, a viewer with a high-definition image will show alongside.
 <p align="center"><img src="resources/SPEC_1.png" align="center" alt="PhotoShow - View HD images" /></p>
+<br />
 
 While viewing HD images with **PhotoShow**, you could also perform the following actions:
 
  1. **ROTATE IMAGES:** This is especially useful for viewing photos that are posted without their orientations correctly adjusted.
+
+    (Please note that the figure below is only for demonstrating purpose, with no source thumbnails *without their orientation correctly adjusted*.)
 
 <p align="center"><img src="resources/SPEC_2.png" align="center" alt="PhotoShow - Rotate images" /></p>
 <br />
@@ -130,7 +133,7 @@ If you can't find your favourite websites in the above list, it is always welcom
 ## How to Contribute
 It is gratefully welcomed to help to make **PhotoShow** better! However, as it is in refactoring nowadays, updates for functionalities are not encouraged temporarily. You may still contribute parsing rules for new websites or maybe some great ideas.
 
-Another item where help is badly needed is that the UI of **PhotoShow** needs to be translated into more languages so as to help more people in the world. The `i18n` files have been well prepared with every item explained in detail. Are you willing to offer help?
+Another task where help is badly needed is that the UI of **PhotoShow** needs to be translated into more languages (also including optimising existing language packages) so as to help more people in the world. The `i18n` files have already been well prepared with every item explained in detail. Are you willing to offer help?
 
 Thank you all in advance!
 <br />
