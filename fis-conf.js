@@ -155,6 +155,11 @@ fis.set('project.fileType.image', 'woff2');
 fis.set('project.ignore', [
   'fis-conf.js',
   'fis-plugin/**',
+  'node_modules/**',
+  'docs/**',
+  'dist/**',
+  '.gitignore',
+  'LICENSE',
   '*.zip',
   '*.txt',
   'dev/**',
