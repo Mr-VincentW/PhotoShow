@@ -91,7 +91,7 @@ It is also in the plan that **PhotoShow** is going to "support all the websites"
 Hereby is a list of part of the websites (hostnames) that **PhotoShow** currently supports:
  1. **DESIGN / PHOTOGRAPH / GRAPHICS:**
 
-    123rf, 500px, ArtStation, Behance, DeviantArt, Dribbble, Flickr, Pinterest, pixiv, POCO
+    123rf, 500px, ArtStation, Behance, DeviantArt, Dribbble, Flickr, Pinterest, pixiv, POCO, WikiArt
 
  2. **SHOPPING / TRADING / SERVICES:**
 
@@ -99,7 +99,7 @@ Hereby is a list of part of the websites (hostnames) that **PhotoShow** currentl
 
  3. **SEARCHING / KNOWLEDGE / EXPERTISE:**
 
-    Baidu, Bing, GitHub, Google, Quora, Wiki
+    Baidu, Bing, GitHub, Quora, Wiki
 
  4. **SOCIAL NETWORKING:**
 
