@@ -95,6 +95,8 @@
  *                                            // Updates: Better support for reddit.
  * @version 4.0.12.0 | 2020-01-24 | Vincent   // Updates: Support GitHub;
  *                                            // Updates: Remove transitional code for storage API porting.
+ * @version 4.0.13.0 | 2020-02-06 | Vincent   // Updates: Support WikiArt in response to user feedback;
+ *                                            // Updates: Remove support for Google as the parsing rules are no longer applicable.
  */
 
 // TODO: Solve the downloading failure issue on pixiv and similar websites (HTTP headers might need to be set when requesting for downloading).
@@ -736,28 +738,28 @@ const websiteConfig = {
       processor: '$1'
     }, {}]
   },
-  '(?:images|play|www)\\.google\\.com': {
-    amendStyles: {
-      pointerNone: '.rg_anbg,.rg_ilmbg'
-    },
-    srcMatching: [{
-      selectors: 'img,[style*="background-image"]',
-      srcRegExp: '(.*\\.googleusercontent\\.com/[^=]+)=.*',
-      processor: '$1'
-    }, {
-      processor: trigger => {
-        var link = trigger.closest('a').attr('href'),
-          imgId = /#imgrc=(.*)/.test(link) ? RegExp.$1 : '';
+  // '(?:images|play|www)\\.google\\.com': {
+  //   amendStyles: {
+  //     pointerNone: '.rg_anbg,.rg_ilmbg'
+  //   },
+  //   srcMatching: [{
+  //     selectors: 'img,[style*="background-image"]',
+  //     srcRegExp: '(.*\\.googleusercontent\\.com/[^=]+)=.*',
+  //     processor: '$1'
+  //   }, {
+  //     processor: trigger => {
+  //       var link = trigger.closest('a').attr('href'),
+  //         imgId = /#imgrc=(.*)/.test(link) ? RegExp.$1 : '';
 
-        return /\/imgres\?imgurl=([^&]+)/.test(link) ? decodeURIComponent(RegExp.$1) : (/\/search\?.*\btbm=isch\b/.test(link) ? new Promise(resolve => {
-          $.ajax(link, {
-            success: imgSearchResultDoc => resolve(new RegExp('"id":"' + imgId + '".*?"ou":"([^"]+)"').test(imgSearchResultDoc) ? JSON.parse('"' + RegExp.$1 + '"') : ''),
-            error: () => resolve('')
-          });
-        }) : '');
-      }
-    }]
-  },
+  //       return /\/imgres\?imgurl=([^&]+)/.test(link) ? decodeURIComponent(RegExp.$1) : (/\/search\?.*\btbm=isch\b/.test(link) ? new Promise(resolve => {
+  //         $.ajax(link, {
+  //           success: imgSearchResultDoc => resolve(new RegExp('"id":"' + imgId + '".*?"ou":"([^"]+)"').test(imgSearchResultDoc) ? JSON.parse('"' + RegExp.$1 + '"') : ''),
+  //           error: () => resolve('')
+  //         });
+  //       }) : '');
+  //     }
+  //   }]
+  // },
   'huaban\\.com': {
     amendStyles: {
       pointerNone: '.pin a.img .cover,.pin-view .board-piece .board-pins .cell .cover,.Board .link .over,.Board .link .shadows'
@@ -1235,6 +1237,12 @@ const websiteConfig = {
       srcRegExp: '(upload\\.api\\.weibo\\.com/.+/msget)_thumbnail\\?.*(fid=\\w+).*(source=\\w+).*',
       processor: '$1?$2&$3'
     }, {}]
+  },
+  'www\\.wikiart\\.org': {
+    srcMatching: {
+      srcRegExp: '(uploads\\d+\\.wikiart\\.org/.+?@IMG@).*',
+      processor: '$1'
+    }
   },
   '(?:.+\\.)?(?:wiki\\w+|wiktionary|mediawiki)\\.org': {
     srcMatching: {

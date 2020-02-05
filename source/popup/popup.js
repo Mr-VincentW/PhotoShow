@@ -148,7 +148,7 @@ function initContactLinks() {
       tag: chrome.i18n.getMessage('extensionName'),
       text: chrome.i18n.getMessage('shareText'),
       desc: chrome.i18n.getMessage('extensionDesc'),
-      pic: 'https://lh3.googleusercontent.com/atLFQgBZc1ntToYjH905mZDKZhaUO-zrqXcGRjeUVXUJVNet4FsQq6s5ztFkyuFK6G5owSGE=w1400-h560'
+      pic: 'https://lh3.googleusercontent.com/0_gQN9C5jsOE1shfXQPwqXS47Cm04A5p_EIpacTir9dsrYvh-EgJwPbjPOflyBHrPwlTdwQx=w1400-h560'
     },
     contactConfig = {
       'mail': {
