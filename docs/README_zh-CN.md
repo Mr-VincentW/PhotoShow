@@ -95,7 +95,7 @@
 　　附上**浮图秀**当前所支持的部分网站（域名）列表：
  1. **设计 / 摄影 / 图库 类：**
 
-    123rf、500px、ArtStation、Behance、DeviantArt、Dribbble、Flickr、Pinterest、pixiv
+    123rf、500px、ArtStation、Behance、DeviantArt、Dribbble、Flickr、Pinterest、pixiv、WikiArt
 
     花瓣网、昵图网、汇图网、POCO、站酷、站酷海洛
 
@@ -107,7 +107,7 @@
 
  3. **搜索 / 知识 / 专业 类：**
 
-    Bing、GitHub、Google、Quora、Wiki
+    Bing、GitHub、Quora、Wiki
 
     百度、知乎
 
