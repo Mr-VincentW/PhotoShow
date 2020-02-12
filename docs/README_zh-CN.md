@@ -101,7 +101,7 @@
 
  2. **购物 / 出行 / 服务 类：**
 
-    1-day、Alibaba、AliExpress、Amazon、Apple、Best Buy、Briscoes、DHgate、eBay、Etsy、Kmart、Myprotein、Newegg、noel leeming、PBTech、Target、TheMarket、thewarehouse、Torpedo7、Trade Me、TreatMe、Walmart、warehouse stationery、Yelp
+    1-day、Alibaba、AliExpress、Amazon、Apple、Best Buy、Briscoes、DHgate、eBay、Etsy、Google Play、Kmart、Myprotein、Newegg、noel leeming、PBTech、Target、TheMarket、thewarehouse、Torpedo7、Trade Me、TreatMe、Walmart、warehouse stationery、Yelp
 
     当当、多看、京东、一号店、小米、小米有品、苏宁易购、天猫、淘宝、一淘、1688、阿里健康大药房、飞猪、途牛
 

@@ -95,7 +95,7 @@ Hereby is a list of part of the websites (hostnames) that **PhotoShow** currentl
 
  2. **SHOPPING / TRADING / SERVICES:**
 
-    1-day, Alibaba, AliExpress, Amazon, Apple, Best Buy, Briscoes, DHgate, eBay, Etsy, JD, Kmart, Myprotein, Newegg, noel leeming, PBTech, suning, Taobao, Target, TheMarket, thewarehouse, Tmall, Torpedo7, Trade Me, TreatMe, Walmart, warehouse stationery, Yelp
+    1-day, Alibaba, AliExpress, Amazon, Apple, Best Buy, Briscoes, DHgate, eBay, Etsy, Google Play, JD, Kmart, Myprotein, Newegg, noel leeming, PBTech, suning, Taobao, Target, TheMarket, thewarehouse, Tmall, Torpedo7, Trade Me, TreatMe, Walmart, warehouse stationery, Yelp
 
  3. **SEARCHING / KNOWLEDGE / EXPERTISE:**
 

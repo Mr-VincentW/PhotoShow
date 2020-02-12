@@ -76,6 +76,7 @@
  *                                            // Bug_Fix: Fix background image src parsing error (split by ',' causes problems when the srcs themselves contain commas).
  * @version 4.0.11.0 | 2020-01-20 | Vincent   // Updates: Add basic support for pure image link;
  *                                            // Updates: Replace spread syntax with Object.assign to support older browsers, in response to user feedback.
+ * @version 4.0.14.0 | 2020-02-13 | Vincent   // Updates: Optimize mask hosting element detecting algorithm (bad cases: twitter).
  */
 
 // TODO: Extract common tool methods to external modules.
@@ -667,10 +668,8 @@
 
               if (ancestor.css('position') != 'static' &&
                 ancestor.css('display') != 'inline' &&
-                (!evtTargetArea || ancestorArea && ancestorArea <= evtTargetArea)) {
+                (!evtTargetArea || ancestorArea && ancestorArea < evtTargetArea)) {
                 this.maskHost = ancestor.get(0);
-                return false;
-              } else if (evtTargetArea && ancestorArea && ancestorArea >= evtTargetArea) {
                 return false;
               }
             });
