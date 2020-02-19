@@ -98,6 +98,7 @@
  * @version 4.0.13.0 | 2020-02-06 | Vincent   // Updates: Support WikiArt in response to user feedback;
  *                                            // Updates: Remove support for Google as the parsing rules are no longer applicable.
  * @version 4.0.14.0 | 2020-02-13 | Vincent   // Updates: Resume and optimize support for Google Play in response to user feedback.
+ * @version 4.0.15.0 | 2020-02-20 | Vincent   // Updates: Add support for more localized hosts for AliExpress in response to user feedback.
  */
 
 // TODO: Solve the downloading failure issue on pixiv and similar websites (HTTP headers might need to be set when requesting for downloading).
@@ -1095,7 +1096,7 @@ const websiteConfig = {
       processor: '$1$2'
     }
   },
-  '(?:.+\\.)?(tmall|taobao|etao|fliggy|alitrip|1688|alibaba|aliexpress|liangxinyao|alipay|alicdn)\\.(?:com|hk)': {
+  '(?:.+\\.)?(tmall|taobao|etao|fliggy|alitrip|1688|alibaba|aliexpress|liangxinyao|alipay|alicdn)\\.(?:com|[a-z]{2})': {
     amendStyles: {
       pointerNone: '.mask,.itemSoldout .product-mask,.ju-itemlist .link-box .detail,.tb-img li span,.offerImg .offerMask,.NervModuleKjIndexCateOfferUi>div:first-child>div:last-child,.imageGallery .imgItem .imgBg,.img-box .img-bg-layer,.img-zhe,.img-mask,.product .shadow'
     },

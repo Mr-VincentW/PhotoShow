@@ -13,6 +13,7 @@
  *                                            // Updates: Add 'share' related items.
  * @version 4.0.5.0 | 2019-12-16 | Vincent    // Updates: Add 'feedbackMailBody'.
  * @version 4.0.12.0 | 2020-01-24 | Vincent   // Updates: Add descriptions for all messages.
+ * @version 4.0.15.0 | 2020-02-20 | Vincent   // Updates: Optimize the user feedback email template.
  */
 
 {
@@ -66,7 +67,7 @@
     "description": "浮圖秀不支持當前網站時的消息。"
   },
   "extensionUpdateDate": {
-    "message": "更新：2020年2月13日",
+    "message": "更新：2020年2月20日",
     "description": "當前所安裝浮圖秀版本的更新時間。"
   },
   "stateToggleOnTitle": {
@@ -210,7 +211,7 @@
     "description": "用戶反饋郵件的標題。"
   },
   "feedbackMailBody": {
-    "message": "<b style=\"line-height:1.5;padding:0.25em;color:#333\" contenteditable=\"false\">$problemTitle$</b><p style=\"color:#999;line-height:1.5\">$problemDescGuide$</p><br /><br /><br /><br /><br /><table style=\"border-top:solid 1px #6cbcef;border-bottom:solid 1px #6cbcef;line-height:1.5;color:#333\"><tr contenteditable=\"false\"><td style=\"text-align:right;vertical-align:top;font-weight:bold;padding:0.25em;white-space:nowrap;color:#6CBCEF\">$browserTitle$</td><td style=\"padding:0.25em\">$browser$</td></tr><tr contenteditable=\"false\"><td style=\"text-align:right;vertical-align:top;font-weight:bold;padding:0.25em;white-space:nowrap;color:#6CBCEF\">$photoShowVersionTitle$</td><td style=\"padding:0.25em\">$photoShowVersion$</td></tr><tr><td style=\"text-align:right;vertical-align:top;font-weight:bold;padding:0.25em;white-space:nowrap;color:#6CBCEF\" contenteditable=\"false\">$relatedPageTitle$</td><td style=\"padding:0.25em\">$relatedPage$</td></tr></table>",
+    "message": "<!DOCTYPE html><html><body><b style=\"line-height:1.5;padding:0.25em;color:#333\" contenteditable=\"false\">$problemTitle$</b><p style=\"color:#999;line-height:1.5\">$problemDescGuide$</p><br /><br /><br /><br /><br /><table style=\"border-top:solid 1px #6cbcef;border-bottom:solid 1px #6cbcef;line-height:1.5;color:#333\"><tr contenteditable=\"false\"><td style=\"text-align:right;vertical-align:top;font-weight:bold;padding:0.25em;white-space:nowrap;color:#6CBCEF\">$browserTitle$</td><td style=\"padding:0.25em\">$browser$</td></tr><tr contenteditable=\"false\"><td style=\"text-align:right;vertical-align:top;font-weight:bold;padding:0.25em;white-space:nowrap;color:#6CBCEF\">$photoShowVersionTitle$</td><td style=\"padding:0.25em\">$photoShowVersion$</td></tr><tr><td style=\"text-align:right;vertical-align:top;font-weight:bold;padding:0.25em;white-space:nowrap;color:#6CBCEF\" contenteditable=\"false\">$relatedPageTitle$</td><td style=\"padding:0.25em\">$relatedPage$</td></tr></table></body></html>",
     "description": "用戶反饋郵件的正文。（本條消息內容無需翻譯但下列 PLACEHOLDERS 的內容需要。）",
     "placeholders": {
       "problemTitle": {
