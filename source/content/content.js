@@ -72,13 +72,14 @@
  * @version 4.0.9.3 | 2020-01-08 | Vincent    // Bug Fix: Fix the problem that image rotates without animation when in Panorama mode;
  *                                            // Bug Fix: Fix the keydown events dispatching failure derived from the popup page;
  *                                            // Updates: Port localStorage APIs to chrome.storage APIs.
- * @version 4.0.10.0 | 2020-01-09 | Vincent   // Bug_Fix: Remount photoShow elements after they are removed by the host page;
- *                                            // Bug_Fix: Fix background image src parsing error (split by ',' causes problems when the srcs themselves contain commas).
+ * @version 4.0.10.0 | 2020-01-09 | Vincent   // Bug Fix: Remount photoShow elements after they are removed by the host page;
+ *                                            // Bug Fix: Fix background image src parsing error (split by ',' causes problems when the srcs themselves contain commas).
  * @version 4.0.11.0 | 2020-01-20 | Vincent   // Updates: Add basic support for pure image link;
  *                                            // Updates: Replace spread syntax with Object.assign to support older browsers, in response to user feedback.
  * @version 4.0.14.0 | 2020-02-13 | Vincent   // Updates: Optimize mask hosting element detecting algorithm (bad cases: twitter).
  * @version 4.1.0.0 | 2020-03-13 | Vincent    // Updates: Support for image address copying;
  *                                            // Updates: Add global message.
+ * @version 4.1.2.0 | 2020-03-14 | Vincent    // Updates: Allow certain hotkey actions when the image viewer is not shown.
  */
 
 // TODO: Extract common tool methods to external modules.
@@ -649,7 +650,7 @@
       }
     },
     displayViewer: function(srcTarget) {
-      if (!this.curTrigger && (!this.activationMode || this.isModifierKeyDown)) {
+      if (!this.curTrigger) {
         var evtTarget = $(srcTarget);
 
         // Get src of the high-definition image.
@@ -665,6 +666,7 @@
             break;
           }
         }
+        this.preservedImgSrc = this.imgSrc;
 
         chrome.runtime.sendMessage({
           cmd: 'UPDATE_PHOTOSHOW_CONTEXTMENU',
@@ -674,9 +676,7 @@
         });
 
         // Show high-definition image.
-        if (this.imgSrc) {
-          this.preservedImgSrc = this.imgSrc;
-
+        if (this.imgSrc && (!this.activationMode || this.isModifierKeyDown)) {
           if (!evtTarget.is('[photoshow-trigger-blocked]')) {
             this.curTrigger = this.maskHost = evtTarget.get(0);
 
@@ -1017,18 +1017,23 @@
     },
     copyAction: function() {
       Promise.resolve(this.imgSrc).then(imgSrc => {
-        tools.copyText(imgSrc);
-        photoShowGlobalMsg.show(chrome.i18n.getMessage('globalMsg_imgSrcCopied'));
+        if (imgSrc) {
+          tools.copyText(imgSrc);
+          photoShowGlobalMsg.show(chrome.i18n.getMessage('globalMsg_imgSrcCopied'));
+        }
       });
     },
     savingAction: function() {
+      photoShowGlobalMsg.show(chrome.i18n.getMessage('globalMsg_imgWillStartDownloading'));
       Promise.resolve(this.imgSrc).then(imgSrc => {
-        imgSrc && chrome.runtime.sendMessage({
-          cmd: 'DOWNLOAD_IMG',
-          args: {
-            imgSrc: imgSrc
-          }
-        });
+        if (imgSrc) {
+          chrome.runtime.sendMessage({
+            cmd: 'DOWNLOAD_IMG',
+            args: {
+              imgSrc: imgSrc
+            }
+          });
+        }
       });
     },
     keydownAction: function(e) {
@@ -1057,21 +1062,53 @@
         this.moveAction(!!scrollMode);
       };
 
-      if (this.hasImgViewerShown) {
-        switch (e.which) {
-          case 9:    // Key 'Tab'
-            e.preventDefault();
-            Promise.resolve(this.imgSrc).then(imgSrc => {
-              imgSrc && chrome.runtime.sendMessage({
+      switch (e.which) {
+        case 9:    // Key 'Tab'
+          this.hasImgViewerShown && e.preventDefault();
+          photoShowGlobalMsg.show(chrome.i18n.getMessage('globalMsg_imgWillOpenInNewTab'));
+          Promise.resolve(this.imgSrc).then(imgSrc => {
+            if (imgSrc) {
+              chrome.runtime.sendMessage({
                 cmd: 'OPEN_IMG_IN_NEW_TAB',
                 args: {
                   imgSrc: imgSrc
                 }
               });
-            });
+            }
+          });
 
-            break;
+          break;
 
+        case 16:    // Key 'SHIFT'
+        case 17:    // Key 'CTRL'
+        case 18:    // Key 'ALT'
+          if (!this.isModifierKeyDown && e.which == $.inArray(this.activationMode, MODIFIER_KEYS)) {
+            e.preventDefault();
+
+            this.isModifierKeyDown = true;
+            $('[photoshow-trigger-blocked]').removeAttr('photoshow-trigger-blocked');
+            this.update();
+          }
+
+          break;
+
+        case 67:    // Key 'C'
+          this.hasImgViewerShown && e.preventDefault();
+          this.copyAction();
+
+          break;
+
+        case 83:    // Key 'S'
+          this.hasImgViewerShown && e.preventDefault();
+          this.savingAction();
+
+          break;
+
+        default:
+      }
+
+      if (this.hasImgViewerShown) {
+        switch (e.which) {
           case 27:    // Key 'Esc'
             e.preventDefault();
             $(this.curTrigger).attr('photoshow-trigger-blocked', '');
@@ -1149,35 +1186,6 @@
                   }
                 });
               }
-            }
-
-            break;
-
-          case 67:    // Key 'C'
-            e.preventDefault();
-            this.copyAction();
-
-            break;
-
-          case 83:    // Key 'S'
-            e.preventDefault();
-            this.savingAction();
-
-            break;
-
-          default:
-        }
-      } else {
-        switch (e.which) {
-          case 16:    // Key 'SHIFT'
-          case 17:    // Key 'CTRL'
-          case 18:    // Key 'ALT'
-            if (!this.isModifierKeyDown && e.which == $.inArray(this.activationMode, MODIFIER_KEYS)) {
-              e.preventDefault();
-
-              this.isModifierKeyDown = true;
-              $('[photoshow-trigger-blocked]').removeAttr('photoshow-trigger-blocked');
-              this.update();
             }
 
             break;

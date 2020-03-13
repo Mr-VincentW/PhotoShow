@@ -17,6 +17,7 @@
  * @version 4.0.12.0 | 2020-01-24 | Vincent   // Updates: Add descriptions for all messages.
  * @version 4.0.15.0 | 2020-02-20 | Vincent   // Updates: Optimize the user feedback email template.
  * @version 4.1.0.0 | 2020-03-13 | Vincent    // Updates: Add items for image address copy.
+ * @version 4.1.2.0 | 2020-03-14 | Vincent    // Updates: Add global messages for image downloading and opening in new tab.
  */
 
 {
@@ -46,19 +47,27 @@
     "description": "The file name prefix of the image that is saved by PhotoShow."
   },
   "contextMenuTitle_open": {
-    "message": "Open HD image in new tab",
+    "message": "Open HD image in new tab (Tab)",
     "description": "Context menu item."
   },
   "contextMenuTitle_save": {
-    "message": "Save HD image",
+    "message": "Save HD image (S)",
     "description": "Context menu item."
   },
   "contextMenuTitle_copy": {
-    "message": "Copy HD image address",
+    "message": "Copy HD image address (C)",
     "description": "Context menu item."
   },
+  "globalMsg_imgWillOpenInNewTab": {
+    "message": "HD image will open in a new tab soon.",
+    "description": "Global messages."
+  },
+  "globalMsg_imgWillStartDownloading": {
+    "message": "HD image download will start soon.",
+    "description": "Global messages."
+  },
   "globalMsg_imgSrcCopied": {
-    "message": "HD image address has been copied!",
+    "message": "HD image address has been copied.",
     "description": "Global messages."
   },
 
@@ -78,7 +87,7 @@
     "description": "Message displayed when PhotoShow does not support for current website."
   },
   "extensionUpdateDate": {
-    "message": "Update: March 13, 2020",
+    "message": "Update: March 14, 2020",
     "description": "Update time of current installed version of PhotoShow."
   },
   "stateToggleOnTitle": {

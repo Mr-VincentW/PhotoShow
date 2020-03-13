@@ -25,6 +25,7 @@
  * @version 4.0.8.0 | 2020-01-04 | Vincent    // Updates: Change all 'icon' to 'icons' literally to avoid conflicts with some wildcard-matching style rules (selector: [class*="icon-"]) on 500px.com.
  * @version 4.1.0.0 | 2020-03-13 | Vincent    // Updates: Support for image address copying;
  *                                            // Updates: Add global message.
+ * @version 4.1.2.0 | 2020-03-14 | Vincent    // Bug Fix: Fix global message style issues on Instagram.
  */
 
 // Color definitions
@@ -418,11 +419,13 @@
   left: 0;
   z-index: 2147483647;
   display: flex;
+  flex-flow: row nowrap;
   justify-content: center;
   pointer-events: none;
   animation: photoshow-global-msg-ani 2.5s ease 0s forwards;
 
   .photoshow-global-msg {
+    display: block;
     background: fade(@PHOTOSHOW_BLUE, 85%);
     padding: 12px 20px;
     border-radius: 2px;

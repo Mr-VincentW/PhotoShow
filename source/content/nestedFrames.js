@@ -13,7 +13,7 @@
  *                                            // Updates: Apply JavaScript Arrow functions;
  *                                            // Updates: Dispatch hotkeys actions to the top window.
  * @version 4.0.9.3 | 2020-01-08 | Vincent    // Updates: Port localStorage APIs to chrome.storage APIs.
- * @version 4.0.10.0 | 2020-01-09 | Vincent   // Bug_Fix: Remount photoShow elements after they are removed by the host page.
+ * @version 4.0.10.0 | 2020-01-09 | Vincent   // Bug Fix: Remount photoShow elements after they are removed by the host page.
  * @version 4.0.11.0 | 2020-01-20 | Vincent   // Updates: Replace spread syntax with Object.assign to support for older browsers, in response to user feedback.
  */
 

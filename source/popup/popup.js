@@ -138,7 +138,7 @@ $('#shadowDisplaySection dt h3').text(chrome.i18n.getMessage('shadowDisplayHeade
 $('#shadowDisplayDesc').text(chrome.i18n.getMessage('shadowDisplayDesc'));
 
 $('#hotkeysSection dt h3').text(chrome.i18n.getMessage('hotkeysHeader'));
-$('#hotkeysSection dd').append('<table>' + ['Esc', 'RotationCCW', 'RotationCW', 'Scroll', 'ScrollByPage', 'ScrollToEnds', 'OpenImageInNewTab', 'ImageSaving', 'CopyImageAddress', 'ViewModeSwitch'].map(keyName => '<tr>' + chrome.i18n.getMessage('hotkey_' + keyName) + '</tr>').join('') + '</table>');
+$('#hotkeysSection dd').append('<table>' + ['Esc', 'RotationCCW', 'RotationCW', 'Scroll', 'ScrollByPage', 'ScrollToEnds', 'ViewModeSwitch', 'OpenImageInNewTab', 'ImageSaving', 'CopyImageAddress'].map(keyName => '<tr>' + chrome.i18n.getMessage('hotkey_' + keyName) + '</tr>').join('') + '</table>');
 
 $('#shareSection dt h3').text(chrome.i18n.getMessage('shareHeader'));
 

@@ -18,6 +18,7 @@
  * @version 4.0.15.0 | 2020-02-20 | Vincent   // Updates: Optimize the user feedback email template.
  * @version 4.1.0.0 | 2020-03-13 | Vincent    // Bug Fix: Correct the wrongly specified message for 'activationModeHeader';
  *                                            // Updates: Add items for image address copy.
+ * @version 4.1.2.0 | 2020-03-14 | Vincent    // Updates: Add global messages for image downloading and opening in new tab.
  */
 
 {
@@ -47,19 +48,27 @@
     "description": "浮图秀所保存图片的文件名前缀。"
   },
   "contextMenuTitle_open": {
-    "message": "在新标签页中查看高清图片",
+    "message": "在新标签页中查看高清图片 (Tab)",
     "description": "右键菜单项。"
   },
   "contextMenuTitle_save": {
-    "message": "保存高清图片",
+    "message": "保存高清图片 (S)",
     "description": "右键菜单项。"
   },
   "contextMenuTitle_copy": {
-    "message": "复制高清图片地址",
+    "message": "复制高清图片地址 (C)",
     "description": "右键菜单项。"
   },
+  "globalMsg_imgWillOpenInNewTab": {
+    "message": "高清图片即将在新标签中打开。",
+    "description": "全局消息。"
+  },
+  "globalMsg_imgWillStartDownloading": {
+    "message": "高清图片即将开始下载。",
+    "description": "全局消息。"
+  },
   "globalMsg_imgSrcCopied": {
-    "message": "高清图片地址已复制！",
+    "message": "高清图片地址已复制。",
     "description": "全局消息。"
   },
 
@@ -79,7 +88,7 @@
     "description": "浮图秀不支持当前网站时的消息。"
   },
   "extensionUpdateDate": {
-    "message": "更新：2020年3月13日",
+    "message": "更新：2020年3月14日",
     "description": "当前所安装浮图秀版本的更新时间。"
   },
   "stateToggleOnTitle": {
