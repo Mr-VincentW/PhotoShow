@@ -23,6 +23,8 @@
  *                                            // Updates: Optimize viewer displaying animation;
  *                                            // Updates: Optimize all the icons.
  * @version 4.0.8.0 | 2020-01-04 | Vincent    // Updates: Change all 'icon' to 'icons' literally to avoid conflicts with some wildcard-matching style rules (selector: [class*="icon-"]) on 500px.com.
+ * @version 4.1.0.0 | 2020-03-13 | Vincent    // Updates: Support for image address copying;
+ *                                            // Updates: Add global message.
  */
 
 // Color definitions
@@ -174,6 +176,28 @@
   }
 }
 
+@keyframes photoshow-global-msg-ani {
+  0% {
+    opacity: 0;
+    transform: translateY(-100px);
+  }
+
+  20% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  80% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  100% {
+    opacity: 0;
+    transform: translateY(-100px);
+  }
+}
+
 .photoshow-icons {
   -webkit-font-smoothing: antialiased;
   speak: none;
@@ -229,7 +253,7 @@
   border: solid 1px #FFF;
   border-radius: 1px;
   position: fixed;
-  z-index: 2147483647;
+  z-index: 2147483646;
   box-shadow: 0 0 3px rgba(0, 0, 0, 0.5);
   opacity: 0;
   pointer-events: none;
@@ -326,6 +350,8 @@
       left: 50%;
       transform: translate(-50%, -50%);
       border-radius: 1px;
+      max-width: unset !important;    // Some websites set this rule which will cause image displaying problem in Firefox when rotated.
+      max-height: unset !important;    // Some websites set this rule which will cause image displaying problem in Firefox when rotated.
     }
 
     .photoshow-view-mode-switch-tip {
@@ -385,11 +411,50 @@
   }
 }
 
-// Viewer mask style
-#photoShowViewerMaskDef {
-  position: absolute;
-  width: 0;
-  height: 0;
+.photoshow-global-msg-layer {
+  position: fixed;
+  top: 20px;
+  right: 0;
+  left: 0;
+  z-index: 2147483647;
+  display: flex;
+  justify-content: center;
   pointer-events: none;
+  animation: photoshow-global-msg-ani 2.5s ease 0s forwards;
+
+  .photoshow-global-msg {
+    background: fade(@PHOTOSHOW_BLUE, 85%);
+    padding: 12px 20px;
+    border-radius: 2px;
+    line-height: 1;
+    font-size: 0;
+    color: #FFF;
+    box-shadow: 0 0 4px fade(#000, 20%);
+    font-family: -apple-system, system-ui, BlinkMacSystemFont, 'Segoe UI', 'Microsoft Yahei', '\5b8b\4f53', sans-serif;
+
+    * {
+      display: inline-block;
+      vertical-align: middle;
+      font-style: normal;
+    }
+
+    i {
+      font-size: 16px;
+    }
+
+    .photoshow-icons-logo {
+      margin-right: 0.25em;
+      color: #FFF;
+      font-size: 24px;
+    }
+  }
+}
+
+// Invisible elements
+.photoshow-hidden-elements {
+  position: absolute;
+  top: -1px;
+  height: 0;
   z-index: -1;
+  pointer-events: none;
 }

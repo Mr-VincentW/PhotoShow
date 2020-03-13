@@ -25,6 +25,7 @@
  *                                            // Updates: Port localStorage APIs to chrome.storage APIs.
  * @version 4.0.11.0 | 2020-01-20 | Vincent   // Updates: Replace Array.prototype.flatMap method with Array.prototype.map to support older browsers, in response to user feedback.
  * @version 4.0.12.0 | 2020-01-24 | Vincent   // Updates: Add GitHub link.
+ * @version 4.1.0.0 | 2020-03-13 | Vincent    // Updates: Add hotkey specification for image address copying.
  */
 
 // TODO: Add animation toggle configuration (allow users to turn off all the animation).
@@ -137,7 +138,7 @@ $('#shadowDisplaySection dt h3').text(chrome.i18n.getMessage('shadowDisplayHeade
 $('#shadowDisplayDesc').text(chrome.i18n.getMessage('shadowDisplayDesc'));
 
 $('#hotkeysSection dt h3').text(chrome.i18n.getMessage('hotkeysHeader'));
-$('#hotkeysSection dd').append('<table>' + ['Esc', 'RotationCCW', 'RotationCW', 'Scroll', 'ScrollByPage', 'ScrollToEnds', 'OpenImageInNewTab', 'ViewModeSwitch', 'ImageSaving'].map(keyName => '<tr>' + chrome.i18n.getMessage('hotkey_' + keyName) + '</tr>').join('') + '</table>');
+$('#hotkeysSection dd').append('<table>' + ['Esc', 'RotationCCW', 'RotationCW', 'Scroll', 'ScrollByPage', 'ScrollToEnds', 'OpenImageInNewTab', 'ImageSaving', 'CopyImageAddress', 'ViewModeSwitch'].map(keyName => '<tr>' + chrome.i18n.getMessage('hotkey_' + keyName) + '</tr>').join('') + '</table>');
 
 $('#shareSection dt h3').text(chrome.i18n.getMessage('shareHeader'));
 

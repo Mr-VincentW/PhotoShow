@@ -77,6 +77,8 @@
  * @version 4.0.11.0 | 2020-01-20 | Vincent   // Updates: Add basic support for pure image link;
  *                                            // Updates: Replace spread syntax with Object.assign to support older browsers, in response to user feedback.
  * @version 4.0.14.0 | 2020-02-13 | Vincent   // Updates: Optimize mask hosting element detecting algorithm (bad cases: twitter).
+ * @version 4.1.0.0 | 2020-03-13 | Vincent    // Updates: Support for image address copying;
+ *                                            // Updates: Add global message.
  */
 
 // TODO: Extract common tool methods to external modules.
@@ -187,6 +189,24 @@
       }
 
       return clientRect;
+    },
+    copyText: function(text) {
+      let textbox = $('<input type="text" class="photoshow-hidden-elements" />').val(text).appendTo(document.body).select();
+      document.execCommand('copy');
+      textbox.remove();
+    }
+  };
+
+  const photoShowGlobalMsg = {
+    element: $('<div class="photoshow-global-msg-layer"><div class="photoshow-global-msg"><em class="photoshow-icons photoshow-icons-logo"></em><i></i></div></div>'),
+    show: function(msg) {
+      this.hide();
+
+      $('i', this.element).text(msg);
+      this.element.appendTo(document.body);
+    },
+    hide: function() {
+      this.element.remove();
     }
   };
 
@@ -214,7 +234,7 @@
     MASK_THRESHOLD = 100,    // The original image size should larger (either width or height) than its maximum displaying size at least by this value so that a mask would apply.
     IS_BROWSER_FIREFOX = /Firefox/.test(navigator.userAgent);
 
-  var photoShowViewer = {
+  const photoShowViewer = {
     isPhotoShowEnabled: false,           // PhotoShow availability flag.
     websiteConfig: {},                   // Configuration for current website.
     activationMode: '',                  // Activation mode ('', 'shift', 'ctrl', 'alt').
@@ -227,7 +247,7 @@
       y: -1
     },
     viewerBox: $('<div id="photoShowViewer" class="sb_BingCA photoShow"><div class="photoshow-viewer-shadow"></div><div class="photoshow-img-wrapper"><img /><div class="photoshow-view-mode-switch-tip">A</div></div><div class="photoshow-msg"><em class="photoshow-icons"></em><i></i></div><em class="photoshow-icons photoshow-icons-logo"></em></div>'),    // Main container of the image viewer. (To avoid being automatically removed on https://www.bing.com/?mkt=en-ca, a class name prefixed with 'sb_' is needed.)
-    viewerMask: $('<svg xmlns="http://www.w3.org/2000/svg" id="photoShowViewerMaskDef" class="photoShow"><defs><mask id="photoShowViewerMask" maskUnits="objectBoundingBox" maskContentUnits="objectBoundingBox"><rect fill="#FFF" opacity="0.25" width="1" height="1" x="0" y="0"></rect><rect fill="#FFF"></rect></mask></defs></svg>'),    // Viewer mask.
+    viewerMask: $('<svg xmlns="http://www.w3.org/2000/svg" id="photoShowViewerMaskDef" class="photoShow photoshow-hidden-elements"><defs><mask id="photoShowViewerMask" maskUnits="objectBoundingBox" maskContentUnits="objectBoundingBox"><rect fill="#FFF" opacity="0.25" width="1" height="1" x="0" y="0"></rect><rect fill="#FFF"></rect></mask></defs></svg>'),    // Viewer mask.
     viewerShadow: null,                  // Shadow element.
     viewerLogo: null,                    // PhotoShow logo element.
     viewerImg: null,                     // Image element.
@@ -995,6 +1015,12 @@
 
       this.refreshImgViewer();
     },
+    copyAction: function() {
+      Promise.resolve(this.imgSrc).then(imgSrc => {
+        tools.copyText(imgSrc);
+        photoShowGlobalMsg.show(chrome.i18n.getMessage('globalMsg_imgSrcCopied'));
+      });
+    },
     savingAction: function() {
       Promise.resolve(this.imgSrc).then(imgSrc => {
         imgSrc && chrome.runtime.sendMessage({
@@ -1127,6 +1153,12 @@
 
             break;
 
+          case 67:    // Key 'C'
+            e.preventDefault();
+            this.copyAction();
+
+            break;
+
           case 83:    // Key 'S'
             e.preventDefault();
             this.savingAction();
@@ -1228,6 +1260,11 @@
         case 'GET_PRESERVED_IMG_SRC':
           needAsyncResponse = true;
           Promise.resolve(photoShowViewer.preservedImgSrc).then(sendResponse);
+
+          break;
+
+        case 'COPY_IMG_SRC':
+          photoShowViewer.copyAction();
 
           break;
 

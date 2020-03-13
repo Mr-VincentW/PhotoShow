@@ -14,6 +14,8 @@
  * @version 4.0.5.0 | 2019-12-16 | Vincent    // Updates: Add 'feedbackMailBody'.
  * @version 4.0.12.0 | 2020-01-24 | Vincent   // Updates: Add descriptions for all messages.
  * @version 4.0.15.0 | 2020-02-20 | Vincent   // Updates: Optimize the user feedback email template.
+ * @version 4.1.0.0 | 2020-03-13 | Vincent    // Bug Fix: Correct the wrongly specified message for 'activationModeHeader';
+ *                                            // Updates: Add items for image address copy.
  */
 
 {
@@ -29,7 +31,7 @@
   },
 
   ////////////////////////////////////////////////////////////////////////////////
-  // 圖片預覽窗口及右鍵菜單中的信息。
+  // 圖片預覽窗口、右鍵菜單及全局消息中的信息。
   "imageLoadingTip": {
     "message": "圖片加載中",
     "description": "圖片加載時的提示。"
@@ -43,12 +45,20 @@
     "description": "浮圖秀所保存圖片的文件名前綴。"
   },
   "contextMenuTitle_open": {
-    "message": "在新標籤頁中查看高分辨率圖片",
+    "message": "在新標籤頁中查看高清圖片",
     "description": "右鍵菜單項。"
   },
   "contextMenuTitle_save": {
-    "message": "保存高分辨率圖片",
+    "message": "保存高清圖片",
     "description": "右鍵菜單項。"
+  },
+  "contextMenuTitle_copy": {
+    "message": "複製高清圖片地址",
+    "description": "右鍵菜單項。"
+  },
+  "globalMsg_imgSrcCopied": {
+    "message": "高清圖片地址已復制！",
+    "description": "全局消息。"
   },
 
   ////////////////////////////////////////////////////////////////////////////////
@@ -67,7 +77,7 @@
     "description": "浮圖秀不支持當前網站時的消息。"
   },
   "extensionUpdateDate": {
-    "message": "更新：2020年2月20日",
+    "message": "更新：2020年3月13日",
     "description": "當前所安裝浮圖秀版本的更新時間。"
   },
   "stateToggleOnTitle": {
@@ -81,7 +91,7 @@
 
   // “激活模式”區：
   "activationModeHeader": {
-    "message": "保存高分辨率圖片",
+    "message": "激活模式",
     "description": "區塊標題。"
   },
   "activationModeDesc": {
@@ -181,15 +191,19 @@
     "description": "熱鍵名稱及相應操作描述。"
   },
   "hotkey_OpenImageInNewTab": {
-    "message": "<td>Tab</td><td>在新標籤頁中查看高分辨率圖片</td>",
+    "message": "<td>Tab</td><td>在新標籤頁中查看高清圖片</td>",
+    "description": "熱鍵名稱及相應操作描述。"
+  },
+  "hotkey_ImageSaving": {
+    "message": "<td>S</td><td>保存高清圖片</td>",
+    "description": "熱鍵名稱及相應操作描述。"
+  },
+  "hotkey_CopyImageAddress": {
+    "message": "<td>C</td><td>複製高清圖片地址</td>",
     "description": "熱鍵名稱及相應操作描述。"
   },
   "hotkey_ViewModeSwitch": {
     "message": "<td>M / L / A / P</td><td>切換視圖模式</td>",
-    "description": "熱鍵名稱及相應操作描述。"
-  },
-  "hotkey_ImageSaving": {
-    "message": "<td>S</td><td>保存高分辨率圖片</td>",
     "description": "熱鍵名稱及相應操作描述。"
   },
 

@@ -3,7 +3,7 @@
 #### :link: [中文版](README_zh-CN.md)
 
 # PhotoShow
-**PhotoShow** is a browser extension helping you to view high-definition images by hovering mouse on image thumbnails, greatly improving your productivity.
+**PhotoShow** is a browser extension helping you view high-definition images by hovering mouse on image thumbnails, greatly improving your productivity.
 <br />
 <br />
 
@@ -64,7 +64,7 @@ While viewing HD images with **PhotoShow**, you could also perform the following
 <br />
 
  4. **CONTEXT MENU:**
-    Still feel dissatisfied with the small viewer overlay? Well, right-click on a thumbnail and **PhotoShow** offers a context menu item for opening the HD image in a new tab. You may start to download it via another context menu item here as well.
+    Still feel dissatisfied with the small viewer overlay? Well, right-click on a thumbnail and **PhotoShow** offers a context menu item for opening the HD image in a new tab. You may start to download it or copy its address via context menu items here as well.
 
 <p align="center"><img src="resources/SPEC_5_EN.png" align="center" alt="PhotoShow - Context menu" /></p>
 <br />
@@ -95,7 +95,7 @@ Hereby is a list of part of the websites (hostnames) that **PhotoShow** currentl
 
  2. **SHOPPING / TRADING / SERVICES:**
 
-    1-day, Alibaba, AliExpress, Amazon, Apple, Best Buy, Briscoes, DHgate, eBay, Etsy, Google Play, JD, Kmart, Myprotein, Newegg, noel leeming, PBTech, suning, Taobao, Target, TheMarket, thewarehouse, Tmall, Torpedo7, Trade Me, TreatMe, Walmart, warehouse stationery, Yelp
+    1-day, Alibaba, AliExpress, Alimama, Amazon, Apple, Best Buy, Briscoes, DHgate, eBay, Etsy, Google Play, JD, Kmart, Myprotein, Newegg, noel leeming, PBTech, suning, Taobao, Target, TheMarket, thewarehouse, Tmall, Torpedo7, Trade Me, TreatMe, Walmart, warehouse stationery, Yelp
 
  3. **SEARCHING / KNOWLEDGE / EXPERTISE:**
 

@@ -66,7 +66,7 @@
 
  4. **右键菜单：**
 
-　　图片预览浮层仍然满足不了您欣赏大图的热情？好吧，请在缩略图上右键单击，您可以看到**浮图秀**提供了“在新标签页中查看高分辨率图片”的选项；同样您也可以通过右键菜单下载高分辨率大图。
+　　图片预览浮层仍然满足不了您欣赏大图的热情？好吧，请在缩略图上右键单击，您可以看到**浮图秀**提供了“在新标签页中查看高分辨率图片”的选项；同样您也可以通过右键菜单下载高分辨率大图或者复制其地址。
 
 <p align="center"><img src="resources/SPEC_5_CN.png" align="center" alt="浮图秀——右键菜单" /></p>
 <br />
@@ -103,7 +103,7 @@
 
     1-day、Alibaba、AliExpress、Amazon、Apple、Best Buy、Briscoes、DHgate、eBay、Etsy、Google Play、Kmart、Myprotein、Newegg、noel leeming、PBTech、Target、TheMarket、thewarehouse、Torpedo7、Trade Me、TreatMe、Walmart、warehouse stationery、Yelp
 
-    当当、多看、京东、一号店、小米、小米有品、苏宁易购、天猫、淘宝、一淘、1688、阿里健康大药房、飞猪、途牛
+    当当、多看、京东、一号店、小米、小米有品、苏宁易购、天猫、淘宝、一淘、1688、阿里妈妈、阿里健康大药房、飞猪、途牛
 
  3. **搜索 / 知识 / 专业 类：**
 

@@ -99,6 +99,9 @@
  *                                            // Updates: Remove support for Google as the parsing rules are no longer applicable.
  * @version 4.0.14.0 | 2020-02-13 | Vincent   // Updates: Resume and optimize support for Google Play in response to user feedback.
  * @version 4.0.15.0 | 2020-02-20 | Vincent   // Updates: Add support for more localized hosts for AliExpress in response to user feedback.
+ * @version 4.1.0.0 | 2020-03-13 | Vincent    // Updates: Support for image address copying;
+ *                                            // Updates: Better support for GitHub;
+ *                                            // Updates: Support Alimama in response to user feedback.
  */
 
 // TODO: Solve the downloading failure issue on pixiv and similar websites (HTTP headers might need to be set when requesting for downloading).
@@ -119,7 +122,7 @@
 //   srcMatching: {                    // (Required) Matching configuration.
 //     selectors: {String},            // (Optional) Selectors for elements responsible for mouse-enter action. Default value: '' (equivalent to 'img,[style*=background-image]').
 //     srcRegExp: {String},            // (Optional) Pattern for trigger image src matching in src replacement.
-//     processor: {String|Function}    // (Optional) Replacement string or process function. ('this' -> the selected element)
+//     processor: {String|Function}    // (Optional) Replacement string or process function. ('this' -> the selected element. NOTE: Not applicable to arrow functions.)
 //                                     // Arguments: trigger{Object}         // The selected element (jQuery object of 'this').
 //                                     // Arguments: src{String}             // Src of the selected img (or the src of the largest image in its srcset list) or backgroundImage src of the selected element.
 //                                     // Arguments: srcRegExpObj{RegExp}    // An RegExp object constructed by srcRegExp.
@@ -734,7 +737,7 @@ const websiteConfig = {
       processor: '$1_h$2'
     }]
   },
-  'github\\.(?:com|blog)': {
+  '(.+\\.)?github\\.(?:com|blog)': {
     srcMatching: [{
       srcRegExp: '((?:avatars\\d+|marketplace-screenshots)\\.githubusercontent\\.com/[^?]+).*',
       processor: '$1'
@@ -1096,7 +1099,7 @@ const websiteConfig = {
       processor: '$1$2'
     }
   },
-  '(?:.+\\.)?(tmall|taobao|etao|fliggy|alitrip|1688|alibaba|aliexpress|liangxinyao|alipay|alicdn)\\.(?:com|[a-z]{2})': {
+  '(?:.+\\.)?(tmall|taobao|etao|fliggy|alitrip|1688|alibaba|aliexpress|liangxinyao|alipay|alicdn|alimama)\\.(?:com|[a-z]{2})': {
     amendStyles: {
       pointerNone: '.mask,.itemSoldout .product-mask,.ju-itemlist .link-box .detail,.tb-img li span,.offerImg .offerMask,.NervModuleKjIndexCateOfferUi>div:first-child>div:last-child,.imageGallery .imgItem .imgBg,.img-box .img-bg-layer,.img-zhe,.img-mask,.product .shadow'
     },
@@ -1366,6 +1369,20 @@ const tools = {
       this.getUrlHostname(tabUrl),
       tools.getDateStr(new Date())
     ].join('_') + '.' + (/\.(jpe?g|png|bmp|gif|webp|svg)$/.test(src) ? RegExp.$1 : 'jpg');    // Explicitly ignore 'pnj' type.
+  },
+  downloadImg: function(imgSrc, tabUrl) {
+    imgSrc && chrome.downloads.download({
+      url: imgSrc,
+      filename: tools.getImgFileName(imgSrc, tabUrl),
+      conflictAction: 'uniquify'
+    });
+  },
+  openImgInNewTab: function(imgSrc, curTabIndex) {
+    imgSrc && chrome.tabs.create({
+      url: imgSrc,
+      index: curTabIndex + 1,
+      active: false
+    });
   }
 };
 
@@ -1453,13 +1470,6 @@ var photoShow = {
 
     photoShowContextMenus.remove();
   },
-  downloadImg: function(imgSrc, tabUrl) {
-    imgSrc && chrome.downloads.download({
-      url: imgSrc,
-      filename: tools.getImgFileName(imgSrc, tabUrl),
-      conflictAction: 'uniquify'
-    });
-  },
   getPreservedImgSrc: function(tabId, callback) {
     chrome.tabs.sendMessage(tabId, {
       cmd: 'GET_PRESERVED_IMG_SRC'
@@ -1467,11 +1477,11 @@ var photoShow = {
       frameId: 0
     }, callback);
   },
-  openImgInNewTab: function(imgSrc, curTabIndex) {
-    imgSrc && chrome.tabs.create({
-      url: imgSrc,
-      index: curTabIndex + 1,
-      active: false
+  copyImgSrc: function(hostTabId) {
+    chrome.tabs.sendMessage(hostTabId, {
+      cmd: 'COPY_IMG_SRC'
+    }, {
+      frameId: 0
     });
   }
 };
@@ -1485,14 +1495,21 @@ var photoShowContextMenus = {
         id: 'photoShowContextMenu_open',
         title: chrome.i18n.getMessage('contextMenuTitle_open'),
         contexts: ['all'],
-        onclick: (contextMenuInfo, tab) => chrome.runtime.lastError || photoShow.getPreservedImgSrc(tab.id, imgSrc => photoShow.openImgInNewTab(imgSrc, tab.index))
+        onclick: (contextMenuInfo, tab) => chrome.runtime.lastError || photoShow.getPreservedImgSrc(tab.id, imgSrc => tools.openImgInNewTab(imgSrc, tab.index))
       });
 
       chrome.contextMenus.create({
         id: 'photoShowContextMenu_save',
         title: chrome.i18n.getMessage('contextMenuTitle_save'),
         contexts: ['all'],
-        onclick: (contextMenuInfo, tab) => chrome.runtime.lastError || photoShow.getPreservedImgSrc(tab.id, imgSrc => photoShow.downloadImg(imgSrc, tab.url))
+        onclick: (contextMenuInfo, tab) => chrome.runtime.lastError || photoShow.getPreservedImgSrc(tab.id, imgSrc => tools.downloadImg(imgSrc, tab.url))
+      });
+
+      chrome.contextMenus.create({
+        id: 'photoShowContextMenu_copy',
+        title: chrome.i18n.getMessage('contextMenuTitle_copy'),
+        contexts: ['all'],
+        onclick: (contextMenuInfo, tab) => chrome.runtime.lastError || photoShow.copyImgSrc(tab.id)
       });
 
       this.hasMenuCreated = true;
@@ -1575,12 +1592,12 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
       break;
 
     case 'OPEN_IMG_IN_NEW_TAB':    // Args: imgSrc
-      photoShow.openImgInNewTab(request.args.imgSrc, sender.tab.index);
+      tools.openImgInNewTab(request.args.imgSrc, sender.tab.index);
 
       break;
 
     case 'DOWNLOAD_IMG':    // Args: imgSrc, tabUrl (optional)
-      photoShow.downloadImg(request.args.imgSrc, sender.tab ? sender.url : '');
+      tools.downloadImg(request.args.imgSrc, sender.tab ? sender.url : '');
 
       break;
 

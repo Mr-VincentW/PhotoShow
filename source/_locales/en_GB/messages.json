@@ -9,6 +9,7 @@
  * @version 4.0.5.0 | 2019-12-16 | Vincent    // Updates: Add 'feedbackMailBody'.
  * @version 4.0.12.0 | 2020-01-24 | Vincent   // Updates: Add descriptions for all messages.
  * @version 4.0.15.0 | 2020-02-20 | Vincent   // Updates: Optimize the user feedback email template.
+ * @version 4.1.0.0 | 2020-03-13 | Vincent    // Updates: Add items for image address copy.
  */
 
 {
@@ -24,7 +25,7 @@
   },
 
   ////////////////////////////////////////////////////////////////////////////////
-  // Information displayed in image viewer or context menu.
+  // Information displayed in image viewer, context menu or global messages.
   "imageLoadingTip": {
     "message": "Image loading",
     "description": "Message displayed when images are being loaded."
@@ -38,12 +39,20 @@
     "description": "The file name prefix of the image that is saved by PhotoShow."
   },
   "contextMenuTitle_open": {
-    "message": "Open high-definition image in new tab",
+    "message": "Open HD image in new tab",
     "description": "Context menu item."
   },
   "contextMenuTitle_save": {
-    "message": "Save high-definition image",
+    "message": "Save HD image",
     "description": "Context menu item."
+  },
+  "contextMenuTitle_copy": {
+    "message": "Copy HD image address",
+    "description": "Context menu item."
+  },
+  "globalMsg_imgSrcCopied": {
+    "message": "HD image address has been copied!",
+    "description": "Global messages."
   },
 
   ////////////////////////////////////////////////////////////////////////////////
@@ -62,7 +71,7 @@
     "description": "Message displayed when PhotoShow does not support for current website."
   },
   "extensionUpdateDate": {
-    "message": "Update: February 20, 2020",
+    "message": "Update: 13 March 2020",
     "description": "Update time of current installed version of PhotoShow."
   },
   "stateToggleOnTitle": {
@@ -176,15 +185,19 @@
     "description": "Hotykey name and its operation description."
   },
   "hotkey_OpenImageInNewTab": {
-    "message": "<td>Tab</td><td>Open high-definition image in new tab</td>",
+    "message": "<td>Tab</td><td>Open HD image in new tab</td>",
+    "description": "Hotykey name and its operation description."
+  },
+  "hotkey_ImageSaving": {
+    "message": "<td>S</td><td>Save HD image</td>",
+    "description": "Hotykey name and its operation description."
+  },
+  "hotkey_CopyImageAddress": {
+    "message": "<td>C</td><td>Copy HD image address</td>",
     "description": "Hotykey name and its operation description."
   },
   "hotkey_ViewModeSwitch": {
     "message": "<td>M / L / A / P</td><td>Switch view mode</td>",
-    "description": "Hotykey name and its operation description."
-  },
-  "hotkey_ImageSaving": {
-    "message": "<td>S</td><td>Save high-definition image</td>",
     "description": "Hotykey name and its operation description."
   },
 
