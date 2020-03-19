@@ -17,6 +17,7 @@
  * @version 4.1.0.0 | 2020-03-13 | Vincent    // Bug Fix: Correct the wrongly specified message for 'activationModeHeader';
  *                                            // Updates: Add items for image address copy.
  * @version 4.1.2.0 | 2020-03-14 | Vincent    // Updates: Add global messages for image downloading and opening in new tab.
+ * @version 4.2.0.0 | 2020-03-20 | Vincent    // Updates: Add items for hotkey toggles.
  */
 
 {
@@ -86,15 +87,15 @@
     "description": "浮圖秀不支持當前網站時的消息。"
   },
   "extensionUpdateDate": {
-    "message": "更新：2020年3月14日",
+    "message": "更新：2020年3月20日",
     "description": "當前所安裝浮圖秀版本的更新時間。"
   },
   "stateToggleOnTitle": {
-    "message": "點擊對當前網站關閉浮圖秀。",
+    "message": "點擊對當前網站關閉浮圖秀",
     "description": "浮圖秀啟閉按鈕的鼠標懸停提示（開啟狀態下）。"
   },
   "stateToggleOffTitle": {
-    "message": "點擊對當前網站啟用浮圖秀。",
+    "message": "點擊對當前網站啟用浮圖秀",
     "description": "浮圖秀啟閉按鈕的鼠標懸停提示（關閉狀態下）。"
   },
 
@@ -175,43 +176,43 @@
     "message": "熱鍵操作",
     "description": "區塊標題。"
   },
-  "hotkey_Esc": {
+  "hotkeyToggleTitle": {
+    "message": "點擊啟用/禁用該熱鍵（組）",
+    "description": "熱鍵開關鼠標懸停提示。"
+  },
+  "hotkey_closeViewer": {
     "message": "<td>Esc</td><td>關閉圖片預覽窗口</td>",
     "description": "熱鍵名稱及相應操作描述。"
   },
-  "hotkey_RotationCCW": {
-    "message": "<td>Shift + Ctrl + ←</td><td>逆時針旋轉圖片</td>",
+  "hotkey_rotateImage": {
+    "message": "<td>Shift + Ctrl + ← / →</td><td>逆時針 / 順時針 旋轉圖片</td>",
     "description": "熱鍵名稱及相應操作描述。"
   },
-  "hotkey_RotationCW": {
-    "message": "<td>Shift + Ctrl + →</td><td>順時針旋轉圖片</td>",
-    "description": "熱鍵名稱及相應操作描述。"
-  },
-  "hotkey_Scroll": {
+  "hotkey_scrollImage": {
     "message": "<td>↑ / → / ↓ / ←</td><td>向 上 / 右 / 下 / 左 捲動圖片</td>",
     "description": "熱鍵名稱及相應操作描述。"
   },
-  "hotkey_ScrollByPage": {
+  "hotkey_scrollImageByPage": {
     "message": "<td>PgUp / PgDn</td><td>按圖片可視高度向 上 / 下 捲動圖片</td>",
     "description": "熱鍵名稱及相應操作描述。"
   },
-  "hotkey_ScrollToEnds": {
+  "hotkey_scrollImageToEnds": {
     "message": "<td>Home / End</td><td>捲動到圖片 頂端 / 底部</td>",
     "description": "熱鍵名稱及相應操作描述。"
   },
-  "hotkey_OpenImageInNewTab": {
+  "hotkey_openImageInNewTab": {
     "message": "<td>Tab</td><td>在新標籤頁中查看高清圖片</td>",
     "description": "熱鍵名稱及相應操作描述。"
   },
-  "hotkey_ImageSaving": {
+  "hotkey_saveImage": {
     "message": "<td>S</td><td>保存高清圖片</td>",
     "description": "熱鍵名稱及相應操作描述。"
   },
-  "hotkey_CopyImageAddress": {
+  "hotkey_copyImageAddress": {
     "message": "<td>C</td><td>複製高清圖片地址</td>",
     "description": "熱鍵名稱及相應操作描述。"
   },
-  "hotkey_ViewModeSwitch": {
+  "hotkey_switchViewMode": {
     "message": "<td>M / L / A / P</td><td>切換視圖模式</td>",
     "description": "熱鍵名稱及相應操作描述。"
   },

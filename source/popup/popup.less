@@ -14,13 +14,15 @@
  * @version 4.0.0.0 | 2019-11-07 | Vincent    // Updates: Add VIEW MODE feature;
  *                                            // Updates: Add shadow for the viewer and allow it to be hidden by user settings;
  *                                            // Updates: Allow PhotoShow logo in the viewer to be hidden by user settings;
- *                                            // Updates: Add new hotkeys 'Esc', 'Home', 'End', 'PageUp', 'PageDown', 'Arrow Left', 'Arrow Right', M', 'L', 'A' and 'P';
+ *                                            // Updates: Add new hotkeys 'Esc', 'Home', 'End', 'PageUp', 'PageDown', 'Arrow Left', 'Arrow Right', 'M', 'L', 'A' and 'P';
  *                                            // Updates: Change hotkeys for image rotation;
  *                                            // Updates: Optimize the popup page styles;
  *                                            // Updates: Optimize all the icons.
  * @version 4.0.3.0 | 2019-11-23 | Vincent    // Updates: Add 'share' links.
  * @version 4.0.12.0 | 2020-01-24 | Vincent   // Updates: Add GitHub link.
  * @version 4.1.0.0 | 2020-03-13 | Vincent    // Updates: Add hotkey specification for image address copying.
+ * @version 4.2.0.0 | 2020-03-20 | Vincent    // Updates: Support disabling hotkeys;
+ *                                            // Updates: Optimize styles.
  */
 
 // Color definitions
@@ -182,7 +184,7 @@ h1, h2, h3 {
 // State toggle
 .state-toggle {
   transition: 0.2s;
-  padding: 3px 0;
+  padding: 5px 0;
   border-bottom: solid 1px @PHOTOSHOW_BLUE;
 
   &.disabled {
@@ -253,7 +255,7 @@ h1, h2, h3 {
 
 // Description
 dl.desc {
-  margin-top: 5px;
+  margin-top: 8px;
 
   dt {
     color: @PHOTOSHOW_BLUE;
@@ -325,7 +327,7 @@ dl.desc {
       border-collapse: collapse;
       border-spacing: 0;
       width: 100%;
-      line-height: 1.4;
+      line-height: 1.5;
 
       tr {
         transition: background 0.4s;
@@ -337,13 +339,19 @@ dl.desc {
         }
 
         td {
+          padding: 0 0.75em;
+          cursor: pointer;
+
           &:first-child {
-            padding-right: 0.75em;
+            padding-left: 0;
+            line-height: 0;
+          }
+
+          &:nth-child(2) {
             text-align: right;
           }
 
           &:last-child {
-            padding-left: 0.75em;
             color: #999;
           }
         }

@@ -18,6 +18,7 @@
  * @version 4.0.15.0 | 2020-02-20 | Vincent   // Updates: Optimize the user feedback email template.
  * @version 4.1.0.0 | 2020-03-13 | Vincent    // Updates: Add items for image address copy.
  * @version 4.1.2.0 | 2020-03-14 | Vincent    // Updates: Add global messages for image downloading and opening in new tab.
+ * @version 4.2.0.0 | 2020-03-20 | Vincent    // Updates: Add items for hotkey toggles.
  */
 
 {
@@ -87,16 +88,16 @@
     "description": "Message displayed when PhotoShow does not support for current website."
   },
   "extensionUpdateDate": {
-    "message": "Update: March 14, 2020",
+    "message": "Update: March 20, 2020",
     "description": "Update time of current installed version of PhotoShow."
   },
   "stateToggleOnTitle": {
-    "message": "Click to disable PhotoShow on this website.",
-    "description": "Mouse hovering tip for PhotoShow toggle button when it is 'ON'."
+    "message": "Click to disable PhotoShow on this website",
+    "description": "Mouse-hovering tip for PhotoShow toggle button when it is 'ON'."
   },
   "stateToggleOffTitle": {
-    "message": "Click to enable PhotoShow on this website.",
-    "description": "Mouse hovering tip for PhotoShow toggle button when it is 'OFF'."
+    "message": "Click to enable PhotoShow on this website",
+    "description": "Mouse-hovering tip for PhotoShow toggle button when it is 'OFF'."
   },
 
   // Section ACTIVATION MODE:
@@ -124,7 +125,7 @@
   },
   "viewModeOptionTitle_Mini": {
     "message": "The viewer displays within 1/8 in area of the available space on one side of the source thumbnail",
-    "description": "Corresponding mouse hovering tip."
+    "description": "Corresponding mouse-hovering tip."
   },
   "viewModeOption_Light": {
     "message": "Light",
@@ -132,7 +133,7 @@
   },
   "viewModeOptionTitle_Light": {
     "message": "The viewer displays within 1/4 in area of the available space on one side of the source thumbnail",
-    "description": "Corresponding mouse hovering tip."
+    "description": "Corresponding mouse-hovering tip."
   },
   "viewModeOption_Auto": {
     "message": "Auto",
@@ -140,7 +141,7 @@
   },
   "viewModeOptionTitle_Auto": {
     "message": "The viewer automatically adapts its size to the available space on one side of the source thumbnail",
-    "description": "Corresponding mouse hovering tip."
+    "description": "Corresponding mouse-hovering tip."
   },
   "viewModeOption_Panoramic": {
     "message": "Panoramic",
@@ -148,7 +149,7 @@
   },
   "viewModeOptionTitle_Panoramic": {
     "message": "The viewer takes as large space as needed and the image displays in its original size",
-    "description": "Corresponding mouse hovering tip."
+    "description": "Corresponding mouse-hovering tip."
   },
 
   // Section LOGO DISPLAY:
@@ -176,43 +177,43 @@
     "message": "HOTKEYS",
     "description": "Section title."
   },
-  "hotkey_Esc": {
+  "hotkeyToggleTitle": {
+    "message": "Click to enable/disable the hotkey(s)",
+    "description": "Mouse-hovering tip for hotkey toggles."
+  },
+  "hotkey_closeViewer": {
     "message": "<td>Esc</td><td>Close image viewer</td>",
     "description": "Hotykey name and its operation description."
   },
-  "hotkey_RotationCCW": {
-    "message": "<td>Shift + Ctrl + ←</td><td>Rotate counterclockwise</td>",
+  "hotkey_rotateImage": {
+    "message": "<td>Shift + Ctrl + ← / →</td><td>Rotate counterclockwise / clockwise</td>",
     "description": "Hotykey name and its operation description."
   },
-  "hotkey_RotationCW": {
-    "message": "<td>Shift + Ctrl + →</td><td>Rotate clockwise</td>",
-    "description": "Hotykey name and its operation description."
-  },
-  "hotkey_Scroll": {
+  "hotkey_scrollImage": {
     "message": "<td>↑ / → / ↓ / ←</td><td>Scroll up / right / down / left</td>",
     "description": "Hotykey name and its operation description."
   },
-  "hotkey_ScrollByPage": {
+  "hotkey_scrollImageByPage": {
     "message": "<td>PgUp / PgDn</td><td>Scroll up / down by image visible height</td>",
     "description": "Hotykey name and its operation description."
   },
-  "hotkey_ScrollToEnds": {
+  "hotkey_scrollImageToEnds": {
     "message": "<td>Home / End</td><td>Scroll up to the top / down to the bottom</td>",
     "description": "Hotykey name and its operation description."
   },
-  "hotkey_OpenImageInNewTab": {
+  "hotkey_openImageInNewTab": {
     "message": "<td>Tab</td><td>Open HD image in new tab</td>",
     "description": "Hotykey name and its operation description."
   },
-  "hotkey_ImageSaving": {
+  "hotkey_saveImage": {
     "message": "<td>S</td><td>Save HD image</td>",
     "description": "Hotykey name and its operation description."
   },
-  "hotkey_CopyImageAddress": {
+  "hotkey_copyImageAddress": {
     "message": "<td>C</td><td>Copy HD image address</td>",
     "description": "Hotykey name and its operation description."
   },
-  "hotkey_ViewModeSwitch": {
+  "hotkey_switchViewMode": {
     "message": "<td>M / L / A / P</td><td>Switch view mode</td>",
     "description": "Hotykey name and its operation description."
   },
@@ -224,7 +225,7 @@
   },
   "shareIconTitles": {
     "message": "Contact the author,GitHub,Facebook,Twitter,Weibo,Qzone,Reddit,Tumblr",
-    "description": "Mouse hovering tips for all the contact icons (Separated with half-width commas)."
+    "description": "Mouse-hovering tips for all the contact icons (Separated with half-width commas)."
   },
   "shareText": {
     "message": "I've just found an excellent browser extension that works wonders on image viewing! Have a try and you'll love it too!",

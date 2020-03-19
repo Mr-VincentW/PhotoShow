@@ -52,7 +52,7 @@
  *                                            // Updates: Locate the viewer automatically on all sides of the trigger image;
  *                                            // Updates: Add acceleration for image scrolling;
  *                                            // Updates: Add end-reach prompt for image scrolling;
- *                                            // Updates: Add new hotkeys 'Esc', 'Home', 'End', 'PageUp', 'PageDown', 'Arrow Left', 'Arrow Right', M', 'L', 'A' and 'P';
+ *                                            // Updates: Add new hotkeys 'Esc', 'Home', 'End', 'PageUp', 'PageDown', 'Arrow Left', 'Arrow Right', 'M', 'L', 'A' and 'P';
  *                                            // Updates: Change hotkeys for image rotation;
  *                                            // Updates: Allow all images to be rotated;
  *                                            // Updates: Optimize the popup page styles;
@@ -80,6 +80,10 @@
  * @version 4.1.0.0 | 2020-03-13 | Vincent    // Updates: Support for image address copying;
  *                                            // Updates: Add global message.
  * @version 4.1.2.0 | 2020-03-14 | Vincent    // Updates: Allow certain hotkey actions when the image viewer is not shown.
+ * @version 4.2.0.0 | 2020-03-20 | Vincent    // Updates: PHOTOSHOW_CONFIGS supports nested data structure;
+ *                                            // Updates: Replace string concatenation with template literals;
+ *                                            // Updates: Optimize hotkey actions for better user inputting experience;
+ *                                            // Updates: Support disabling hotkeys.
  */
 
 // TODO: Extract common tool methods to external modules.
@@ -141,10 +145,10 @@
       return Promise.resolve(oriSrc).then(imgSrc => this.detectImage(imgSrc).then(imgInfo => Promise.resolve(Object.assign({oriSrc}, imgInfo))));
     },
     cacheImage: function(id, imgSrc) {
-      return imgSrc && !$('[photoshow-cache-id="' + id + '"]').length ? ($('<input type="hidden" />').attr('photoshow-cache-id', id).val(imgSrc).appendTo(document.body), imgSrc) : ($('[photoshow-cache-id="' + id + '"]').val() || '');
+      return imgSrc && !$(`[photoshow-cache-id="${id}"]`).length ? ($('<input type="hidden" />').attr('photoshow-cache-id', id).val(imgSrc).appendTo(document.body), imgSrc) : ($(`[photoshow-cache-id="${id}"]`).val() || '');
     },
     addStyle: function(styleName, selectors) {
-      if (!$('#photoShowStyles_' + styleName).length) {
+      if (!$(`#photoShowStyles_${styleName}`).length) {
         var rules = [];
 
         switch (styleName) {
@@ -161,8 +165,8 @@
           default:
         }
 
-        $('<style type="text/css"></style>').attr('id', 'photoShowStyles_' + styleName)
-          .append(selectors + '{' + rules.join(';') + '}')
+        $('<style type="text/css"></style>').attr('id', `photoShowStyles_${styleName}`)
+          .append(`${selectors}{${rules.join(';')}}`)
           .appendTo($('head')[0]);
       }
     },
@@ -192,22 +196,13 @@
       return clientRect;
     },
     copyText: function(text) {
-      let textbox = $('<input type="text" class="photoshow-hidden-elements" />').val(text).appendTo(document.body).select();
+      let preservedActiveElement = $(document.activeElement),
+        textbox = $('<input type="text" class="photoshow-hidden-elements" />').val(text).appendTo(document.body).select();
+
       document.execCommand('copy');
       textbox.remove();
-    }
-  };
 
-  const photoShowGlobalMsg = {
-    element: $('<div class="photoshow-global-msg-layer"><div class="photoshow-global-msg"><em class="photoshow-icons photoshow-icons-logo"></em><i></i></div></div>'),
-    show: function(msg) {
-      this.hide();
-
-      $('i', this.element).text(msg);
-      this.element.appendTo(document.body);
-    },
-    hide: function() {
-      this.element.remove();
+      preservedActiveElement.focus();
     }
   };
 
@@ -235,10 +230,92 @@
     MASK_THRESHOLD = 100,    // The original image size should larger (either width or height) than its maximum displaying size at least by this value so that a mask would apply.
     IS_BROWSER_FIREFOX = /Firefox/.test(navigator.userAgent);
 
+  const photoShowGlobalMsg = {
+    element: $('<div class="photoshow-global-msg-layer"><div class="photoshow-global-msg"><em class="photoshow-icons photoshow-icons-logo"></em><i></i></div></div>'),
+    show: function(msg) {
+      this.hide();
+
+      $('i', this.element).text(msg);
+      this.element.appendTo(document.body);
+    },
+    hide: function() {
+      this.element.remove();
+    }
+  };
+
+  const photoShow = {
+    isEnabled: false,                // PhotoShow availability flag.
+    websiteConfig: {},               // Configuration for current website.
+    config: {                        // PhotoShow configuration.
+      update: function(config) {     // Update PhotoShow configuration.
+        (function(item, config) {
+          Object.entries(config).forEach(([key, value]) => item.hasOwnProperty(key) && (typeof item[key] == 'object' ? arguments.callee(item[key], value) : (item[key] = value)));
+        })(this, config);
+      },
+      activationMode: '',            // Activation mode ('', 'shift', 'ctrl', 'alt').
+      _viewMode: VIEW_MODES['A'],    // View mode.
+      get viewMode() {               // View mode getter.
+        return this._viewMode.name;
+      },
+      set viewMode(modeName) {       // View mode setter.
+        if (this._viewMode.name != modeName) {
+          photoShowViewer.viewModeSwitchTip && photoShowViewer.viewModeSwitchTip.text(modeName[0]);
+          this._viewMode = VIEW_MODES[modeName[0]];
+          photoShowViewer.hasImgShown && photoShowViewer.update();
+        } else {
+          photoShowViewer.isViewerChanged = false;
+        }
+
+        // Trick: To show() is only for triggering a reflow on the viewerBox element so that the keyframe animation can restart, useful when the view mode is frequently switched.
+        photoShowViewer.hasImgShown && !photoShowViewer.isViewerChanged && photoShowViewer.viewerBox.removeClass('view-mode-switching').show().addClass('view-mode-switching');
+      },
+      _logoDisplay: true,            // Logo display.
+      get logoDisplay() {
+        return this._logoDisplay;
+      },
+      set logoDisplay(isVisible) {
+        (this._logoDisplay = isVisible) ? photoShowViewer.viewerLogo.appendTo(photoShowViewer.viewerBox) : photoShowViewer.viewerLogo.remove();
+      },
+      _shadowDisplay: true,          // Shadow display.
+      get shadowDisplay() {
+        return this._shadowDisplay;
+      },
+      set shadowDisplay(isVisible) {
+        (this._shadowDisplay = isVisible) ? photoShowViewer.viewerShadow.prependTo(photoShowViewer.viewerBox) : photoShowViewer.viewerShadow.remove();
+      },
+      hotkeys: {                     // Hotkey toggles.
+        closeViewer: {
+          isEnabled: true
+        },
+        rotateImage: {
+          isEnabled: true
+        },
+        scrollImage: {
+          isEnabled: true
+        },
+        scrollImageByPage: {
+          isEnabled: true
+        },
+        scrollImageToEnds: {
+          isEnabled: true
+        },
+        switchViewMode: {
+          isEnabled: true
+        },
+        openImageInNewTab: {
+          isEnabled: true
+        },
+        saveImage: {
+          isEnabled: true
+        },
+        copyImageAddress: {
+          isEnabled: true
+        }
+      }
+    }
+  };
+
   const photoShowViewer = {
-    isPhotoShowEnabled: false,           // PhotoShow availability flag.
-    websiteConfig: {},                   // Configuration for current website.
-    activationMode: '',                  // Activation mode ('', 'shift', 'ctrl', 'alt').
     mouseClientPos: {                    // Mouse position (relative to viewport top-left).
       x: -1,
       y: -1
@@ -304,36 +381,6 @@
     domObserver: null,                   // Observer for the document.
     viewerDisplayTimer: null,            // Timer to prevent image viewer from being over-triggered to display.
     _mouseoverEvtHandler: null,          // Mouseover event handler with 'this' bound to photoShowViewer.
-    _viewMode: VIEW_MODES['A'],          // View mode.
-    get viewMode() {                     // View mode getter.
-      return this._viewMode.name;
-    },
-    set viewMode(modeName) {             // View mode setter.
-      if (this._viewMode.name != modeName) {
-        this.viewModeSwitchTip && this.viewModeSwitchTip.text(modeName[0]);
-        this._viewMode = VIEW_MODES[modeName[0]];
-        this.hasImgShown && this.update();
-      } else {
-        this.isViewerChanged = false;
-      }
-
-      // Trick: To show() is only for triggering a reflow on the viewerBox element so that the keyframe animation can restart, useful when the view mode is frequently switched.
-      this.hasImgShown && !this.isViewerChanged && this.viewerBox.removeClass('view-mode-switching').show().addClass('view-mode-switching');
-    },
-    _logoDisplay: true,                  // Logo display.
-    get logoDisplay() {
-      return this._logoDisplay;
-    },
-    set logoDisplay(isVisible) {
-      (this._logoDisplay = isVisible) ? this.viewerLogo.appendTo(this.viewerBox) : this.viewerLogo.remove();
-    },
-    _shadowDisplay: true,                // Shadow display.
-    get shadowDisplay() {
-      return this._shadowDisplay;
-    },
-    set shadowDisplay(isVisible) {
-      (this._shadowDisplay = isVisible) ? this.viewerShadow.prependTo(this.viewerBox) : this.viewerShadow.remove();
-    },
     getDisplayingStyles: function() {
       var oriImgSize = this.imgOriginalSize;
 
@@ -365,7 +412,7 @@
       };
 
       // Find best displaying space.
-      var curViewMode = VIEW_MODES[this.viewMode[0]],
+      var curViewMode = VIEW_MODES[photoShow.config.viewMode[0]],
         oriImgRatio = oriImgSize.width / oriImgSize.height,
         chosenSpace = [
           [winSize.width, this.maskHostRect.top],
@@ -432,10 +479,10 @@
           left: '',
           width: (this.imgRotation.isVertical ? chosenSpace.imgHeight : chosenSpace.imgWidth) - this.viewerBoxBorderWidth * 2,
           height: (this.imgRotation.isVertical ? chosenSpace.imgWidth : chosenSpace.imgHeight) - this.viewerBoxBorderWidth * 2,
-          transform: 'translate(-50%,-50%) rotate(' + this.imgRotation.angle + 'deg)'
+          transform: `translate(-50%,-50%) rotate(${this.imgRotation.angle}deg)`
         },
         viewModeSwitchTip: {
-          lineHeight: chosenSpace.viewerHeight + 'px',
+          lineHeight: `${chosenSpace.viewerHeight}px`,
           fontSize: Math.min(chosenSpace.viewerWidth, chosenSpace.viewerHeight) / 2
         }
       };
@@ -456,7 +503,7 @@
 
       Object.assign(displayingStyles.viewerFinal, {
         opacity: 1,
-        margin: [0, 0, 0, 0].concat(this.viewerBoxOffset + 'px', 0, 0, 0).splice(4 - (chosenSpace.i + 2) % 4, 4).join(' '),
+        margin: [0, 0, 0, 0].concat(`${this.viewerBoxOffset}px`, 0, 0, 0).splice(4 - (chosenSpace.i + 2) % 4, 4).join(' '),
         [chosenPos.anchor]: '',
         [chosenPos.idle]: '',
         [chosenPos.opposite]: this.maskHostRect.viewerAnchor[chosenPos.anchor],
@@ -464,7 +511,7 @@
       });
 
       // Calculate viewer shadow styles.
-      if (this.shadowDisplay) {
+      if (photoShow.config.shadowDisplay) {
         var viewerRect = {
             [chosenPos.anchor]: displayingStyles.viewerFinal[chosenPos.opposite] - displayingStyles.viewerFinal[anchorDimension],
             [chosenPos.idle]: displayingStyles.viewerFinal[chosenPos.offset] + displayingStyles.viewerFinal[offsetDimension],
@@ -497,29 +544,17 @@
           }, {
             [offsetDimension]: 'auto',
             [anchorDimension]: this.viewerBoxOffset,
-            [chosenPos.anchor]: 'calc(100% + ' + this.viewerBoxBorderWidth + 'px)',
+            [chosenPos.anchor]: `calc(100% + ${this.viewerBoxBorderWidth}px)`,
             [chosenPos.idle]: Math.min(viewerRect[chosenPos.idle] - this.maskHostRect[chosenPos.idle], 0),
             [chosenPos.offset]: Math.min(this.maskHostRect[chosenPos.offset] - viewerRect[chosenPos.offset], 0),
-            mask: 'linear-gradient(' + chosenPos.opposite + ', rgba(128,128,128,0.2), rgba(128,128,128,0.8))',
-            webkitMask: '-webkit-linear-gradient(' + chosenPos.opposite + ', rgba(128,128,128,0.2), rgba(128,128,128,0.8))',
-            clipPath: 'polygon(' + [
-              [
-                this.isViewerPosHor ? 0 : shadowClacKeyValues[0] + 'px',
-                this.isViewerPosHor ? shadowClacKeyValues[1] + 'px' : 0
-              ].join(' '),
-              [
-                this.isViewerPosHor ? '100%' : 'calc(100% - ' + shadowClacKeyValues[2] + 'px)',
-                this.isViewerPosHor ? shadowClacKeyValues[0] + 'px' : 0
-              ].join(' '),
-              [
-                this.isViewerPosHor ? '100%' : 'calc(100% - ' + shadowClacKeyValues[3] + 'px)',
-                this.isViewerPosHor ? 'calc(100% - ' + shadowClacKeyValues[2] + 'px)' : '100%'
-              ].join(' '),
-              [
-                this.isViewerPosHor ? 0 : shadowClacKeyValues[1] + 'px',
-                this.isViewerPosHor ? 'calc(100% - ' + shadowClacKeyValues[3] + 'px)' : '100%'
-              ].join(' ')
-            ].join() + ')'
+            mask: `linear-gradient(${chosenPos.opposite}, rgba(128,128,128,0.2), rgba(128,128,128,0.8))`,
+            webkitMask: `-webkit-linear-gradient(${chosenPos.opposite}, rgba(128,128,128,0.2), rgba(128,128,128,0.8))`,
+            clipPath: `polygon(${[
+              `${this.isViewerPosHor ? 0 : `${shadowClacKeyValues[0]}px`} ${this.isViewerPosHor ? `${shadowClacKeyValues[1]}px` : 0}`,
+              `${this.isViewerPosHor ? '100%' : `calc(100% - ${shadowClacKeyValues[2]}px)`} ${this.isViewerPosHor ? `${shadowClacKeyValues[0]}px` : 0}`,
+              `${this.isViewerPosHor ? '100%' : `calc(100% - ${shadowClacKeyValues[3]}px)`} ${this.isViewerPosHor ? `calc(100% - ${shadowClacKeyValues[2]}px)` : '100%'}`,
+              `${this.isViewerPosHor ? 0 : `${shadowClacKeyValues[1]}px`} ${this.isViewerPosHor ? `calc(100% - ${shadowClacKeyValues[3]}px)` : '100%'}`
+            ].join()})`
           })
         });
       }
@@ -564,15 +599,15 @@
         target = $(element);
 
       if (element && !(imgSrc = target.attr('photoshow-hd-img-src'))) {
-        for (let i = 0; i < this.websiteConfig.srcMatching.length; ++i) {
-          let curMatchingRule = this.websiteConfig.srcMatching[i];
+        for (let i = 0; i < photoShow.websiteConfig.srcMatching.length; ++i) {
+          let curMatchingRule = photoShow.websiteConfig.srcMatching[i];
 
           if ((target.is(curMatchingRule.selectors || 'img,[style*=background-image]')) && target.css('pointerEvents') != 'none') {
             let targetSrc = tools.getLargestImgSrc(element),
               srcRegExpObj = curMatchingRule.srcRegExp ? new RegExp(curMatchingRule.srcRegExp, 'i') : undefined;
 
             if (/^(?:function|\(?[\w,\s]*\)?\s*=>)/.test(curMatchingRule.processor)) {
-              imgSrc = eval('(' + curMatchingRule.processor + ')').call(element, target, targetSrc, srcRegExpObj) || '';
+              imgSrc = eval(`(${curMatchingRule.processor})`).call(element, target, targetSrc, srcRegExpObj) || '';
             } else if (srcRegExpObj) {
               if (srcRegExpObj.test(targetSrc)) {
                 imgSrc = curMatchingRule.processor ? targetSrc.replace(srcRegExpObj, curMatchingRule.processor) : targetSrc;
@@ -676,7 +711,7 @@
         });
 
         // Show high-definition image.
-        if (this.imgSrc && (!this.activationMode || this.isModifierKeyDown)) {
+        if (this.imgSrc && (!photoShow.config.activationMode || this.isModifierKeyDown)) {
           if (!evtTarget.is('[photoshow-trigger-blocked]')) {
             this.curTrigger = this.maskHost = evtTarget.get(0);
 
@@ -744,7 +779,7 @@
 
                   var displayingStyles = this.getDisplayingStyles();
 
-                  this.logoDisplay && (displayingStyles.viewerFinal.width < 50 || displayingStyles.viewerFinal.height < 50) && this.viewerBox.addClass('logo-hidden');
+                  photoShow.config.logoDisplay && (displayingStyles.viewerFinal.width < 50 || displayingStyles.viewerFinal.height < 50) && this.viewerBox.addClass('logo-hidden');
 
                   if (imgLoadingTipTimer) {
                     clearTimeout(imgLoadingTipTimer);
@@ -758,13 +793,13 @@
 
                   if (displayingStyles.viewerInitial) {
                     tools.setStyle(this.viewerBox, displayingStyles.viewerInitial);
-                    this.shadowDisplay && tools.setStyle(this.viewerShadow, displayingStyles.shadowInitial);
+                    photoShow.config.shadowDisplay && tools.setStyle(this.viewerShadow, displayingStyles.shadowInitial);
 
                     // Trick: To show() is only for triggering a reflow on the viewerBox element to make sure the initial styles are applied before setting the final styles.
                     this.viewerBox.show();
                   }
                   tools.setStyle(this.viewerBox, displayingStyles.viewerFinal, true);
-                  this.shadowDisplay && tools.setStyle(this.viewerShadow, displayingStyles.shadow, true);
+                  photoShow.config.shadowDisplay && tools.setStyle(this.viewerShadow, displayingStyles.shadow, true);
 
                   this.hasImgViewerShown = true;
                   this.hasImgShown = true;
@@ -805,7 +840,7 @@
       }
     },
     toggle: function() {
-      if (this.isPhotoShowEnabled) {
+      if (photoShow.isEnabled) {
         IS_BROWSER_FIREFOX && this.viewerMask.appendTo(document.body);
         this.viewerBox.appendTo(document.body);
 
@@ -855,7 +890,7 @@
           })
           .on('keydown.photoShow keyup.photoShow', (e) => {
             e.detail && Object.assign(e, e.detail);
-            this[e.type + 'Action'](e);
+            this[`${e.type}Action`](e);
           })
           .on('frameDomMutate.photoShow', (e, mutations) => this.domMutateAction(mutations))
           .on('animationend.photoShow', e => /photoshow-viewer-(.+)-ani/.test(e.originalEvent.animationName) && this.viewerBox.removeClass(RegExp.$1));
@@ -865,14 +900,14 @@
         .on('blur.photoShow', () => this.winBlurAction());
 
         // Add amend styles.
-        Object.assign(this.websiteConfig, {
-          amendStyles: Object.assign(this.websiteConfig.amendStyles || {}, {
-            pointerNone: ['*:before,*:after'].concat(this.websiteConfig.amendStyles && this.websiteConfig.amendStyles.pointerNone || []).join(',')
+        Object.assign(photoShow.websiteConfig, {
+          amendStyles: Object.assign(photoShow.websiteConfig.amendStyles || {}, {
+            pointerNone: ['*:before,*:after'].concat(photoShow.websiteConfig.amendStyles && photoShow.websiteConfig.amendStyles.pointerNone || []).join(',')
           })
         });
 
-        for (let styleName in this.websiteConfig.amendStyles) {
-          tools.addStyle(styleName, this.websiteConfig.amendStyles[styleName]);
+        for (let styleName in photoShow.websiteConfig.amendStyles) {
+          tools.addStyle(styleName, photoShow.websiteConfig.amendStyles[styleName]);
         }
 
         // Start observing the document.
@@ -908,7 +943,7 @@
     mouseOverAction: function(e) {
       clearTimeout(this.viewerDisplayTimer);
 
-      e && typeof e[this.activationMode + 'Key'] == 'boolean' && (this.isModifierKeyDown = e[this.activationMode + 'Key']);
+      e && typeof e[`${photoShow.config.activationMode}Key`] == 'boolean' && (this.isModifierKeyDown = e[`${photoShow.config.activationMode}Key`]);
 
       var srcTarget = e.detail ? e.detail.target : e.target,
         evtTarget = $(srcTarget);
@@ -944,7 +979,7 @@
           webkitMask: ''
         }]
       ]);
-      this.logoDisplay && this.viewerBox.removeClass('logo-hidden');
+      photoShow.config.logoDisplay && this.viewerBox.removeClass('logo-hidden');
       $(this.curTrigger).off('.photoShow');
 
       keepTriggerBlocked || $('[photoshow-trigger-blocked]').removeAttr('photoshow-trigger-blocked');
@@ -984,7 +1019,7 @@
             y: maskPos.top / this.maskHostRect.height
           });
 
-          var maskForWebkit = 'url(\'data:image/svg+xml,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none" viewBox="0 0 1 1">' + $('mask', this.viewerMask).html() + '</svg>') + '\')';
+          var maskForWebkit = `url('data:image/svg+xml,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none" viewBox="0 0 1 1">${$('mask', this.viewerMask).html()}</svg>`)}')`;
 
           tools.setStyle((IS_BROWSER_FIREFOX ? [] : [
             [this.maskHost, {
@@ -992,13 +1027,13 @@
             }]
           ]).concat([
             [this.viewerImg, Object.assign({
-              transform: 'translate(-50%, -50%) rotate(' + this.imgRotation.angle + 'deg)'
+              transform: `translate(-50%, -50%) rotate(${this.imgRotation.angle}deg)`
             }, this.imgRotation.isVertical ? {
-              top: (0.5 + imgOffset.left * this.imgRotation.angleSin) * 100 + '%',
-              left: (0.5 - imgOffset.top * this.imgRotation.angleSin) * 100 + '%'
+              top: `${(0.5 + imgOffset.left * this.imgRotation.angleSin) * 100}%`,
+              left: `${(0.5 - imgOffset.top * this.imgRotation.angleSin) * 100}%`
             } : {
-              top: (0.5 + imgOffset.top * this.imgRotation.angleCos) * 100 + '%',
-              left: (0.5 + imgOffset.left * this.imgRotation.angleCos) * 100 + '%'
+              top: `${(0.5 + imgOffset.top * this.imgRotation.angleCos) * 100}%`,
+              left: `${(0.5 + imgOffset.left * this.imgRotation.angleCos) * 100}%`
             }), useAni]
           ]));
         }
@@ -1024,7 +1059,7 @@
       });
     },
     savingAction: function() {
-      photoShowGlobalMsg.show(chrome.i18n.getMessage('globalMsg_imgWillStartDownloading'));
+      this.imgSrc && photoShowGlobalMsg.show(chrome.i18n.getMessage('globalMsg_imgWillStartDownloading'));
       Promise.resolve(this.imgSrc).then(imgSrc => {
         if (imgSrc) {
           chrome.runtime.sendMessage({
@@ -1057,32 +1092,36 @@
         let shiftingPos = keyCode % 2 ? 'x' : 'y',
           shiftingWeight = keyCode > 38 ? -1 : 1;
 
-        (this.mouseClientPos[shiftingPos] - this.maskHostRect.mouseEnds[POS_FOR_KEYCODE[keyCode - 37]]) * shiftingWeight <= 0 && this.viewerBox.removeClass('top-end right-end bottom-end left-end').addClass(POS_FOR_KEYCODE[oriKeyCode - 37] + '-end');
+        (this.mouseClientPos[shiftingPos] - this.maskHostRect.mouseEnds[POS_FOR_KEYCODE[keyCode - 37]]) * shiftingWeight <= 0 && this.viewerBox.removeClass('top-end right-end bottom-end left-end').addClass(`${POS_FOR_KEYCODE[oriKeyCode - 37]}-end`);
         this.mouseClientPos[shiftingPos] -= getMoveStep(scrollMode) * shiftingWeight;
         this.moveAction(!!scrollMode);
       };
 
+      const isActiveElementAnInput = $(document.activeElement).is(':input');
+
       switch (e.which) {
         case 9:    // Key 'Tab'
-          this.hasImgViewerShown && e.preventDefault();
-          photoShowGlobalMsg.show(chrome.i18n.getMessage('globalMsg_imgWillOpenInNewTab'));
-          Promise.resolve(this.imgSrc).then(imgSrc => {
-            if (imgSrc) {
-              chrome.runtime.sendMessage({
-                cmd: 'OPEN_IMG_IN_NEW_TAB',
-                args: {
-                  imgSrc: imgSrc
-                }
-              });
-            }
-          });
+          if (!isActiveElementAnInput && photoShow.config.hotkeys.openImageInNewTab.isEnabled) {
+            this.hasImgViewerShown && e.preventDefault();
+            this.imgSrc && photoShowGlobalMsg.show(chrome.i18n.getMessage('globalMsg_imgWillOpenInNewTab'));
+            Promise.resolve(this.imgSrc).then(imgSrc => {
+              if (imgSrc) {
+                chrome.runtime.sendMessage({
+                  cmd: 'OPEN_IMG_IN_NEW_TAB',
+                  args: {
+                    imgSrc: imgSrc
+                  }
+                });
+              }
+            });
+          }
 
           break;
 
         case 16:    // Key 'SHIFT'
         case 17:    // Key 'CTRL'
         case 18:    // Key 'ALT'
-          if (!this.isModifierKeyDown && e.which == $.inArray(this.activationMode, MODIFIER_KEYS)) {
+          if (!this.isModifierKeyDown && e.which == $.inArray(photoShow.config.activationMode, MODIFIER_KEYS)) {
             e.preventDefault();
 
             this.isModifierKeyDown = true;
@@ -1093,31 +1132,37 @@
           break;
 
         case 67:    // Key 'C'
-          this.hasImgViewerShown && e.preventDefault();
-          this.copyAction();
+          if (!isActiveElementAnInput && photoShow.config.hotkeys.copyImageAddress.isEnabled) {
+            this.hasImgViewerShown && e.preventDefault();
+            this.copyAction();
+          }
 
           break;
 
         case 83:    // Key 'S'
-          this.hasImgViewerShown && e.preventDefault();
-          this.savingAction();
+          if (!isActiveElementAnInput && photoShow.config.hotkeys.saveImage.isEnabled) {
+            this.hasImgViewerShown && e.preventDefault();
+            this.savingAction();
+          }
 
           break;
 
         default:
       }
 
-      if (this.hasImgViewerShown) {
+      if (!isActiveElementAnInput && this.hasImgViewerShown) {
         switch (e.which) {
           case 27:    // Key 'Esc'
-            e.preventDefault();
-            $(this.curTrigger).attr('photoshow-trigger-blocked', '');
-            this.mouseLeaveAction(true);
+            if (photoShow.config.hotkeys.closeViewer.isEnabled) {
+              e.preventDefault();
+              $(this.curTrigger).attr('photoshow-trigger-blocked', '');
+              this.mouseLeaveAction(true);
+            }
 
             break;
 
           case 33:    // Key 'PageUp'
-            if (this.hasImgShown && this.hasMask) {
+            if (photoShow.config.hotkeys.scrollImageByPage.isEnabled && this.hasImgShown && this.hasMask) {
               e.preventDefault();
               scrollImg(38, 'PAGE');
             }
@@ -1125,7 +1170,7 @@
             break;
 
           case 34:    // Key 'PageDown'
-            if (this.hasImgShown && this.hasMask) {
+            if (photoShow.config.hotkeys.scrollImageByPage.isEnabled && this.hasImgShown && this.hasMask) {
               e.preventDefault();
               scrollImg(40, 'PAGE');
             }
@@ -1133,7 +1178,7 @@
             break;
 
           case 35:    // Key 'End'
-            if (this.hasImgShown && this.hasMask) {
+            if (photoShow.config.hotkeys.scrollImageToEnds.isEnabled && this.hasImgShown && this.hasMask) {
               e.preventDefault();
               scrollImg(40, 'ENDS');
             }
@@ -1141,7 +1186,7 @@
             break;
 
           case 36:    // Key 'Home'
-            if (this.hasImgShown && this.hasMask) {
+            if (photoShow.config.hotkeys.scrollImageToEnds.isEnabled && this.hasImgShown && this.hasMask) {
               e.preventDefault();
               scrollImg(38, 'ENDS');
             }
@@ -1151,15 +1196,22 @@
           case 37:    // Key 'LEFT'
           case 39:    // Key 'RIGHT'
             if (this.hasImgShown) {
-              e.preventDefault();
-              e.shiftKey && e.ctrlKey ? this.rotateAction(e) : this.hasMask && scrollImg(e.which);
+              if (e.shiftKey && e.ctrlKey) {
+                if (photoShow.config.hotkeys.rotateImage.isEnabled) {
+                  e.preventDefault();
+                  this.rotateAction(e);
+                }
+              } else if (photoShow.config.hotkeys.scrollImage.isEnabled && this.hasImgShown && this.hasMask) {
+                e.preventDefault();
+                scrollImg(e.which);
+              }
             }
 
             break;
 
           case 38:    // Key 'UP'
           case 40:    // Key 'DOWN'
-            if (this.hasImgShown && this.hasMask) {
+            if (photoShow.config.hotkeys.scrollImage.isEnabled && this.hasImgShown && this.hasMask) {
               e.preventDefault();
               scrollImg(e.which);
             }
@@ -1170,13 +1222,13 @@
           case 76:    // Key 'L'
           case 77:    // Key 'M'
           case 80:    // Key 'P'
-            if (this.hasImgShown) {
+            if (photoShow.config.hotkeys.switchViewMode.isEnabled && this.hasImgShown) {
               e.preventDefault();
 
-              if (VIEW_MODES[String.fromCharCode(e.which)].name == this.viewMode) {
+              if (VIEW_MODES[String.fromCharCode(e.which)].name == photoShow.config.viewMode) {
                 // The storage APIs will not trigger a change event in which case the update of the viewMode property is not going to happen.
                 // However, the viewModeSwitchTip is still need to be displayed, so a manual update is required here.
-                this.viewMode = this.viewMode;
+                photoShow.config.viewMode = photoShow.config.viewMode;
               } else {
                 chrome.runtime.sendMessage({
                   cmd: 'SET_PHOTOSHOW_CONFIGS',
@@ -1203,7 +1255,7 @@
         case 18:    // Key 'ALT'
           this.isModifierKeyDown = false;
 
-          if (this.curTrigger && e.which == $.inArray(this.activationMode, MODIFIER_KEYS)) {
+          if (this.curTrigger && e.which == $.inArray(photoShow.config.activationMode, MODIFIER_KEYS)) {
             e.preventDefault();
             this.mouseLeaveAction();
           }
@@ -1291,22 +1343,22 @@
 
     // Response to storage change event.
     chrome.storage.onChanged.addListener(changes => {
-      if (changes.disabledWebsites && photoShowViewer.isPhotoShowEnabled != !changes.disabledWebsites.newValue.includes(location.hostname)) {
-        photoShowViewer.isPhotoShowEnabled = !photoShowViewer.isPhotoShowEnabled;
+      if (changes.disabledWebsites && photoShow.isEnabled != !changes.disabledWebsites.newValue.includes(location.hostname)) {
+        photoShow.isEnabled = !photoShow.isEnabled;
         photoShowViewer.toggle();
       }
 
-      changes.photoShowConfigs && Object.keys(changes.photoShowConfigs.newValue).forEach(key => photoShowViewer[key] = changes.photoShowConfigs.newValue[key]);
+      changes.photoShowConfigs && photoShow.config.update(changes.photoShowConfigs.newValue);
     });
 
     // Get initial state.
     chrome.runtime.sendMessage({
       cmd: 'GET_INITIAL_STATE_AND_CONFIGS'
     }, response => {
-      photoShowViewer.isPhotoShowEnabled = response.isPhotoShowEnabled;
-      photoShowViewer.websiteConfig = response.websiteConfig || {};
+      photoShow.isEnabled = response.isPhotoShowEnabled;
+      photoShow.websiteConfig = response.websiteConfig || {};
       photoShowViewer.toggle();
-      Object.keys(response.photoShowConfigs).forEach(key => photoShowViewer[key] = response.photoShowConfigs[key]);
+      photoShow.config.update(response.photoShowConfigs);
     });
   })();
 })(jQuery.noConflict());

@@ -102,6 +102,8 @@
  * @version 4.1.0.0 | 2020-03-13 | Vincent    // Updates: Support for image address copying;
  *                                            // Updates: Better support for GitHub;
  *                                            // Updates: Support Alimama in response to user feedback.
+ * @version 4.2.0.0 | 2020-03-20 | Vincent    // Updates: PHOTOSHOW_CONFIGS supports nested data structure;
+ *                                            // Updates: Replace string concatenation with template literals.
  */
 
 // TODO: Solve the downloading failure issue on pixiv and similar websites (HTTP headers might need to be set when requesting for downloading).
@@ -113,7 +115,7 @@
 // TODO: Remove jQuery and deal with the event dispatching between frames.
 // TODO: Disable 'Panoramic' mode for pure link triggers.
 
-// Website info structure：
+// Website info structure:
 // {
 //   amendStyles: {                    // (Optional) Styles to amend to hosting pages.
 //     pointerAuto: {String},          // Selectors that are to be set to 'pointer-events:auto'
@@ -185,7 +187,7 @@ const websiteConfig = {
           chrome.runtime.sendMessage({
             cmd: 'CROSS_ORIGIN_GET',
             args: {
-              url: 'https://api.500px.com/v1/users/' + userId
+              url: `https://api.500px.com/v1/users/${userId}`
             }
           }, response => resolve(response && response.user &&
             (type == 'avatar' && response.user.userpic_url && tools.cacheImage(userId, response.user.userpic_url) || response.user.cover_url) || ''));
@@ -200,7 +202,7 @@ const websiteConfig = {
           chrome.runtime.sendMessage({
             cmd: 'CROSS_ORIGIN_GET',
             args: {
-              url: 'https://legacy-api.500px.com/v1/groups/' + groupId
+              url: `https://legacy-api.500px.com/v1/groups/${groupId}`
             }
           }, response => resolve(response && response.group && response.group.avatars &&
             tools.cacheImage(groupId, response.group.avatars[Object.keys(response.group.avatars).sort((size1, size2) => parseInt(size2) - parseInt(size1))[0]].url) || ''));
@@ -272,7 +274,7 @@ const websiteConfig = {
         src = /objurl=([^&]+)/.test(link.attr('href')) ? decodeURIComponent(RegExp.$1) : (link.data('objurl') || src);
 
         return tools.detectImage(src).then(imgInfo => imgInfo.src ||
-          tools.detectImage('//timgsa.baidu.com/timg?quality=80&size=b9999_10000&imgtype=0&src=' + encodeURIComponent(src), '', img => img.width * img.height < 50).then(imgInfo => imgInfo.src ||
+          tools.detectImage(`//timgsa.baidu.com/timg?quality=80&size=b9999_10000&imgtype=0&src=${encodeURIComponent(src)}`, '', img => img.width * img.height < 50).then(imgInfo => imgInfo.src ||
             new Promise((resolve, reject) => {
               $.ajax(trigger.closest('a').attr('href'), {
                 success: response => resolve(/id="currentImg"[\s\S]*?src="([^"]+)"/.test(response) ? RegExp.$1.replace(/&amp;/g, '&') : src),
@@ -306,7 +308,7 @@ const websiteConfig = {
     srcMatching: [{
       selectors: 'img,.js-project-cover,[class^="Cover-wrapper-"]',
       srcRegExp: '(//mir-s\\d+-cdn-cf\\.behance\\.net/projects/)(?:\\w+_)?\\d+(/.+@IMG@)',
-      processor: (trigger, src, srcRegExpObj) => srcRegExpObj.test(src || trigger.find('img[class^="ProjectCoverNeue-image-"],img[class^="AppreciationCover-image-"]').attr('src')) ? (RegExp.$1 + 'original' + RegExp.$2) : ''
+      processor: (trigger, src, srcRegExpObj) => srcRegExpObj.test(src || trigger.find('img[class^="ProjectCoverNeue-image-"],img[class^="AppreciationCover-image-"]').attr('src')) ? (`${RegExp.$1}original${RegExp.$2}`) : ''
     }, {
       srcRegExp: '(//mir-s\\d+-cdn-cf\\.behance\\.net/(?:user|team)/)\\d+(/.+@IMG@)',
       processor: '$1276$2'
@@ -452,7 +454,7 @@ const websiteConfig = {
               var mediaInfo = response && response.deviation && response.deviation.media,
                 imgInfo = mediaInfo ? mediaInfo.types.pop() : null;
 
-              mediaInfo && mediaInfo.baseUri && imgInfo ? resolve(mediaInfo.baseUri + (imgInfo.c ? '/' + imgInfo.c.replace('<prettyName>', mediaInfo.prettyName || '').replace(/,q_\d+/, ',q_100') : '') + (mediaInfo.token ? '?token=' + mediaInfo.token[0] : '')) : reject();
+              mediaInfo && mediaInfo.baseUri && imgInfo ? resolve(`${mediaInfo.baseUri}${imgInfo.c ? `/${imgInfo.c.replace('<prettyName>', mediaInfo.prettyName || '').replace(/,q_\d+/, ',q_100')}` : ''}${mediaInfo.token ? `?token=${mediaInfo.token[0]}` : ''}`) : reject();
             },
             error: reject
           });
@@ -472,7 +474,7 @@ const websiteConfig = {
         } : {};
 
         return folderId ? new Promise((resolve, reject) => {
-          $.ajax('/_napi/da-user-profile/api/' + folderType + '/contents', {
+          $.ajax(`/_napi/da-user-profile/api/${folderType}/contents`, {
             data: {
               username: userName,
               folderid: folderId,
@@ -483,7 +485,7 @@ const websiteConfig = {
               var mediaInfo = response && response.results && response.results[0].deviation.media,
                 imgInfo = mediaInfo ? mediaInfo.types.pop() : null;
 
-              mediaInfo && mediaInfo.baseUri && imgInfo ? resolve(mediaInfo.baseUri + (imgInfo.c ? '/' + imgInfo.c.replace('<prettyName>', mediaInfo.prettyName || '').replace(/,q_\d+/, ',q_100') : '') + (mediaInfo.token ? '?token=' + mediaInfo.token[0] : '')) : reject();
+              mediaInfo && mediaInfo.baseUri && imgInfo ? resolve(`${mediaInfo.baseUri}${imgInfo.c ? `/${imgInfo.c.replace('<prettyName>', mediaInfo.prettyName || '').replace(/,q_\d+/, ',q_100')}` : ''}${mediaInfo.token ? `?token=${mediaInfo.token[0]}` : ''}`) : reject();
             },
             error: reject
           });
@@ -495,7 +497,7 @@ const websiteConfig = {
         if (srcRegExpObj.test(src)) {
           var userId = trigger.closest('[data-userid]').data('userid') || trigger.closest('[gmi-userid]').attr('gmi-userid');
 
-          src = tools.cacheImage(userId) || tools.detectImage(RegExp.$1 + '-original' + RegExp.$2, RegExp.$1 + '-big' + RegExp.$2).then(imgInfo => tools.cacheImage(userId, imgInfo.src));
+          src = tools.cacheImage(userId) || tools.detectImage(`${RegExp.$1}-original${RegExp.$2}`, `${RegExp.$1}-big${RegExp.$2}`).then(imgInfo => tools.cacheImage(userId, imgInfo.src));
         } else {
           src = '';
         }
@@ -608,7 +610,7 @@ const websiteConfig = {
 
         var link = trigger.closest('a').attr('ajaxify') || trigger.closest('a').attr('href'),
           asyncGetToken = /"async_get_token":"([^"]+)"/.test(document.documentElement.innerHTML) ? RegExp.$1 : '',
-          profileId = ['', trigger.closest('[data-hovercard]').attr('data-hovercard'), trigger.closest('a').attr('href'), $('#' + trigger.closest('[data-ownerid]').data('ownerid')).attr('data-hovercard')].reduce((acc, cur) => acc ? acc : /\.php\?id=([^&]+)/.test(cur) ? RegExp.$1 : ''),
+          profileId = ['', trigger.closest('[data-hovercard]').attr('data-hovercard'), trigger.closest('a').attr('href'), $(`#${trigger.closest('[data-ownerid]').data('ownerid')}`).attr('data-hovercard')].reduce((acc, cur) => acc ? acc : /\.php\?id=([^&]+)/.test(cur) ? RegExp.$1 : ''),
           fbId = '';
 
         return new Promise((resolve, reject) => {
@@ -751,7 +753,7 @@ const websiteConfig = {
       selectors: 'img,[style*="background-image"],.wXUyZd,.TdqJUe',
       srcRegExp: '(//(?:.*\\.googleusercontent|books\\.google)\\.com/[^=]+)=.*',
       processor: (trigger, src, srcRegExpObj) => {
-        return srcRegExpObj.test(src || trigger.parent().find('img[src]').attr('src')) ? RegExp.$1 + '=w10000' : '';
+        return srcRegExpObj.test(src || trigger.parent().find('img[src]').attr('src')) ? `${RegExp.$1}=w10000` : '';
       }
     }
     // , {
@@ -761,7 +763,7 @@ const websiteConfig = {
 
     //     return /\/imgres\?imgurl=([^&]+)/.test(link) ? decodeURIComponent(RegExp.$1) : (/\/search\?.*\btbm=isch\b/.test(link) ? new Promise(resolve => {
     //       $.ajax(link, {
-    //         success: imgSearchResultDoc => resolve(new RegExp('"id":"' + imgId + '".*?"ou":"([^"]+)"').test(imgSearchResultDoc) ? JSON.parse('"' + RegExp.$1 + '"') : ''),
+    //         success: imgSearchResultDoc => resolve(new RegExp(`"id":"${imgId}".*?"ou":"([^"]+)"`).test(imgSearchResultDoc) ? JSON.parse(`"${RegExp.$1}"`) : ''),
     //         error: () => resolve('')
     //       });
     //     }) : '');
@@ -835,7 +837,7 @@ const websiteConfig = {
       processor: '$1'
     }, {
       srcRegExp: '(//(?:tuniupic\\.360buyimg|.+\\.tuniucdn)\\.com/.+?)(?:_w\\d+_h\\d+_c\\d+_t\\d+)*(@IMG@)',
-      processor: (trigger, src, srcRegExpObj) => srcRegExpObj.test(src) ? tools.detectImage(RegExp.$1 + RegExp.$2, RegExp.$1 + '_w800_h0_c0_t0' + RegExp.$2).then(imgInfo => imgInfo.src) : ''
+      processor: (trigger, src, srcRegExpObj) => srcRegExpObj.test(src) ? tools.detectImage(RegExp.$1 + RegExp.$2, `${RegExp.$1}_w800_h0_c0_t0${RegExp.$2}`).then(imgInfo => imgInfo.src) : ''
     }]
   },
   'www\\.kmart\\.com': {
@@ -906,7 +908,7 @@ const websiteConfig = {
     srcMatching: [{
       selectors: 'img,.product-list__cover-link',
       srcRegExp: '(/shop/)render-image(/.+)(?:\\.\\d+){2}(@IMG@)',
-      processor: (trigger, src, srcRegExpObj) => srcRegExpObj.test(src || trigger.siblings('.media__img').find('.media__productImg').attr('src')) ? RegExp.$1 + 'content/images' + RegExp.$2 + RegExp.$3 : ''
+      processor: (trigger, src, srcRegExpObj) => srcRegExpObj.test(src || trigger.siblings('.media__img').find('.media__productImg').attr('src')) ? `${RegExp.$1}content/images${RegExp.$2}${RegExp.$3}` : ''
     }, {
       srcRegExp: '(media\\.flixcar\\.com/.+)-preview(@IMG@)',
       processor: '$1$2'
@@ -925,7 +927,7 @@ const websiteConfig = {
     srcMatching: {
       selectors: 'img,.pinWrapper a,[role="img"],.relative',
       srcRegExp: '(//i\\.pinimg\\.com/)(?:originals|\\d+x(?:\\d+_\\w+)?)(/.+@IMG@)',
-      processor: (trigger, src, srcRegExpObj) => trigger.find('video').attr('poster') || (srcRegExpObj.test(src || tools.getLargestImgSrc(trigger.closest('.pinWrapper').find('img'))) ? (RegExp.$1 + 'originals' + RegExp.$2) : '')
+      processor: (trigger, src, srcRegExpObj) => trigger.find('video').attr('poster') || (srcRegExpObj.test(src || tools.getLargestImgSrc(trigger.closest('.pinWrapper').find('img'))) ? (`${RegExp.$1}originals${RegExp.$2}`) : '')
     }
   },
   '(?:.+\\.)?(?:pixiv(?:ision|-bungei)?\\.net|booth\\.pm|vroid\\.com)': {
@@ -959,7 +961,7 @@ const websiteConfig = {
     }, {
       selectors: 'img,[style*="background-image"]',
       srcRegExp: '(//.+\\.pximg\\.net/).+(/img/.+?)(_p\\d+)?_.+(@IMG@)',
-      processor: (trigger, src, srcRegExpObj) => srcRegExpObj.test(src) ? tools.detectImage(RegExp.$1 + 'img-original' + RegExp.$2 + (RegExp.$3 || '_ugoira0') + RegExp.$4, RegExp.$1 + 'img-original' + RegExp.$2 + (RegExp.$3 || '_ugoira0') + '.png').then(imgInfo => imgInfo.src) : ''
+      processor: (trigger, src, srcRegExpObj) => srcRegExpObj.test(src) ? tools.detectImage(`${RegExp.$1}img-original${RegExp.$2}${RegExp.$3 || '_ugoira0'}${RegExp.$4}`, `${RegExp.$1}img-original${RegExp.$2}${RegExp.$3 || '_ugoira0'}.png`).then(imgInfo => imgInfo.src) : ''
     }, {
       selectors: 'img,[style*="background-image"]',
       srcRegExp: '(.+\\.pximg\\.net)/c!?/[^/]+(/.+@IMG@)',
@@ -992,11 +994,11 @@ const websiteConfig = {
     }, {
       selectors: 'img,.CarouselItem .ui_overlay,.switcher_item_image [style*="background-image"]',
       srcRegExp: '(//qph\\.fs\\.quoracdn\\.net/main-thumb-[-\\w]+-)\\d+(-\\w+@IMG@)',
-      processor: (trigger, src, srcRegExpObj) => srcRegExpObj.test(src || trigger.parent().find('img').attr('src')) ? (RegExp.$1 + '200' + RegExp.$2) : ''
+      processor: (trigger, src, srcRegExpObj) => srcRegExpObj.test(src || trigger.parent().find('img').attr('src')) ? (`${RegExp.$1}200${RegExp.$2}`) : ''
     }, {
       selectors: '.ui_layout_thumbnail',
       processor: (trigger, src) => {
-        var expandedCon = $('#' + trigger.closest('.Toggle[id$="__truncated"]').attr('id').replace(/__truncated$/, '__expanded')),
+        var expandedCon = $(`#${trigger.closest('.Toggle[id$="__truncated"]').attr('id').replace(/__truncated$/, '__expanded')}`),
           hasEmbededCon = $('.ui_qtext_embed_overlay_icon', trigger).length,
           imgs = $(hasEmbededCon ? '.ui_qtext_embed' : 'img.ui_qtext_image', expandedCon);
 
@@ -1081,7 +1083,7 @@ const websiteConfig = {
     srcMatching: {
       selectors: 'img,.ruleOfTwelve--tileImgInner',
       srcRegExp: '(//target\\.scene7\\.com/is/image/[^?]+)',
-      processor: (trigger, src, srcRegExpObj) => srcRegExpObj.test(trigger.is('img') && trigger.siblings('source[srcset]').attr('srcset') || src) ? (RegExp.$1 + '?wid=1000') : ''
+      processor: (trigger, src, srcRegExpObj) => srcRegExpObj.test(trigger.is('img') && trigger.siblings('source[srcset]').attr('srcset') || src) ? (`${RegExp.$1}?wid=1000`) : ''
     }
   },
   'themarket\\.com': {
@@ -1137,7 +1139,7 @@ const websiteConfig = {
     srcMatching: [{
       selectors: 'img,.supergrid-bucket .supergrid-listing',
       srcRegExp: '(//trademe\\.tmcdn\\.co\\.nz/photoserver/)\\w+(/\\d+@IMG@)',
-      processor: (trigger, src, srcRegExpObj) => srcRegExpObj.test(src) || srcRegExpObj.test(tools.getBackgroundImgSrc(trigger.find('.image'))) ? (RegExp.$1 + 'plusw' + RegExp.$2) : ''
+      processor: (trigger, src, srcRegExpObj) => srcRegExpObj.test(src) || srcRegExpObj.test(tools.getBackgroundImgSrc(trigger.find('.image'))) ? (`${RegExp.$1}plusw${RegExp.$2}`) : ''
     }, {
       selectors: '[style*="background-image"]',
       srcRegExp: '(//trademe\\.tmcdn\\.co\\.nz/photoserver/)\\w+(/\\d+@IMG@)',
@@ -1153,7 +1155,7 @@ const websiteConfig = {
     srcMatching: {
       selectors: 'img,a[href*="/products/"]',
       srcRegExp: '(/images/products/.+?)_[a-z]+(.*@IMG@)',
-      processor: (trigger, src, srcRegExpObj) => srcRegExpObj.test(src || trigger.next('.c-card-product__image-wrap').find('img').attr('src')) ? tools.detectImage(RegExp.$1 + RegExp.$2, RegExp.$1 + '_zoom' + RegExp.$2, img => img.width * img.height <= 1).then(imgInfo => imgInfo.src) : ''
+      processor: (trigger, src, srcRegExpObj) => srcRegExpObj.test(src || trigger.next('.c-card-product__image-wrap').find('img').attr('src')) ? tools.detectImage(RegExp.$1 + RegExp.$2, `${RegExp.$1}_zoom${RegExp.$2}`, img => img.width * img.height <= 1).then(imgInfo => imgInfo.src) : ''
     }
   },
   '1-day\\.winecentral\\.co\\.nz': {
@@ -1176,7 +1178,7 @@ const websiteConfig = {
       processor: (trigger, src, srcRegExpObj) => srcRegExpObj.test(src ||
         trigger.parent().find('.post_content img,.post-content img').attr('src') ||
         tools.getBackgroundImgSrc(trigger.parent().find('.post_thumbnail_container,.post-thumbnail-container,.thumbnail_anchor'))
-      ) ? (RegExp.$1 + '_1280' + RegExp.$2) : ''
+      ) ? (`${RegExp.$1}_1280${RegExp.$2}`) : ''
     }, {
       selectors: 'img,.post .post_glass,.post .post-glass,.post_media .video_embed',
       srcRegExp: '//(?:.*\\.media|static)\\.tumblr\\.com/.*_frame\\d+@IMG@',
@@ -1234,14 +1236,14 @@ const websiteConfig = {
     }, {
       selectors: 'img,.layer_personcard .nc_head',
       srcRegExp: '((?:.+\\.sinaimg\\.cn|image\\.storage\\.weibo\\.com)(?:/.+)?/)(?:small|large|thumbnail|c?mw\\d+|small|sq\\d+|thumb\\d+|bmiddle|orj\\d+|crop\\.[^/]+|square|wap\\d+)(/.+(?:@IMG@)?).*',
-      processor: (trigger, src, srcRegExpObj) => srcRegExpObj.test(src) ? tools.detectImage(RegExp.$1 + 'original' + RegExp.$2, RegExp.$1 + 'large' + RegExp.$2, img => img.width == 75 && img.height == 75).then(imgInfo => imgInfo.src) : ''
+      processor: (trigger, src, srcRegExpObj) => srcRegExpObj.test(src) ? tools.detectImage(`${RegExp.$1}original${RegExp.$2}`, `${RegExp.$1}large${RegExp.$2}`, img => img.width == 75 && img.height == 75).then(imgInfo => imgInfo.src) : ''
     }, {
       selectors: '.layer_personcard .nc_head',
       srcRegExp: '(img\\.t\\.sinajs\\.cn/.+)_[ms](@IMG@).*',
       processor: '$1$2'
     }, {
       srcRegExp: '(.+\\.sinaedge\\.com/cimg/.+/)(?:\\d+x?)+(@IMG@).*',
-      processor: (trigger, src, srcRegExpObj) => srcRegExpObj.test(src) ? tools.detectImage(RegExp.$1 + '1' + RegExp.$2, RegExp.$1 + '180x240x75x0x0x1' + RegExp.$2).then(imgInfo => imgInfo.src) : ''
+      processor: (trigger, src, srcRegExpObj) => srcRegExpObj.test(src) ? tools.detectImage(`${RegExp.$1}1${RegExp.$2}`, `${RegExp.$1}180x240x75x0x0x1${RegExp.$2}`).then(imgInfo => imgInfo.src) : ''
     }, {
       srcRegExp: '(upload\\.api\\.weibo\\.com/.+/msget)_thumbnail\\?.*(fid=\\w+).*(source=\\w+).*',
       processor: '$1?$2&$3'
@@ -1271,7 +1273,7 @@ const websiteConfig = {
     }, {
       selectors: '.photo-box .biz-shim',
       srcRegExp: '(//s\\d+-media\\d+\\.fl\\.yelpcdn\\.com/\\w*photo/.+/)\\d*[sml]{1,2}(@IMG@)',
-      processor: (trigger, src, srcRegExpObj) => srcRegExpObj.test(trigger.siblings('img').attr('src')) ? (RegExp.$1 + 'o' + RegExp.$2) : ''
+      processor: (trigger, src, srcRegExpObj) => srcRegExpObj.test(trigger.siblings('img').attr('src')) ? (`${RegExp.$1}o${RegExp.$2}`) : ''
     }, {
       srcRegExp: '//s\\d+-media\\d+\\.fl\\.yelpcdn\\.com/assets/.+@IMG@'
     }]
@@ -1308,7 +1310,7 @@ const websiteConfig = {
     srcMatching: [{
       selectors: 'img,.ytp-cued-thumbnail-overlay-image',
       srcRegExp: '(//i\\d*\\.ytimg\\.com/vi/.+/).+(@IMG@)',
-      processor: (trigger, src, srcRegExpObj) => srcRegExpObj.test(src) ? tools.detectImage(RegExp.$1 + 'hq720' + RegExp.$2, RegExp.$1 + 'hqdefault' + RegExp.$2, img => img.width == 120 && img.height == 90).then(imgInfo => imgInfo.src) : ''
+      processor: (trigger, src, srcRegExpObj) => srcRegExpObj.test(src) ? tools.detectImage(`${RegExp.$1}hq720${RegExp.$2}`, `${RegExp.$1}hqdefault${RegExp.$2}`, img => img.width == 120 && img.height == 90).then(imgInfo => imgInfo.src) : ''
     }, {
       srcRegExp: 'i\\d*\\.ytimg\\.com/.+@IMG@.*'
     }, {
@@ -1364,11 +1366,7 @@ const tools = {
     return date.getFullYear() + padNum(date.getMonth() + 1) + padNum(date.getDate()) + padNum(date.getHours()) + padNum(date.getMinutes()) + padNum(date.getSeconds());
   },
   getImgFileName: function(src, tabUrl) {
-    return [
-      chrome.i18n.getMessage('imageSavingNamePrefix'),
-      this.getUrlHostname(tabUrl),
-      tools.getDateStr(new Date())
-    ].join('_') + '.' + (/\.(jpe?g|png|bmp|gif|webp|svg)$/.test(src) ? RegExp.$1 : 'jpg');    // Explicitly ignore 'pnj' type.
+    return `${chrome.i18n.getMessage('imageSavingNamePrefix')}_${this.getUrlHostname(tabUrl)}_${tools.getDateStr(new Date())}.${/\.(jpe?g|png|bmp|gif|webp|svg)$/.test(src) ? RegExp.$1 : 'jpg'}`;    // Explicitly ignore 'pnj' type.
   },
   downloadImg: function(imgSrc, tabUrl) {
     imgSrc && chrome.downloads.download({
@@ -1397,7 +1395,7 @@ var photoShow = {
       };
 
       for (let website in websiteConfig) {
-        if (new RegExp('^' + website + '$').test(urlHostname)) {
+        if (new RegExp(`^${website}$`).test(urlHostname)) {
           WEBSITE_INFO[urlHostname].isPhotoShowAvailable = true;
           WEBSITE_INFO[urlHostname].isPhotoShowEnabled = !DISABLED_WEBSITES.includes(urlHostname);
           WEBSITE_INFO[urlHostname].websiteConfig = websiteConfig[website];
@@ -1582,12 +1580,14 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
       break;
 
     case 'SET_PHOTOSHOW_CONFIGS':    // Args: item, value
-      var oldValue = PHOTOSHOW_CONFIGS[request.args.item];
-      PHOTOSHOW_CONFIGS[request.args.item] = request.args.value;
+      var reservedConfig = Object.assign({}, PHOTOSHOW_CONFIGS);
+
+      request.args.item.split('.').reduce((item, key, i, itemArray) => item[key] = i < itemArray.length - 1 ? (typeof item[key] == 'object' ? item[key] : {}) : request.args.value, PHOTOSHOW_CONFIGS);
 
       chrome.storage.sync.set({
         photoShowConfigs: PHOTOSHOW_CONFIGS
-      }, () => chrome.runtime.lastError && (PHOTOSHOW_CONFIGS[request.args.item] = oldValue));
+      }, () => chrome.runtime.lastError && (PHOTOSHOW_CONFIGS = reservedConfig));
+
 
       break;
 

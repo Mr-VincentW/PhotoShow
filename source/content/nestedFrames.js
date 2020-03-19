@@ -15,13 +15,14 @@
  * @version 4.0.9.3 | 2020-01-08 | Vincent    // Updates: Port localStorage APIs to chrome.storage APIs.
  * @version 4.0.10.0 | 2020-01-09 | Vincent   // Bug Fix: Remount photoShow elements after they are removed by the host page.
  * @version 4.0.11.0 | 2020-01-20 | Vincent   // Updates: Replace spread syntax with Object.assign to support for older browsers, in response to user feedback.
+ * @version 4.2.0.0 | 2020-03-20 | Vincent    // Updates: Replace string concatenation with template literals.
  */
 
 (($, isInFrame) => {
   if (isInFrame) {
     const tools = {
       addStyle: function(styleName, selectors) {
-        if (!$('#photoShowStyles_' + styleName).length) {
+        if (!$(`#photoShowStyles_${styleName}`).length) {
           var rules = [];
 
           switch (styleName) {
@@ -38,19 +39,22 @@
             default:
           }
 
-          $('<style type="text/css"></style>').attr('id', 'photoShowStyles_' + styleName)
-            .append(selectors + '{' + rules.join(';') + '}')
+          $('<style type="text/css"></style>').attr('id', `photoShowStyles_${styleName}`)
+            .append(`${selectors}{${rules.join(';')}}`)
             .appendTo($('head')[0]);
         }
       }
     };
 
-    var photoShowViewer = {
-      isPhotoShowEnabled: false,     // PhotoShow availability flag.
-      websiteConfig: {},             // Configuration for current website.
+    const photoShow = {
+      isEnabled: false,    // PhotoShow availability flag.
+      websiteConfig: {}    // Configuration for current website.
+    };
+
+    const photoShowViewer = {
       domObserver: null,             // Observer for the document.
       toggle: function() {
-        if (this.isPhotoShowEnabled) {
+        if (photoShow.isEnabled) {
           // Handle mouseover event in capture phase.
           // This ensures a proper behavior when it comes to a trigger in iframes.
           document.addEventListener('mouseover', this.mouseOverAction, true);
@@ -61,14 +65,14 @@
           .on('topWinScroll.photoShow', this.winScrollAction.bind(this));
 
           // Add amend styles.
-          Object.assign(this.websiteConfig, {
-            amendStyles: Object.assign(this.websiteConfig.amendStyles || {}, {
-              pointerNone: ['*:before,*:after'].concat(this.websiteConfig.amendStyles && this.websiteConfig.amendStyles.pointerNone || []).join(',')
+          Object.assign(photoShow.websiteConfig, {
+            amendStyles: Object.assign(photoShow.websiteConfig.amendStyles || {}, {
+              pointerNone: ['*:before,*:after'].concat(photoShow.websiteConfig.amendStyles && photoShow.websiteConfig.amendStyles.pointerNone || []).join(',')
             })
           });
 
-          for (let styleName in this.websiteConfig.amendStyles) {
-            tools.addStyle(styleName, this.websiteConfig.amendStyles[styleName]);
+          for (let styleName in photoShow.websiteConfig.amendStyles) {
+            tools.addStyle(styleName, photoShow.websiteConfig.amendStyles[styleName]);
           }
 
           // Start observing triggers.
@@ -138,16 +142,16 @@
           tabUrl: window.top.location.href
         }
       }, response => {
-        photoShowViewer.isPhotoShowEnabled = response.isPhotoShowEnabled;
-        photoShowViewer.websiteConfig = response.websiteConfig || {};
+        photoShow.isEnabled = response.isPhotoShowEnabled;
+        photoShow.websiteConfig = response.websiteConfig || {};
 
         photoShowViewer.toggle();
       });
 
       // Response to storage change event.
       chrome.storage.onChanged.addListener(changes => {
-        if (changes.disabledWebsites && photoShowViewer.isPhotoShowEnabled != !changes.disabledWebsites.newValue.includes(location.hostname)) {
-          photoShowViewer.isPhotoShowEnabled = !photoShowViewer.isPhotoShowEnabled;
+        if (changes.disabledWebsites && photoShow.isEnabled != !changes.disabledWebsites.newValue.includes(location.hostname)) {
+          photoShow.isEnabled = !photoShow.isEnabled;
           photoShowViewer.toggle();
         }
       });

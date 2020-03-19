@@ -14,7 +14,7 @@
  *                                            // Updates: Add VIEW MODE feature;
  *                                            // Updates: Add shadow for the viewer and allow it to be hidden by user settings;
  *                                            // Updates: Allow PhotoShow logo in the viewer to be hidden by user settings;
- *                                            // Updates: Add new hotkeys 'Esc', 'Home', 'End', 'PageUp', 'PageDown', 'Arrow Left', 'Arrow Right', M', 'L', 'A' and 'P';
+ *                                            // Updates: Add new hotkeys 'Esc', 'Home', 'End', 'PageUp', 'PageDown', 'Arrow Left', 'Arrow Right', 'M', 'L', 'A' and 'P';
  *                                            // Updates: Change hotkeys for image rotation;
  *                                            // Updates: Optimize the popup page styles.
  * @version 4.0.3.0 | 2019-11-23 | Vincent    // Updates: Optimize the display style of the version text;
@@ -26,6 +26,10 @@
  * @version 4.0.11.0 | 2020-01-20 | Vincent   // Updates: Replace Array.prototype.flatMap method with Array.prototype.map to support older browsers, in response to user feedback.
  * @version 4.0.12.0 | 2020-01-24 | Vincent   // Updates: Add GitHub link.
  * @version 4.1.0.0 | 2020-03-13 | Vincent    // Updates: Add hotkey specification for image address copying.
+ * @version 4.2.0.0 | 2020-03-20 | Vincent    // Updates: PHOTOSHOW_CONFIGS supports nested data structure;
+ *                                            // Updates: Replace string concatenation with template literals;
+ *                                            // Updates: Support disabling hotkeys;
+ *                                            // Updates: Optimize hotkey specifications.
  */
 
 // TODO: Add animation toggle configuration (allow users to turn off all the animation).
@@ -35,12 +39,12 @@ var curTabUrl = '';
 
 const UI_LANGUAGE = chrome.i18n.getUILanguage(),
   PHOTOSHOW_LINK = /\bFirefox\b/.test(navigator.userAgent) ?
-    'https://addons.mozilla.org/' + UI_LANGUAGE + '/firefox/addon/photoshow/' :
+    `https://addons.mozilla.org/${UI_LANGUAGE}/firefox/addon/photoshow/` :
     (/\bEdg\b/.test(navigator.userAgent) ?
-      'https://microsoftedge.microsoft.com/addons/detail/afdelcfalkgcfelngdclbaijgeaklbjk?hl=' + UI_LANGUAGE :
+      `https://microsoftedge.microsoft.com/addons/detail/afdelcfalkgcfelngdclbaijgeaklbjk?hl=${UI_LANGUAGE}` :
       (/\bQQBrowser\b/.test(navigator.userAgent) ?
         'https://appcenter.browser.qq.com/search/detail?key=%E6%B5%AE%E5%9B%BE%E7%A7%80&id=mgpdnhlllbpncjpgokgfogidhoegebod%20&title=%E6%B5%AE%E5%9B%BE%E7%A7%80' :
-        'https://chrome.google.com/webstore/detail/photoshow/mgpdnhlllbpncjpgokgfogidhoegebod?hl=' + UI_LANGUAGE));
+        `https://chrome.google.com/webstore/detail/photoshow/mgpdnhlllbpncjpgokgfogidhoegebod?hl=${UI_LANGUAGE}`));
 
 function turnOnPhotoShow() {
   $('#stateMsg').text(chrome.i18n.getMessage('photoShowEnabledMsg'));
@@ -51,21 +55,27 @@ function turnOnPhotoShow() {
 
 function turnOffPhotoShow(disableAni) {
   $('#stateMsg').text(chrome.i18n.getMessage('photoShowDisabledMsg'));
-  $('#stateToggle').addClass('disabled' + (disableAni ? ' no-ani' : ''))
+  $('#stateToggle').addClass(`disabled${disableAni ? ' no-ani' : ''}`)
     .find('.state-icon').removeClass('icon-bubble-check').addClass('icon-bubble-warn');
   $('#stateToggleBtn').attr('title', chrome.i18n.getMessage('stateToggleOffTitle'));
 };
 
 function getSharingUrl(link, params) {
-  return params ? [link, '?'].concat(Object.keys(params).map(key => key + '=' + encodeURIComponent(params[key])).join('&')).join('') : link;
+  return params ? [link, '?'].concat(Object.keys(params).map(key => `${key}=${encodeURIComponent(params[key])}`).join('&')).join('') : link;
 }
 
-function updateConfigItems(configs) {
-  Object.keys(configs).forEach(key => {
-    let value = configs[key],
-      item = $('dl[item="' + key + '"] input');
+function updateConfigItems(configs, hostNode) {
+  Object.entries(configs).forEach(([key, value]) => {
+    let curConfigItemNode = $(`[config-item="${key}"]`, hostNode);
 
-    typeof value == 'boolean' ? item.prop('checked', value) : item.val([value]);
+    if (curConfigItemNode.length) {
+      if (typeof value === 'object') {
+        arguments.callee(value, curConfigItemNode);
+      } else {
+        let configInput = $('input', curConfigItemNode);
+        typeof value == 'boolean' ? configInput.prop('checked', value) : configInput.val([value]);
+      }
+    }
   });
 }
 
@@ -80,31 +90,28 @@ $(document).on('click.photoShow', '#stateToggleBtn', () => {    // Website switc
       }
     });
   }
-}).on('keydown.photoShow keyup.photoShow', e => {
+}).on('keydown.photoShow keyup.photoShow', e => {    // Hotkey actions.
   e.which == 27 || e.preventDefault();    // Do not block popup page closing.
 
   chrome.runtime.sendMessage({
     cmd: 'DISPATCH_HOTKEY_EVENT',
     args: (({type, which, shiftKey, ctrlKey, altKey}) => ({type, which, shiftKey, ctrlKey, altKey}))(e)
   });
-}).on('change.photoShow', '.radios input[type="radio"]', e => {    // Radios action.
+}).on('change.photoShow', '[config-item] input', e => {    // Config items actions.
   var curOption = $(e.currentTarget);
 
   chrome.runtime.sendMessage({
     cmd: 'SET_PHOTOSHOW_CONFIGS',
     args: {
-      item: curOption.closest('.radios').attr('item'),
-      value: curOption.val()
+      item: curOption.parentsUntil('body', '[config-item]').map((i, configItem) => $(configItem).attr('config-item')).toArray().reverse().join('.'),
+      value: curOption.is(':checkbox') ? curOption.is(':checked') : curOption.val()
     }
   });
-}).on('change.photoShow', '.checkboxes input[type="checkbox"]', e => {    // Checkboxes action.
-  chrome.runtime.sendMessage({
-    cmd: 'SET_PHOTOSHOW_CONFIGS',
-    args: {
-      item: $(e.currentTarget).closest('.checkboxes').attr('item'),
-      value: e.currentTarget.checked
-    }
-  });
+}).on('click.photoShow', '#hotkeysSection tr', e => {    // Hotkeys toggle actions.
+  if (!$(e.target).is(':checkbox')) {
+    var curCheckbox = $(':checkbox', e.currentTarget);
+    curCheckbox.prop('checked', !curCheckbox.is(':checked')).change();
+  }
 });
 
 // Response to the storage change event.
@@ -121,7 +128,7 @@ chrome.storage.onChanged.addListener(changes => {
 });
 
 // Initialization.
-$('#name').text(chrome.i18n.getMessage('extensionName') + ' ' + (/(\d+\.\d+)(?:\.\d+){0,2}( Beta)?/.test(chrome.runtime.getManifest().version_name) ? RegExp.$1 + RegExp.$2 : chrome.runtime.getManifest().version));
+$('#name').text(`${chrome.i18n.getMessage('extensionName')} ${/(\d+\.\d+)(?:\.\d+){0,2}( Beta)?/.test(chrome.runtime.getManifest().version_name) ? RegExp.$1 + RegExp.$2 : chrome.runtime.getManifest().version}`);
 $('#updateDate').text(chrome.i18n.getMessage('extensionUpdateDate'));
 
 $('#activationModeSection dt h3').text(chrome.i18n.getMessage('activationModeHeader'));
@@ -129,7 +136,7 @@ $('#activationModeDesc').text(chrome.i18n.getMessage('activationModeDesc'));
 $('#activationModeOption_None').text(chrome.i18n.getMessage('activationModeOption_None'));
 
 $('#viewModeSection dt h3').text(chrome.i18n.getMessage('viewModeHeader'));
-$('#viewModeSection dd').append(['Mini', 'Light', 'Auto', 'Panoramic'].map(modeName => ['<label title="', chrome.i18n.getMessage('viewModeOptionTitle_' + modeName), '" hotkey="', modeName[0], '"><input type="radio" name="viewModeRadio" value="', modeName, '"', modeName == 'Auto' ? ' checked' : '', ' /><span>', chrome.i18n.getMessage('viewModeOption_' + modeName), ' (', modeName[0], ')</span></label>'].join('')).join(''));
+$('#viewModeSection dd').append(['Mini', 'Light', 'Auto', 'Panoramic'].map(modeName => `<label title="${chrome.i18n.getMessage(`viewModeOptionTitle_${modeName}`)}" hotkey="${modeName[0]}"><input type="radio" name="viewModeRadio" value="${modeName}"${modeName == 'Auto' ? ' checked' : ''} /><span>${chrome.i18n.getMessage(`viewModeOption_${modeName}`)} (${modeName[0]})</span></label>`).join(''));
 
 $('#logoDisplaySection dt h3').text(chrome.i18n.getMessage('logoDisplayHeader'));
 $('#logoDisplayDesc').text(chrome.i18n.getMessage('logoDisplayDesc'));
@@ -138,7 +145,7 @@ $('#shadowDisplaySection dt h3').text(chrome.i18n.getMessage('shadowDisplayHeade
 $('#shadowDisplayDesc').text(chrome.i18n.getMessage('shadowDisplayDesc'));
 
 $('#hotkeysSection dt h3').text(chrome.i18n.getMessage('hotkeysHeader'));
-$('#hotkeysSection dd').append('<table>' + ['Esc', 'RotationCCW', 'RotationCW', 'Scroll', 'ScrollByPage', 'ScrollToEnds', 'ViewModeSwitch', 'OpenImageInNewTab', 'ImageSaving', 'CopyImageAddress'].map(keyName => '<tr>' + chrome.i18n.getMessage('hotkey_' + keyName) + '</tr>').join('') + '</table>');
+$('#hotkeysSection dd').append(`<table>${['closeViewer', 'rotateImage', 'scrollImage', 'scrollImageByPage', 'scrollImageToEnds', 'switchViewMode', 'openImageInNewTab', 'saveImage', 'copyImageAddress'].map(keyName => `<tr class="checkboxes" config-item="${keyName}" title="${chrome.i18n.getMessage('hotkeyToggleTitle')}"><td config-item="isEnabled"><input type="checkbox" checked/></td>${chrome.i18n.getMessage(`hotkey_${keyName}`)}</tr>`).join('')}</table>`);
 
 $('#shareSection dt h3').text(chrome.i18n.getMessage('shareHeader'));
 
@@ -168,7 +175,7 @@ function initContactLinks() {
           app_id: 552746812187976,
           display: 'popup',
           href: shareInfo.url,
-          sharetag: '#' + shareInfo.tag,
+          sharetag: `#${shareInfo.tag}`,
           quote: shareInfo.text
         }
       },
@@ -185,7 +192,7 @@ function initContactLinks() {
         data: {
           appkey: 514787745,
           url: shareInfo.url,
-          title: '#' + shareInfo.tag + '# ' + shareInfo.text,
+          title: `#${shareInfo.tag}# ${shareInfo.text}`,
           pic: shareInfo.pic
         }
       },
@@ -202,7 +209,7 @@ function initContactLinks() {
       'reddit': {
         link: 'https://www.reddit.com/submit',
         data: {
-          url: shareInfo.text + ' ' + shareInfo.url,
+          url: `${shareInfo.text} ${shareInfo.url}`,
           title: shareInfo.tag
         }
       },
@@ -219,7 +226,7 @@ function initContactLinks() {
       }
     };
 
-  Object.keys(contactConfig).forEach((name, i) => $('#shareSection .icon-' + name).attr({
+  Object.keys(contactConfig).forEach((name, i) => $(`#shareSection .icon-${name}`).attr({
     href: getSharingUrl(contactConfig[name].link, contactConfig[name].data),
     title: shareInfo.iconTitles[i]
   }));

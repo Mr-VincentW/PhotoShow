@@ -13,12 +13,13 @@
  * @version 4.0.0.0 | 2019-11-07 | Vincent    // Updates: Add VIEW MODE feature;
  *                                            // Updates: Add shadow for the viewer and allow it to be hidden by user settings;
  *                                            // Updates: Allow PhotoShow logo in the viewer to be hidden by user settings;
- *                                            // Updates: Add new hotkeys 'Esc', 'Home', 'End', 'PageUp', 'PageDown', 'Arrow Left', 'Arrow Right', M', 'L', 'A' and 'P';
+ *                                            // Updates: Add new hotkeys 'Esc', 'Home', 'End', 'PageUp', 'PageDown', 'Arrow Left', 'Arrow Right', 'M', 'L', 'A' and 'P';
  *                                            // Updates: Change hotkeys for image rotation;
  *                                            // Updates: Optimize the popup page styles;
  *                                            // Updates: Optimize all the icons.
  * @version 4.0.3.0 | 2019-11-23 | Vincent    // Updates: Add 'share' links.
  * @version 4.0.12.0 | 2020-01-24 | Vincent   // Updates: Add GitHub link.
+ * @version 4.2.0.0 | 2020-03-20 | Vincent    // Updates: Supports nested data structure for configuration items.
 -->
 
 <html>
@@ -39,7 +40,7 @@
       <span id="stateToggleBtn" class="state-toggle-btn"></span>
     </div>
     <div>
-      <dl class="desc radios activation-mode" item="activationMode" id="activationModeSection">
+      <dl class="desc radios activation-mode" config-item="activationMode" id="activationModeSection">
         <dt>
           <em class="icon icon-activation"></em>
           <h3></h3>
@@ -52,14 +53,14 @@
           <label><input type="radio" name="activationModeRadio" value="alt"/><span>Alt</span></label>
         </dd>
       </dl>
-      <dl class="desc radios" item="viewMode" id="viewModeSection">
+      <dl class="desc radios" config-item="viewMode" id="viewModeSection">
         <dt>
           <em class="icon icon-view-mode"></em>
           <h3></h3>
         </dt>
         <dd></dd>
       </dl>
-      <dl class="desc checkboxes" item="logoDisplay" id="logoDisplaySection">
+      <dl class="desc checkboxes" config-item="logoDisplay" id="logoDisplaySection">
         <dt>
           <em class="icon icon-logo-display"></em>
           <h3></h3>
@@ -68,7 +69,7 @@
           <label><input type="checkbox" checked /><span id="logoDisplayDesc"></span></label>
         </dd>
       </dl>
-      <dl class="desc checkboxes" item="shadowDisplay" id="shadowDisplaySection">
+      <dl class="desc checkboxes" config-item="shadowDisplay" id="shadowDisplaySection">
         <dt>
           <em class="icon icon-shadow-display"></em>
           <h3></h3>
@@ -77,7 +78,7 @@
           <label><input type="checkbox" checked /><span id="shadowDisplayDesc"></span></label>
         </dd>
       </dl>
-      <dl class="desc hotkeys-spec" id="hotkeysSection">
+      <dl class="desc hotkeys-spec" config-item="hotkeys" id="hotkeysSection">
         <dt>
           <em class="icon icon-keyboard"></em>
           <h3></h3>
