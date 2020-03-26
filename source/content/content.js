@@ -84,6 +84,7 @@
  *                                            // Updates: Replace string concatenation with template literals;
  *                                            // Updates: Optimize hotkey actions for better user inputting experience;
  *                                            // Updates: Support disabling hotkeys.
+ * @version 4.2.1.0 | 2020-03-26 | Vincent    // Bug Fix: Fix the problem that hotkey actions still trigger when the currently focused element is a 'contenteditable' one.
  */
 
 // TODO: Extract common tool methods to external modules.
@@ -381,6 +382,7 @@
     domObserver: null,                   // Observer for the document.
     viewerDisplayTimer: null,            // Timer to prevent image viewer from being over-triggered to display.
     _mouseoverEvtHandler: null,          // Mouseover event handler with 'this' bound to photoShowViewer.
+    isActiveElementAnInput: false,       // Indicates whether the currently focused element is an element for user input.
     getDisplayingStyles: function() {
       var oriImgSize = this.imgOriginalSize;
 
@@ -888,9 +890,12 @@
               });
             }
           })
-          .on('keydown.photoShow keyup.photoShow', (e) => {
+          .on('keydown.photoShow keyup.photoShow', e => {
             e.detail && Object.assign(e, e.detail);
             this[`${e.type}Action`](e);
+          })
+          .on('focusin.photoShow focusout.photoShow', e => {
+            this.isActiveElementAnInput = $(document.activeElement).is(':input,[contenteditable]');
           })
           .on('frameDomMutate.photoShow', (e, mutations) => this.domMutateAction(mutations))
           .on('animationend.photoShow', e => /photoshow-viewer-(.+)-ani/.test(e.originalEvent.animationName) && this.viewerBox.removeClass(RegExp.$1));
@@ -1097,11 +1102,9 @@
         this.moveAction(!!scrollMode);
       };
 
-      const isActiveElementAnInput = $(document.activeElement).is(':input');
-
       switch (e.which) {
         case 9:    // Key 'Tab'
-          if (!isActiveElementAnInput && photoShow.config.hotkeys.openImageInNewTab.isEnabled) {
+          if (!this.isActiveElementAnInput && photoShow.config.hotkeys.openImageInNewTab.isEnabled) {
             this.hasImgViewerShown && e.preventDefault();
             this.imgSrc && photoShowGlobalMsg.show(chrome.i18n.getMessage('globalMsg_imgWillOpenInNewTab'));
             Promise.resolve(this.imgSrc).then(imgSrc => {
@@ -1132,7 +1135,7 @@
           break;
 
         case 67:    // Key 'C'
-          if (!isActiveElementAnInput && photoShow.config.hotkeys.copyImageAddress.isEnabled) {
+          if (!this.isActiveElementAnInput && photoShow.config.hotkeys.copyImageAddress.isEnabled) {
             this.hasImgViewerShown && e.preventDefault();
             this.copyAction();
           }
@@ -1140,7 +1143,7 @@
           break;
 
         case 83:    // Key 'S'
-          if (!isActiveElementAnInput && photoShow.config.hotkeys.saveImage.isEnabled) {
+          if (!this.isActiveElementAnInput && photoShow.config.hotkeys.saveImage.isEnabled) {
             this.hasImgViewerShown && e.preventDefault();
             this.savingAction();
           }
@@ -1150,7 +1153,7 @@
         default:
       }
 
-      if (!isActiveElementAnInput && this.hasImgViewerShown) {
+      if (!this.isActiveElementAnInput && this.hasImgViewerShown) {
         switch (e.which) {
           case 27:    // Key 'Esc'
             if (photoShow.config.hotkeys.closeViewer.isEnabled) {

@@ -30,6 +30,7 @@
  *                                            // Updates: Replace string concatenation with template literals;
  *                                            // Updates: Support disabling hotkeys;
  *                                            // Updates: Optimize hotkey specifications.
+ * @version 4.2.1.0 | 2020-03-26 | Vincent    // Updates: Replace the PhotoShow poster image for sharing.
  */
 
 // TODO: Add animation toggle configuration (allow users to turn off all the animation).
@@ -156,7 +157,7 @@ function initContactLinks() {
       tag: chrome.i18n.getMessage('extensionName'),
       text: chrome.i18n.getMessage('shareText'),
       desc: chrome.i18n.getMessage('extensionDesc'),
-      pic: 'https://lh3.googleusercontent.com/0_gQN9C5jsOE1shfXQPwqXS47Cm04A5p_EIpacTir9dsrYvh-EgJwPbjPOflyBHrPwlTdwQx=w1400-h560'
+      pic: 'https://lh3.googleusercontent.com/J4PdCq4haGqB-GYF_BFEcswOtM1vucxUAiCFAYEvwMXDJH_I-ksKhLYgv97MRBVb_EJIxCwP=w1400-h560'
     },
     contactConfig = {
       'mail': {
