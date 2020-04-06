@@ -85,6 +85,7 @@
  *                                            // Updates: Optimize hotkey actions for better user inputting experience;
  *                                            // Updates: Support disabling hotkeys.
  * @version 4.2.1.0 | 2020-03-26 | Vincent    // Bug Fix: Fix the problem that hotkey actions still trigger when the currently focused element is a 'contenteditable' one.
+ * @version 4.2.2.0 | 2020-04-06 | Vincent    // Updates: Support parsing SVG image elements.
  */
 
 // TODO: Extract common tool methods to external modules.
@@ -175,12 +176,20 @@
       return /^url\([\'"]?((?:https?:|data:image\/)?\/\/.+?)[\'"]?\)$/i.test($(img).css('backgroundImage').split(/,\s*(?=url\()/)[0]) ? RegExp.$1 : '';
     },
     getLargestImgSrc: function(target) {
-      var srcSetRegex = /([\d.]+)[wx]$/;
+      var srcSetRegex = /([\d.]+)[wx]$/,
+        src = '';
+
       target = $(target);
 
-      return target.is('img') ?
-        (target[0].srcset || target[0].src || '').split(/,\s*(?=(?:\w+:)?\/\/)/).sort((src1, src2) => (srcSetRegex.test(src2) ? parseFloat(RegExp.$1) : 0) - (srcSetRegex.test(src1) ? parseFloat(RegExp.$1) : 0))[0].split(/,?\s+/)[0] :
-        this.getBackgroundImgSrc(target);
+      if (target.is('img')) {
+        src = (target[0].srcset || target[0].src || '').split(/,\s*(?=(?:\w+:)?\/\/)/).sort((src1, src2) => (srcSetRegex.test(src2) ? parseFloat(RegExp.$1) : 0) - (srcSetRegex.test(src1) ? parseFloat(RegExp.$1) : 0))[0].split(/,?\s+/)[0];
+      } else if (target.is('image')) {    // SVG image element.
+        src = target.attr('href') || target.attr('xlink:href');
+      } else {
+        src = this.getBackgroundImgSrc(target);
+      }
+
+      return src;
     },
     getBoundingClientRectToTopWin: function(element) {
       var clientRect = $.extend({}, element.getBoundingClientRect());    // TODO: Find better ways to transfer DOMRect object to plain JavaScript object.
@@ -604,7 +613,7 @@
         for (let i = 0; i < photoShow.websiteConfig.srcMatching.length; ++i) {
           let curMatchingRule = photoShow.websiteConfig.srcMatching[i];
 
-          if ((target.is(curMatchingRule.selectors || 'img,[style*=background-image]')) && target.css('pointerEvents') != 'none') {
+          if ((target.is(curMatchingRule.selectors || 'img,[style*=background-image],image')) && target.css('pointerEvents') != 'none') {
             let targetSrc = tools.getLargestImgSrc(element),
               srcRegExpObj = curMatchingRule.srcRegExp ? new RegExp(curMatchingRule.srcRegExp, 'i') : undefined;
 

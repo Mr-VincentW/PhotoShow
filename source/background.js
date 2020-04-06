@@ -104,6 +104,7 @@
  *                                            // Updates: Support Alimama in response to user feedback.
  * @version 4.2.0.0 | 2020-03-20 | Vincent    // Updates: PHOTOSHOW_CONFIGS supports nested data structure;
  *                                            // Updates: Replace string concatenation with template literals.
+ * @version 4.2.2.0 | 2020-04-06 | Vincent    // Updates: Better support for Facebook.
  */
 
 // TODO: Solve the downloading failure issue on pixiv and similar websites (HTTP headers might need to be set when requesting for downloading).
@@ -584,7 +585,7 @@ const websiteConfig = {
   'www\\.facebook\\.com': {
     amendStyles: {
       pointerAuto: '.uiMediaThumb+._53d a',
-      pointerNone: '._52d9,.uiMediaThumb+._53d,._3251,._7m4,#fbProfileCover .coverBorder'
+      pointerNone: '._52d9,.uiMediaThumb+._53d,._3251,._7m4,#fbProfileCover .coverBorder,.pmk7jnqg.kr520xx4.j9ispegn'
     },
     srcMatching: [{
       selectors: 'a[href^="/events/"] img',
@@ -602,7 +603,7 @@ const websiteConfig = {
       srcRegExp: '//.+\\.fbcdn\\.net/safe_image\\.php\\?.+&url=([^&]+)',
       processor: (trigger, src, srcRegExpObj) => srcRegExpObj.test(src) ? decodeURIComponent(RegExp.$1) : ''
     }, {
-      selectors: 'img,[style*=background-image],a[data-video-channel-id]',
+      selectors: 'img,[style*=background-image],a[data-video-channel-id],image',
       srcRegExp: '/\\d+_(\\d+)_\\w+@IMG@\\?',
       processor: (trigger, src, srcRegExpObj) => {
         var bgSrc = tools.getBackgroundImgSrc(trigger);
