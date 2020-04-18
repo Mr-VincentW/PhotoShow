@@ -101,9 +101,9 @@
 
  2. **购物 / 出行 / 服务 类：**
 
-    1-day、Alibaba、AliExpress、Amazon、Apple、Best Buy、Briscoes、DHgate、eBay、Etsy、Google Play、Kmart、Myprotein、Newegg、noel leeming、PBTech、Target、TheMarket、thewarehouse、Torpedo7、Trade Me、TreatMe、Walmart、warehouse stationery、Yelp
+    1-day、Alibaba、AliExpress、Amazon、Apple、Best Buy、Briscoes、Countdown、DHgate、eBay、Etsy、Google Play、Kmart、Myprotein、Newegg、noel leeming、PBTech、Target、TheMarket、thewarehouse、Torpedo7、Trade Me、TreatMe、Walmart、warehouse stationery、Yelp
 
-    当当、多看、京东、一号店、小米、小米有品、苏宁易购、天猫、淘宝、一淘、1688、阿里妈妈、阿里健康大药房、飞猪、途牛
+    当当、多看、京东、一号店、小米、小米有品、苏宁易购、天猫、淘宝、一淘、1688、阿里妈妈、阿里健康大药房、飞猪、途牛、网商园
 
  3. **搜索 / 知识 / 专业 类：**
 
@@ -121,7 +121,7 @@
 
     YouTube
 
-    bilibili、优酷、土豆
+    bilibili、优酷、土豆、看TV
 
 　　如果上述列表中不包含您所钟爱的网站，欢迎[向作者反馈](#%E8%81%94%E7%B3%BB%E4%BD%9C%E8%80%85)以获取更多支持。
 <br />

@@ -105,6 +105,13 @@
  * @version 4.2.0.0 | 2020-03-20 | Vincent    // Updates: PHOTOSHOW_CONFIGS supports nested data structure;
  *                                            // Updates: Replace string concatenation with template literals.
  * @version 4.2.2.0 | 2020-04-06 | Vincent    // Updates: Better support for Facebook.
+ * @version 4.3.0.0 | 2020-04-10 | Vincent    // Updates: Add support for 'gifv' imags used by Tumblr;
+ *                                            // Updates: Support wekan.tv;
+ *                                            // Bug Fix: Fix the problem that images might be downloaded with wrong file name suffixes.
+ * @version 4.4.0.0 | 2020-04-18 | Vincent    // Updates: Add 'xhrDownload' field to the website-info-structure, for better image downloading support;
+ *                                            // Updates: Support downloading images from websites that requires 'referer' HTTP header;
+ *                                            // Updates: Better support for bilibili, facebook, GitHub, imgur, and pixiv;
+ *                                            // Updates: Add support for countdown, wsy.com.
  */
 
 // TODO: Solve the downloading failure issue on pixiv and similar websites (HTTP headers might need to be set when requesting for downloading).
@@ -122,6 +129,7 @@
 //     pointerAuto: {String},          // Selectors that are to be set to 'pointer-events:auto'
 //     pointerNone: {String}           // Selectors that are to be set to 'pointer-events:none'
 //   },
+//   xhrDownload: {String|Array},      // (Optional) If downloading images under certain hostnames on this website needs the 'referer' header of the HTTP request set, list the hostnames here.
 //   srcMatching: {                    // (Required) Matching configuration.
 //     selectors: {String},            // (Optional) Selectors for elements responsible for mouse-enter action. Default value: '' (equivalent to 'img,[style*=background-image]').
 //     srcRegExp: {String},            // (Optional) Pattern for trigger image src matching in src replacement.
@@ -133,7 +141,12 @@
 //   }
 // }
 //
-// NOTE: In 'srcMatching':
+// NOTE:
+// As for 'xhrDownload':
+// Some websites have strict access restrictions that downloading requests without the 'referer' header correctly set will fail.
+// Specify the hostnames of these image URLs with this parameter so that PhotoShow will use special ways to download these images with the 'referer' header set to the hostname of their source pages.
+//
+// As for 'srcMatching':
 // 'selectors' is used to select the trigger element which can be any type of elements.
 // 'processor' is used to generate the src of the 'large' image. If it is:
 // · A function: It will be called to generate the src of the high-definition image, usually being used to process those non-image triggers;
@@ -330,12 +343,12 @@ const websiteConfig = {
       processor: '$1500x500$2'
     }]
   },
-  '(?:www|search|h|space)\\.bilibili\\.com': {
+  '.+\\.bilibili\\.com': {
     amendStyles: {
-      pointerNone: '.groom-module .card-mark,.spread-module .pic img~*,.spread-module .pic .lazy-img~*,.cover-ctn .cover-back,.hot-list-content .hover-mask'
+      pointerNone: '.groom-module .card-mark,.spread-module .pic img~*,.spread-module .pic .lazy-img~*,.cover-ctn .cover-back,.hot-list-content .hover-mask,.play-mask,.recommend-box .info,.hover-cover-box *:not(.cover-ctnr),.image-area *:not(img),.face-pendants'
     },
     srcMatching: [{
-      selectors: 'img,.card-live-module .pic .mask,.cover-ctn .cover,.album-img,.user-container i,.drawer-card .img-ctn,.canvas-card .img-contain',
+      selectors: 'img,[style*=background-image],.card-live-module .pic .mask,.cover-ctn .cover,.album-img,.user-container i,.drawer-card .img-ctn,.canvas-card .img-contain',
       srcRegExp: '(i\\d+\\.hdslb\\.com/.+?@IMG@)[^?]*(\\?.*)?',
       processor: '$1$2'
     }, {
@@ -421,6 +434,12 @@ const websiteConfig = {
       srcRegExp: '(/magazine/.+?)(?:-\\d+x\\d+)?(@IMG@)',
       processor: '$1$2'
     }]
+  },
+  'shop\\.countdown\\.co\\.nz': {
+    srcMatching: {
+      srcRegExp: '(/Content/ProductImages/)\\w+(/\\w+@IMG@).*',
+      processor: (trigger, src, srcRegExpObj) => srcRegExpObj.test(src) ? tools.detectImage(`${RegExp.$1}zoom${RegExp.$2}`, `${RegExp.$1}large${RegExp.$2}`).then(imgInfo => imgInfo.src) : ''
+    }
   },
   '(?:.+\\.)?dangdang\\.com': {
     srcMatching: [{
@@ -585,7 +604,7 @@ const websiteConfig = {
   'www\\.facebook\\.com': {
     amendStyles: {
       pointerAuto: '.uiMediaThumb+._53d a',
-      pointerNone: '._52d9,.uiMediaThumb+._53d,._3251,._7m4,#fbProfileCover .coverBorder,.pmk7jnqg.kr520xx4.j9ispegn'
+      pointerNone: '._52d9,.uiMediaThumb+._53d,._3251,._7m4,#fbProfileCover .coverBorder'
     },
     srcMatching: [{
       selectors: 'a[href^="/events/"] img',
@@ -742,6 +761,10 @@ const websiteConfig = {
   },
   '(.+\\.)?github\\.(?:com|blog)': {
     srcMatching: [{
+      selectors: '.js-navigation-open',
+      srcRegExp: '(?://github\\.com/)?(.+/)(?:blob|raw)/(.+@IMG@).*',
+      processor: '//raw.githubusercontent.com$1$2'
+    }, {
       srcRegExp: '((?:avatars\\d+|marketplace-screenshots)\\.githubusercontent\\.com/[^?]+).*',
       processor: '$1'
     }, {}]
@@ -787,7 +810,7 @@ const websiteConfig = {
     },
     srcMatching: {
       selectors: 'img,.Tag,.sg-list-image,.Suggestion-item .thumbnail',
-      srcRegExp: '(i\\.imgur\\.com/\\w+?)(?:b|_d)?(@IMG@).*',
+      srcRegExp: '(i\\.imgur\\.com/\\w{7}).*?(@IMG@).*',
       processor: '$1$2'
     }
   },
@@ -936,14 +959,11 @@ const websiteConfig = {
       pointerNone: '.dxCZpw,.TagImageMainBack,.search-guide-tablet-label',
       pointerAuto: '.thumb img'
     },
+    xhrDownload: 'i.pximg.net',
     srcMatching: [{
       selectors: 'img,[style*="background-image"]',
       srcRegExp: '(.+\\.pximg\\.net/user-profile/.+)_\\d+(@IMG@)',
       processor: '$1$2'
-    }, {
-      selectors: 'img,[style*="background-image"]',
-      srcRegExp: '(.+\\.pximg\\.net)/c/\\d+x\\d+.*/(novel-cover-master/.+@IMG@)',
-      processor: '$1/c/600x600/$2'
     }, {
       selectors: 'img,[style*="background-image"]',
       srcRegExp: '.+\\.pximg\\.net/(?:imgaz|img-novel)/.+@IMG@'
@@ -961,12 +981,12 @@ const websiteConfig = {
       processor: '$1$2'
     }, {
       selectors: 'img,[style*="background-image"]',
-      srcRegExp: '(//.+\\.pximg\\.net/).+(/img/.+?)(_p\\d+)?_.+(@IMG@)',
-      processor: (trigger, src, srcRegExpObj) => srcRegExpObj.test(src) ? tools.detectImage(`${RegExp.$1}img-original${RegExp.$2}${RegExp.$3 || '_ugoira0'}${RegExp.$4}`, `${RegExp.$1}img-original${RegExp.$2}${RegExp.$3 || '_ugoira0'}.png`).then(imgInfo => imgInfo.src) : ''
-    }, {
-      selectors: 'img,[style*="background-image"]',
       srcRegExp: '(.+\\.pximg\\.net)/c!?/[^/]+(/.+@IMG@)',
       processor: '$1$2'
+    }, {
+      selectors: 'img,[style*="background-image"]',
+      srcRegExp: '(//.+\\.pximg\\.net/).+(/img/.+?)(_p\\d+)?_.+(@IMG@)',
+      processor: (trigger, src, srcRegExpObj) => srcRegExpObj.test(src) ? tools.detectImage(`${RegExp.$1}img-original${RegExp.$2}${RegExp.$3 || '_ugoira0'}${RegExp.$4}`, `${RegExp.$1}img-original${RegExp.$2}${RegExp.$3 || '_ugoira0'}.png`).then(imgInfo => imgInfo.src) : ''
     }, {
       selectors: 'img,[style*="background-image"]',
       srcRegExp: '.+\\.pximg\\.net/.+@IMG@'
@@ -1102,9 +1122,9 @@ const websiteConfig = {
       processor: '$1$2'
     }
   },
-  '(?:.+\\.)?(tmall|taobao|etao|fliggy|alitrip|1688|alibaba|aliexpress|liangxinyao|alipay|alicdn|alimama)\\.(?:com|[a-z]{2})': {
+  '(?:.+\\.)?(tmall|taobao|etao|fliggy|alitrip|1688|alibaba|aliexpress|liangxinyao|alipay|alicdn|alimama|wsy)\\.(?:com|[a-z]{2})': {
     amendStyles: {
-      pointerNone: '.mask,.itemSoldout .product-mask,.ju-itemlist .link-box .detail,.tb-img li span,.offerImg .offerMask,.NervModuleKjIndexCateOfferUi>div:first-child>div:last-child,.imageGallery .imgItem .imgBg,.img-box .img-bg-layer,.img-zhe,.img-mask,.product .shadow'
+      pointerNone: '.mask,.itemSoldout .product-mask,.ju-itemlist .link-box .detail,.tb-img li span,.offerImg .offerMask,.NervModuleKjIndexCateOfferUi>div:first-child>div:last-child,.imageGallery .imgItem .imgBg,.img-box .img-bg-layer,.img-zhe,.img-mask,.product .shadow,.item .shade'
     },
     srcMatching: [{
       selectors: 'img,.zhibo-show-list .img-item,.abs.jibbg,.item-list .item-img,.act-list .itemLink',
@@ -1130,6 +1150,9 @@ const websiteConfig = {
     }, {
       srcRegExp: '.+\\.(?:alicdn|china\\.alibaba)\\.com/montage/.+@IMG@\\?.*&img_path2=(.+?@IMG@)',
       processor: (trigger, src, srcRegExpObj) => srcRegExpObj.test(src) ? decodeURIComponent(RegExp.$1) : ''
+    }, {    // This is for www.wsy.com that links a lot of images under ali's hostnames.
+      srcRegExp: '(imgcdn\\.wsy\\.com/.+?@IMG@).*',
+      processor: '$1'
     }]
   },
   '(?:www\\.)?trademe(?:\\.co)?\\.nz': {
@@ -1250,6 +1273,15 @@ const websiteConfig = {
       processor: '$1?$2&$3'
     }, {}]
   },
+  'www\\.wekan\\.tv': {
+    amendStyles: {
+      pointerNone: '[class$="poster"] [class$="poster__pic"]~*'
+    },
+    srcMatching: {
+      srcRegExp: '(.+?@IMG@).*',
+      processor: '$1'
+    }
+  },
   'www\\.wikiart\\.org': {
     srcMatching: {
       srcRegExp: '(uploads\\d+\\.wikiart\\.org/.+?@IMG@).*',
@@ -1351,30 +1383,68 @@ const websiteConfig = {
   }
 };
 
-var WEBSITE_INFO = {},
+let WEBSITE_INFO = {},
   DISABLED_WEBSITES = [],
+  XHR_DOWNLOAD_REQUIRED_HOSTNAMES = [],
+  XHR_DOWNLOAD_ITMES = {},
   PHOTOSHOW_CONFIGS = {};
 
 const tools = {
   getUrlHostname: function(url) {
     return new URL(url).hostname || '';
   },
-  getDateStr: function(date) {
-    function padNum(num) {
-      return (num > 9 ? '' : '0') + num;
-    }
+  getDateStr: function() {
+    const padNum = num => (num > 9 ? '' : '0') + num,
+      now = new Date();
 
-    return date.getFullYear() + padNum(date.getMonth() + 1) + padNum(date.getDate()) + padNum(date.getHours()) + padNum(date.getMinutes()) + padNum(date.getSeconds());
+    return `${now.getFullYear()}${padNum(now.getMonth() + 1)}${padNum(now.getDate())}${padNum(now.getHours())}${padNum(now.getMinutes())}${padNum(now.getSeconds())}`;
   },
-  getImgFileName: function(src, tabUrl) {
-    return `${chrome.i18n.getMessage('imageSavingNamePrefix')}_${this.getUrlHostname(tabUrl)}_${tools.getDateStr(new Date())}.${/\.(jpe?g|png|bmp|gif|webp|svg)$/.test(src) ? RegExp.$1 : 'jpg'}`;    // Explicitly ignore 'pnj' type.
+  getImgFileName: function(src, hostname) {
+    return `${chrome.i18n.getMessage('imageSavingNamePrefix')}_${hostname}_${this.getDateStr()}.${/\b(jpe?g|gif|png|bmp|webp|svg)\b/.test(src) ? RegExp.$1 : 'jpg'}`;    // Explicitly ignore 'pnj' type.
   },
   downloadImg: function(imgSrc, tabUrl) {
-    imgSrc && chrome.downloads.download({
-      url: imgSrc,
-      filename: tools.getImgFileName(imgSrc, tabUrl),
-      conflictAction: 'uniquify'
-    });
+    if (imgSrc) {
+      tabUrl = new URL(tabUrl);
+      imgSrc = imgSrc.replace(/\b(gif)v\b/, 'gif');    // Replace 'gifv' suffix used by Tumblr with 'gif' as otherwise it causes downloading problems in Firefox.
+
+      if (XHR_DOWNLOAD_REQUIRED_HOSTNAMES.includes(new URL(imgSrc).hostname)) {
+        let xhr = new XMLHttpRequest();
+
+        xhr.open('GET', imgSrc, true);
+        xhr.responseType = 'blob';
+        xhr.setRequestHeader('photoshow-added-referer', tabUrl.origin);
+
+        xhr.addEventListener('load', e => {
+          if (e.target.status == 200) {
+            const blobUrl = URL.createObjectURL(xhr.response);
+
+            chrome.downloads.download({
+              url: blobUrl,
+              filename: this.getImgFileName(imgSrc, tabUrl.hostname),
+              conflictAction: 'uniquify'
+            }, downloadItemId => {
+              if (chrome.runtime.lastError || !downloadItemId) {
+                URL.revokeObjectURL(blobUrl);
+              } else {
+                XHR_DOWNLOAD_ITMES[downloadItemId] = {
+                  blobUrl: blobUrl
+                }
+              }
+            });
+
+            xhr = null;
+          }
+        });
+
+        xhr.send();
+      } else {
+        chrome.downloads.download({
+          url: imgSrc,
+          filename: this.getImgFileName(imgSrc, tabUrl.hostname),
+          conflictAction: 'uniquify'
+        });
+      }
+    }
   },
   openImgInNewTab: function(imgSrc, curTabIndex) {
     imgSrc && chrome.tabs.create({
@@ -1403,7 +1473,7 @@ var photoShow = {
           WEBSITE_INFO[urlHostname].websiteConfig.srcMatching = [].concat(WEBSITE_INFO[urlHostname].websiteConfig.srcMatching || {});
 
           for (let i = 0; i < WEBSITE_INFO[urlHostname].websiteConfig.srcMatching.length; ++i) {
-            WEBSITE_INFO[urlHostname].websiteConfig.srcMatching[i].srcRegExp && (WEBSITE_INFO[urlHostname].websiteConfig.srcMatching[i].srcRegExp = WEBSITE_INFO[urlHostname].websiteConfig.srcMatching[i].srcRegExp.replace(/@IMG@/g, '\\.(?:jpe?g|gif|pn[gj]|webp|svg)'));
+            WEBSITE_INFO[urlHostname].websiteConfig.srcMatching[i].srcRegExp && (WEBSITE_INFO[urlHostname].websiteConfig.srcMatching[i].srcRegExp = WEBSITE_INFO[urlHostname].websiteConfig.srcMatching[i].srcRegExp.replace(/@IMG@/g, '\\.(?:jpe?g|gifv?|pn[gj]|bmp|webp|svg)'));
             WEBSITE_INFO[urlHostname].websiteConfig.srcMatching[i].processor && (WEBSITE_INFO[urlHostname].websiteConfig.srcMatching[i].processor = '' + WEBSITE_INFO[urlHostname].websiteConfig.srcMatching[i].processor);
           }
 
@@ -1658,6 +1728,36 @@ chrome.storage.onChanged.addListener(changes => {
   }
 
   changes.photoShowConfigs && (PHOTOSHOW_CONFIGS = changes.photoShowConfigs.newValue);
+});
+
+// Deal with xhr-downloading requests.
+XHR_DOWNLOAD_REQUIRED_HOSTNAMES = Object.values(websiteConfig)
+  .filter(config => config.hasOwnProperty('xhrDownload'))
+  .flatMap(config => config.xhrDownload);
+
+chrome.webRequest.onBeforeSendHeaders.addListener(details => {
+    for(let header of details.requestHeaders) {
+      if (header.name == 'photoshow-added-referer') {
+        header.name = 'referer';
+        break;
+      }
+    }
+
+    return {
+      requestHeaders: details.requestHeaders
+    };
+  }, {
+    urls: XHR_DOWNLOAD_REQUIRED_HOSTNAMES.map(hostname => `*://${hostname}/*`)
+  }, ['requestHeaders', 'blocking', 'extraHeaders']);
+
+// Response to download items change.
+chrome.downloads.onChanged.addListener(downloadInfo => {
+  const matchedDownloadItem = XHR_DOWNLOAD_ITMES[downloadInfo.id];
+
+  if (matchedDownloadItem && downloadInfo.state && downloadInfo.state.current != 'in_progress') {
+    URL.revokeObjectURL(matchedDownloadItem.blobUrl);
+    delete XHR_DOWNLOAD_ITMES[downloadInfo.id];
+  }
 });
 
 // Initialization.

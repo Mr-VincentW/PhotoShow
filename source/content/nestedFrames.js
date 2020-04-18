@@ -16,6 +16,7 @@
  * @version 4.0.10.0 | 2020-01-09 | Vincent   // Bug Fix: Remount photoShow elements after they are removed by the host page.
  * @version 4.0.11.0 | 2020-01-20 | Vincent   // Updates: Replace spread syntax with Object.assign to support for older browsers, in response to user feedback.
  * @version 4.2.0.0 | 2020-03-20 | Vincent    // Updates: Replace string concatenation with template literals.
+ * @version 4.4.0.0 | 2020-04-18 | Vincent    // Bug Fix: Fix the problem that image src fails to be preserved for contextmenu actions.
  */
 
 (($, isInFrame) => {
@@ -59,7 +60,7 @@
           // This ensures a proper behavior when it comes to a trigger in iframes.
           document.addEventListener('mouseover', this.mouseOverAction, true);
 
-          $(document).on('mousemove.photoShow mouseout.photoShow keydown.photoShow keyup.photoShow', e => {
+          $(document).on('mousemove.photoShow mouseout.photoShow keydown.photoShow keyup.photoShow contextmenu.photoShow', e => {
             window.top.jQuery(window.top.document).trigger(e);
           })
           .on('topWinScroll.photoShow', this.winScrollAction.bind(this));

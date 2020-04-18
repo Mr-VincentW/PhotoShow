@@ -86,6 +86,16 @@
  *                                            // Updates: Support disabling hotkeys.
  * @version 4.2.1.0 | 2020-03-26 | Vincent    // Bug Fix: Fix the problem that hotkey actions still trigger when the currently focused element is a 'contenteditable' one.
  * @version 4.2.2.0 | 2020-04-06 | Vincent    // Updates: Support parsing SVG image elements.
+ * @version 4.3.0.0 | 2020-04-10 | Vincent    // Updates: Add support for 'gifv' imags used by Tumblr;
+ *                                            // Bug Fix: Fix performance issue that might be caused by page scrolling event;
+ *                                            // Bug Fix: Fix a spelling error that will cause an exception in domMutateAction.
+ * @version 4.4.0.0 | 2020-04-18 | Vincent    // Updates: Optimize triggers parsing, images downloading, and opening-in-new-tab procedures, allowing these actions to work on parsing-unfinished triggers;
+ *                                            // Bug Fix: Resolve the instability of image downloading actions (either repeatedly or not-happened), in response to user feedback;
+ *                                            // Updates: Better support for 'a' link triggers;
+ *                                            // Updates: Optimize mask hosting element detecting algorithm;
+ *                                            // Updates: Optimize hotkey actions;
+ *                                            // Updates: Optimize the destruction procedure when PhotoShow is toggled off;
+ *                                            // Bug Fix: Fix the problem that image src fails to be preserved for contextmenu actions.
  */
 
 // TODO: Extract common tool methods to external modules.
@@ -144,7 +154,7 @@
       });
     },
     loadImage: function(oriSrc) {
-      return Promise.resolve(oriSrc).then(imgSrc => this.detectImage(imgSrc).then(imgInfo => Promise.resolve(Object.assign({oriSrc}, imgInfo))));
+      return this.resolveImgSrc(oriSrc).then(imgSrc => this.detectImage(imgSrc).then(imgInfo => Object.assign({oriSrc}, imgInfo)));
     },
     cacheImage: function(id, imgSrc) {
       return imgSrc && !$(`[photoshow-cache-id="${id}"]`).length ? ($('<input type="hidden" />').attr('photoshow-cache-id', id).val(imgSrc).appendTo(document.body), imgSrc) : ($(`[photoshow-cache-id="${id}"]`).val() || '');
@@ -183,11 +193,13 @@
 
       if (target.is('img')) {
         src = (target[0].srcset || target[0].src || '').split(/,\s*(?=(?:\w+:)?\/\/)/).sort((src1, src2) => (srcSetRegex.test(src2) ? parseFloat(RegExp.$1) : 0) - (srcSetRegex.test(src1) ? parseFloat(RegExp.$1) : 0))[0].split(/,?\s+/)[0];
-      } else if (target.is('image')) {    // SVG image element.
+      } else if (target.is('image')) {    // SVG image elements.
         src = target.attr('href') || target.attr('xlink:href');
       } else {
         src = this.getBackgroundImgSrc(target);
       }
+
+      !src && target.is('a') && (src = target.attr('href'));    // Get link address if it doesn't have a background image.
 
       return src;
     },
@@ -213,6 +225,9 @@
       textbox.remove();
 
       preservedActiveElement.focus();
+    },
+    resolveImgSrc: function(src) {
+      return Promise.resolve(src).then(src => (/^\/\//.test(src) ? location.protocol : '') + src);
     }
   };
 
@@ -322,6 +337,41 @@
           isEnabled: true
         }
       }
+    },
+    getImgHDSrc: function(element) {    // Get HD src for the element (return either a string or a promise).
+      var imgSrc = '',
+        target = $(element);
+
+      if (element && !(imgSrc = target.attr('photoshow-hd-img-src'))) {
+        for (let i = 0; i < this.websiteConfig.srcMatching.length; ++i) {
+          let curMatchingRule = this.websiteConfig.srcMatching[i];
+
+          if ((target.is(curMatchingRule.selectors || 'img,[style*=background-image],image')) && target.css('pointerEvents') != 'none') {
+            let targetSrc = tools.getLargestImgSrc(element),
+              srcRegExpObj = curMatchingRule.srcRegExp ? new RegExp(curMatchingRule.srcRegExp, 'i') : undefined;
+
+            if (/^(?:function|\(?[\w,\s]*\)?\s*=>)/.test(curMatchingRule.processor)) {
+              imgSrc = eval(`(${curMatchingRule.processor})`).call(element, target, targetSrc, srcRegExpObj) || '';
+            } else if (srcRegExpObj) {
+              if (srcRegExpObj.test(targetSrc)) {
+                imgSrc = curMatchingRule.processor ? targetSrc.replace(srcRegExpObj, curMatchingRule.processor) : targetSrc;
+              }
+            } else {
+              imgSrc = curMatchingRule.processor || targetSrc;
+            }
+          } else if (target.is('a') && /\b(?:jpe?g|gifv?|pn[gj]|bmp|webp|svg)\b/.test(target.attr('href'))) {
+            imgSrc = target.attr('href');
+          }
+
+          if (imgSrc) {
+            $.type(imgSrc) == 'string' && (imgSrc = (/^(?:https?:|data:image\/)/.test(imgSrc) ? '' : location.protocol) + imgSrc);
+
+            break;
+          }
+        }
+      }
+
+      return imgSrc;
     }
   };
 
@@ -605,40 +655,26 @@
 
       return displayingStyles;
     },
-    isTrigger: function(element) {
-      var imgSrc = '',
-        target = $(element);
+    parseTriggers: function(startingElement) {
+      let result = {
+        trigger: null,
+        src: ''
+      };
 
-      if (element && !(imgSrc = target.attr('photoshow-hd-img-src'))) {
-        for (let i = 0; i < photoShow.websiteConfig.srcMatching.length; ++i) {
-          let curMatchingRule = photoShow.websiteConfig.srcMatching[i];
+      for (let element of [startingElement].concat($(startingElement).parents().get())) {
+        let hdSrc = photoShow.getImgHDSrc(element);
 
-          if ((target.is(curMatchingRule.selectors || 'img,[style*=background-image],image')) && target.css('pointerEvents') != 'none') {
-            let targetSrc = tools.getLargestImgSrc(element),
-              srcRegExpObj = curMatchingRule.srcRegExp ? new RegExp(curMatchingRule.srcRegExp, 'i') : undefined;
+        if (hdSrc) {
+          result = {
+            trigger: $(element),
+            src: hdSrc
+          };
 
-            if (/^(?:function|\(?[\w,\s]*\)?\s*=>)/.test(curMatchingRule.processor)) {
-              imgSrc = eval(`(${curMatchingRule.processor})`).call(element, target, targetSrc, srcRegExpObj) || '';
-            } else if (srcRegExpObj) {
-              if (srcRegExpObj.test(targetSrc)) {
-                imgSrc = curMatchingRule.processor ? targetSrc.replace(srcRegExpObj, curMatchingRule.processor) : targetSrc;
-              }
-            } else {
-              imgSrc = curMatchingRule.processor || targetSrc;
-            }
-          } else if (target.is('a') && /\.(?:jpe?g|gif|pn[gj]|webp|svg)$/.test(target.attr('href'))) {
-            imgSrc = target.attr('href');
-          }
-
-          if (imgSrc) {
-            $.type(imgSrc) == 'string' && (imgSrc = (/^(?:https?:|data:image\/)/.test(imgSrc) ? '' : location.protocol) + imgSrc);
-
-            break;
-          }
+          break;
         }
       }
 
-      return imgSrc ? {target, imgSrc} : false;
+      return result;
     },
     initViewerMask: function() {
       $('rect:last-child', this.viewerMask).attr({
@@ -649,7 +685,6 @@
       IS_BROWSER_FIREFOX && $(this.maskHost).css('mask', 'url(#photoShowViewerMask)');
     },
     update: function() {
-      clearTimeout(this.update.timer);
       this.mouseClientPos = Object.assign({}, this.mouseOriClientPos);
 
       var curElementUnderMouse = document.elementFromPoint(this.mouseClientPos.x, this.mouseClientPos.y);
@@ -666,7 +701,7 @@
           } catch (error) {
             // Usually an cross-origin exception.
           }
-        } else if (this.curTrigger && ($(curElementUnderMouse).is(this.curTrigger) || this.curTrigger.contains(curElementUnderMouse) && !this.isTrigger(curElementUnderMouse))) {
+        } else if (this.curTrigger && ($(curElementUnderMouse).is(this.curTrigger) || this.curTrigger.contains(curElementUnderMouse) && !photoShow.getImgHDSrc(curElementUnderMouse))) {
           this.hasImgViewerShown && this.refreshImgViewer();
         } else {
           this.mouseLeaveAction(true);
@@ -697,22 +732,10 @@
     },
     displayViewer: function(srcTarget) {
       if (!this.curTrigger) {
-        var evtTarget = $(srcTarget);
-
         // Get src of the high-definition image.
-        this.imgSrc = '';
+        const triggersParsingResult = this.parseTriggers(srcTarget);
 
-        for (let element of [srcTarget].concat(evtTarget.parents().get())) {
-          var triggerTestResult = this.isTrigger(element);
-
-          if (triggerTestResult) {
-            evtTarget = triggerTestResult.target;
-            this.imgSrc = triggerTestResult.imgSrc;
-
-            break;
-          }
-        }
-        this.preservedImgSrc = this.imgSrc;
+        this.imgSrc = triggersParsingResult ? triggersParsingResult.src : '';
 
         chrome.runtime.sendMessage({
           cmd: 'UPDATE_PHOTOSHOW_CONTEXTMENU',
@@ -723,20 +746,20 @@
 
         // Show high-definition image.
         if (this.imgSrc && (!photoShow.config.activationMode || this.isModifierKeyDown)) {
-          if (!evtTarget.is('[photoshow-trigger-blocked]')) {
-            this.curTrigger = this.maskHost = evtTarget.get(0);
+          if (!triggersParsingResult.trigger.is('[photoshow-trigger-blocked]')) {
+            this.curTrigger = this.maskHost = triggersParsingResult.trigger.get(0);
 
-            var evtTargetArea = evtTarget.width() * evtTarget.height();
+            var curTargetArea = triggersParsingResult.trigger.width() * triggersParsingResult.trigger.height();
 
-            evtTarget.parents().each((i, ancestor) => {
+            triggersParsingResult.trigger.parents().each((i, ancestor) => {
               ancestor = $(ancestor);
               var ancestorArea = ancestor.width() * ancestor.height();
 
               if (ancestor.css('position') != 'static' &&
                 ancestor.css('display') != 'inline' &&
-                (!evtTargetArea || ancestorArea && ancestorArea < evtTargetArea)) {
+                (!curTargetArea || ancestorArea && ancestorArea <= curTargetArea)) {
                 this.maskHost = ancestor.get(0);
-                return false;
+                curTargetArea = ancestorArea;
               }
             });
 
@@ -903,17 +926,27 @@
             e.detail && Object.assign(e, e.detail);
             this[`${e.type}Action`](e);
           })
+          .on('contextmenu.photoShow', () => {
+            this.preservedImgSrc = this.imgSrc;
+          })
           .on('focusin.photoShow focusout.photoShow', e => {
-            this.isActiveElementAnInput = $(document.activeElement).is(':input,[contenteditable]');
+            this.isActiveElementAnInput = $(document.activeElement).is('textarea,input:not([type="button"],[type="checkbox"],[type="color"],[type="file"],[type="image"],[type="radio"],[type="range"],[type="reset"],[type="submit"]),[contenteditable]');
           })
           .on('frameDomMutate.photoShow', (e, mutations) => this.domMutateAction(mutations))
           .on('animationend.photoShow', e => /photoshow-viewer-(.+)-ani/.test(e.originalEvent.animationName) && this.viewerBox.removeClass(RegExp.$1));
 
         // Window actions.
-        $(window).on('scroll.photoShow resize.photoShow', () => this.update())
-        .on('blur.photoShow', () => this.winBlurAction());
+        $(window).on('scroll.photoShow wheel.photoShow resize.photoShow', (() => {
+            let updateTimer;
 
-        // Add amend styles.
+            return () => {
+              clearTimeout(updateTimer);
+              updateTimer = setTimeout(() => this.update(), 200);
+            };
+          })())
+          .on('blur.photoShow', () => this.winBlurAction());
+
+        // Addamend styles.
         Object.assign(photoShow.websiteConfig, {
           amendStyles: Object.assign(photoShow.websiteConfig.amendStyles || {}, {
             pointerNone: ['*:before,*:after'].concat(photoShow.websiteConfig.amendStyles && photoShow.websiteConfig.amendStyles.pointerNone || []).join(',')
@@ -936,15 +969,16 @@
         IS_BROWSER_FIREFOX && this.viewerMask.remove();
         this.viewerBox.remove();
 
+        // Unbind event handlers.
         document.removeEventListener('mouseover', this._mouseoverEvtHandler, true);
         $(document).off('.photoShow');
         $(window).off('.photoShow');
 
-        // Remove amend styles.
-        $('[id^="photoShowStyles_"]').remove();
-
-        // Remove cached hd-image srcs.
+        // Remove contents generated by PhotoShow.
         $('[photoshow-hd-img-src]').removeAttr('photoshow-hd-img-src');
+        $('[photoshow-trigger-blocked]').removeAttr('photoshow-trigger-blocked');
+        $('[id^="photoShowStyles_"]').remove();
+        $('[photoshow-cache-id]').remove();
 
         // Stop observing the document.
         if (this.domObserver) {
@@ -965,7 +999,7 @@
       if (this.hasImgViewerShown && $(e.detail.target).is(this.curTrigger)) {    // Refresh viewer for triggers in iframes.
         this.refreshImgViewer();
       } else if (this.curTrigger) {
-        if (!evtTarget.is(this.curTrigger) && (!this.curTrigger.contains(srcTarget) || this.isTrigger(srcTarget))) {
+        if (!evtTarget.is(this.curTrigger) && (!this.curTrigger.contains(srcTarget) || photoShow.getImgHDSrc(srcTarget))) {
           this.viewerDisplayTimer = setTimeout(() => {
             this.mouseLeaveAction();
             this.displayViewer(srcTarget);
@@ -1064,8 +1098,24 @@
 
       this.refreshImgViewer();
     },
+    openInNewTabAction: function() {
+      const imgSrc = this.parseTriggers(document.elementFromPoint(this.mouseClientPos.x, this.mouseClientPos.y)).src || this.imgSrc;
+
+      if (imgSrc) {
+        photoShowGlobalMsg.show(chrome.i18n.getMessage('globalMsg_imgWillOpenInNewTab'));
+
+        tools.resolveImgSrc(imgSrc).then(imgSrc => {
+          imgSrc && chrome.runtime.sendMessage({
+            cmd: 'OPEN_IMG_IN_NEW_TAB',
+            args: {
+              imgSrc: imgSrc
+            }
+          });
+        });
+      }
+    },
     copyAction: function() {
-      Promise.resolve(this.imgSrc).then(imgSrc => {
+      tools.resolveImgSrc(this.imgSrc).then(imgSrc => {
         if (imgSrc) {
           tools.copyText(imgSrc);
           photoShowGlobalMsg.show(chrome.i18n.getMessage('globalMsg_imgSrcCopied'));
@@ -1073,17 +1123,20 @@
       });
     },
     savingAction: function() {
-      this.imgSrc && photoShowGlobalMsg.show(chrome.i18n.getMessage('globalMsg_imgWillStartDownloading'));
-      Promise.resolve(this.imgSrc).then(imgSrc => {
-        if (imgSrc) {
-          chrome.runtime.sendMessage({
+      const imgSrc = this.parseTriggers(document.elementFromPoint(this.mouseClientPos.x, this.mouseClientPos.y)).src || this.imgSrc;
+
+      if (imgSrc) {
+        photoShowGlobalMsg.show(chrome.i18n.getMessage('globalMsg_imgWillStartDownloading'));
+
+        tools.resolveImgSrc(imgSrc).then(imgSrc => {
+          imgSrc && chrome.runtime.sendMessage({
             cmd: 'DOWNLOAD_IMG',
             args: {
               imgSrc: imgSrc
             }
           });
-        }
-      });
+        });
+      }
     },
     keydownAction: function(e) {
       const easeInOutSine = (t, b, c, d) => -c / 2 * (Math.cos(Math.PI * t / d) - 1) + b;
@@ -1113,20 +1166,7 @@
 
       switch (e.which) {
         case 9:    // Key 'Tab'
-          if (!this.isActiveElementAnInput && photoShow.config.hotkeys.openImageInNewTab.isEnabled) {
-            this.hasImgViewerShown && e.preventDefault();
-            this.imgSrc && photoShowGlobalMsg.show(chrome.i18n.getMessage('globalMsg_imgWillOpenInNewTab'));
-            Promise.resolve(this.imgSrc).then(imgSrc => {
-              if (imgSrc) {
-                chrome.runtime.sendMessage({
-                  cmd: 'OPEN_IMG_IN_NEW_TAB',
-                  args: {
-                    imgSrc: imgSrc
-                  }
-                });
-              }
-            });
-          }
+          !this.isActiveElementAnInput && photoShow.config.hotkeys.openImageInNewTab.isEnabled && this.openInNewTabAction();
 
           break;
 
@@ -1144,18 +1184,12 @@
           break;
 
         case 67:    // Key 'C'
-          if (!this.isActiveElementAnInput && photoShow.config.hotkeys.copyImageAddress.isEnabled) {
-            this.hasImgViewerShown && e.preventDefault();
-            this.copyAction();
-          }
+          !this.isActiveElementAnInput && photoShow.config.hotkeys.copyImageAddress.isEnabled && this.copyAction();
 
           break;
 
         case 83:    // Key 'S'
-          if (!this.isActiveElementAnInput && photoShow.config.hotkeys.saveImage.isEnabled) {
-            this.hasImgViewerShown && e.preventDefault();
-            this.savingAction();
-          }
+          !this.isActiveElementAnInput && photoShow.config.hotkeys.saveImage.isEnabled && this.savingAction();
 
           break;
 
@@ -1296,7 +1330,7 @@
                 removedPhotoShowStyleNodes.length && target.append(removedPhotoShowStyleNodes);
 
                 // CAUTION: DO NOT check whether the curTrigger is in document with jQuery closest() method which will cause serious performance problem.
-                this.curTrigger && !this.curTrigger.ownerDocument.contains(this.curTrigger) && his.mouseLeaveAction();
+                this.curTrigger && !this.curTrigger.ownerDocument.contains(this.curTrigger) && this.mouseLeaveAction();
               }
 
               break;
@@ -1331,7 +1365,7 @@
       switch (request.cmd) {
         case 'GET_PRESERVED_IMG_SRC':
           needAsyncResponse = true;
-          Promise.resolve(photoShowViewer.preservedImgSrc).then(sendResponse);
+          tools.resolveImgSrc(photoShowViewer.preservedImgSrc).then(sendResponse);
 
           break;
 
