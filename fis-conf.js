@@ -28,8 +28,6 @@ const minifyJSON = (content, fileName, env) => {
   return JSON.stringify(json, ' ', /-dev$/.test(env) ? 2 : 0);
 };
 
-const lessOptimizerForFirefox = content => content.replace(/\bchrome-extension:\/\/__MSG_@@extension_id__/g, '');
-
 ////////////////////////////////////////////////////////////////////////////////
 // Config for chrome development environment.
 fis.media('dev').match('source/**.json', {
@@ -67,10 +65,16 @@ fis.media('chrome').match(/source\/.*(?<!\.min)\.js$/, {
 
 ////////////////////////////////////////////////////////////////////////////////
 // Config for firefox development environment.
+const lessOptimizerForFirefox = content => content.replace(/\bchrome-extension:\/\/__MSG_@@extension_id__/g, ''),
+  jsOptimizerForFirefox = (content, file) => {
+    content = content.replace(/\bchrome\./g, 'browser.');
+    file.filename == 'background' && (content = content.replace(', \'extraHeaders\'', ''));
+
+    return content;
+  }
+
 fis.media('firefox-dev').match(/source\/.*(?<!\.min)\.js$/, {
-  optimizer: [function(content, file, settings) {
-    return content.replace(/\bchrome\./g, 'browser.');
-  }]
+  optimizer: jsOptimizerForFirefox
 }).match('source/**.json', {
   optimizer: (content, file, settings) => minifyJSON(content, file.basename, 'firefox-dev')
 }).match('source/**.html', {
@@ -85,9 +89,7 @@ fis.media('firefox-dev').match(/source\/.*(?<!\.min)\.js$/, {
 
 // Config for firefox production environment.
 fis.media('firefox').match(/source\/.*(?<!\.min)\.js$/, {
-  optimizer: [function(content, file, settings) {
-    return content.replace(/\bchrome\./g, 'browser.');
-  }, fis.plugin('uglify-es', {
+  optimizer: [jsOptimizerForFirefox, fis.plugin('uglify-es', {
     mangle: {
       toplevel: true,
       reserved: ['tools']

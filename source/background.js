@@ -112,6 +112,8 @@
  *                                            // Updates: Support downloading images from websites that requires 'referer' HTTP header;
  *                                            // Updates: Better support for bilibili, facebook, GitHub, imgur, and pixiv;
  *                                            // Updates: Add support for countdown, wsy.com.
+ * @version 4.4.1.0 | 2020-04-21 | Vincent    // Bug Fix: Resume supporting for Briscoes as it has changed its image url rules;
+ *                                            // Bug Fix: Fix the problem that user settings can not be saved in Firefox, caused by an unsupported value in parameter 'extraInfoSpec' of onBeforeSendHeaders event listener, in response to user feedback.
  */
 
 // TODO: Solve the downloading failure issue on pixiv and similar websites (HTTP headers might need to be set when requesting for downloading).
@@ -414,8 +416,9 @@ const websiteConfig = {
   },
   '(?:.+\\.)?briscoes\\.co\\.nz': {
     srcMatching: {
-      srcRegExp: '(/productimages/)[^/]+(/.+@IMG@)',
-      processor: '$1magnify$2'
+      selectors: 'img,.productItem-image',
+      srcRegExp: '(.+/productimages/.+@IMG@).*',
+      processor: (trigger, src, srcRegExpObj) => srcRegExpObj.test(src || trigger.find('img').attr('src')) ? RegExp.$1 : ''
     }
   },
   '(?:.+\\.)?(?:(?:catch(?:oftheday)?|treatme)\\.co\\.nz|(?:catch|cudo|deals|groceryrun|luxuryescapes|mumgo|scoopon)\\.com(?:\\.au)?)': {
@@ -776,9 +779,7 @@ const websiteConfig = {
     srcMatching: [{
       selectors: 'img,[style*="background-image"],.wXUyZd,.TdqJUe',
       srcRegExp: '(//(?:.*\\.googleusercontent|books\\.google)\\.com/[^=]+)=.*',
-      processor: (trigger, src, srcRegExpObj) => {
-        return srcRegExpObj.test(src || trigger.parent().find('img[src]').attr('src')) ? `${RegExp.$1}=w10000` : '';
-      }
+      processor: (trigger, src, srcRegExpObj) => srcRegExpObj.test(src || trigger.parent().find('img[src]').attr('src')) ? `${RegExp.$1}=w10000` : ''
     }
     // , {
     //   processor: trigger => {
@@ -1735,6 +1736,9 @@ XHR_DOWNLOAD_REQUIRED_HOSTNAMES = Object.values(websiteConfig)
   .filter(config => config.hasOwnProperty('xhrDownload'))
   .flatMap(config => config.xhrDownload);
 
+// Note:
+// The value 'extraHeaders' of the third argument is not supported (neither needed) by Firefox,
+// it will be removed in the compiling procedure.
 chrome.webRequest.onBeforeSendHeaders.addListener(details => {
     for(let header of details.requestHeaders) {
       if (header.name == 'photoshow-added-referer') {
@@ -1747,7 +1751,8 @@ chrome.webRequest.onBeforeSendHeaders.addListener(details => {
       requestHeaders: details.requestHeaders
     };
   }, {
-    urls: XHR_DOWNLOAD_REQUIRED_HOSTNAMES.map(hostname => `*://${hostname}/*`)
+    urls: XHR_DOWNLOAD_REQUIRED_HOSTNAMES.map(hostname => `*://${hostname}/*`),
+    types: ['xmlhttprequest']
   }, ['requestHeaders', 'blocking', 'extraHeaders']);
 
 // Response to download items change.
