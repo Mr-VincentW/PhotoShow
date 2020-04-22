@@ -24,8 +24,7 @@
 <p align="center">
   <a href="https://chrome.google.com/webstore/detail/photoshow/mgpdnhlllbpncjpgokgfogidhoegebod/" title="谷歌 Chrome"><img src="resources/Browser_Chrome.png" alt="谷歌 Chrome" /></a>&emsp;
   <a href="https://addons.mozilla.org/firefox/addon/photoshow/" title="Mozilla 火狐"><img src="resources/Browser_Firefox.png" alt="Mozilla 火狐" /></a>&emsp;
-  <a href="https://microsoftedge.microsoft.com/addons/detail/afdelcfalkgcfelngdclbaijgeaklbjk" title="微软 Edge"><img src="resources/Browser_Edge.png" alt="微软 Edge" /></a>&emsp;
-  <a href="https://appcenter.browser.qq.com/search/detail?key=%E6%B5%AE%E5%9B%BE%E7%A7%80&id=mgpdnhlllbpncjpgokgfogidhoegebod%20&title=%E6%B5%AE%E5%9B%BE%E7%A7%80" title="腾讯 QQ 浏览器"><img src="resources/Browser_QQBrowser.png" alt="腾讯 QQ 浏览器" /></a>
+  <a href="https://microsoftedge.microsoft.com/addons/detail/afdelcfalkgcfelngdclbaijgeaklbjk" title="微软 Edge"><img src="resources/Browser_Edge.png" alt="微软 Edge" /></a>
 </p>
 <br />
 <br />

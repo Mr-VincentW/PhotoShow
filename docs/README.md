@@ -24,8 +24,7 @@ You may search and install the certain version of **PhotoShow** for your browser
 <p align="center">
   <a href="https://chrome.google.com/webstore/detail/photoshow/mgpdnhlllbpncjpgokgfogidhoegebod/" title="Google Chrome"><img src="resources/Browser_Chrome.png" alt="Google Chrome" /></a>&emsp;
   <a href="https://addons.mozilla.org/firefox/addon/photoshow/" title="Mozilla Firefox"><img src="resources/Browser_Firefox.png" alt="Mozilla Firefox" /></a>&emsp;
-  <a href="https://microsoftedge.microsoft.com/addons/detail/afdelcfalkgcfelngdclbaijgeaklbjk" title="Microsoft Edge"><img src="resources/Browser_Edge.png" alt="Microsoft Edge" /></a>&emsp;
-  <a href="https://appcenter.browser.qq.com/search/detail?key=%E6%B5%AE%E5%9B%BE%E7%A7%80&id=mgpdnhlllbpncjpgokgfogidhoegebod%20&title=%E6%B5%AE%E5%9B%BE%E7%A7%80" title="Tencent QQ browser"><img src="resources/Browser_QQBrowser.png" alt="Tencent QQ browser" /></a>
+  <a href="https://microsoftedge.microsoft.com/addons/detail/afdelcfalkgcfelngdclbaijgeaklbjk" title="Microsoft Edge"><img src="resources/Browser_Edge.png" alt="Microsoft Edge" /></a>
 </p>
 <br />
 <br />

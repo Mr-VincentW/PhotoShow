@@ -114,6 +114,7 @@
  *                                            // Updates: Add support for countdown, wsy.com.
  * @version 4.4.1.0 | 2020-04-21 | Vincent    // Bug Fix: Resume supporting for Briscoes as it has changed its image url rules;
  *                                            // Bug Fix: Fix the problem that user settings can not be saved in Firefox, caused by an unsupported value in parameter 'extraInfoSpec' of onBeforeSendHeaders event listener, in response to user feedback.
+ * @version 4.4.1.1 | 2020-04-22 | Vincent    // Updates: Better support for ArtStation and Tumblr.
  */
 
 // TODO: Solve the downloading failure issue on pixiv and similar websites (HTTP headers might need to be set when requesting for downloading).
@@ -247,10 +248,10 @@ const websiteConfig = {
       processor: '$1wid=1000&fmt=png-alpha'
     }
   },
-  '(?:www|magazine)\\.artstation\\.com': {
+  '(?:www|magazine)\\.artstation and Tumblr.\\.com': {
     amendStyles: {
       pointerAuto: '.project-image .overlay .avatar,.gallery-grid-overlay .gallery-grid-info>img',
-      pointerNone: '.top-row-item>a .overlay,.project-image .overlay,.mature-content-label,.gallery-grid-overlay'
+      pointerNone: 'a .overlay,.project-image .overlay,.mature-content-label,.gallery-grid-overlay'
     },
     srcMatching: [{
       srcRegExp: '(cdn\\w?\\.artstation\\.com/p/users/covers/.+/)small(/.+@IMG@.*)',
@@ -263,7 +264,7 @@ const websiteConfig = {
       processor: '$1large$2'
     }, {
       selectors: 'img,.overlay>a',
-      srcRegExp: '(//magazine\\.artstation\\.com/.+)-\\d+x\\d+(@IMG@.*)',
+      srcRegExp: '(//magazine\\.artstation\\.com/.+)(?:-\\d+x\\d+)?(@IMG@.*)',
       processor: (trigger, src, srcRegExpObj) => srcRegExpObj.test(src || trigger.parent().next('img').attr('src')) ? RegExp.$1 + RegExp.$2 : ''
     }, {
       selectors: 'img,.overlay>a',
@@ -1198,10 +1199,11 @@ const websiteConfig = {
       srcRegExp: '(.*\\.media\\.tumblr\\.com/avatar_.*)_\\d+(?:sq)?(@IMG@)',
       processor: '$1_128$2'
     }, {
-      selectors: 'img,.post .post_glass,.post .post-glass,.radar_content .photo_post,.search_popover .result_thumb',
+      selectors: 'img,.post .post_glass,.post .post-glass,.radar_content .photo_post,.search_popover .result_thumb,.post--photo__link',
       srcRegExp: '(//(?:.*\\.media|static)\\.tumblr\\.com/.*?)_\\d+(?:sq)?((?:_v\\d+)?@IMG@)',
       processor: (trigger, src, srcRegExpObj) => srcRegExpObj.test(src ||
         trigger.parent().find('.post_content img,.post-content img').attr('src') ||
+        trigger.closest('.post__content').find('img').attr('src') ||
         tools.getBackgroundImgSrc(trigger.parent().find('.post_thumbnail_container,.post-thumbnail-container,.thumbnail_anchor'))
       ) ? (`${RegExp.$1}_1280${RegExp.$2}`) : ''
     }, {

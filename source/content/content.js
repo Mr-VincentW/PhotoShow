@@ -96,6 +96,7 @@
  *                                            // Updates: Optimize hotkey actions;
  *                                            // Updates: Optimize the destruction procedure when PhotoShow is toggled off;
  *                                            // Bug Fix: Fix the problem that image src fails to be preserved for contextmenu actions.
+ * @version 4.4.1.1 | 2020-04-22 | Vincent    // Bug Fix: Fix the problem that some non-image-url 'a' link triggers might not work, caused by the optimization for 'a' link parsing rules in version 4.4.0.0.
  */
 
 // TODO: Extract common tool methods to external modules.
@@ -199,7 +200,7 @@
         src = this.getBackgroundImgSrc(target);
       }
 
-      !src && target.is('a') && (src = target.attr('href'));    // Get link address if it doesn't have a background image.
+      !src && target.is('a') && /\b(?:jpe?g|gifv?|pn[gj]|bmp|webp|svg)\b/.test(target.attr('href')) && (src = target.attr('href'));    // Get link address if it doesn't have a background image.
 
       return src;
     },
@@ -346,7 +347,7 @@
         for (let i = 0; i < this.websiteConfig.srcMatching.length; ++i) {
           let curMatchingRule = this.websiteConfig.srcMatching[i];
 
-          if ((target.is(curMatchingRule.selectors || 'img,[style*=background-image],image')) && target.css('pointerEvents') != 'none') {
+          if ((target.is(curMatchingRule.selectors || 'img,[style*=background-image],image,a')) && target.css('pointerEvents') != 'none') {
             let targetSrc = tools.getLargestImgSrc(element),
               srcRegExpObj = curMatchingRule.srcRegExp ? new RegExp(curMatchingRule.srcRegExp, 'i') : undefined;
 
@@ -359,8 +360,6 @@
             } else {
               imgSrc = curMatchingRule.processor || targetSrc;
             }
-          } else if (target.is('a') && /\b(?:jpe?g|gifv?|pn[gj]|bmp|webp|svg)\b/.test(target.attr('href'))) {
-            imgSrc = target.attr('href');
           }
 
           if (imgSrc) {
