@@ -115,6 +115,7 @@
  * @version 4.4.1.0 | 2020-04-21 | Vincent    // Bug Fix: Resume supporting for Briscoes as it has changed its image url rules;
  *                                            // Bug Fix: Fix the problem that user settings can not be saved in Firefox, caused by an unsupported value in parameter 'extraInfoSpec' of onBeforeSendHeaders event listener, in response to user feedback.
  * @version 4.4.1.1 | 2020-04-22 | Vincent    // Updates: Better support for ArtStation and Tumblr.
+ * @version 4.4.2.0 | 2020-04-28 | Vincent    // Updates: Support WeChat webpages, in response to user feedback.
  */
 
 // TODO: Solve the downloading failure issue on pixiv and similar websites (HTTP headers might need to be set when requesting for downloading).
@@ -1275,6 +1276,15 @@ const websiteConfig = {
       srcRegExp: '(upload\\.api\\.weibo\\.com/.+/msget)_thumbnail\\?.*(fid=\\w+).*(source=\\w+).*',
       processor: '$1?$2&$3'
     }, {}]
+  },
+  'mp\\.weixin\\.qq\\.com': {
+    srcMatching: [{
+      srcRegExp: '(mmbiz\\.qpic\\.cn/mmbiz\\w*/\\w+/).*',
+      processor: '$1'
+    }, {
+      srcRegExp: '(mp\\.weixin\\.qq\\.com/mp/qrcode\?.*?&size=)\\d+(.*)',
+      processor: '$1980$2'
+    }]
   },
   'www\\.wekan\\.tv': {
     amendStyles: {
