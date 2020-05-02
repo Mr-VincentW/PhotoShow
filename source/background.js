@@ -116,6 +116,8 @@
  *                                            // Bug Fix: Fix the problem that user settings can not be saved in Firefox, caused by an unsupported value in parameter 'extraInfoSpec' of onBeforeSendHeaders event listener, in response to user feedback.
  * @version 4.4.1.1 | 2020-04-22 | Vincent    // Updates: Better support for ArtStation and Tumblr.
  * @version 4.4.2.0 | 2020-04-28 | Vincent    // Updates: Support WeChat webpages, in response to user feedback.
+ * @version 4.4.3.0 | 2020-05-02 | Vincent    // Bug Fix: Fix the problem that causes video controls on Twitter unavailable, in response to user feedback;
+ *                                            // Updates: Support NZSALE.
  */
 
 // TODO: Solve the downloading failure issue on pixiv and similar websites (HTTP headers might need to be set when requesting for downloading).
@@ -941,6 +943,12 @@ const websiteConfig = {
       processor: '$1$2'
     }]
   },
+  'www\\.nzsale\\.co\\.nz': {
+    srcMatching: {
+      srcRegExp: '(cdn\\.mysalemarketplace\\.com/.+)_\\d+x\\d+(@IMG@).*',
+      processor: '$1$2'
+    }
+  },
   'www\\.pbtech\\.(?:com|co\\.nz)': {
     srcMatching: [{
       srcRegExp: '(www\\.pbtech\\.(?:com/au|co\\.nz)/)thumbs(/.+?@IMG@).*',
@@ -1226,7 +1234,7 @@ const websiteConfig = {
   '(?:(?:mobile\\.)?twitter|www\\.twipu)\\.com': {
     amendStyles: {
       pointerAuto: '.MomentMediaItem',
-      pointerNone: '.PlayableMedia-player [data-testid="posterPlayBtn"],.PlayableMedia-player [data-testid="poster"]~div,.LastSeenProfiles__shadow,.css-1dbjc4n:empty'
+      pointerNone: '.PlayableMedia-player [data-testid="posterPlayBtn"],.PlayableMedia-player [data-testid="poster"]~div,.LastSeenProfiles__shadow,.css-1dbjc4n[aria-haspopup]:empty'
     },
     srcMatching: [{
       srcRegExp: '(\\w+\\.twimg\\.com/(?:(?:[^/]+/)?default_)?profile_images/.+)_\\w+(?=@IMG@)(@IMG@)',

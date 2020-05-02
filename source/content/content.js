@@ -97,11 +97,13 @@
  *                                            // Updates: Optimize the destruction procedure when PhotoShow is toggled off;
  *                                            // Bug Fix: Fix the problem that image src fails to be preserved for contextmenu actions.
  * @version 4.4.1.1 | 2020-04-22 | Vincent    // Bug Fix: Fix the problem that some non-image-url 'a' link triggers might not work, caused by the optimization for 'a' link parsing rules in version 4.4.0.0.
+ * @version 4.4.3.0 | 2020-05-02 | Vincent    // Bug Fix: Fix the problem that PhotoShow-injected styles fail to be removed when it is toggled off;
+ *                                            // Updates: Optimize mask hosting element detecting algorithm.
  */
 
 // TODO: Extract common tool methods to external modules.
 // TODO: Optimise image loading speed by picking proper image sources according to their final displaying dimensions.
-// TODO: Exclude background images in repeating pattern.
+// TODO: Exclude background images with a repeating pattern.
 
 ($ => {
   $.ajaxSetup({
@@ -748,21 +750,25 @@
           if (!triggersParsingResult.trigger.is('[photoshow-trigger-blocked]')) {
             this.curTrigger = this.maskHost = triggersParsingResult.trigger.get(0);
 
-            var curTargetArea = triggersParsingResult.trigger.width() * triggersParsingResult.trigger.height();
+            // Get mask host.
+            triggersParsingResult.trigger.parents().toArray().reduce((maskHostBBox, curAncestor) => {
+              var maskHostArea = maskHostBBox.width * maskHostBBox.height,
+                curAncestorBBox = curAncestor.getBoundingClientRect(),
+                curAncestorArea = curAncestorBBox.width * curAncestorBBox.height;
 
-            triggersParsingResult.trigger.parents().each((i, ancestor) => {
-              ancestor = $(ancestor);
-              var ancestorArea = ancestor.width() * ancestor.height();
-
-              if (ancestor.css('position') != 'static' &&
-                ancestor.css('display') != 'inline' &&
-                (!curTargetArea || ancestorArea && ancestorArea <= curTargetArea)) {
-                this.maskHost = ancestor.get(0);
-                curTargetArea = ancestorArea;
+              if ($(curAncestor).css('position') != 'static' &&
+                $(curAncestor).css('display') != 'inline' &&
+                (!maskHostArea || curAncestorArea && curAncestorArea <= maskHostArea) &&
+                curAncestorBBox.left <= maskHostBBox.right &&
+                curAncestorBBox.right >= maskHostBBox.left &&
+                curAncestorBBox.top <= maskHostBBox.bottom &&
+                curAncestorBBox.bottom >= maskHostBBox.top) {
+                this.maskHost = curAncestor;
+                maskHostBBox = curAncestorBBox;
               }
-            });
 
-            var imgLoadingTipTimer = null;
+              return maskHostBBox;
+            }, this.maskHost.getBoundingClientRect());
 
             // Reset image viewer.
             this.viewerBox
@@ -781,7 +787,7 @@
             this.imgOriginalSize = null;
 
             // Set image loading state.
-            imgLoadingTipTimer = setTimeout(() => {
+            var imgLoadingTipTimer = setTimeout(() => {
               imgLoadingTipTimer = null;
 
               if (this.curTrigger) {
@@ -940,7 +946,7 @@
 
             return () => {
               clearTimeout(updateTimer);
-              updateTimer = setTimeout(() => this.update(), 200);
+              updateTimer = setTimeout(() => this.update(), 100);
             };
           })())
           .on('blur.photoShow', () => this.winBlurAction());
@@ -964,6 +970,13 @@
           attributeFilter: ['src', 'srcset', 'style']
         });
       } else {
+        // Stop observing the document.
+        if (this.domObserver) {
+          this.domMutateAction(this.domObserver.takeRecords());
+          this.domObserver.disconnect();
+          this.domObserver = null;
+        }
+
         // Destruction.
         IS_BROWSER_FIREFOX && this.viewerMask.remove();
         this.viewerBox.remove();
@@ -978,13 +991,6 @@
         $('[photoshow-trigger-blocked]').removeAttr('photoshow-trigger-blocked');
         $('[id^="photoShowStyles_"]').remove();
         $('[photoshow-cache-id]').remove();
-
-        // Stop observing the document.
-        if (this.domObserver) {
-          this.domMutateAction(this.domObserver.takeRecords());
-          this.domObserver.disconnect();
-          this.domObserver = null;
-        }
       }
     },
     mouseOverAction: function(e) {
