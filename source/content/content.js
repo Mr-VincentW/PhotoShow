@@ -700,7 +700,7 @@
               y: this.mouseClientPos.y - frameRect.top
             });
           } catch (error) {
-            // Usually an cross-origin exception.
+            // Usually a cross-origin exception.
           }
         } else if (this.curTrigger && ($(curElementUnderMouse).is(this.curTrigger) || this.curTrigger.contains(curElementUnderMouse) && !photoShow.getImgHDSrc(curElementUnderMouse))) {
           this.hasImgViewerShown && this.refreshImgViewer();

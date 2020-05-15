@@ -121,7 +121,7 @@
                 y: mouseClientPos.y - frameRect.top
               });
             } catch (error) {
-              // Usually an cross-origin exception.
+              // Usually a cross-origin exception.
             }
           } else {
             this.mouseOverAction({
@@ -157,7 +157,7 @@
         }
       });
     } catch (error) {
-      // Usually an cross-origin exception.
+      // Usually a cross-origin exception.
     }
   }
 })(jQuery.noConflict(), window != window.top);

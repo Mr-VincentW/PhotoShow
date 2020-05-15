@@ -110,7 +110,7 @@
  *                                            // Bug Fix: Fix the problem that images might be downloaded with wrong file name suffixes.
  * @version 4.4.0.0 | 2020-04-18 | Vincent    // Updates: Add 'xhrDownload' field to the website-info-structure, for better image downloading support;
  *                                            // Updates: Support downloading images from websites that requires 'referer' HTTP header;
- *                                            // Updates: Better support for bilibili, facebook, GitHub, imgur, and pixiv;
+ *                                            // Updates: Better support for bilibili, Facebook, GitHub, imgur, and pixiv;
  *                                            // Updates: Add support for countdown, wsy.com.
  * @version 4.4.1.0 | 2020-04-21 | Vincent    // Bug Fix: Resume supporting for Briscoes as it has changed its image url rules;
  *                                            // Bug Fix: Fix the problem that user settings can not be saved in Firefox, caused by an unsupported value in parameter 'extraInfoSpec' of onBeforeSendHeaders event listener, in response to user feedback.
@@ -118,9 +118,11 @@
  * @version 4.4.2.0 | 2020-04-28 | Vincent    // Updates: Support WeChat webpages, in response to user feedback.
  * @version 4.4.3.0 | 2020-05-02 | Vincent    // Bug Fix: Fix the problem that causes video controls on Twitter unavailable, in response to user feedback;
  *                                            // Updates: Support NZSALE.
+ * @version 4.5.0.0 | 2020-05-15 | Vincent    // Bug Fix: Fix supporting issues for Artstation;
+ *                                            // Updates: Support davidnakayama.com;
+ *                                            // Updates: Better support for Facebook and Pinterest.
  */
 
-// TODO: Solve the downloading failure issue on pixiv and similar websites (HTTP headers might need to be set when requesting for downloading).
 // TODO: Extract websiteConfig to independent files and import them (after porting to webpack).
 // TODO: Preload images (ideally, only for the thumbnails near the mouse cursor).
 // TODO: Support all websites, displaying original images (if their intrinsic sizes are larger than they are displayed) for those not in websiteConfig.
@@ -251,10 +253,10 @@ const websiteConfig = {
       processor: '$1wid=1000&fmt=png-alpha'
     }
   },
-  '(?:www|magazine)\\.artstation and Tumblr.\\.com': {
+  '(?:(?:www|magazine)\\.artstation|davidnakayama)\\.com': {
     amendStyles: {
       pointerAuto: '.project-image .overlay .avatar,.gallery-grid-overlay .gallery-grid-info>img',
-      pointerNone: 'a .overlay,.project-image .overlay,.mature-content-label,.gallery-grid-overlay'
+      pointerNone: 'a .overlay,.project-image .overlay,.mature-content-label,.gallery-grid-overlay,.album-grid-item-overlay'
     },
     srcMatching: [{
       srcRegExp: '(cdn\\w?\\.artstation\\.com/p/users/covers/.+/)small(/.+@IMG@.*)',
@@ -611,7 +613,7 @@ const websiteConfig = {
   'www\\.facebook\\.com': {
     amendStyles: {
       pointerAuto: '.uiMediaThumb+._53d a',
-      pointerNone: '._52d9,.uiMediaThumb+._53d,._3251,._7m4,#fbProfileCover .coverBorder'
+      pointerNone: '._52d9,.uiMediaThumb+._53d,._3251,._7m4,#fbProfileCover .coverBorder,img+.pmk7jnqg'
     },
     srcMatching: [{
       selectors: 'a[href^="/events/"] img',
@@ -959,9 +961,12 @@ const websiteConfig = {
     }]
   },
   'www\\.pinterest(?:\\.(?:com|[a-z]{2}))+': {
+    amendStyles: {
+      pointerNone: 'img~.MIw.QLY.Rym.ojN.p6V'
+    },
     srcMatching: {
       selectors: 'img,.pinWrapper a,[role="img"],.relative',
-      srcRegExp: '(//i\\.pinimg\\.com/)(?:originals|\\d+x(?:\\d+_\\w+)?)(/.+@IMG@)',
+      srcRegExp: '(//i\\.pinimg\\.com/)(?:originals|\\d+x(?:\\d+(?:_\\w+)?)?)(/.+@IMG@)',
       processor: (trigger, src, srcRegExpObj) => trigger.find('video').attr('poster') || (srcRegExpObj.test(src || tools.getLargestImgSrc(trigger.closest('.pinWrapper').find('img'))) ? (`${RegExp.$1}originals${RegExp.$2}`) : '')
     }
   },
