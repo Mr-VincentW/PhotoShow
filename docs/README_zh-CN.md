@@ -100,7 +100,7 @@
 
  2. **购物 / 出行 / 服务 类：**
 
-    1-day、Alibaba、AliExpress、Amazon、Apple、Best Buy、Briscoes、Countdown、DHgate、eBay、Etsy、Google Play、Kmart、Myprotein、Newegg、noel leeming、PBTech、Target、TheMarket、thewarehouse、Torpedo7、Trade Me、TreatMe、Walmart、warehouse stationery、Yelp
+    1-day、Alibaba、AliExpress、Amazon、Andino、Apple、Best Buy、Briscoes、Countdown、DHgate、eBay、Etsy、Google Play、Kmart、Myprotein、Newegg、noel leeming、NZSALE、PBTech、Target、TheMarket、thewarehouse、Torpedo7、Trade Me、TreatMe、Walmart、warehouse stationery、Yelp
 
     当当、多看、京东、一号店、小米、小米有品、苏宁易购、天猫、淘宝、一淘、1688、阿里妈妈、阿里健康大药房、飞猪、途牛、网商园
 
@@ -114,7 +114,7 @@
 
     Facebook、Imgur、Instagram、Reddit、Tumblr、Twipu、Twitter
 
-    百度贴吧、豆瓣、QQ 空间、微博
+    百度贴吧、豆瓣、QQ 空间、微博、微信公众号
 
  5. **视频 类：**
 

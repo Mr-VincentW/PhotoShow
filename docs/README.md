@@ -94,7 +94,7 @@ Hereby is a list of part of the websites (hostnames) that **PhotoShow** currentl
 
  2. **SHOPPING / TRADING / SERVICES:**
 
-    1-day, Alibaba, AliExpress, Alimama, Amazon, Apple, Best Buy, Briscoes, Countdown, DHgate, eBay, Etsy, Google Play, JD, Kmart, Myprotein, Newegg, noel leeming, PBTech, suning, Taobao, Target, TheMarket, thewarehouse, Tmall, Torpedo7, Trade Me, TreatMe, Walmart, warehouse stationery, wsy.com, Yelp
+    1-day, Alibaba, AliExpress, Alimama, Amazon, Andino, Apple, Best Buy, Briscoes, Countdown, DHgate, eBay, Etsy, Google Play, JD, Kmart, Myprotein, Newegg, noel leeming, NZSALE, PBTech, suning, Taobao, Target, TheMarket, thewarehouse, Tmall, Torpedo7, Trade Me, TreatMe, Walmart, warehouse stationery, wsy.com, Yelp
 
  3. **SEARCHING / KNOWLEDGE / EXPERTISE:**
 
@@ -102,7 +102,7 @@ Hereby is a list of part of the websites (hostnames) that **PhotoShow** currentl
 
  4. **SOCIAL NETWORKING:**
 
-    Facebook, Imgur, Instagram, Qzone, Reddit, Tumblr, Twipu, Twitter, Sina weibo
+    Facebook, Imgur, Instagram, Qzone, Reddit, Tumblr, Twipu, Twitter, Sina weibo, WeChat webpages
 
  5. **VIDEOS:**
 

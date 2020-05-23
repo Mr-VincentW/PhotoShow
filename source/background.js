@@ -121,6 +121,7 @@
  * @version 4.5.0.0 | 2020-05-15 | Vincent    // Bug Fix: Fix supporting issues for Artstation;
  *                                            // Updates: Support davidnakayama.com;
  *                                            // Updates: Better support for Facebook and Pinterest.
+ * @version 4.5.0.1 | 2020-05-24 | Vincent    // Updates: Support Andino in response to user feedback.
  */
 
 // TODO: Extract websiteConfig to independent files and import them (after porting to webpack).
@@ -243,6 +244,18 @@ const websiteConfig = {
       srcRegExp: '(//.*\\.(?:ssl-images|media)-amazon\\.com/images/.*?)\\._.+(@IMG@)',
       processor: (trigger, src, srcRegExpObj) => srcRegExpObj.test(src || trigger.parent().find('img').attr('src')) ? RegExp.$1 + RegExp.$2 : ''
     }
+  },
+  'andino\\.shop': {
+    amendStyles: {
+      pointerNone: '.dali-teaser'
+    },
+    srcMatching: [{
+      srcRegExp: '.+?\\?remote=([^&]+)',
+      processor: (trigger, src, srcRegExpObj) => srcRegExpObj.test(src) ? decodeURIComponent(RegExp.$1) : ''
+    }, {
+      srcRegExp: '(/storage/images/.+?\\?.+?)width=.*',
+      processor: '$1'
+    }]
   },
   'www\\.apple\\.com': {    // TODO: max size: 6000
     amendStyles: {
