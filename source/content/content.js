@@ -104,6 +104,7 @@
 // TODO: Extract common tool methods to external modules.
 // TODO: Optimise image loading speed by picking proper image sources according to their final displaying dimensions.
 // TODO: Exclude background images with a repeating pattern.
+// TODO: Render viewer in absolute position so that it can scroll with the viewport.
 
 ($ => {
   $.ajaxSetup({

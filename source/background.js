@@ -122,6 +122,7 @@
  *                                            // Updates: Support davidnakayama.com;
  *                                            // Updates: Better support for Facebook and Pinterest.
  * @version 4.5.0.1 | 2020-05-24 | Vincent    // Updates: Support Andino in response to user feedback.
+ * @version 4.5.1.0 | 2020-07-18 | Vincent    // Updates: Better support for Facebook, weibo, and bilibili.
  */
 
 // TODO: Extract websiteConfig to independent files and import them (after porting to webpack).
@@ -131,6 +132,7 @@
 // TODO: Images in the searching result of Baidu have a scaled overlayer when mouse hovering which covers the mask on the trigger.
 // TODO: Remove jQuery and deal with the event dispatching between frames.
 // TODO: Disable 'Panoramic' mode for pure link triggers.
+// TODO: IMDB.com Amazon.
 
 // Website info structure:
 // {
@@ -366,7 +368,7 @@ const websiteConfig = {
   },
   '.+\\.bilibili\\.com': {
     amendStyles: {
-      pointerNone: '.groom-module .card-mark,.spread-module .pic img~*,.spread-module .pic .lazy-img~*,.cover-ctn .cover-back,.hot-list-content .hover-mask,.play-mask,.recommend-box .info,.hover-cover-box *:not(.cover-ctnr),.image-area *:not(img),.face-pendants'
+      pointerNone: '.groom-module .card-mark,.spread-module .pic img~*,.spread-module .pic .lazy-img~*,.cover-ctn .cover-back,.hot-list-content .hover-mask,.play-mask,.recommend-box .info,.hover-cover-box *:not(.cover-ctnr),.image-area *:not(img),.face-pendants,.bilibili-player-ending-panel-box-recommend-cover,.van-framepreview,.fake-danmu,.fake-danmu-mask,.preview-bg'
     },
     srcMatching: [{
       selectors: 'img,[style*=background-image],.card-live-module .pic .mask,.cover-ctn .cover,.album-img,.user-container i,.drawer-card .img-ctn,.canvas-card .img-contain',
@@ -457,9 +459,9 @@ const websiteConfig = {
       processor: '$1$2'
     }]
   },
-  'shop\\.countdown\\.co\\.nz': {
+  'shop\\.countdown\\.co\\.nz': {//TODO: detect 'large', fallback to 'big'
     srcMatching: {
-      srcRegExp: '(/Content/ProductImages/)\\w+(/\\w+@IMG@).*',
+      srcRegExp: '(//static.countdown.co.nz/assets/product-images/)\\w+(/\\w+@IMG@).*',
       processor: (trigger, src, srcRegExpObj) => srcRegExpObj.test(src) ? tools.detectImage(`${RegExp.$1}zoom${RegExp.$2}`, `${RegExp.$1}large${RegExp.$2}`).then(imgInfo => imgInfo.src) : ''
     }
   },
@@ -623,7 +625,7 @@ const websiteConfig = {
       processor: '$1fullxfull$2'
     }]
   },
-  'www\\.facebook\\.com': {
+  '\\w+\\.facebook\\.com': {
     amendStyles: {
       pointerAuto: '.uiMediaThumb+._53d a',
       pointerNone: '._52d9,.uiMediaThumb+._53d,._3251,._7m4,#fbProfileCover .coverBorder,img+.pmk7jnqg'
@@ -964,6 +966,12 @@ const websiteConfig = {
       processor: '$1$2'
     }
   },
+  'www\\.paknsaveonline\\.co\\.nz': {
+    srcMatching: {
+      srcRegExp: '(a\\.fsimg\\.co\\.nz/.+/)\\d+x\\d+(/\\d+@IMG@)',
+      processor: '$1master$2'
+    }
+  },
   'www\\.pbtech\\.(?:com|co\\.nz)': {
     srcMatching: [{
       srcRegExp: '(www\\.pbtech\\.(?:com/au|co\\.nz)/)thumbs(/.+?@IMG@).*',
@@ -1282,7 +1290,7 @@ const websiteConfig = {
   '(?:.+\\.)?weibo\\.com': {
     amendStyles: {
       pointerAuto: '.bot_cover a,.WB_feed_detail *',
-      pointerNone: '.weibo_player .outerline,.icon_playvideo,.WB_gif_video_box,.bot_cover,.WB_feed_detail'
+      pointerNone: '.weibo_player .outerline,.icon_playvideo,.WB_gif_video_box,.bot_cover,.WB_feed_detail,.W_icon_tag_9p'
     },
     srcMatching: [{
       srcRegExp: '(mu\\d+\\.sinaimg\\.cn/)(?:(?:square|crop|frame)\\.[^/]+|original)/(.+@IMG@).*',
