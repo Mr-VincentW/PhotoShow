@@ -129,6 +129,7 @@
  *                                            // Updates: Support ACP Journals, JAMA Network, NEJM, and jandan.net, in response to user requests;
  *                                            // Updates: Add 'noReferrer', 'onToggle' and 'onXhrLoad' fields to the website-info-structure;
  *                                            // Updates: Replace Object.assign with spread syntax.
+ * @version 4.5.2.1 | 2020-08-24 | Vincent    // Bug Fix: Fix the video controller hidden problem on Twitter, introduced in previous update.
  */
 
 // TODO: Extract websiteConfig to independent files and import them (after porting to webpack).
@@ -1350,7 +1351,7 @@ const websiteConfig = {
   },
   '(?:(?:mobile\\.)?twitter|www\\.twipu)\\.com': {
     amendStyles: {
-      pointerNone: '.PlayableMedia-player [data-testid="posterPlayBtn"],.PlayableMedia-player [data-testid="poster"]~div,.LastSeenProfiles__shadow,.css-1dbjc4n.r-u8s1d:empty',
+      pointerNone: '.PlayableMedia-player [data-testid="posterPlayBtn"],.PlayableMedia-player [data-testid="poster"]~div,.LastSeenProfiles__shadow,.css-1dbjc4n.r-u8s1d:empty:not(.r-1loqt21)',    // :not(.r-1loqt21): filter out video controller
       pointerAuto: '.MomentMediaItem'
     },
     srcMatching: [{
