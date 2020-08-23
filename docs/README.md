@@ -98,11 +98,11 @@ Hereby is a list of part of the websites (hostnames) that **PhotoShow** currentl
 
  3. **SEARCHING / KNOWLEDGE / EXPERTISE:**
 
-    Baidu, Bing, GitHub, Quora, Wiki
+    ACP Journals, Baidu, Bing, Google, GitHub, JAMA Network, NEJM, Quora, Wiki
 
  4. **SOCIAL NETWORKING:**
 
-    Facebook, Imgur, Instagram, Qzone, Reddit, Tumblr, Twipu, Twitter, Sina weibo, WeChat webpages
+    Facebook, Imgur, Instagram, Jandan, Qzone, Reddit, Tumblr, Twipu, Twitter, Sina weibo, WeChat webpages
 
  5. **VIDEOS:**
 

@@ -99,6 +99,8 @@
  * @version 4.4.1.1 | 2020-04-22 | Vincent    // Bug Fix: Fix the problem that some non-image-url 'a' link triggers might not work, caused by the optimization for 'a' link parsing rules in version 4.4.0.0.
  * @version 4.4.3.0 | 2020-05-02 | Vincent    // Bug Fix: Fix the problem that PhotoShow-injected styles fail to be removed when it is toggled off;
  *                                            // Updates: Optimize mask hosting element detecting algorithm.
+ * @version 4.5.2.0 | 2020-08-23 | Vincent    // Updates: Fit 'onToggle' and 'onXhrLoad' callbacks;
+ *                                            // Updates: Replace Object.assign with spread syntax.
  */
 
 // TODO: Extract common tool methods to external modules.
@@ -125,10 +127,11 @@
       }
     },
     swapDimensions: function(obj) {
-      return Object.assign({}, obj, {
+      return {
+        ...obj,
         width: obj.height,
         height: obj.width
-      });
+      };
     },
     detectImage: function(preferredSrc, defaultSrc, isImgInvalid) {
       defaultSrc = defaultSrc || '';
@@ -154,11 +157,13 @@
         clearTimeout(imgLoadTimer);
         imgLoadTimer = setTimeout(() => img.onerror(), 20 * 1000);
 
+        photoShow.websiteConfig.noReferrer && (img.referrerPolicy = 'no-referrer');
+
         img.src = preferredSrc;
       });
     },
     loadImage: function(oriSrc) {
-      return this.resolveImgSrc(oriSrc).then(imgSrc => this.detectImage(imgSrc).then(imgInfo => Object.assign({oriSrc}, imgInfo)));
+      return this.resolveImgSrc(oriSrc).then(imgSrc => this.detectImage(imgSrc).then(imgInfo => ({...imgInfo, oriSrc})));
     },
     cacheImage: function(id, imgSrc) {
       return imgSrc && !$(`[photoshow-cache-id="${id}"]`).length ? ($('<input type="hidden" />').attr('photoshow-cache-id', id).val(imgSrc).appendTo(document.body), imgSrc) : ($(`[photoshow-cache-id="${id}"]`).val() || '');
@@ -232,6 +237,17 @@
     },
     resolveImgSrc: function(src) {
       return Promise.resolve(src).then(src => (/^\/\//.test(src) ? location.protocol : '') + src);
+    },
+    executeScript: function(scriptText) {
+      const nonce = document.scripts[0].nonce || '',
+        script = document.createElement('script');
+
+      script.type = 'text/javascript';
+      script.text = scriptText;
+      script.nonce = nonce;
+
+      (document.head || document.documentElement).appendChild(script);
+      script.remove();
     }
   };
 
@@ -273,9 +289,9 @@
   };
 
   const photoShow = {
-    isEnabled: false,                // PhotoShow availability flag.
-    websiteConfig: {},               // Configuration for current website.
-    config: {                        // PhotoShow configuration.
+    isEnabled: false,    // PhotoShow availability flag.
+    websiteConfig: {},    // Configuration for current website.
+    config: {    // PhotoShow configuration.
       update: function(config) {     // Update PhotoShow configuration.
         (function(item, config) {
           Object.entries(config).forEach(([key, value]) => item.hasOwnProperty(key) && (typeof item[key] == 'object' ? arguments.callee(item[key], value) : (item[key] = value)));
@@ -350,7 +366,7 @@
         for (let i = 0; i < this.websiteConfig.srcMatching.length; ++i) {
           let curMatchingRule = this.websiteConfig.srcMatching[i];
 
-          if ((target.is(curMatchingRule.selectors || 'img,[style*=background-image],image,a')) && target.css('pointerEvents') != 'none') {
+          if ((target.is(curMatchingRule.selectors || 'img,[style*=background-image],image,a[href]')) && target.css('pointerEvents') != 'none') {
             let targetSrc = tools.getLargestImgSrc(element),
               srcRegExpObj = curMatchingRule.srcRegExp ? new RegExp(curMatchingRule.srcRegExp, 'i') : undefined;
 
@@ -374,6 +390,25 @@
       }
 
       return imgSrc;
+    },
+    toggleXhrHook: function() {
+      if (photoShow.websiteConfig.onXhrLoad) {
+        tools.executeScript(this.isEnabled ? `
+          if (!window.photoShowOriXhrOpen) {
+            window.photoShowOriXhrOpen = window.XMLHttpRequest.prototype.open;
+
+            window.XMLHttpRequest.prototype.open = function(method, url) {
+              this.addEventListener('load', function() {
+                (${photoShow.websiteConfig.onXhrLoad})(url, this.responseText);
+              });
+              return window.photoShowOriXhrOpen.apply(this, arguments);
+            }
+          }` : `
+          if (window.photoShowOriXhrOpen) {
+            window.XMLHttpRequest.prototype.open = window.photoShowOriXhrOpen;
+            delete window.photoShowOriXhrOpen;
+          }`);
+      }
     }
   };
 
@@ -564,14 +599,15 @@
         };
       }
 
-      Object.assign(displayingStyles.viewerFinal, {
+      displayingStyles.viewerFinal = {
+        ...displayingStyles.viewerFinal,
         opacity: 1,
         margin: [0, 0, 0, 0].concat(`${this.viewerBoxOffset}px`, 0, 0, 0).splice(4 - (chosenSpace.i + 2) % 4, 4).join(' '),
         [chosenPos.anchor]: '',
         [chosenPos.idle]: '',
         [chosenPos.opposite]: this.maskHostRect.viewerAnchor[chosenPos.anchor],
         [chosenPos.offset]: Math.min(Math.max(this.maskHostRect[chosenPos.offset] - (displayingStyles.viewerFinal[offsetDimension] - this.maskHostRect[offsetDimension]) / 2, this.viewerBoxOffset), winSize[offsetDimension] - displayingStyles.viewerFinal[offsetDimension] - this.viewerBoxOffset)
-      });
+      };
 
       // Calculate viewer shadow styles.
       if (photoShow.config.shadowDisplay) {
@@ -589,22 +625,21 @@
             Math.max((this.maskHostRect[chosenPos.idle] - viewerRect[chosenPos.idle]) * shadowCalcPosFactor, 0)
           ];
 
-        Object.assign(displayingStyles, {
-          shadowInitial: Object.assign({
+        displayingStyles = {
+          ...displayingStyles,
+          shadowInitial: {
             top: '',
             right: '',
             bottom: '',
-            left: ''
-          }, {
+            left: '',
             [chosenPos.idle]: 0,
             [chosenPos.offset]: 0
-          }),
-          shadow: Object.assign({
+          },
+          shadow: {
             top: '',
             right: '',
             bottom: '',
-            left: ''
-          }, {
+            left: '',
             [offsetDimension]: 'auto',
             [anchorDimension]: this.viewerBoxOffset,
             [chosenPos.anchor]: `calc(100% + ${this.viewerBoxBorderWidth}px)`,
@@ -618,8 +653,8 @@
               `${this.isViewerPosHor ? '100%' : `calc(100% - ${shadowClacKeyValues[3]}px)`} ${this.isViewerPosHor ? `calc(100% - ${shadowClacKeyValues[2]}px)` : '100%'}`,
               `${this.isViewerPosHor ? 0 : `${shadowClacKeyValues[1]}px`} ${this.isViewerPosHor ? `calc(100% - ${shadowClacKeyValues[3]}px)` : '100%'}`
             ].join()})`
-          })
-        });
+          }
+        };
       }
 
       // Calculate MaskHost properties.
@@ -627,10 +662,11 @@
         width: ((this.imgRotation.isVertical ? chosenSpace.viewerHeight : chosenSpace.viewerWidth) - this.viewerBoxBorderWidth * 2) / displayingStyles.img.width * this.maskHostRect.width,
         height: ((this.imgRotation.isVertical ? chosenSpace.viewerWidth : chosenSpace.viewerHeight) - this.viewerBoxBorderWidth * 2) / displayingStyles.img.height * this.maskHostRect.height
       };
-      Object.assign(this.maskHostRect.viewport, {
+      this.maskHostRect.viewport = {
+        ...this.maskHostRect.viewport,
         widthRatio: this.maskHostRect.viewport.width / this.maskHostRect.width,
         heightRatio: this.maskHostRect.viewport.height / this.maskHostRect.height
-      });
+      };
       this.maskHostRect.mouseEnds = {
         top: this.maskHostRect.top + this.maskHostRect.viewport.height / 2,
         right: this.maskHostRect.right - this.maskHostRect.viewport.width / 2,
@@ -687,7 +723,7 @@
       IS_BROWSER_FIREFOX && $(this.maskHost).css('mask', 'url(#photoShowViewerMask)');
     },
     update: function() {
-      this.mouseClientPos = Object.assign({}, this.mouseOriClientPos);
+      this.mouseClientPos = {...this.mouseOriClientPos};
 
       var curElementUnderMouse = document.elementFromPoint(this.mouseClientPos.x, this.mouseClientPos.y);
 
@@ -884,6 +920,8 @@
         IS_BROWSER_FIREFOX && this.viewerMask.appendTo(document.body);
         this.viewerBox.appendTo(document.body);
 
+        photoShow.websiteConfig.noReferrer && this.viewerImg.prop('referrerPolicy', 'no-referrer');
+
         this.imgSrc = this.preservedImgSrc = '';
 
         // Trigger actions.
@@ -915,8 +953,8 @@
               target.removeAttr('photoshow-trigger-blocked');
             }
 
-            if (target.is('html')) {
-              e.currentTarget.ownerDocument.defaultView == window.top && Object.assign(this, {
+            if (target.is('html') && e.currentTarget.ownerDocument.defaultView == window.top) {
+              Object.assign(this, {
                 mouseClientPos: {
                   x: -1,
                   y: -1
@@ -953,11 +991,13 @@
           .on('blur.photoShow', () => this.winBlurAction());
 
         // Addamend styles.
-        Object.assign(photoShow.websiteConfig, {
-          amendStyles: Object.assign(photoShow.websiteConfig.amendStyles || {}, {
+        photoShow.websiteConfig = {
+          ...photoShow.websiteConfig,
+          amendStyles: {
+            ...(photoShow.websiteConfig.amendStyles || {}),
             pointerNone: ['*:before,*:after'].concat(photoShow.websiteConfig.amendStyles && photoShow.websiteConfig.amendStyles.pointerNone || []).join(',')
-          })
-        });
+          }
+        };
 
         for (let styleName in photoShow.websiteConfig.amendStyles) {
           tools.addStyle(styleName, photoShow.websiteConfig.amendStyles[styleName]);
@@ -970,6 +1010,10 @@
           subtree: true,
           attributeFilter: ['src', 'srcset', 'style']
         });
+
+        // Construction callbacks.
+        // Destuction callbacks.
+        photoShow.websiteConfig.onToggle && eval(`(${photoShow.websiteConfig.onToggle})`)(true);
       } else {
         // Stop observing the document.
         if (this.domObserver) {
@@ -992,6 +1036,9 @@
         $('[photoshow-trigger-blocked]').removeAttr('photoshow-trigger-blocked');
         $('[id^="photoShowStyles_"]').remove();
         $('[photoshow-cache-id]').remove();
+
+        // Destuction callbacks.
+        photoShow.websiteConfig.onToggle && eval(`(${photoShow.websiteConfig.onToggle})`)(false);
       }
     },
     mouseOverAction: function(e) {
@@ -1080,27 +1127,29 @@
               webkitMask: maskForWebkit
             }]
           ]).concat([
-            [this.viewerImg, Object.assign({
+            [this.viewerImg, {
+              ...(this.imgRotation.isVertical ? {
+                top: `${(0.5 + imgOffset.left * this.imgRotation.angleSin) * 100}%`,
+                left: `${(0.5 - imgOffset.top * this.imgRotation.angleSin) * 100}%`
+              } : {
+                top: `${(0.5 + imgOffset.top * this.imgRotation.angleCos) * 100}%`,
+                left: `${(0.5 + imgOffset.left * this.imgRotation.angleCos) * 100}%`
+              }),
               transform: `translate(-50%, -50%) rotate(${this.imgRotation.angle}deg)`
-            }, this.imgRotation.isVertical ? {
-              top: `${(0.5 + imgOffset.left * this.imgRotation.angleSin) * 100}%`,
-              left: `${(0.5 - imgOffset.top * this.imgRotation.angleSin) * 100}%`
-            } : {
-              top: `${(0.5 + imgOffset.top * this.imgRotation.angleCos) * 100}%`,
-              left: `${(0.5 + imgOffset.left * this.imgRotation.angleCos) * 100}%`
-            }), useAni]
+            }, useAni]
           ]));
         }
       });
     },
     rotateAction: function(e) {
-      this.mouseClientPos = Object.assign({}, this.mouseOriClientPos);
+      this.mouseClientPos = {...this.mouseOriClientPos};
       this.imgRotation.angle += (e.which - 38) * 90;
-      Object.assign(this.imgRotation, {
+      this.imgRotation = {
+        ...this.imgRotation,
         isVertical: !!(this.imgRotation.angle % 180),
         angleSin: Math.sin(this.imgRotation.angle * Math.PI / 180),
         angleCos: Math.cos(this.imgRotation.angle * Math.PI / 180)
-      });
+      };
 
       this.refreshImgViewer();
     },
@@ -1397,6 +1446,7 @@
     chrome.storage.onChanged.addListener(changes => {
       if (changes.disabledWebsites && photoShow.isEnabled != !changes.disabledWebsites.newValue.includes(location.hostname)) {
         photoShow.isEnabled = !photoShow.isEnabled;
+        photoShow.toggleXhrHook();
         photoShowViewer.toggle();
       }
 
@@ -1409,6 +1459,7 @@
     }, response => {
       photoShow.isEnabled = response.isPhotoShowEnabled;
       photoShow.websiteConfig = response.websiteConfig || {};
+      photoShow.toggleXhrHook();
       photoShowViewer.toggle();
       photoShow.config.update(response.photoShowConfigs);
     });

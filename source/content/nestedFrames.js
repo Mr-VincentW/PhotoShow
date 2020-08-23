@@ -17,6 +17,7 @@
  * @version 4.0.11.0 | 2020-01-20 | Vincent   // Updates: Replace spread syntax with Object.assign to support for older browsers, in response to user feedback.
  * @version 4.2.0.0 | 2020-03-20 | Vincent    // Updates: Replace string concatenation with template literals.
  * @version 4.4.0.0 | 2020-04-18 | Vincent    // Bug Fix: Fix the problem that image src fails to be preserved for contextmenu actions.
+ * @version 4.5.2.0 | 2020-08-23 | Vincent    // Updates: Replace Object.assign with spread syntax.
  */
 
 (($, isInFrame) => {
@@ -66,11 +67,13 @@
           .on('topWinScroll.photoShow', this.winScrollAction.bind(this));
 
           // Add amend styles.
-          Object.assign(photoShow.websiteConfig, {
-            amendStyles: Object.assign(photoShow.websiteConfig.amendStyles || {}, {
+          photoShow.websiteConfig = {
+            ...photoShow.websiteConfig,
+            amendStyles: {
+              ...(photoShow.websiteConfig.amendStyles || {}),
               pointerNone: ['*:before,*:after'].concat(photoShow.websiteConfig.amendStyles && photoShow.websiteConfig.amendStyles.pointerNone || []).join(',')
-            })
-          });
+            }
+          };
 
           for (let styleName in photoShow.websiteConfig.amendStyles) {
             tools.addStyle(styleName, photoShow.websiteConfig.amendStyles[styleName]);

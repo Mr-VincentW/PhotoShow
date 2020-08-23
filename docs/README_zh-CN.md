@@ -106,7 +106,7 @@
 
  3. **搜索 / 知识 / 专业 类：**
 
-    Bing、GitHub、Quora、Wiki
+    ACP Journals、Bing、Google、GitHub、JAMA Network、NEJM、Quora、Wiki
 
     百度、知乎
 
@@ -114,7 +114,7 @@
 
     Facebook、Imgur、Instagram、Reddit、Tumblr、Twipu、Twitter
 
-    百度贴吧、豆瓣、QQ 空间、微博、微信公众号
+    百度贴吧、豆瓣、煎蛋、QQ 空间、微博、微信公众号
 
  5. **视频 类：**
 

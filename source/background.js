@@ -105,7 +105,7 @@
  * @version 4.2.0.0 | 2020-03-20 | Vincent    // Updates: PHOTOSHOW_CONFIGS supports nested data structure;
  *                                            // Updates: Replace string concatenation with template literals.
  * @version 4.2.2.0 | 2020-04-06 | Vincent    // Updates: Better support for Facebook.
- * @version 4.3.0.0 | 2020-04-10 | Vincent    // Updates: Add support for 'gifv' imags used by Tumblr;
+ * @version 4.3.0.0 | 2020-04-10 | Vincent    // Updates: Add support for 'gifv' images used by Tumblr;
  *                                            // Updates: Support wekan.tv;
  *                                            // Bug Fix: Fix the problem that images might be downloaded with wrong file name suffixes.
  * @version 4.4.0.0 | 2020-04-18 | Vincent    // Updates: Add 'xhrDownload' field to the website-info-structure, for better image downloading support;
@@ -123,6 +123,12 @@
  *                                            // Updates: Better support for Facebook and Pinterest.
  * @version 4.5.0.1 | 2020-05-24 | Vincent    // Updates: Support Andino in response to user feedback.
  * @version 4.5.1.0 | 2020-07-18 | Vincent    // Updates: Better support for Facebook, weibo, and bilibili.
+ * @version 4.5.2.0 | 2020-08-23 | Vincent    // Bug Fix: Fix a bug reported by a user for bilibili (GitHub issue #7);
+ *                                            // Bug Fix: Fix the avatar display problem on Twitter;
+ *                                            // Updates: Resume supporting Google images;
+ *                                            // Updates: Support ACP Journals, JAMA Network, NEJM, and jandan.net, in response to user requests;
+ *                                            // Updates: Add 'noReferrer', 'onToggle' and 'onXhrLoad' fields to the website-info-structure;
+ *                                            // Updates: Replace Object.assign with spread syntax.
  */
 
 // TODO: Extract websiteConfig to independent files and import them (after porting to webpack).
@@ -137,10 +143,9 @@
 // Website info structure:
 // {
 //   amendStyles: {                    // (Optional) Styles to amend to hosting pages.
-//     pointerAuto: {String},          // Selectors that are to be set to 'pointer-events:auto'
-//     pointerNone: {String}           // Selectors that are to be set to 'pointer-events:none'
+//     pointerNone: {String},          // Selectors that are to be set to 'pointer-events:none'
+//     pointerAuto: {String}           // Selectors that are to be set to 'pointer-events:auto'
 //   },
-//   xhrDownload: {String|Array},      // (Optional) If downloading images under certain hostnames on this website needs the 'referer' header of the HTTP request set, list the hostnames here.
 //   srcMatching: {                    // (Required) Matching configuration.
 //     selectors: {String},            // (Optional) Selectors for elements responsible for mouse-enter action. Default value: '' (equivalent to 'img,[style*=background-image]').
 //     srcRegExp: {String},            // (Optional) Pattern for trigger image src matching in src replacement.
@@ -149,15 +154,28 @@
 //                                     // Arguments: src{String}             // Src of the selected img (or the src of the largest image in its srcset list) or backgroundImage src of the selected element.
 //                                     // Arguments: srcRegExpObj{RegExp}    // An RegExp object constructed by srcRegExp.
 //                                     // Return Value: {String}             // Src of the high-definition image; return '' if not applicable.
-//   }
+//   },
+//   xhrDownload: {String|Array},      // (Optional) If downloading images under certain hostnames on this website needs the 'referer' header of the HTTP request set, list the hostnames here.
+//   noReferrer: {Boolean},            // (Optional) Set the 'referrerPolicy' field of the img element to 'no-referrer' when displaying the HD image, if this parameter is specified as true.
+//   onToggle: {Function},             // (Optional) Callback when PhotoShow is toggled on/off on the hosting page.
+//                                     // Arguments: isOn {Boolean}    // Specify whether PhotoShow is turnned on.
+//   onXhrLoad: {Function}             // (Optional) Callback for any XHR load event triggered on the hosting page.
+//                                     // Arguments: url{String}         // The url of the request.
+//                                     // Arguments: response{String}    // The text content of the response.
 // }
 //
 // NOTE:
-// As for 'xhrDownload':
+// - onToggle:
+// When PhotoShow is turnned on/off on the hosting page, this callback will be invoked with the current on/off state. Use this callback to do some initializing or destroying stuff.
+//
+// - onXhrLoad:
+// If this parameter is provided and a callback is provided, all the xhr requests on the hosting page will be monitored and the callback will be called when any xhr load event happens.
+//
+// - xhrDownload:
 // Some websites have strict access restrictions that downloading requests without the 'referer' header correctly set will fail.
 // Specify the hostnames of these image URLs with this parameter so that PhotoShow will use special ways to download these images with the 'referer' header set to the hostname of their source pages.
 //
-// As for 'srcMatching':
+// - srcMatching:
 // 'selectors' is used to select the trigger element which can be any type of elements.
 // 'processor' is used to generate the src of the 'large' image. If it is:
 // · A function: It will be called to generate the src of the high-definition image, usually being used to process those non-image triggers;
@@ -237,6 +255,14 @@ const websiteConfig = {
       srcRegExp: '/static/media/.+@IMG@'
     }]
   },
+  '(?:.+\\.)?acpjournals\\.org': {
+    srcMatching: [{
+      srcRegExp: '/medium/(\\w+)\\.jpg',
+      processor: '/large/$1.jpeg'
+    },{
+      srcRegExp: '\\.cover@IMG@'
+    }]
+  },
   'www\\.amazon(?:\\.(?:com|[a-z]{2}))+': {    // co|au|br|ca|cn|de|es|fr|hk|in|it|jp|mx|nl|tr|uk
     amendStyles: {
       pointerNone: '.backGround'
@@ -270,8 +296,8 @@ const websiteConfig = {
   },
   '(?:(?:www|magazine)\\.artstation|davidnakayama)\\.com': {
     amendStyles: {
-      pointerAuto: '.project-image .overlay .avatar,.gallery-grid-overlay .gallery-grid-info>img',
-      pointerNone: 'a .overlay,.project-image .overlay,.mature-content-label,.gallery-grid-overlay,.album-grid-item-overlay'
+      pointerNone: 'a .overlay,.project-image .overlay,.mature-content-label,.gallery-grid-overlay,.album-grid-item-overlay',
+      pointerAuto: '.project-image .overlay .avatar,.gallery-grid-overlay .gallery-grid-info>img'
     },
     srcMatching: [{
       srcRegExp: '(cdn\\w?\\.artstation\\.com/p/users/covers/.+/)small(/.+@IMG@.*)',
@@ -294,8 +320,8 @@ const websiteConfig = {
   },
   '(?:www|image)\\.baidu\\.com': {
     amendStyles: {
-      pointerAuto: '.imgbox+.hover a[href]',
-      pointerNone: '.imgbox+.hover,.opr-recommends-merge-mask,.op-short-video-pc-play-icon,.op-short-video-pc-duration-wrap,.op-img-address-hoverview'
+      pointerNone: '.imgbox+.hover,.opr-recommends-merge-mask,.op-short-video-pc-play-icon,.op-short-video-pc-duration-wrap,.op-img-address-hoverview',
+      pointerAuto: '.imgbox+.hover a[href]'
     },
     srcMatching: [{
       selectors: '.op-short-video-pc-img',
@@ -368,7 +394,8 @@ const websiteConfig = {
   },
   '.+\\.bilibili\\.com': {
     amendStyles: {
-      pointerNone: '.groom-module .card-mark,.spread-module .pic img~*,.spread-module .pic .lazy-img~*,.cover-ctn .cover-back,.hot-list-content .hover-mask,.play-mask,.recommend-box .info,.hover-cover-box *:not(.cover-ctnr),.image-area *:not(img),.face-pendants,.bilibili-player-ending-panel-box-recommend-cover,.van-framepreview,.fake-danmu,.fake-danmu-mask,.preview-bg'
+      pointerNone: '.groom-module .card-mark,.spread-module .pic img~*,.spread-module .pic .lazy-img~*,.cover-ctn .cover-back,.hot-list-content .hover-mask,.play-mask,.recommend-box .info,.hover-cover-box *,.cover *:not(img),.image-area *:not(img),.face-pendants,.pendant,.user-decorator,.bilibili-player-ending-panel-box-recommend-cover,.van-framepreview,.fake-danmu,.fake-danmu-mask,.preview-bg,.pl__mask',
+      pointerAuto: '.hover-cover-box .cover-ctnr,.image-area .see-later,.cover .i-watchlater'
     },
     srcMatching: [{
       selectors: 'img,[style*=background-image],.card-live-module .pic .mask,.cover-ctn .cover,.album-img,.user-container i,.drawer-card .img-ctn,.canvas-card .img-contain',
@@ -475,8 +502,8 @@ const websiteConfig = {
   },
   '(?:www|shop)\\.deviantart\\.com': {
     amendStyles: {
-      pointerAuto: '._3wSWI a,._3wSWI button,.shop-header .overlay-info a,.shop-header [class*=figcaption] a',
-      pointerNone: '._3wSWI,a[href*="/gallery/"] ._3mYQ1,.shop-header .overlay-info,.shop-header [class*=figcaption]'
+      pointerNone: '._3wSWI,a[href*="/gallery/"] ._3mYQ1,.shop-header .overlay-info,.shop-header [class*=figcaption]',
+      pointerAuto: '._3wSWI a,._3wSWI button,.shop-header .overlay-info a,.shop-header [class*=figcaption] a'
     },
     srcMatching: [{
       selectors: 'a[data-super-full-img] img',
@@ -627,8 +654,8 @@ const websiteConfig = {
   },
   '\\w+\\.facebook\\.com': {
     amendStyles: {
-      pointerAuto: '.uiMediaThumb+._53d a',
-      pointerNone: '._52d9,.uiMediaThumb+._53d,._3251,._7m4,#fbProfileCover .coverBorder,img+.pmk7jnqg'
+      pointerNone: '._52d9,.uiMediaThumb+._53d,._3251,._7m4,#fbProfileCover .coverBorder,img+.pmk7jnqg',
+      pointerAuto: '.uiMediaThumb+._53d a'
     },
     srcMatching: [{
       selectors: 'a[href^="/events/"] img',
@@ -797,25 +824,55 @@ const websiteConfig = {
     amendStyles: {
       pointerNone: '.rg_anbg,.rg_ilmbg'
     },
-    srcMatching: [{
+    srcMatching: {
       selectors: 'img,[style*="background-image"],.wXUyZd,.TdqJUe',
       srcRegExp: '(//(?:.*\\.googleusercontent|books\\.google)\\.com/[^=]+)=.*',
       processor: (trigger, src, srcRegExpObj) => srcRegExpObj.test(src || trigger.parent().find('img[src]').attr('src')) ? `${RegExp.$1}=w10000` : ''
     }
-    // , {
-    //   processor: trigger => {
-    //     var link = trigger.closest('a').attr('href'),
-    //       imgId = /#imgrc=(.*)/.test(link) ? RegExp.$1 : '';
+  },
+  'www\\.google\\.com': {
+    srcMatching: [{
+      selectors: 'img',
+      processor: (trigger, src) => window.photoShowHdSrcCache[trigger.closest('[data-tbnid]').data('tbnid')] || trigger.closest('[data-photoshow-hd-src]').data('photoshow-hd-src') || ''
+    }, {
+      selectors: 'a[href*="#imgrc="] img',
+      processor: trigger => {
+        var link = trigger.closest('a').attr('href'),
+          imgId = /#imgrc=(.*)/.test(link) ? RegExp.$1 : '';
 
-    //     return /\/imgres\?imgurl=([^&]+)/.test(link) ? decodeURIComponent(RegExp.$1) : (/\/search\?.*\btbm=isch\b/.test(link) ? new Promise(resolve => {
-    //       $.ajax(link, {
-    //         success: imgSearchResultDoc => resolve(new RegExp(`"id":"${imgId}".*?"ou":"([^"]+)"`).test(imgSearchResultDoc) ? JSON.parse(`"${RegExp.$1}"`) : ''),
-    //         error: () => resolve('')
-    //       });
-    //     }) : '');
-    //   }
-    // }
-    ]
+        return /\/imgres\?imgurl=([^&]+)/.test(link) ? decodeURIComponent(RegExp.$1) : (/\/search\?.*\btbm=isch\b/.test(link) ? new Promise(resolve => {
+          $.ajax(link, {
+            success: imgSearchResultDoc => resolve(new RegExp(`"${imgId}",\\[.*?\\]\\n,\\["(https?:\/\/.+?)"(?:,\\d+)+\\]`).test(imgSearchResultDoc) ? JSON.parse(`"${RegExp.$1}"`) : ''),
+            error: () => resolve('')
+          });
+        }) : '');
+      }
+    }],
+    onToggle: isOn => {
+      if (isOn) {
+        window.photoShowHdSrcCache = window.photoShowHdSrcCache || {};
+
+        [...document.scripts].filter(script => /^AF_initDataCallback\b/.test(script.text)).forEach(script => {
+          [...script.text.matchAll(/"([-\w]{14})",\[.*?\]\n,\["(https?:\/\/.+?)"(?:,\d+)+\]/g)].forEach(([match, id, hdSrc]) => {
+            try {
+              window.photoShowHdSrcCache = {...window.photoShowHdSrcCache, [id]: JSON.parse(`"${hdSrc.replace(/\\\\(?=u[a-f\d]+)/ig, '\\')}"`)}
+            } catch(error){}
+          })
+        });
+      } else {
+        $('[data-photoshow-hd-src]').removeAttr('data-photoshow-hd-src');
+        delete window.photoShowHdSrcCache;
+      }
+    },
+    onXhrLoad: (url, response) => {
+      if (/\bbatchexecute\b/.test(url)) {
+        [...response.matchAll(/\\"([-\w]{14})\\",\[.*?\]\\n,\[\\"(https?:\/\/.+?)\\"(?:,\d+)+\]/g)].forEach(([match, id, hdSrc], i) => {
+          try {
+            document.querySelector(`[data-tbnid="${id}"]`).setAttribute('data-photoshow-hd-src', JSON.parse(`"${hdSrc.replace(/\\\\(?=u[a-f\d]+)/ig, '\\')}"`));
+          } catch(error){}
+        })
+      }
+    }
   },
   'huaban\\.com': {
     amendStyles: {
@@ -871,6 +928,28 @@ const websiteConfig = {
       })
     }, {}]
   },
+  '(?:.+\\.)?jamanetwork\\.com': {
+    srcMatching: {
+      srcRegExp: 'cdn\\.jamanetwork\\.com/.+@IMG@',
+      processor: (trigger, src, srcRegExpObj) => {
+        const link = trigger.closest('a').attr('href');
+        return srcRegExpObj.test(src) && srcRegExpObj.test(link) ? link : src;
+      }
+    }
+  },
+  'jandan\\.net': {
+    amendStyles: {
+      pointerNone: '.gif-mask,.show_more'
+    },
+    noReferrer: true,
+    srcMatching:[{
+      srcRegExp: '(img\\.jandan\\.net/.+@IMG@).*',
+      processor: '$1'
+    }, {
+      selectors: '.view_img_link~img',
+      processor: trigger => trigger.siblings('.view_img_link').attr('href') || ''
+    }]
+  },
   '(?:.+\\.)?(jd|yhd|tuniu)\\.(?:com|hk)': {
     amendStyles: {
       pointerNone: '.d-soldout,.pic .picmask,.pic .words,.pic .sta,.gallery-mask,.gallery-thumb-play,.photograph .mask,a.pro_pic>:not(img),.pro_item .pro_pic>:not(a)'
@@ -918,6 +997,18 @@ const websiteConfig = {
       processor: '$11600/1600$2'
     }, {
       srcRegExp: '(uploads-cdn\\.thgblogs\\.com/.+?)(?:-150x150)?(@IMG@)',
+      processor: '$1$2'
+    }, {}]
+  },
+  '(?:.+\\.)?nejm\\.org': {
+    srcMatching:[{
+      srcRegExp: '/img_\\w+/(\\w+@IMG@)',
+      processor: (trigger, src, srcRegExpObj) => srcRegExpObj.test(src) ? trigger.data('lg-src') : ''
+    }, {
+      srcRegExp: '(csvc\\.nejm\\.org/ContentServer/images\\?id=[^&]+).*',
+      processor: '$1'
+    }, {
+      srcRegExp: '(.+-wpengine\\.netdna-ssl\\.com/.+)-\\d+x\\d+(@IMG@)',
       processor: '$1$2'
     }, {}]
   },
@@ -996,7 +1087,6 @@ const websiteConfig = {
       pointerNone: '.dxCZpw,.TagImageMainBack,.search-guide-tablet-label',
       pointerAuto: '.thumb img'
     },
-    xhrDownload: 'i.pximg.net',
     srcMatching: [{
       selectors: 'img,[style*="background-image"]',
       srcRegExp: '(.+\\.pximg\\.net/user-profile/.+)_\\d+(@IMG@)',
@@ -1027,12 +1117,13 @@ const websiteConfig = {
     }, {
       selectors: 'img,[style*="background-image"]',
       srcRegExp: '.+\\.pximg\\.net/.+@IMG@'
-    }]
+    }],
+    xhrDownload: 'i.pximg.net'
   },
   'www\\.poco\\.cn': {
     amendStyles: {
-      pointerAuto: '.info-item .cc_user_item,.cc_info_item a,.pui_works_img_normal .info-shadow .info>*',
-      pointerNone: '.fade-box,.cc-shadow-cover,.info-item,.cc_info_item,.pui_works_img_normal .txt,.swiper-slide [class^="cc-img-"],.pui_works_img_normal .info-shadow,.pui_works_img_normal .tag'
+      pointerNone: '.fade-box,.cc-shadow-cover,.info-item,.cc_info_item,.pui_works_img_normal .txt,.swiper-slide [class^="cc-img-"],.pui_works_img_normal .info-shadow,.pui_works_img_normal .tag',
+      pointerAuto: '.info-item .cc_user_item,.cc_info_item a,.pui_works_img_normal .info-shadow .info>*'
     },
     srcMatching: {
       srcRegExp: '.+(\\.pocoimg\\.cn/image/.+?)(?:_[A-Z]\\d+)?(@IMG@).*',
@@ -1194,8 +1285,8 @@ const websiteConfig = {
   },
   '(?:www\\.)?trademe(?:\\.co)?\\.nz': {
     amendStyles: {
-      pointerAuto: '[size="thumbnail"]',
-      pointerNone: '.tm-marketplace-search-card-summary-image__gradient'
+      pointerNone: '.tm-marketplace-search-card-summary-image__gradient',
+      pointerAuto: '[size="thumbnail"]'
     },
     srcMatching: [{
       selectors: 'img,.supergrid-bucket .supergrid-listing',
@@ -1259,8 +1350,8 @@ const websiteConfig = {
   },
   '(?:(?:mobile\\.)?twitter|www\\.twipu)\\.com': {
     amendStyles: {
-      pointerAuto: '.MomentMediaItem',
-      pointerNone: '.PlayableMedia-player [data-testid="posterPlayBtn"],.PlayableMedia-player [data-testid="poster"]~div,.LastSeenProfiles__shadow,.css-1dbjc4n[aria-haspopup]:empty'
+      pointerNone: '.PlayableMedia-player [data-testid="posterPlayBtn"],.PlayableMedia-player [data-testid="poster"]~div,.LastSeenProfiles__shadow,.css-1dbjc4n.r-u8s1d:empty',
+      pointerAuto: '.MomentMediaItem'
     },
     srcMatching: [{
       srcRegExp: '(\\w+\\.twimg\\.com/(?:(?:[^/]+/)?default_)?profile_images/.+)_\\w+(?=@IMG@)(@IMG@)',
@@ -1289,8 +1380,8 @@ const websiteConfig = {
   },
   '(?:.+\\.)?weibo\\.com': {
     amendStyles: {
-      pointerAuto: '.bot_cover a,.WB_feed_detail *',
-      pointerNone: '.weibo_player .outerline,.icon_playvideo,.WB_gif_video_box,.bot_cover,.WB_feed_detail,.W_icon_tag_9p'
+      pointerNone: '.weibo_player .outerline,.icon_playvideo,.WB_gif_video_box,.bot_cover,.WB_feed_detail,.W_icon_tag_9p',
+      pointerAuto: '.bot_cover a,.WB_feed_detail *'
     },
     srcMatching: [{
       srcRegExp: '(mu\\d+\\.sinaimg\\.cn/)(?:(?:square|crop|frame)\\.[^/]+|original)/(.+@IMG@).*',
@@ -1360,8 +1451,8 @@ const websiteConfig = {
   },
   '(?:\\w+\\.)?(?:youku|tudou)\\.com': {
     amendStyles: {
-      pointerAuto: '.subscribe-square-pc__content__rec__episode__item__info button',
-      pointerNone: '[class^="index-module_bg_"],.rank-content .tab-item li .info,.movie-card-module .movie-cont .play-btn,.subscribe-square-pc__content__rec__episode__item__mask,.subscribe-square-pc__content__rec__episode__item__info,.td_pc-card-image .image-desc'
+      pointerNone: '[class^="index-module_bg_"],.rank-content .tab-item li .info,.movie-card-module .movie-cont .play-btn,.subscribe-square-pc__content__rec__episode__item__mask,.subscribe-square-pc__content__rec__episode__item__info,.td_pc-card-image .image-desc',
+      pointerAuto: '.subscribe-square-pc__content__rec__episode__item__info button'
     },
     srcMatching: [{
       srcRegExp: '(static\\.youku\\.com/\\w+/img/avatar/)\\d+(/.*)',
@@ -1384,8 +1475,8 @@ const websiteConfig = {
   },
   'www\\.youtube\\.com': {
     amendStyles: {
-      pointerAuto: 'yt-img-shadow~[id$="overlay"] [role="button"],yt-img-shadow~[id$="overlays"] [role="button"]',
-      pointerNone: 'yt-img-shadow~[id$="overlay"],yt-img-shadow~[id$="overlays"]'
+      pointerNone: 'yt-img-shadow~[id$="overlay"],yt-img-shadow~[id$="overlays"]',
+      pointerAuto: 'yt-img-shadow~[id$="overlay"] [role="button"],yt-img-shadow~[id$="overlays"] [role="button"]'
     },
     srcMatching: [{
       selectors: 'img,.ytp-cued-thumbnail-overlay-image',
@@ -1523,6 +1614,9 @@ var photoShow = {
             WEBSITE_INFO[urlHostname].websiteConfig.srcMatching[i].srcRegExp && (WEBSITE_INFO[urlHostname].websiteConfig.srcMatching[i].srcRegExp = WEBSITE_INFO[urlHostname].websiteConfig.srcMatching[i].srcRegExp.replace(/@IMG@/g, '\\.(?:jpe?g|gifv?|pn[gj]|bmp|webp|svg)'));
             WEBSITE_INFO[urlHostname].websiteConfig.srcMatching[i].processor && (WEBSITE_INFO[urlHostname].websiteConfig.srcMatching[i].processor = '' + WEBSITE_INFO[urlHostname].websiteConfig.srcMatching[i].processor);
           }
+
+          WEBSITE_INFO[urlHostname].websiteConfig.onToggle && (WEBSITE_INFO[urlHostname].websiteConfig.onToggle = '' + WEBSITE_INFO[urlHostname].websiteConfig.onToggle);
+          WEBSITE_INFO[urlHostname].websiteConfig.onXhrLoad && (WEBSITE_INFO[urlHostname].websiteConfig.onXhrLoad = '' + WEBSITE_INFO[urlHostname].websiteConfig.onXhrLoad);
 
           break;
         }
@@ -1673,11 +1767,10 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 
   switch (request.cmd) {
     case 'GET_INITIAL_STATE_AND_CONFIGS':    // Args: tabUrl (optional)
-      sendResponse(Object.assign({
-          photoShowConfigs: PHOTOSHOW_CONFIGS
-        },
-        photoShow.checkWebsiteState(request.args && request.args.tabUrl || sender.url)
-      ));
+      sendResponse({
+        ...photoShow.checkWebsiteState(request.args && request.args.tabUrl || sender.url),
+        photoShowConfigs: PHOTOSHOW_CONFIGS
+      });
 
       break;
 
@@ -1698,7 +1791,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
       break;
 
     case 'SET_PHOTOSHOW_CONFIGS':    // Args: item, value
-      var reservedConfig = Object.assign({}, PHOTOSHOW_CONFIGS);
+      var reservedConfig = {...PHOTOSHOW_CONFIGS};
 
       request.args.item.split('.').reduce((item, key, i, itemArray) => item[key] = i < itemArray.length - 1 ? (typeof item[key] == 'object' ? item[key] : {}) : request.args.value, PHOTOSHOW_CONFIGS);
 
@@ -1816,15 +1909,5 @@ chrome.storage.sync.get(['disabledWebsites', 'photoShowConfigs'], response => {
   if (!chrome.runtime.lastError && response) {
     DISABLED_WEBSITES = response.disabledWebsites || [];
     PHOTOSHOW_CONFIGS = response.photoShowConfigs || {};
-  }
-});
-
-chrome.tabs.query({
-  active: true,
-  currentWindow: true
-}, tabs => {
-  if (!chrome.runtime.lastError && tabs && tabs.length) {
-    photoShow.checkWebsiteState(tabs[0].url);
-    photoShow.setWebsiteState(tabs[0].id, tabs[0].url);
   }
 });
