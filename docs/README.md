@@ -98,7 +98,7 @@ Hereby is a list of part of the websites (hostnames) that **PhotoShow** currentl
 
  3. **SEARCHING / KNOWLEDGE / EXPERTISE:**
 
-    ACP Journals, Baidu, Bing, Google, GitHub, JAMA Network, NEJM, Quora, Wiki
+    ACP Journals, Baidu, Baidu baike, Bing, Google, GitHub, JAMA Network, NEJM, Quora, Wiki
 
  4. **SOCIAL NETWORKING:**
 

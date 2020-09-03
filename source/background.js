@@ -130,13 +130,15 @@
  *                                            // Updates: Add 'noReferrer', 'onToggle' and 'onXhrLoad' fields to the website-info-structure;
  *                                            // Updates: Replace Object.assign with spread syntax.
  * @version 4.5.2.1 | 2020-08-24 | Vincent    // Bug Fix: Fix the video controller hidden problem on Twitter, introduced in previous update.
+ * @version 4.5.3.0 | 2020-09-03 | Vincent    // Updates: Support baike.baidu.com, in response to user feedback;
+ *                                            // Updates: Better support for baidu and youku.
  */
 
 // TODO: Extract websiteConfig to independent files and import them (after porting to webpack).
 // TODO: Preload images (ideally, only for the thumbnails near the mouse cursor).
 // TODO: Support all websites, displaying original images (if their intrinsic sizes are larger than they are displayed) for those not in websiteConfig.
 // TODO: Add an extension `OPTIONS` page for more complex settings.
-// TODO: Images in the searching result of Baidu have a scaled overlayer when mouse hovering which covers the mask on the trigger.
+// TODO: Images in the searching result of Baidu have a scaled overlayer when mouse hovering on, which covers the mask on the trigger.
 // TODO: Remove jQuery and deal with the event dispatching between frames.
 // TODO: Disable 'Panoramic' mode for pure link triggers.
 // TODO: IMDB.com Amazon.
@@ -321,7 +323,7 @@ const websiteConfig = {
   },
   '(?:www|image)\\.baidu\\.com': {
     amendStyles: {
-      pointerNone: '.imgbox+.hover,.opr-recommends-merge-mask,.op-short-video-pc-play-icon,.op-short-video-pc-duration-wrap,.op-img-address-hoverview',
+      pointerNone: '.imgbox+.hover,.opr-recommends-merge-mask,.op-short-video-pc-img-new *:not(img),.c-img-border',
       pointerAuto: '.imgbox+.hover a[href]'
     },
     srcMatching: [{
@@ -346,6 +348,15 @@ const websiteConfig = {
               });
             })));
       }
+    }]
+  },
+  'baike\\.baidu\\.com': {
+    amendStyles: {
+      pointerNone: '.sl-player-list-item__overlay,.picture-dialog .picture-wrap,.seleced-cover,.next-album span,.avator_shd,.tashuo-multiple .cover *:not(img),.tashuo-item-cover a *:not(img)'
+    },
+    srcMatching: [{
+      srcRegExp: '(bkimg\\.cdn\\.bcebos\\.com/[^?]+).*',
+      processor: '$1'
     }]
   },
   'tieba\\.baidu\\.com': {
@@ -1450,9 +1461,9 @@ const websiteConfig = {
       srcRegExp: '//s\\d+-media\\d+\\.fl\\.yelpcdn\\.com/assets/.+@IMG@'
     }]
   },
-  '(?:\\w+\\.)?(?:youku|tudou)\\.com': {
+  '(?:.+\\.)?(?:youku|tudou)\\.com': {
     amendStyles: {
-      pointerNone: '[class^="index-module_bg_"],.rank-content .tab-item li .info,.movie-card-module .movie-cont .play-btn,.subscribe-square-pc__content__rec__episode__item__mask,.subscribe-square-pc__content__rec__episode__item__info,.td_pc-card-image .image-desc',
+      pointerNone: '[class^="index-module_bg_"],.rank-content .tab-item li .info,.movie-card-module .movie-cont .play-btn,.subscribe-square-pc__content__rec__episode__item__mask,.subscribe-square-pc__content__rec__episode__item__info,.td_pc-card-image .image-desc,.mask-img',
       pointerAuto: '.subscribe-square-pc__content__rec__episode__item__info button'
     },
     srcMatching: [{

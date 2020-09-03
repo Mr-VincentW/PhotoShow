@@ -108,7 +108,7 @@
 
     ACP Journals、Bing、Google、GitHub、JAMA Network、NEJM、Quora、Wiki
 
-    百度、知乎
+    百度、百度百科、知乎
 
  4. **社交 / 社区 类：**
 
