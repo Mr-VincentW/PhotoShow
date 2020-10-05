@@ -132,6 +132,7 @@
  * @version 4.5.2.1 | 2020-08-24 | Vincent    // Bug Fix: Fix the video controller hidden problem on Twitter, introduced in previous update.
  * @version 4.5.3.0 | 2020-09-03 | Vincent    // Updates: Support baike.baidu.com, in response to user feedback;
  *                                            // Updates: Better support for baidu and youku.
+ * @version 4.5.4.0 | 2020-10-05 | Vincent    // Updates: Better support pixiv (GitHub issue #10) and baike.baidu.com, in response to user feedback.
  */
 
 // TODO: Extract websiteConfig to independent files and import them (after porting to webpack).
@@ -352,7 +353,7 @@ const websiteConfig = {
   },
   'baike\\.baidu\\.com': {
     amendStyles: {
-      pointerNone: '.sl-player-list-item__overlay,.picture-dialog .picture-wrap,.seleced-cover,.next-album span,.avator_shd,.tashuo-multiple .cover *:not(img),.tashuo-item-cover a *:not(img)'
+      pointerNone: '.sl-player-list-item__overlay,.picture img,.seleced-cover,.next-album span,.avator_shd,.tashuo-multiple .cover *:not(img),.tashuo-item-cover a *:not(img)'
     },
     srcMatching: [{
       srcRegExp: '(bkimg\\.cdn\\.bcebos\\.com/[^?]+).*',
@@ -1119,13 +1120,15 @@ const websiteConfig = {
       srcRegExp: '(.+\\.pixiv\\.net/images/post/\\d+)/w/\\d+(/.+@IMG@)',
       processor: '$1$2'
     }, {
+      selectors: 'img,[style*="background-image"],.kTOQSN',
+      srcRegExp: '(//.+\\.pximg\\.net/).+(/img/.+?)(_p\\d+)?_.+(@IMG@)',
+      processor: (trigger, src, srcRegExpObj) => {
+        src = src || tools.getLargestImgSrc(trigger.find('img'));
+        return srcRegExpObj.test(src) ? tools.detectImage(`${RegExp.$1}img-original${RegExp.$2}${RegExp.$3 || '_ugoira0'}${RegExp.$4}`, `${RegExp.$1}img-original${RegExp.$2}${RegExp.$3 || '_ugoira0'}.png`).then(imgInfo => imgInfo.src) : ''}
+    }, {
       selectors: 'img,[style*="background-image"]',
       srcRegExp: '(.+\\.pximg\\.net)/c!?/[^/]+(/.+@IMG@)',
       processor: '$1$2'
-    }, {
-      selectors: 'img,[style*="background-image"]',
-      srcRegExp: '(//.+\\.pximg\\.net/).+(/img/.+?)(_p\\d+)?_.+(@IMG@)',
-      processor: (trigger, src, srcRegExpObj) => srcRegExpObj.test(src) ? tools.detectImage(`${RegExp.$1}img-original${RegExp.$2}${RegExp.$3 || '_ugoira0'}${RegExp.$4}`, `${RegExp.$1}img-original${RegExp.$2}${RegExp.$3 || '_ugoira0'}.png`).then(imgInfo => imgInfo.src) : ''
     }, {
       selectors: 'img,[style*="background-image"]',
       srcRegExp: '.+\\.pximg\\.net/.+@IMG@'
