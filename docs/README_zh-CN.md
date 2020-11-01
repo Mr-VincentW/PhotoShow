@@ -114,7 +114,7 @@
 
     Facebook、Imgur、Instagram、Reddit、Tumblr、Twipu、Twitter
 
-    百度贴吧、豆瓣、煎蛋、QQ 空间、微博、微信公众号
+    百度贴吧、豆瓣、堆糖、煎蛋、QQ 空间、微博、微信公众号
 
  5. **视频 类：**
 

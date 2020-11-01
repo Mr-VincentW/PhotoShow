@@ -132,7 +132,9 @@
  * @version 4.5.2.1 | 2020-08-24 | Vincent    // Bug Fix: Fix the video controller hidden problem on Twitter, introduced in previous update.
  * @version 4.5.3.0 | 2020-09-03 | Vincent    // Updates: Support baike.baidu.com, in response to user feedback;
  *                                            // Updates: Better support for baidu and youku.
- * @version 4.5.4.0 | 2020-10-05 | Vincent    // Updates: Better support pixiv (GitHub issue #10) and baike.baidu.com, in response to user feedback.
+ * @version 4.5.4.0 | 2020-10-05 | Vincent    // Updates: Better support for pixiv (GitHub issue #10) and baike.baidu.com, in response to user feedback.
+ * @version 4.5.5.0 | 2020-11-01 | Vincent    // Updates: Support duitang.com, in response to user feedback;
+ *                                            // Updates: Better support for amazon.cn.
  */
 
 // TODO: Extract websiteConfig to independent files and import them (after porting to webpack).
@@ -140,7 +142,7 @@
 // TODO: Support all websites, displaying original images (if their intrinsic sizes are larger than they are displayed) for those not in websiteConfig.
 // TODO: Add an extension `OPTIONS` page for more complex settings.
 // TODO: Images in the searching result of Baidu have a scaled overlayer when mouse hovering on, which covers the mask on the trigger.
-// TODO: Remove jQuery and deal with the event dispatching between frames.
+// TODO: Remove jQuery and deal with the events dispatching between frames.
 // TODO: Disable 'Panoramic' mode for pure link triggers.
 // TODO: IMDB.com Amazon.
 
@@ -273,7 +275,7 @@ const websiteConfig = {
     },
     srcMatching: {
       selectors: 'img,.a-button-thumbnail .a-button-input,.a-link-normal,.floor-hotasin-item-image',
-      srcRegExp: '(//.*\\.(?:ssl-images|media)-amazon\\.com/images/.*?)\\._.+(@IMG@)',
+      srcRegExp: '(//.*\\.(?:ssl-images|media)-amazon\\.(?:com|[a-z]{2})/images/.*?)\\._.+(@IMG@)',
       processor: (trigger, src, srcRegExpObj) => srcRegExpObj.test(src || trigger.parent().find('img').attr('src')) ? RegExp.$1 + RegExp.$2 : ''
     }
   },
@@ -636,6 +638,15 @@ const websiteConfig = {
     }, {
       srcRegExp: 'cdn\\.dribbble\\.com/.+@IMG@.*'
     }]
+  },
+  'www\\.duitang\\.com': {
+    amendStyles: {
+      pointerNone: 'u,.album-mask'
+    },
+    srcMatching: {
+      srcRegExp: '(c-ssl\\.duitang\\.com/uploads/[/\\w]+).*(@IMG@).*',
+      processor: '$1$2'
+    }
   },
   'www\\.duokan\\.com': {
     srcMatching: {

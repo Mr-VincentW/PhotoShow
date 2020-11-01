@@ -102,7 +102,7 @@ Hereby is a list of part of the websites (hostnames) that **PhotoShow** currentl
 
  4. **SOCIAL NETWORKING:**
 
-    Facebook, Imgur, Instagram, Jandan, Qzone, Reddit, Tumblr, Twipu, Twitter, Sina weibo, WeChat webpages
+    Duitang, Facebook, Imgur, Instagram, Jandan, Qzone, Reddit, Tumblr, Twipu, Twitter, Sina weibo, WeChat webpages
 
  5. **VIDEOS:**
 
