@@ -111,14 +111,17 @@
 ($ => {
   $.ajaxSetup({
     timeout: 10000,
-    beforeSend: function() {
+    beforeSend: function () {
       // An ajax to a relative path url would not work in firefox.
-      this.url = /^(?:https?:|data:image\/)/.test(this.url) ? this.url : ((/^\/\//.test(this.url) ? location.protocol : location.origin) + this.url);
+      this.url = /^(?:https?:|data:image\/)/.test(this.url)
+        ? this.url
+        : (/^\/\//.test(this.url) ? location.protocol : location.origin) + this.url;
     }
   });
 
   const tools = {
-    setStyle: function() {    // el, styles, useAni || [el, styles, useAni]
+    setStyle: function () {
+      // el, styles, useAni || [el, styles, useAni]
       for (let [el, styles, useAni = false] of arguments.length > 1 ? [arguments] : arguments[0]) {
         if (styles) {
           $(el).css('transition', useAni ? '0.2s ease-out' : '');
@@ -126,14 +129,14 @@
         }
       }
     },
-    swapDimensions: function(obj) {
+    swapDimensions: function (obj) {
       return {
         ...obj,
         width: obj.height,
         height: obj.width
       };
     },
-    detectImage: function(preferredSrc, defaultSrc, isImgInvalid) {
+    detectImage: function (preferredSrc, defaultSrc, isImgInvalid) {
       defaultSrc = defaultSrc || '';
 
       return new Promise(resolve => {
@@ -144,14 +147,18 @@
           clearTimeout(imgLoadTimer);
           img.onload = img.onerror = null;
 
-          resolve((({src, width, height}) => ({src, width, height}))(isImgInvalid && isImgInvalid(img) ? {src: defaultSrc} : img));
+          resolve(
+            (({ src, width, height }) => ({ src, width, height }))(
+              isImgInvalid && isImgInvalid(img) ? { src: defaultSrc } : img
+            )
+          );
         };
 
         img.onerror = () => {
           clearTimeout(imgLoadTimer);
           img.onload = img.onerror = null;
 
-          resolve({src: defaultSrc});
+          resolve({ src: defaultSrc });
         };
 
         clearTimeout(imgLoadTimer);
@@ -162,13 +169,17 @@
         img.src = preferredSrc;
       });
     },
-    loadImage: function(oriSrc) {
-      return this.resolveImgSrc(oriSrc).then(imgSrc => this.detectImage(imgSrc).then(imgInfo => ({...imgInfo, oriSrc})));
+    loadImage: function (oriSrc) {
+      return this.resolveImgSrc(oriSrc).then(imgSrc =>
+        this.detectImage(imgSrc).then(imgInfo => ({ ...imgInfo, oriSrc }))
+      );
     },
-    cacheImage: function(id, imgSrc) {
-      return imgSrc && !$(`[photoshow-cache-id="${id}"]`).length ? ($('<input type="hidden" />').attr('photoshow-cache-id', id).val(imgSrc).appendTo(document.body), imgSrc) : ($(`[photoshow-cache-id="${id}"]`).val() || '');
+    cacheImage: function (id, imgSrc) {
+      return imgSrc && !$(`[photoshow-cache-id="${id}"]`).length
+        ? ($('<input type="hidden" />').attr('photoshow-cache-id', id).val(imgSrc).appendTo(document.body), imgSrc)
+        : $(`[photoshow-cache-id="${id}"]`).val() || '';
     },
-    addStyle: function(styleName, selectors) {
+    addStyle: function (styleName, selectors) {
       if (!$(`#photoShowStyles_${styleName}`).length) {
         var rules = [];
 
@@ -186,34 +197,52 @@
           default:
         }
 
-        $('<style type="text/css"></style>').attr('id', `photoShowStyles_${styleName}`)
+        $('<style type="text/css"></style>')
+          .attr('id', `photoShowStyles_${styleName}`)
           .append(`${selectors}{${rules.join(';')}}`)
           .appendTo($('head')[0]);
       }
     },
-    getBackgroundImgSrc: function(img) {
-      return /^url\([\'"]?((?:https?:|data:image\/)?\/\/.+?)[\'"]?\)$/i.test($(img).css('backgroundImage').split(/,\s*(?=url\()/)[0]) ? RegExp.$1 : '';
+    getBackgroundImgSrc: function (img) {
+      return /^url\([\'"]?((?:https?:|data:image\/)?\/\/.+?)[\'"]?\)$/i.test(
+        $(img)
+          .css('backgroundImage')
+          .split(/,\s*(?=url\()/)[0]
+      )
+        ? RegExp.$1
+        : '';
     },
-    getLargestImgSrc: function(target) {
+    getLargestImgSrc: function (target) {
       var srcSetRegex = /([\d.]+)[wx]$/,
         src = '';
 
       target = $(target);
 
       if (target.is('img')) {
-        src = (target[0].srcset || target[0].src || '').split(/,\s*(?=(?:\w+:)?\/\/)/).sort((src1, src2) => (srcSetRegex.test(src2) ? parseFloat(RegExp.$1) : 0) - (srcSetRegex.test(src1) ? parseFloat(RegExp.$1) : 0))[0].split(/,?\s+/)[0];
-      } else if (target.is('image')) {    // SVG image elements.
+        src = (target[0].srcset || target[0].src || '')
+          .split(/,\s*(?=(?:\w+:)?\/\/)/)
+          .sort(
+            (src1, src2) =>
+              (srcSetRegex.test(src2) ? parseFloat(RegExp.$1) : 0) -
+              (srcSetRegex.test(src1) ? parseFloat(RegExp.$1) : 0)
+          )[0]
+          .split(/,?\s+/)[0];
+      } else if (target.is('image')) {
+        // SVG image elements.
         src = target.attr('href') || target.attr('xlink:href');
       } else {
         src = this.getBackgroundImgSrc(target);
       }
 
-      !src && target.is('a') && /\b(?:jpe?g|gifv?|pn[gj]|bmp|webp|svg)\b/.test(target.attr('href')) && (src = target.attr('href'));    // Get link address if it doesn't have a background image.
+      !src &&
+        target.is('a') &&
+        /\b(?:jpe?g|gifv?|pn[gj]|bmp|webp|svg)\b/.test(target.attr('href')) &&
+        (src = target.attr('href')); // Get link address if it doesn't have a background image.
 
       return src;
     },
-    getBoundingClientRectToTopWin: function(element) {
-      var clientRect = $.extend({}, element.getBoundingClientRect());    // TODO: Find better ways to transfer DOMRect object to plain JavaScript object.
+    getBoundingClientRectToTopWin: function (element) {
+      var clientRect = $.extend({}, element.getBoundingClientRect()); // TODO: Find better ways to transfer DOMRect object to plain JavaScript object.
 
       if (element.ownerDocument.defaultView != window.top) {
         let curFrameRect = arguments.callee(element.ownerDocument.defaultView.frameElement);
@@ -226,19 +255,22 @@
 
       return clientRect;
     },
-    copyText: function(text) {
+    copyText: function (text) {
       let preservedActiveElement = $(document.activeElement),
-        textbox = $('<input type="text" class="photoshow-hidden-elements" />').val(text).appendTo(document.body).select();
+        textbox = $('<input type="text" class="photoshow-hidden-elements" />')
+          .val(text)
+          .appendTo(document.body)
+          .select();
 
       document.execCommand('copy');
       textbox.remove();
 
       preservedActiveElement.focus();
     },
-    resolveImgSrc: function(src) {
+    resolveImgSrc: function (src) {
       return Promise.resolve(src).then(src => (/^\/\//.test(src) ? location.protocol : '') + src);
     },
-    executeScript: function(scriptText) {
+    executeScript: function (scriptText) {
       const nonce = document.scripts[0].nonce || '',
         script = document.createElement('script');
 
@@ -255,54 +287,64 @@
     POS_FOR_KEYCODE = POSITIONS.concat(POSITIONS).slice(3, 7),
     MODIFIER_KEYS = Array(16).concat(['shift', 'ctrl', 'alt']),
     VIEW_MODES = {
-      'M': {
+      M: {
         name: 'Mini',
-        scale: 0.125    // Image size scaling rate under this mode.
+        scale: 0.125 // Image size scaling rate under this mode.
       },
-      'L': {
+      L: {
         name: 'Light',
         scale: 0.25
       },
-      'A': {
+      A: {
         name: 'Auto',
         scale: Infinity
       },
-      'P': {
+      P: {
         name: 'Panoramic',
         scale: Infinity
       }
     },
-    MASK_THRESHOLD = 100,    // The original image size should larger (either width or height) than its maximum displaying size at least by this value so that a mask would apply.
+    MASK_THRESHOLD = 100, // The original image size should larger (either width or height) than its maximum displaying size at least by this value so that a mask would apply.
     IS_BROWSER_FIREFOX = /Firefox/.test(navigator.userAgent);
 
   const photoShowGlobalMsg = {
-    element: $('<div class="photoshow-global-msg-layer"><div class="photoshow-global-msg"><em class="photoshow-icons photoshow-icons-logo"></em><i></i></div></div>'),
-    show: function(msg) {
+    element: $(
+      '<div class="photoshow-global-msg-layer"><div class="photoshow-global-msg"><em class="photoshow-icons photoshow-icons-logo"></em><i></i></div></div>'
+    ),
+    show: function (msg) {
       this.hide();
 
       $('i', this.element).text(msg);
       this.element.appendTo(document.body);
     },
-    hide: function() {
+    hide: function () {
       this.element.remove();
     }
   };
 
   const photoShow = {
-    isEnabled: false,    // PhotoShow availability flag.
-    websiteConfig: {},    // Configuration for current website.
-    config: {    // PhotoShow configuration.
-      update: function(config) {     // Update PhotoShow configuration.
-        (function(item, config) {
-          Object.entries(config).forEach(([key, value]) => item.hasOwnProperty(key) && (typeof item[key] == 'object' ? arguments.callee(item[key], value) : (item[key] = value)));
+    isEnabled: false, // PhotoShow availability flag.
+    websiteConfig: {}, // Configuration for current website.
+    config: {
+      // PhotoShow configuration.
+      update: function (config) {
+        // Update PhotoShow configuration.
+        (function (item, config) {
+          Object.entries(config).forEach(
+            ([key, value]) =>
+              item.hasOwnProperty(key) &&
+              (typeof item[key] == 'object' ? arguments.callee(item[key], value) : (item[key] = value))
+          );
         })(this, config);
       },
-      activationMode: '',            // Activation mode ('', 'shift', 'ctrl', 'alt').
-      _viewMode: VIEW_MODES['A'],    // View mode.
-      get viewMode() {               // View mode getter.
+      activationMode: '', // Activation mode ('', 'shift', 'ctrl', 'alt').
+      _viewMode: VIEW_MODES['A'], // View mode.
+      get viewMode() {
+        // View mode getter.
         return this._viewMode.name;
       },
-      set viewMode(modeName) {       // View mode setter.
+      set viewMode(modeName) {
+        // View mode setter.
         if (this._viewMode.name != modeName) {
           photoShowViewer.viewModeSwitchTip && photoShowViewer.viewModeSwitchTip.text(modeName[0]);
           this._viewMode = VIEW_MODES[modeName[0]];
@@ -312,23 +354,30 @@
         }
 
         // Trick: To show() is only for triggering a reflow on the viewerBox element so that the keyframe animation can restart, useful when the view mode is frequently switched.
-        photoShowViewer.hasImgShown && !photoShowViewer.isViewerChanged && photoShowViewer.viewerBox.removeClass('view-mode-switching').show().addClass('view-mode-switching');
+        photoShowViewer.hasImgShown &&
+          !photoShowViewer.isViewerChanged &&
+          photoShowViewer.viewerBox.removeClass('view-mode-switching').show().addClass('view-mode-switching');
       },
-      _logoDisplay: true,            // Logo display.
+      _logoDisplay: true, // Logo display.
       get logoDisplay() {
         return this._logoDisplay;
       },
       set logoDisplay(isVisible) {
-        (this._logoDisplay = isVisible) ? photoShowViewer.viewerLogo.appendTo(photoShowViewer.viewerBox) : photoShowViewer.viewerLogo.remove();
+        (this._logoDisplay = isVisible)
+          ? photoShowViewer.viewerLogo.appendTo(photoShowViewer.viewerBox)
+          : photoShowViewer.viewerLogo.remove();
       },
-      _shadowDisplay: true,          // Shadow display.
+      _shadowDisplay: true, // Shadow display.
       get shadowDisplay() {
         return this._shadowDisplay;
       },
       set shadowDisplay(isVisible) {
-        (this._shadowDisplay = isVisible) ? photoShowViewer.viewerShadow.prependTo(photoShowViewer.viewerBox) : photoShowViewer.viewerShadow.remove();
+        (this._shadowDisplay = isVisible)
+          ? photoShowViewer.viewerShadow.prependTo(photoShowViewer.viewerBox)
+          : photoShowViewer.viewerShadow.remove();
       },
-      hotkeys: {                     // Hotkey toggles.
+      hotkeys: {
+        // Hotkey toggles.
         closeViewer: {
           isEnabled: true
         },
@@ -358,7 +407,8 @@
         }
       }
     },
-    getImgHDSrc: function(element) {    // Get HD src for the element (return either a string or a promise).
+    getImgHDSrc: function (element) {
+      // Get HD src for the element (return either a string or a promise).
       var imgSrc = '',
         target = $(element);
 
@@ -366,7 +416,10 @@
         for (let i = 0; i < this.websiteConfig.srcMatching.length; ++i) {
           let curMatchingRule = this.websiteConfig.srcMatching[i];
 
-          if ((target.is(curMatchingRule.selectors || 'img,[style*=background-image],image,a[href]')) && target.css('pointerEvents') != 'none') {
+          if (
+            target.is(curMatchingRule.selectors || 'img,[style*=background-image],image,a[href]') &&
+            target.css('pointerEvents') != 'none'
+          ) {
             let targetSrc = tools.getLargestImgSrc(element),
               srcRegExpObj = curMatchingRule.srcRegExp ? new RegExp(curMatchingRule.srcRegExp, 'i') : undefined;
 
@@ -374,7 +427,9 @@
               imgSrc = eval(`(${curMatchingRule.processor})`).call(element, target, targetSrc, srcRegExpObj) || '';
             } else if (srcRegExpObj) {
               if (srcRegExpObj.test(targetSrc)) {
-                imgSrc = curMatchingRule.processor ? targetSrc.replace(srcRegExpObj, curMatchingRule.processor) : targetSrc;
+                imgSrc = curMatchingRule.processor
+                  ? targetSrc.replace(srcRegExpObj, curMatchingRule.processor)
+                  : targetSrc;
               }
             } else {
               imgSrc = curMatchingRule.processor || targetSrc;
@@ -382,7 +437,8 @@
           }
 
           if (imgSrc) {
-            $.type(imgSrc) == 'string' && (imgSrc = (/^(?:https?:|data:image\/)/.test(imgSrc) ? '' : location.protocol) + imgSrc);
+            $.type(imgSrc) == 'string' &&
+              (imgSrc = (/^(?:https?:|data:image\/)/.test(imgSrc) ? '' : location.protocol) + imgSrc);
 
             break;
           }
@@ -391,9 +447,11 @@
 
       return imgSrc;
     },
-    toggleXhrHook: function() {
+    toggleXhrHook: function () {
       if (photoShow.websiteConfig.onXhrLoad) {
-        tools.executeScript(this.isEnabled ? `
+        tools.executeScript(
+          this.isEnabled
+            ? `
           if (!window.photoShowOriXhrOpen) {
             window.photoShowOriXhrOpen = window.XMLHttpRequest.prototype.open;
 
@@ -403,86 +461,100 @@
               });
               return window.photoShowOriXhrOpen.apply(this, arguments);
             }
-          }` : `
+          }`
+            : `
           if (window.photoShowOriXhrOpen) {
             window.XMLHttpRequest.prototype.open = window.photoShowOriXhrOpen;
             delete window.photoShowOriXhrOpen;
-          }`);
+          }`
+        );
       }
     }
   };
 
   const photoShowViewer = {
-    mouseClientPos: {                    // Mouse position (relative to viewport top-left).
+    mouseClientPos: {
+      // Mouse position (relative to viewport top-left).
       x: -1,
       y: -1
     },
-    mouseOriClientPos: {                 // Original mouse position (before being moved in keyboard actions).
+    mouseOriClientPos: {
+      // Original mouse position (before being moved in keyboard actions).
       x: -1,
       y: -1
     },
-    viewerBox: $('<div id="photoShowViewer" class="sb_BingCA photoShow"><div class="photoshow-viewer-shadow"></div><div class="photoshow-img-wrapper"><img /><div class="photoshow-view-mode-switch-tip">A</div></div><div class="photoshow-msg"><em class="photoshow-icons"></em><i></i></div><em class="photoshow-icons photoshow-icons-logo"></em></div>'),    // Main container of the image viewer. (To avoid being automatically removed on https://www.bing.com/?mkt=en-ca, a class name prefixed with 'sb_' is needed.)
-    viewerMask: $('<svg xmlns="http://www.w3.org/2000/svg" id="photoShowViewerMaskDef" class="photoShow photoshow-hidden-elements"><defs><mask id="photoShowViewerMask" maskUnits="objectBoundingBox" maskContentUnits="objectBoundingBox"><rect fill="#FFF" opacity="0.25" width="1" height="1" x="0" y="0"></rect><rect fill="#FFF"></rect></mask></defs></svg>'),    // Viewer mask.
-    viewerShadow: null,                  // Shadow element.
-    viewerLogo: null,                    // PhotoShow logo element.
-    viewerImg: null,                     // Image element.
-    viewerMsg: null,                     // Message container.
-    viewModeSwitchTip: null,             // View mode switch tip element.
-    isViewerPosHor: true,                // Indicates if the displaying position of the image viewer is on either the LEFT or RIGHT side of the trigger element.
-    isViewerChanged: true,               // Indicates if the displaying features of the image viewer changes frome last time it was displayed.
-    preViewerDisplayFeatures: null,      // Displaying features of the image viewer when it displayed last time.
-    curTrigger: null,                    // Element that triggers image preview.
-    imgSrc: '',                          // Src for the high-definition image (can be either a string or a Promise object).
-    preservedImgSrc: '',                 // Preserved image src for context menu items (can be either a string or a Promise object).
-    imgRotation: {                       // Properties of viewerImg rotation.
-      angle: 0,                          // Rotation angle.
-      isVertical: false,                 // Rotation direction flag.
-      angleSin: 0,                       // Rotation angle sine value.
-      angleCos: 1                        // Rotation angle cosine value.
+    viewerBox: $(
+      '<div id="photoShowViewer" class="sb_BingCA photoShow"><div class="photoshow-viewer-shadow"></div><div class="photoshow-img-wrapper"><img /><div class="photoshow-view-mode-switch-tip">A</div></div><div class="photoshow-msg"><em class="photoshow-icons"></em><i></i></div><em class="photoshow-icons photoshow-icons-logo"></em></div>'
+    ), // Main container of the image viewer. (To avoid being automatically removed on https://www.bing.com/?mkt=en-ca, a class name prefixed with 'sb_' is needed.)
+    viewerMask: $(
+      '<svg xmlns="http://www.w3.org/2000/svg" id="photoShowViewerMaskDef" class="photoShow photoshow-hidden-elements"><defs><mask id="photoShowViewerMask" maskUnits="objectBoundingBox" maskContentUnits="objectBoundingBox"><rect fill="#FFF" opacity="0.25" width="1" height="1" x="0" y="0"></rect><rect fill="#FFF"></rect></mask></defs></svg>'
+    ), // Viewer mask.
+    viewerShadow: null, // Shadow element.
+    viewerLogo: null, // PhotoShow logo element.
+    viewerImg: null, // Image element.
+    viewerMsg: null, // Message container.
+    viewModeSwitchTip: null, // View mode switch tip element.
+    isViewerPosHor: true, // Indicates if the displaying position of the image viewer is on either the LEFT or RIGHT side of the trigger element.
+    isViewerChanged: true, // Indicates if the displaying features of the image viewer changes frome last time it was displayed.
+    preViewerDisplayFeatures: null, // Displaying features of the image viewer when it displayed last time.
+    curTrigger: null, // Element that triggers image preview.
+    imgSrc: '', // Src for the high-definition image (can be either a string or a Promise object).
+    preservedImgSrc: '', // Preserved image src for context menu items (can be either a string or a Promise object).
+    imgRotation: {
+      // Properties of viewerImg rotation.
+      angle: 0, // Rotation angle.
+      isVertical: false, // Rotation direction flag.
+      angleSin: 0, // Rotation angle sine value.
+      angleCos: 1 // Rotation angle cosine value.
     },
-    imgOriginalSize: null,               // Original size of the high-definition image.
-    hasMask: false,                      // Image mask display flag.
-    maskAcceleration: 0,                 // Acceleration of image mask moving.
-    maskHost: null,                      // Host element for image mask (curTrigger or its parent).
-    maskHostRect: {                      // Position and size of the maskHost; viewer location; mouse moving scope; viewport size.
-      width: 0,                          // Trigger element width.
-      height: 0,                         // Trigger element height.
-      top: 0,                            // Top position of the trigger element (relative to viewport top).
-      right: 0,                          // Right position of the trigger element (relative to viewport left).
-      bottom: 0,                         // Bottom position of the trigger element (relative to viewport top).
-      left: 0,                           // Left position of the trigger element (relative to viewport left).
-      viewerAnchor: {                    // Anchor position of the viewer.
-        top: 0,                          // Bottom position of the viewer when it displays on top of the trigger element (relative to viewport top).
-        right: 0,                        // Left position of the viewer when it displays on right of the trigger element (relative to viewport left).
-        bottom: 0,                       // Top position of the viewer when it displays on bottom of the trigger element (relative to viewport top).
-        left: 0,                         // Right position of the viewer when it displays on left of the trigger element (relative to viewport left).
+    imgOriginalSize: null, // Original size of the high-definition image.
+    hasMask: false, // Image mask display flag.
+    maskAcceleration: 0, // Acceleration of image mask moving.
+    maskHost: null, // Host element for image mask (curTrigger or its parent).
+    maskHostRect: {
+      // Position and size of the maskHost; viewer location; mouse moving scope; viewport size.
+      width: 0, // Trigger element width.
+      height: 0, // Trigger element height.
+      top: 0, // Top position of the trigger element (relative to viewport top).
+      right: 0, // Right position of the trigger element (relative to viewport left).
+      bottom: 0, // Bottom position of the trigger element (relative to viewport top).
+      left: 0, // Left position of the trigger element (relative to viewport left).
+      viewerAnchor: {
+        // Anchor position of the viewer.
+        top: 0, // Bottom position of the viewer when it displays on top of the trigger element (relative to viewport top).
+        right: 0, // Left position of the viewer when it displays on right of the trigger element (relative to viewport left).
+        bottom: 0, // Top position of the viewer when it displays on bottom of the trigger element (relative to viewport top).
+        left: 0 // Right position of the viewer when it displays on left of the trigger element (relative to viewport left).
       },
-      mouseEnds: {                       // Mouse moving scope within the trigger element.
-        top: 0,                          // Topmost position (relative to viewport top).
-        right: 0,                        // Rightmost position (relative to viewport left).
-        bottom: 0,                       // Bottommost position (relative to viewport top).
-        left: 0                          // Leftmost position (relative to viewport left).
+      mouseEnds: {
+        // Mouse moving scope within the trigger element.
+        top: 0, // Topmost position (relative to viewport top).
+        right: 0, // Rightmost position (relative to viewport left).
+        bottom: 0, // Bottommost position (relative to viewport top).
+        left: 0 // Leftmost position (relative to viewport left).
       },
-      viewport: {                        // Dimensions of the visible area within the maskHost.
-        width: 0,                        // Viewport width.
-        height: 0,                       // Viewport height.
-        widthRatio: 1,                   // Viewport width : maskHostRect width
-        heightRatio: 1                   // Viewport height : maskHostRect height
+      viewport: {
+        // Dimensions of the visible area within the maskHost.
+        width: 0, // Viewport width.
+        height: 0, // Viewport height.
+        widthRatio: 1, // Viewport width : maskHostRect width
+        heightRatio: 1 // Viewport height : maskHostRect height
       }
     },
-    viewerBoxOffset: 25,                 // Offset of the viewerBox (relative to the trigger element).
-    viewerBoxBorderWidth: 1,             // Border width of the viewerBox.
-    hasImgViewerShown: false,            // ViewerBox display flag.
-    hasImgShown: false,                  // ViewerImg display flag.
-    isModifierKeyDown: false,            // Modifier key flag.
-    domObserver: null,                   // Observer for the document.
-    viewerDisplayTimer: null,            // Timer to prevent image viewer from being over-triggered to display.
-    _mouseoverEvtHandler: null,          // Mouseover event handler with 'this' bound to photoShowViewer.
-    isActiveElementAnInput: false,       // Indicates whether the currently focused element is an element for user input.
-    getDisplayingStyles: function() {
+    viewerBoxOffset: 25, // Offset of the viewerBox (relative to the trigger element).
+    viewerBoxBorderWidth: 1, // Border width of the viewerBox.
+    hasImgViewerShown: false, // ViewerBox display flag.
+    hasImgShown: false, // ViewerImg display flag.
+    isModifierKeyDown: false, // Modifier key flag.
+    domObserver: null, // Observer for the document.
+    viewerDisplayTimer: null, // Timer to prevent image viewer from being over-triggered to display.
+    _mouseoverEvtHandler: null, // Mouseover event handler with 'this' bound to photoShowViewer.
+    isActiveElementAnInput: false, // Indicates whether the currently focused element is an element for user input.
+    getDisplayingStyles: function () {
       var oriImgSize = this.imgOriginalSize;
 
-      if (!oriImgSize) {    // When displaying a loading or failure message.
+      if (!oriImgSize) {
+        // When displaying a loading or failure message.
         tools.setStyle(this.viewerBox, {
           width: '',
           height: ''
@@ -497,8 +569,14 @@
       this.imgRotation.isVertical && (oriImgSize = tools.swapDimensions(oriImgSize));
 
       var winSize = {
-        width: Math.min(window.innerWidth > 0 ? window.innerWidth : Infinity, document.documentElement.clientWidth > 0 ? document.documentElement.clientWidth : Infinity),
-        height: Math.min(window.innerHeight > 0 ? window.innerHeight : Infinity, document.documentElement.clientHeight > 0 ? document.documentElement.clientHeight : Infinity)
+        width: Math.min(
+          window.innerWidth > 0 ? window.innerWidth : Infinity,
+          document.documentElement.clientWidth > 0 ? document.documentElement.clientWidth : Infinity
+        ),
+        height: Math.min(
+          window.innerHeight > 0 ? window.innerHeight : Infinity,
+          document.documentElement.clientHeight > 0 ? document.documentElement.clientHeight : Infinity
+        )
       };
 
       this.maskHostRect = tools.getBoundingClientRectToTopWin(this.maskHost);
@@ -517,52 +595,69 @@
           [winSize.width - this.maskHostRect.right, winSize.height],
           [winSize.width, winSize.height - this.maskHostRect.bottom],
           [this.maskHostRect.left, winSize.height]
-        ].map(([spaceWidth, spaceHeight], i) => {
-          var spaceRatio = (spaceWidth -= this.viewerBoxOffset * 2) / (spaceHeight -= this.viewerBoxOffset * 2),
-            area = spaceWidth * spaceHeight,
-            maxImgWidth = Math.max(Math.min(Math.sqrt(area * curViewMode.scale * oriImgRatio), oriImgSize.width, spaceWidth), 0),
-            maxImgHeight = Math.max(Math.min(Math.sqrt(area * curViewMode.scale / oriImgRatio), oriImgSize.height, spaceHeight), 0),
-            viewerWidth = imgWidth = maxImgWidth,
-            viewerHeight = imgHeight = maxImgHeight,
-            needMask = false;
+        ]
+          .map(([spaceWidth, spaceHeight], i) => {
+            var spaceRatio = (spaceWidth -= this.viewerBoxOffset * 2) / (spaceHeight -= this.viewerBoxOffset * 2),
+              area = spaceWidth * spaceHeight,
+              maxImgWidth = Math.max(
+                Math.min(Math.sqrt(area * curViewMode.scale * oriImgRatio), oriImgSize.width, spaceWidth),
+                0
+              ),
+              maxImgHeight = Math.max(
+                Math.min(Math.sqrt((area * curViewMode.scale) / oriImgRatio), oriImgSize.height, spaceHeight),
+                0
+              ),
+              viewerWidth = (imgWidth = maxImgWidth),
+              viewerHeight = (imgHeight = maxImgHeight),
+              needMask = false;
 
-          if (curViewMode.name == 'Panoramic' && (oriImgSize.width - maxImgWidth > MASK_THRESHOLD || oriImgSize.height - maxImgHeight > MASK_THRESHOLD)) {
-            if (oriImgSize.width - maxImgWidth <= MASK_THRESHOLD) {
-              imgWidth = maxImgWidth;
-              imgHeight = imgWidth / oriImgRatio;
-            } else if (oriImgSize.height - maxImgHeight <= MASK_THRESHOLD) {
-              imgHeight = maxImgHeight;
-              imgWidth = imgHeight * oriImgRatio;
-            } else {
-              imgWidth = oriImgSize.width;
-              imgHeight = oriImgSize.height;
+            if (
+              curViewMode.name == 'Panoramic' &&
+              (oriImgSize.width - maxImgWidth > MASK_THRESHOLD || oriImgSize.height - maxImgHeight > MASK_THRESHOLD)
+            ) {
+              if (oriImgSize.width - maxImgWidth <= MASK_THRESHOLD) {
+                imgWidth = maxImgWidth;
+                imgHeight = imgWidth / oriImgRatio;
+              } else if (oriImgSize.height - maxImgHeight <= MASK_THRESHOLD) {
+                imgHeight = maxImgHeight;
+                imgWidth = imgHeight * oriImgRatio;
+              } else {
+                imgWidth = oriImgSize.width;
+                imgHeight = oriImgSize.height;
+              }
+
+              needMask = true;
+            } else if (
+              !(needMask =
+                (oriImgRatio > 2 && (imgWidth = maxImgHeight * oriImgRatio) - maxImgWidth > MASK_THRESHOLD) ||
+                (oriImgRatio < 0.5 &&
+                  (imgHeight = (imgWidth = maxImgWidth) / oriImgRatio) - maxImgHeight > MASK_THRESHOLD))
+            ) {
+              oriImgRatio > spaceRatio
+                ? (viewerHeight = imgHeight = (imgWidth = maxImgWidth) / oriImgRatio)
+                : (viewerWidth = imgWidth = (imgHeight = maxImgHeight) * oriImgRatio);
             }
 
-            needMask = true;
-          } else if (!(needMask = oriImgRatio > 2 && (imgWidth = maxImgHeight * oriImgRatio) - maxImgWidth > MASK_THRESHOLD ||
-              oriImgRatio < 0.5 && (imgHeight = (imgWidth = maxImgWidth) / oriImgRatio) - maxImgHeight > MASK_THRESHOLD)) {
-            oriImgRatio > spaceRatio ? (viewerHeight = imgHeight = (imgWidth = maxImgWidth) / oriImgRatio) : (viewerWidth = imgWidth = (imgHeight = maxImgHeight) * oriImgRatio);
-          }
-
-          return {
-            i,
-            area,
-            viewerWidth,
-            viewerHeight,
-            imgWidth,
-            imgHeight,
-            needMask,
-            weight: Math.round(viewerWidth * viewerHeight * (spaceRatio / Math.abs(spaceRatio)) * 100) || -Infinity
-          };
-        }).sort((space1, space2) => space2.weight - space1.weight || space2.area - space1.area)[0];
+            return {
+              i,
+              area,
+              viewerWidth,
+              viewerHeight,
+              imgWidth,
+              imgHeight,
+              needMask,
+              weight: Math.round(viewerWidth * viewerHeight * (spaceRatio / Math.abs(spaceRatio)) * 100) || -Infinity
+            };
+          })
+          .sort((space1, space2) => space2.weight - space1.weight || space2.area - space1.area)[0];
 
       this.isViewerPosHor = !!(chosenSpace.i % 2);
 
       var chosenPos = {
-          anchor: POSITIONS[chosenSpace.i],                 // Position that the viewer displays, relative to the trigger image. (e.g. TOP)
-          idle: POSITIONS[chosenSpace.i % 2 + 1],           // Opposite position to offset position, keeping idle when positioning. (e.g. RIGHT)
-          opposite: POSITIONS[(chosenSpace.i + 2) % 4],     // Opposite position to anchor postion. (e.g. BOTTOM)
-          offset: POSITIONS[(chosenSpace.i + 1) % 2 * 3]    // Offset position for the viewer under current anchor position. (e.g. LEFT)
+          anchor: POSITIONS[chosenSpace.i], // Position that the viewer displays, relative to the trigger image. (e.g. TOP)
+          idle: POSITIONS[(chosenSpace.i % 2) + 1], // Opposite position to offset position, keeping idle when positioning. (e.g. RIGHT)
+          opposite: POSITIONS[(chosenSpace.i + 2) % 4], // Opposite position to anchor postion. (e.g. BOTTOM)
+          offset: POSITIONS[((chosenSpace.i + 1) % 2) * 3] // Offset position for the viewer under current anchor position. (e.g. LEFT)
         },
         anchorDimension = this.isViewerPosHor ? 'width' : 'height',
         offsetDimension = this.isViewerPosHor ? 'height' : 'width';
@@ -575,8 +670,12 @@
         img: {
           top: '',
           left: '',
-          width: (this.imgRotation.isVertical ? chosenSpace.imgHeight : chosenSpace.imgWidth) - this.viewerBoxBorderWidth * 2,
-          height: (this.imgRotation.isVertical ? chosenSpace.imgWidth : chosenSpace.imgHeight) - this.viewerBoxBorderWidth * 2,
+          width:
+            (this.imgRotation.isVertical ? chosenSpace.imgHeight : chosenSpace.imgWidth) -
+            this.viewerBoxBorderWidth * 2,
+          height:
+            (this.imgRotation.isVertical ? chosenSpace.imgWidth : chosenSpace.imgHeight) -
+            this.viewerBoxBorderWidth * 2,
           transform: `translate(-50%,-50%) rotate(${this.imgRotation.angle}deg)`
         },
         viewModeSwitchTip: {
@@ -602,18 +701,30 @@
       displayingStyles.viewerFinal = {
         ...displayingStyles.viewerFinal,
         opacity: 1,
-        margin: [0, 0, 0, 0].concat(`${this.viewerBoxOffset}px`, 0, 0, 0).splice(4 - (chosenSpace.i + 2) % 4, 4).join(' '),
+        margin: [0, 0, 0, 0]
+          .concat(`${this.viewerBoxOffset}px`, 0, 0, 0)
+          .splice(4 - ((chosenSpace.i + 2) % 4), 4)
+          .join(' '),
         [chosenPos.anchor]: '',
         [chosenPos.idle]: '',
         [chosenPos.opposite]: this.maskHostRect.viewerAnchor[chosenPos.anchor],
-        [chosenPos.offset]: Math.min(Math.max(this.maskHostRect[chosenPos.offset] - (displayingStyles.viewerFinal[offsetDimension] - this.maskHostRect[offsetDimension]) / 2, this.viewerBoxOffset), winSize[offsetDimension] - displayingStyles.viewerFinal[offsetDimension] - this.viewerBoxOffset)
+        [chosenPos.offset]: Math.min(
+          Math.max(
+            this.maskHostRect[chosenPos.offset] -
+              (displayingStyles.viewerFinal[offsetDimension] - this.maskHostRect[offsetDimension]) / 2,
+            this.viewerBoxOffset
+          ),
+          winSize[offsetDimension] - displayingStyles.viewerFinal[offsetDimension] - this.viewerBoxOffset
+        )
       };
 
       // Calculate viewer shadow styles.
       if (photoShow.config.shadowDisplay) {
         var viewerRect = {
-            [chosenPos.anchor]: displayingStyles.viewerFinal[chosenPos.opposite] - displayingStyles.viewerFinal[anchorDimension],
-            [chosenPos.idle]: displayingStyles.viewerFinal[chosenPos.offset] + displayingStyles.viewerFinal[offsetDimension],
+            [chosenPos.anchor]:
+              displayingStyles.viewerFinal[chosenPos.opposite] - displayingStyles.viewerFinal[anchorDimension],
+            [chosenPos.idle]:
+              displayingStyles.viewerFinal[chosenPos.offset] + displayingStyles.viewerFinal[offsetDimension],
             [chosenPos.opposite]: displayingStyles.viewerFinal[chosenPos.opposite],
             [chosenPos.offset]: displayingStyles.viewerFinal[chosenPos.offset]
           },
@@ -648,10 +759,18 @@
             mask: `linear-gradient(${chosenPos.opposite}, rgba(128,128,128,0.2), rgba(128,128,128,0.8))`,
             webkitMask: `-webkit-linear-gradient(${chosenPos.opposite}, rgba(128,128,128,0.2), rgba(128,128,128,0.8))`,
             clipPath: `polygon(${[
-              `${this.isViewerPosHor ? 0 : `${shadowClacKeyValues[0]}px`} ${this.isViewerPosHor ? `${shadowClacKeyValues[1]}px` : 0}`,
-              `${this.isViewerPosHor ? '100%' : `calc(100% - ${shadowClacKeyValues[2]}px)`} ${this.isViewerPosHor ? `${shadowClacKeyValues[0]}px` : 0}`,
-              `${this.isViewerPosHor ? '100%' : `calc(100% - ${shadowClacKeyValues[3]}px)`} ${this.isViewerPosHor ? `calc(100% - ${shadowClacKeyValues[2]}px)` : '100%'}`,
-              `${this.isViewerPosHor ? 0 : `${shadowClacKeyValues[1]}px`} ${this.isViewerPosHor ? `calc(100% - ${shadowClacKeyValues[3]}px)` : '100%'}`
+              `${this.isViewerPosHor ? 0 : `${shadowClacKeyValues[0]}px`} ${
+                this.isViewerPosHor ? `${shadowClacKeyValues[1]}px` : 0
+              }`,
+              `${this.isViewerPosHor ? '100%' : `calc(100% - ${shadowClacKeyValues[2]}px)`} ${
+                this.isViewerPosHor ? `${shadowClacKeyValues[0]}px` : 0
+              }`,
+              `${this.isViewerPosHor ? '100%' : `calc(100% - ${shadowClacKeyValues[3]}px)`} ${
+                this.isViewerPosHor ? `calc(100% - ${shadowClacKeyValues[2]}px)` : '100%'
+              }`,
+              `${this.isViewerPosHor ? 0 : `${shadowClacKeyValues[1]}px`} ${
+                this.isViewerPosHor ? `calc(100% - ${shadowClacKeyValues[3]}px)` : '100%'
+              }`
             ].join()})`
           }
         };
@@ -659,8 +778,16 @@
 
       // Calculate MaskHost properties.
       this.maskHostRect.viewport = {
-        width: ((this.imgRotation.isVertical ? chosenSpace.viewerHeight : chosenSpace.viewerWidth) - this.viewerBoxBorderWidth * 2) / displayingStyles.img.width * this.maskHostRect.width,
-        height: ((this.imgRotation.isVertical ? chosenSpace.viewerWidth : chosenSpace.viewerHeight) - this.viewerBoxBorderWidth * 2) / displayingStyles.img.height * this.maskHostRect.height
+        width:
+          (((this.imgRotation.isVertical ? chosenSpace.viewerHeight : chosenSpace.viewerWidth) -
+            this.viewerBoxBorderWidth * 2) /
+            displayingStyles.img.width) *
+          this.maskHostRect.width,
+        height:
+          (((this.imgRotation.isVertical ? chosenSpace.viewerWidth : chosenSpace.viewerHeight) -
+            this.viewerBoxBorderWidth * 2) /
+            displayingStyles.img.height) *
+          this.maskHostRect.height
       };
       this.maskHostRect.viewport = {
         ...this.maskHostRect.viewport,
@@ -676,12 +803,13 @@
       this.hasMask = chosenSpace.needMask;
 
       // Check if the viewer displaying features changes.
-      this.isViewerChanged = this.preViewerDisplayFeatures ?
-        this.preViewerDisplayFeatures.displayPos != chosenPos.anchor ||
-        this.preViewerDisplayFeatures.viewerWidth != displayingStyles.viewerFinal.width ||
-        this.preViewerDisplayFeatures.viewerHeight != displayingStyles.viewerFinal.height ||
-        this.preViewerDisplayFeatures.imgWidth != displayingStyles.img.width ||
-        this.preViewerDisplayFeatures.imgHeight != displayingStyles.img.height : true;
+      this.isViewerChanged = this.preViewerDisplayFeatures
+        ? this.preViewerDisplayFeatures.displayPos != chosenPos.anchor ||
+          this.preViewerDisplayFeatures.viewerWidth != displayingStyles.viewerFinal.width ||
+          this.preViewerDisplayFeatures.viewerHeight != displayingStyles.viewerFinal.height ||
+          this.preViewerDisplayFeatures.imgWidth != displayingStyles.img.width ||
+          this.preViewerDisplayFeatures.imgHeight != displayingStyles.img.height
+        : true;
 
       this.preViewerDisplayFeatures = {
         displayPos: chosenPos.anchor,
@@ -693,7 +821,7 @@
 
       return displayingStyles;
     },
-    parseTriggers: function(startingElement) {
+    parseTriggers: function (startingElement) {
       let result = {
         trigger: null,
         src: ''
@@ -714,7 +842,7 @@
 
       return result;
     },
-    initViewerMask: function() {
+    initViewerMask: function () {
       $('rect:last-child', this.viewerMask).attr({
         width: Math.max(this.maskHostRect.viewport.widthRatio, 0),
         height: Math.max(this.maskHostRect.viewport.heightRatio, 0)
@@ -722,8 +850,8 @@
 
       IS_BROWSER_FIREFOX && $(this.maskHost).css('mask', 'url(#photoShowViewerMask)');
     },
-    update: function() {
-      this.mouseClientPos = {...this.mouseOriClientPos};
+    update: function () {
+      this.mouseClientPos = { ...this.mouseOriClientPos };
 
       var curElementUnderMouse = document.elementFromPoint(this.mouseClientPos.x, this.mouseClientPos.y);
 
@@ -732,14 +860,20 @@
           try {
             var frameRect = curElementUnderMouse.getBoundingClientRect();
 
-            curElementUnderMouse.contentWindow.jQuery(curElementUnderMouse.contentWindow.document).trigger('topWinScroll', {
-              x: this.mouseClientPos.x - frameRect.left,
-              y: this.mouseClientPos.y - frameRect.top
-            });
+            curElementUnderMouse.contentWindow
+              .jQuery(curElementUnderMouse.contentWindow.document)
+              .trigger('topWinScroll', {
+                x: this.mouseClientPos.x - frameRect.left,
+                y: this.mouseClientPos.y - frameRect.top
+              });
           } catch (error) {
             // Usually a cross-origin exception.
           }
-        } else if (this.curTrigger && ($(curElementUnderMouse).is(this.curTrigger) || this.curTrigger.contains(curElementUnderMouse) && !photoShow.getImgHDSrc(curElementUnderMouse))) {
+        } else if (
+          this.curTrigger &&
+          ($(curElementUnderMouse).is(this.curTrigger) ||
+            (this.curTrigger.contains(curElementUnderMouse) && !photoShow.getImgHDSrc(curElementUnderMouse)))
+        ) {
           this.hasImgViewerShown && this.refreshImgViewer();
         } else {
           this.mouseLeaveAction(true);
@@ -749,14 +883,17 @@
         }
       }
     },
-    refreshImgViewer: function() {
+    refreshImgViewer: function () {
       var displayingStyles = this.getDisplayingStyles();
 
       tools.setStyle([
-        [this.maskHost, {
-          mask: '',
-          webkitMask: ''
-        }],
+        [
+          this.maskHost,
+          {
+            mask: '',
+            webkitMask: ''
+          }
+        ],
         [this.viewerShadow, displayingStyles.shadow, true],
         [this.viewerBox, displayingStyles.viewerFinal, true],
         [this.viewerImg, displayingStyles.img, true],
@@ -768,7 +905,7 @@
         this.moveAction(true);
       }
     },
-    displayViewer: function(srcTarget) {
+    displayViewer: function (srcTarget) {
       if (!this.curTrigger) {
         // Get src of the high-definition image.
         const triggersParsingResult = this.parseTriggers(srcTarget);
@@ -788,31 +925,36 @@
             this.curTrigger = this.maskHost = triggersParsingResult.trigger.get(0);
 
             // Get mask host.
-            triggersParsingResult.trigger.parents().toArray().reduce((maskHostBBox, curAncestor) => {
-              var maskHostArea = maskHostBBox.width * maskHostBBox.height,
-                curAncestorBBox = curAncestor.getBoundingClientRect(),
-                curAncestorArea = curAncestorBBox.width * curAncestorBBox.height;
+            triggersParsingResult.trigger
+              .parents()
+              .toArray()
+              .reduce((maskHostBBox, curAncestor) => {
+                var maskHostArea = maskHostBBox.width * maskHostBBox.height,
+                  curAncestorBBox = curAncestor.getBoundingClientRect(),
+                  curAncestorArea = curAncestorBBox.width * curAncestorBBox.height;
 
-              if ($(curAncestor).css('position') != 'static' &&
-                $(curAncestor).css('display') != 'inline' &&
-                (!maskHostArea || curAncestorArea && curAncestorArea <= maskHostArea) &&
-                curAncestorBBox.left <= maskHostBBox.right &&
-                curAncestorBBox.right >= maskHostBBox.left &&
-                curAncestorBBox.top <= maskHostBBox.bottom &&
-                curAncestorBBox.bottom >= maskHostBBox.top) {
-                this.maskHost = curAncestor;
-                maskHostBBox = curAncestorBBox;
-              }
+                if (
+                  $(curAncestor).css('position') != 'static' &&
+                  $(curAncestor).css('display') != 'inline' &&
+                  (!maskHostArea || (curAncestorArea && curAncestorArea <= maskHostArea)) &&
+                  curAncestorBBox.left <= maskHostBBox.right &&
+                  curAncestorBBox.right >= maskHostBBox.left &&
+                  curAncestorBBox.top <= maskHostBBox.bottom &&
+                  curAncestorBBox.bottom >= maskHostBBox.top
+                ) {
+                  this.maskHost = curAncestor;
+                  maskHostBBox = curAncestorBBox;
+                }
 
-              return maskHostBBox;
-            }, this.maskHost.getBoundingClientRect());
+                return maskHostBBox;
+              }, this.maskHost.getBoundingClientRect());
 
             // Reset image viewer.
             this.viewerBox
               .removeClass('img-shown has-mask top-end right-end bottom-end left-end')
               .appendTo(document.body)
               .add(this.viewerShadow, this.viewerImg)
-                .removeAttr('style');
+              .removeAttr('style');
 
             this.hasMask = false;
             this.imgRotation = {
@@ -829,8 +971,11 @@
 
               if (this.curTrigger) {
                 // Show image loading state.
-                $('.photoshow-icons', this.viewerMsg).removeClass('photoshow-icons-bubble-warn').addClass('photoshow-icons-load')
-                  .next('i').text(chrome.i18n.getMessage('imageLoadingTip'));
+                $('.photoshow-icons', this.viewerMsg)
+                  .removeClass('photoshow-icons-bubble-warn')
+                  .addClass('photoshow-icons-load')
+                  .next('i')
+                  .text(chrome.i18n.getMessage('imageLoadingTip'));
 
                 tools.setStyle(this.viewerBox, this.getDisplayingStyles().viewerFinal, true);
                 this.hasImgViewerShown = true;
@@ -839,11 +984,12 @@
 
             // Load image.
             tools.loadImage(this.imgSrc).then(imgInfo => {
-              if (imgInfo.src) {    // Loading succeeds.
+              if (imgInfo.src) {
+                // Loading succeeds.
                 // Note: Both the photoShowViewer.imgSrc and the imgInfo.oriSrc may be either a string or a Promise object.
                 if (this.imgSrc && this.imgSrc == imgInfo.oriSrc) {
-                  this.imgSrc = imgInfo.src;    // Assign the actual image src to the photoShowViewer.imgSrc, in case it may be a Promise object.
-                  $(this.curTrigger).attr('photoshow-hd-img-src', this.imgSrc);    // Cache the actual src of the high-definition image.
+                  this.imgSrc = imgInfo.src; // Assign the actual image src to the photoShowViewer.imgSrc, in case it may be a Promise object.
+                  $(this.curTrigger).attr('photoshow-hd-img-src', this.imgSrc); // Cache the actual src of the high-definition image.
 
                   this.viewerBox.addClass('img-shown');
                   this.viewerImg.attr('src', this.imgSrc);
@@ -855,7 +1001,9 @@
 
                   var displayingStyles = this.getDisplayingStyles();
 
-                  photoShow.config.logoDisplay && (displayingStyles.viewerFinal.width < 50 || displayingStyles.viewerFinal.height < 50) && this.viewerBox.addClass('logo-hidden');
+                  photoShow.config.logoDisplay &&
+                    (displayingStyles.viewerFinal.width < 50 || displayingStyles.viewerFinal.height < 50) &&
+                    this.viewerBox.addClass('logo-hidden');
 
                   if (imgLoadingTipTimer) {
                     clearTimeout(imgLoadingTipTimer);
@@ -887,10 +1035,14 @@
                     this.moveAction();
                   }
                 }
-              } else {    // Loading fails.
+              } else {
+                // Loading fails.
                 if (this.imgSrc && this.imgSrc == imgInfo.oriSrc) {
-                  $('.photoshow-icons', this.viewerMsg).removeClass('photoshow-icons-load').addClass('photoshow-icons-bubble-warn')
-                    .next('i').text(chrome.i18n.getMessage('imageLoadingFailTip'));
+                  $('.photoshow-icons', this.viewerMsg)
+                    .removeClass('photoshow-icons-load')
+                    .addClass('photoshow-icons-bubble-warn')
+                    .next('i')
+                    .text(chrome.i18n.getMessage('imageLoadingFailTip'));
 
                   var displayingStyles = this.getDisplayingStyles();
 
@@ -915,7 +1067,7 @@
         }
       }
     },
-    toggle: function() {
+    toggle: function () {
       if (photoShow.isEnabled) {
         IS_BROWSER_FIREFOX && this.viewerMask.appendTo(document.body);
         this.viewerBox.appendTo(document.body);
@@ -927,9 +1079,10 @@
         // Trigger actions.
         // Handle mouseover event in capture phase.
         // This ensures a proper behavior when it comes to a trigger in iframes.
-        document.addEventListener('mouseover', this._mouseoverEvtHandler = this.mouseOverAction.bind(this), true);
+        document.addEventListener('mouseover', (this._mouseoverEvtHandler = this.mouseOverAction.bind(this)), true);
 
-        $(document).on('mousemove.photoShow', e => {
+        $(document)
+          .on('mousemove.photoShow', e => {
             this.mouseOriClientPos.x = this.mouseClientPos.x = e.clientX;
             this.mouseOriClientPos.y = this.mouseClientPos.y = e.clientY;
 
@@ -946,8 +1099,8 @@
           .on('mouseleave.photoShow', '*', e => {
             var target = $(e.currentTarget);
             if (this.curTrigger) {
-              this.curTrigger.contains(e.currentTarget) ||               // This may occur when leaving current element's children.
-                $(e.relatedTarget).closest(this.curTrigger).length ||    // This may occur when the viewer has already displayed in the updating procedure.
+              this.curTrigger.contains(e.currentTarget) || // This may occur when leaving current element's children.
+                $(e.relatedTarget).closest(this.curTrigger).length || // This may occur when the viewer has already displayed in the updating procedure.
                 this.mouseLeaveAction();
             } else if (target.is('[photoshow-trigger-blocked]')) {
               target.removeAttr('photoshow-trigger-blocked');
@@ -974,20 +1127,30 @@
             this.preservedImgSrc = this.imgSrc;
           })
           .on('focusin.photoShow focusout.photoShow', e => {
-            this.isActiveElementAnInput = $(document.activeElement).is('textarea,input:not([type="button"],[type="checkbox"],[type="color"],[type="file"],[type="image"],[type="radio"],[type="range"],[type="reset"],[type="submit"]),[contenteditable]');
+            this.isActiveElementAnInput = $(document.activeElement).is(
+              'textarea,input:not([type="button"],[type="checkbox"],[type="color"],[type="file"],[type="image"],[type="radio"],[type="range"],[type="reset"],[type="submit"]),[contenteditable]'
+            );
           })
           .on('frameDomMutate.photoShow', (e, mutations) => this.domMutateAction(mutations))
-          .on('animationend.photoShow', e => /photoshow-viewer-(.+)-ani/.test(e.originalEvent.animationName) && this.viewerBox.removeClass(RegExp.$1));
+          .on(
+            'animationend.photoShow',
+            e =>
+              /photoshow-viewer-(.+)-ani/.test(e.originalEvent.animationName) && this.viewerBox.removeClass(RegExp.$1)
+          );
 
         // Window actions.
-        $(window).on('scroll.photoShow wheel.photoShow resize.photoShow', (() => {
-            let updateTimer;
+        $(window)
+          .on(
+            'scroll.photoShow wheel.photoShow resize.photoShow',
+            (() => {
+              let updateTimer;
 
-            return () => {
-              clearTimeout(updateTimer);
-              updateTimer = setTimeout(() => this.update(), 100);
-            };
-          })())
+              return () => {
+                clearTimeout(updateTimer);
+                updateTimer = setTimeout(() => this.update(), 100);
+              };
+            })()
+          )
           .on('blur.photoShow', () => this.winBlurAction());
 
         // Addamend styles.
@@ -995,7 +1158,9 @@
           ...photoShow.websiteConfig,
           amendStyles: {
             ...(photoShow.websiteConfig.amendStyles || {}),
-            pointerNone: ['*:before,*:after'].concat(photoShow.websiteConfig.amendStyles && photoShow.websiteConfig.amendStyles.pointerNone || []).join(',')
+            pointerNone: ['*:before,*:after']
+              .concat((photoShow.websiteConfig.amendStyles && photoShow.websiteConfig.amendStyles.pointerNone) || [])
+              .join(',')
           }
         };
 
@@ -1041,18 +1206,24 @@
         photoShow.websiteConfig.onToggle && eval(`(${photoShow.websiteConfig.onToggle})`)(false);
       }
     },
-    mouseOverAction: function(e) {
+    mouseOverAction: function (e) {
       clearTimeout(this.viewerDisplayTimer);
 
-      e && typeof e[`${photoShow.config.activationMode}Key`] == 'boolean' && (this.isModifierKeyDown = e[`${photoShow.config.activationMode}Key`]);
+      e &&
+        typeof e[`${photoShow.config.activationMode}Key`] == 'boolean' &&
+        (this.isModifierKeyDown = e[`${photoShow.config.activationMode}Key`]);
 
       var srcTarget = e.detail ? e.detail.target : e.target,
         evtTarget = $(srcTarget);
 
-      if (this.hasImgViewerShown && $(e.detail.target).is(this.curTrigger)) {    // Refresh viewer for triggers in iframes.
+      if (this.hasImgViewerShown && $(e.detail.target).is(this.curTrigger)) {
+        // Refresh viewer for triggers in iframes.
         this.refreshImgViewer();
       } else if (this.curTrigger) {
-        if (!evtTarget.is(this.curTrigger) && (!this.curTrigger.contains(srcTarget) || photoShow.getImgHDSrc(srcTarget))) {
+        if (
+          !evtTarget.is(this.curTrigger) &&
+          (!this.curTrigger.contains(srcTarget) || photoShow.getImgHDSrc(srcTarget))
+        ) {
           this.viewerDisplayTimer = setTimeout(() => {
             this.mouseLeaveAction();
             this.displayViewer(srcTarget);
@@ -1064,21 +1235,32 @@
         evtTarget.one('mouseleave.photoShow', () => clearTimeout(this.viewerDisplayTimer));
       }
     },
-    mouseLeaveAction: function(keepTriggerBlocked) {
+    mouseLeaveAction: function (keepTriggerBlocked) {
       clearTimeout(this.viewerDisplayTimer);
 
       tools.setStyle([
-        [this.viewerBox, {
-          opacity: 0,
-          margin: '0 0 0 0'
-        }, true],
-        [this.viewerShadow, {
-          [this.isViewerPosHor ? 'width' : 'height']: ''
-        }, true],
-        [this.maskHost, {
-          mask: '',
-          webkitMask: ''
-        }]
+        [
+          this.viewerBox,
+          {
+            opacity: 0,
+            margin: '0 0 0 0'
+          },
+          true
+        ],
+        [
+          this.viewerShadow,
+          {
+            [this.isViewerPosHor ? 'width' : 'height']: ''
+          },
+          true
+        ],
+        [
+          this.maskHost,
+          {
+            mask: '',
+            webkitMask: ''
+          }
+        ]
       ]);
       photoShow.config.logoDisplay && this.viewerBox.removeClass('logo-hidden');
       $(this.curTrigger).off('.photoShow');
@@ -1098,12 +1280,18 @@
         hasMask: false
       });
     },
-    moveAction: function(useAni) {
+    moveAction: function (useAni) {
       window.requestAnimationFrame(() => {
         if (this.hasImgShown && this.hasMask) {
           this.mouseClientPos = {
-            x: Math.min(Math.max(this.mouseClientPos.x, this.maskHostRect.mouseEnds.left), this.maskHostRect.mouseEnds.right),
-            y: Math.min(Math.max(this.mouseClientPos.y, this.maskHostRect.mouseEnds.top), this.maskHostRect.mouseEnds.bottom)
+            x: Math.min(
+              Math.max(this.mouseClientPos.x, this.maskHostRect.mouseEnds.left),
+              this.maskHostRect.mouseEnds.right
+            ),
+            y: Math.min(
+              Math.max(this.mouseClientPos.y, this.maskHostRect.mouseEnds.top),
+              this.maskHostRect.mouseEnds.bottom
+            )
           };
 
           var maskPos = {
@@ -1111,8 +1299,12 @@
               left: this.mouseClientPos.x - this.maskHostRect.mouseEnds.left
             },
             imgOffset = {
-              top: (this.maskHostRect.height - this.maskHostRect.viewport.height) / 2 / this.maskHostRect.viewport.height - maskPos.top / this.maskHostRect.viewport.height,
-              left: (this.maskHostRect.width - this.maskHostRect.viewport.width) / 2 / this.maskHostRect.viewport.width - maskPos.left / this.maskHostRect.viewport.width
+              top:
+                (this.maskHostRect.height - this.maskHostRect.viewport.height) / 2 / this.maskHostRect.viewport.height -
+                maskPos.top / this.maskHostRect.viewport.height,
+              left:
+                (this.maskHostRect.width - this.maskHostRect.viewport.width) / 2 / this.maskHostRect.viewport.width -
+                maskPos.left / this.maskHostRect.viewport.width
             };
 
           $('rect:last-child', this.viewerMask).attr({
@@ -1120,56 +1312,77 @@
             y: maskPos.top / this.maskHostRect.height
           });
 
-          var maskForWebkit = `url('data:image/svg+xml,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none" viewBox="0 0 1 1">${$('mask', this.viewerMask).html()}</svg>`)}')`;
+          var maskForWebkit = `url('data:image/svg+xml,${encodeURIComponent(
+            `<svg xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none" viewBox="0 0 1 1">${$(
+              'mask',
+              this.viewerMask
+            ).html()}</svg>`
+          )}')`;
 
-          tools.setStyle((IS_BROWSER_FIREFOX ? [] : [
-            [this.maskHost, {
-              webkitMask: maskForWebkit
-            }]
-          ]).concat([
-            [this.viewerImg, {
-              ...(this.imgRotation.isVertical ? {
-                top: `${(0.5 + imgOffset.left * this.imgRotation.angleSin) * 100}%`,
-                left: `${(0.5 - imgOffset.top * this.imgRotation.angleSin) * 100}%`
-              } : {
-                top: `${(0.5 + imgOffset.top * this.imgRotation.angleCos) * 100}%`,
-                left: `${(0.5 + imgOffset.left * this.imgRotation.angleCos) * 100}%`
-              }),
-              transform: `translate(-50%, -50%) rotate(${this.imgRotation.angle}deg)`
-            }, useAni]
-          ]));
+          tools.setStyle(
+            (IS_BROWSER_FIREFOX
+              ? []
+              : [
+                  [
+                    this.maskHost,
+                    {
+                      webkitMask: maskForWebkit
+                    }
+                  ]
+                ]
+            ).concat([
+              [
+                this.viewerImg,
+                {
+                  ...(this.imgRotation.isVertical
+                    ? {
+                        top: `${(0.5 + imgOffset.left * this.imgRotation.angleSin) * 100}%`,
+                        left: `${(0.5 - imgOffset.top * this.imgRotation.angleSin) * 100}%`
+                      }
+                    : {
+                        top: `${(0.5 + imgOffset.top * this.imgRotation.angleCos) * 100}%`,
+                        left: `${(0.5 + imgOffset.left * this.imgRotation.angleCos) * 100}%`
+                      }),
+                  transform: `translate(-50%, -50%) rotate(${this.imgRotation.angle}deg)`
+                },
+                useAni
+              ]
+            ])
+          );
         }
       });
     },
-    rotateAction: function(e) {
-      this.mouseClientPos = {...this.mouseOriClientPos};
+    rotateAction: function (e) {
+      this.mouseClientPos = { ...this.mouseOriClientPos };
       this.imgRotation.angle += (e.which - 38) * 90;
       this.imgRotation = {
         ...this.imgRotation,
         isVertical: !!(this.imgRotation.angle % 180),
-        angleSin: Math.sin(this.imgRotation.angle * Math.PI / 180),
-        angleCos: Math.cos(this.imgRotation.angle * Math.PI / 180)
+        angleSin: Math.sin((this.imgRotation.angle * Math.PI) / 180),
+        angleCos: Math.cos((this.imgRotation.angle * Math.PI) / 180)
       };
 
       this.refreshImgViewer();
     },
-    openInNewTabAction: function() {
-      const imgSrc = this.parseTriggers(document.elementFromPoint(this.mouseClientPos.x, this.mouseClientPos.y)).src || this.imgSrc;
+    openInNewTabAction: function () {
+      const imgSrc =
+        this.parseTriggers(document.elementFromPoint(this.mouseClientPos.x, this.mouseClientPos.y)).src || this.imgSrc;
 
       if (imgSrc) {
         photoShowGlobalMsg.show(chrome.i18n.getMessage('globalMsg_imgWillOpenInNewTab'));
 
         tools.resolveImgSrc(imgSrc).then(imgSrc => {
-          imgSrc && chrome.runtime.sendMessage({
-            cmd: 'OPEN_IMG_IN_NEW_TAB',
-            args: {
-              imgSrc: imgSrc
-            }
-          });
+          imgSrc &&
+            chrome.runtime.sendMessage({
+              cmd: 'OPEN_IMG_IN_NEW_TAB',
+              args: {
+                imgSrc: imgSrc
+              }
+            });
         });
       }
     },
-    copyAction: function() {
+    copyAction: function () {
       tools.resolveImgSrc(this.imgSrc).then(imgSrc => {
         if (imgSrc) {
           tools.copyText(imgSrc);
@@ -1177,57 +1390,74 @@
         }
       });
     },
-    savingAction: function() {
-      const imgSrc = this.parseTriggers(document.elementFromPoint(this.mouseClientPos.x, this.mouseClientPos.y)).src || this.imgSrc;
+    savingAction: function () {
+      const imgSrc =
+        this.parseTriggers(document.elementFromPoint(this.mouseClientPos.x, this.mouseClientPos.y)).src || this.imgSrc;
 
       if (imgSrc) {
         photoShowGlobalMsg.show(chrome.i18n.getMessage('globalMsg_imgWillStartDownloading'));
 
         tools.resolveImgSrc(imgSrc).then(imgSrc => {
-          imgSrc && chrome.runtime.sendMessage({
-            cmd: 'DOWNLOAD_IMG',
-            args: {
-              imgSrc: imgSrc
-            }
-          });
+          imgSrc &&
+            chrome.runtime.sendMessage({
+              cmd: 'DOWNLOAD_IMG',
+              args: {
+                imgSrc: imgSrc
+              }
+            });
         });
       }
     },
-    keydownAction: function(e) {
-      const easeInOutSine = (t, b, c, d) => -c / 2 * (Math.cos(Math.PI * t / d) - 1) + b;
+    keydownAction: function (e) {
+      const easeInOutSine = (t, b, c, d) => (-c / 2) * (Math.cos((Math.PI * t) / d) - 1) + b;
 
-      const getMoveStep = (scrollMode) => scrollMode == 'PAGE' ?
-        (this.imgRotation.isVertical ? this.maskHostRect.viewport.width : this.maskHostRect.viewport.height) :
-        (scrollMode == 'ENDS' ? Infinity : easeInOutSine(Math.min(this.maskAcceleration++, 40), 1, 20, 40));
+      const getMoveStep = scrollMode =>
+        scrollMode == 'PAGE'
+          ? this.imgRotation.isVertical
+            ? this.maskHostRect.viewport.width
+            : this.maskHostRect.viewport.height
+          : scrollMode == 'ENDS'
+          ? Infinity
+          : easeInOutSine(Math.min(this.maskAcceleration++, 40), 1, 20, 40);
 
       const scrollImg = (oriKeyCode, scrollMode) => {
         let keyCode = oriKeyCode;
 
-        if (this.imgRotation.angleSin == 1) {            // Case 90°
-          keyCode = 40 - (41 - oriKeyCode) % 4;
-        } else if (this.imgRotation.angleSin == -1) {    // Case 180°
-          keyCode = 37 + (oriKeyCode - 36) % 4;
-        } else if (this.imgRotation.angleCos == -1) {    // Case -90°
-          keyCode = 78 - oriKeyCode % 2 * 2 - oriKeyCode;
+        if (this.imgRotation.angleSin == 1) {
+          // Case 90°
+          keyCode = 40 - ((41 - oriKeyCode) % 4);
+        } else if (this.imgRotation.angleSin == -1) {
+          // Case 180°
+          keyCode = 37 + ((oriKeyCode - 36) % 4);
+        } else if (this.imgRotation.angleCos == -1) {
+          // Case -90°
+          keyCode = 78 - (oriKeyCode % 2) * 2 - oriKeyCode;
         }
 
         let shiftingPos = keyCode % 2 ? 'x' : 'y',
           shiftingWeight = keyCode > 38 ? -1 : 1;
 
-        (this.mouseClientPos[shiftingPos] - this.maskHostRect.mouseEnds[POS_FOR_KEYCODE[keyCode - 37]]) * shiftingWeight <= 0 && this.viewerBox.removeClass('top-end right-end bottom-end left-end').addClass(`${POS_FOR_KEYCODE[oriKeyCode - 37]}-end`);
+        (this.mouseClientPos[shiftingPos] - this.maskHostRect.mouseEnds[POS_FOR_KEYCODE[keyCode - 37]]) *
+          shiftingWeight <=
+          0 &&
+          this.viewerBox
+            .removeClass('top-end right-end bottom-end left-end')
+            .addClass(`${POS_FOR_KEYCODE[oriKeyCode - 37]}-end`);
         this.mouseClientPos[shiftingPos] -= getMoveStep(scrollMode) * shiftingWeight;
         this.moveAction(!!scrollMode);
       };
 
       switch (e.which) {
-        case 9:    // Key 'Tab'
-          !this.isActiveElementAnInput && photoShow.config.hotkeys.openImageInNewTab.isEnabled && this.openInNewTabAction();
+        case 9: // Key 'Tab'
+          !this.isActiveElementAnInput &&
+            photoShow.config.hotkeys.openImageInNewTab.isEnabled &&
+            this.openInNewTabAction();
 
           break;
 
-        case 16:    // Key 'SHIFT'
-        case 17:    // Key 'CTRL'
-        case 18:    // Key 'ALT'
+        case 16: // Key 'SHIFT'
+        case 17: // Key 'CTRL'
+        case 18: // Key 'ALT'
           if (!this.isModifierKeyDown && e.which == $.inArray(photoShow.config.activationMode, MODIFIER_KEYS)) {
             e.preventDefault();
 
@@ -1238,12 +1468,12 @@
 
           break;
 
-        case 67:    // Key 'C'
+        case 67: // Key 'C'
           !this.isActiveElementAnInput && photoShow.config.hotkeys.copyImageAddress.isEnabled && this.copyAction();
 
           break;
 
-        case 83:    // Key 'S'
+        case 83: // Key 'S'
           !this.isActiveElementAnInput && photoShow.config.hotkeys.saveImage.isEnabled && this.savingAction();
 
           break;
@@ -1253,7 +1483,7 @@
 
       if (!this.isActiveElementAnInput && this.hasImgViewerShown) {
         switch (e.which) {
-          case 27:    // Key 'Esc'
+          case 27: // Key 'Esc'
             if (photoShow.config.hotkeys.closeViewer.isEnabled) {
               e.preventDefault();
               $(this.curTrigger).attr('photoshow-trigger-blocked', '');
@@ -1262,7 +1492,7 @@
 
             break;
 
-          case 33:    // Key 'PageUp'
+          case 33: // Key 'PageUp'
             if (photoShow.config.hotkeys.scrollImageByPage.isEnabled && this.hasImgShown && this.hasMask) {
               e.preventDefault();
               scrollImg(38, 'PAGE');
@@ -1270,7 +1500,7 @@
 
             break;
 
-          case 34:    // Key 'PageDown'
+          case 34: // Key 'PageDown'
             if (photoShow.config.hotkeys.scrollImageByPage.isEnabled && this.hasImgShown && this.hasMask) {
               e.preventDefault();
               scrollImg(40, 'PAGE');
@@ -1278,7 +1508,7 @@
 
             break;
 
-          case 35:    // Key 'End'
+          case 35: // Key 'End'
             if (photoShow.config.hotkeys.scrollImageToEnds.isEnabled && this.hasImgShown && this.hasMask) {
               e.preventDefault();
               scrollImg(40, 'ENDS');
@@ -1286,7 +1516,7 @@
 
             break;
 
-          case 36:    // Key 'Home'
+          case 36: // Key 'Home'
             if (photoShow.config.hotkeys.scrollImageToEnds.isEnabled && this.hasImgShown && this.hasMask) {
               e.preventDefault();
               scrollImg(38, 'ENDS');
@@ -1294,8 +1524,8 @@
 
             break;
 
-          case 37:    // Key 'LEFT'
-          case 39:    // Key 'RIGHT'
+          case 37: // Key 'LEFT'
+          case 39: // Key 'RIGHT'
             if (this.hasImgShown) {
               if (e.shiftKey && e.ctrlKey) {
                 if (photoShow.config.hotkeys.rotateImage.isEnabled) {
@@ -1310,8 +1540,8 @@
 
             break;
 
-          case 38:    // Key 'UP'
-          case 40:    // Key 'DOWN'
+          case 38: // Key 'UP'
+          case 40: // Key 'DOWN'
             if (photoShow.config.hotkeys.scrollImage.isEnabled && this.hasImgShown && this.hasMask) {
               e.preventDefault();
               scrollImg(e.which);
@@ -1319,10 +1549,10 @@
 
             break;
 
-          case 65:    // Key 'A'
-          case 76:    // Key 'L'
-          case 77:    // Key 'M'
-          case 80:    // Key 'P'
+          case 65: // Key 'A'
+          case 76: // Key 'L'
+          case 77: // Key 'M'
+          case 80: // Key 'P'
             if (photoShow.config.hotkeys.switchViewMode.isEnabled && this.hasImgShown) {
               e.preventDefault();
 
@@ -1347,13 +1577,13 @@
         }
       }
     },
-    keyupAction: function(e) {
+    keyupAction: function (e) {
       this.maskAcceleration = 0;
 
       switch (e.which) {
-        case 16:    // Key 'SHIFT'
-        case 17:    // Key 'CTRL'
-        case 18:    // Key 'ALT'
+        case 16: // Key 'SHIFT'
+        case 17: // Key 'CTRL'
+        case 18: // Key 'ALT'
           this.isModifierKeyDown = false;
 
           if (this.curTrigger && e.which == $.inArray(photoShow.config.activationMode, MODIFIER_KEYS)) {
@@ -1366,10 +1596,10 @@
         default:
       }
     },
-    winBlurAction: function() {
+    winBlurAction: function () {
       this.isModifierKeyDown = false;
     },
-    domMutateAction: function(mutations) {
+    domMutateAction: function (mutations) {
       // Some websites update images only by changing their src attributes instead of replacing the whole img elements,
       // which could cause problems when the triggers have had their high-definition image srcs cached.
       // Some websites remove photoShow's elements when updating their page contents, in which case those elements need to be add back to the DOM.
@@ -1380,7 +1610,9 @@
           switch (mutation.type) {
             case 'childList':
               if (mutation.removedNodes.length) {
-                var removedPhotoShowStyleNodes = Array.from(mutation.removedNodes).filter(node => $(node).is('[id^="photoShowStyles_"],#photoShowViewerMaskDef'));
+                var removedPhotoShowStyleNodes = Array.from(mutation.removedNodes).filter(node =>
+                  $(node).is('[id^="photoShowStyles_"],#photoShowViewerMaskDef')
+                );
 
                 removedPhotoShowStyleNodes.length && target.append(removedPhotoShowStyleNodes);
 
@@ -1391,8 +1623,10 @@
               break;
 
             case 'attributes':
-              if (~mutation.attributeName.indexOf('src') && target.is('img,source') ||
-                mutation.attributeName == 'style' && tools.getBackgroundImgSrc(target)) {
+              if (
+                (~mutation.attributeName.indexOf('src') && target.is('img,source')) ||
+                (mutation.attributeName == 'style' && tools.getBackgroundImgSrc(target))
+              ) {
                 target.closest('[photoshow-hd-img-src]').removeAttr('photoshow-hd-img-src');
               }
 
@@ -1430,9 +1664,11 @@
           break;
 
         case 'DISPATCH_HOTKEY_EVENT':
-          document.dispatchEvent(new CustomEvent(request.args.type, {
-            detail: request.args
-          }));
+          document.dispatchEvent(
+            new CustomEvent(request.args.type, {
+              detail: request.args
+            })
+          );
 
           break;
 
@@ -1444,7 +1680,10 @@
 
     // Response to storage change event.
     chrome.storage.onChanged.addListener(changes => {
-      if (changes.disabledWebsites && photoShow.isEnabled != !changes.disabledWebsites.newValue.includes(location.hostname)) {
+      if (
+        changes.disabledWebsites &&
+        photoShow.isEnabled != !changes.disabledWebsites.newValue.includes(location.hostname)
+      ) {
         photoShow.isEnabled = !photoShow.isEnabled;
         photoShow.toggleXhrHook();
         photoShowViewer.toggle();
@@ -1454,14 +1693,17 @@
     });
 
     // Get initial state.
-    chrome.runtime.sendMessage({
-      cmd: 'GET_INITIAL_STATE_AND_CONFIGS'
-    }, response => {
-      photoShow.isEnabled = response.isPhotoShowEnabled;
-      photoShow.websiteConfig = response.websiteConfig || {};
-      photoShow.toggleXhrHook();
-      photoShowViewer.toggle();
-      photoShow.config.update(response.photoShowConfigs);
-    });
+    chrome.runtime.sendMessage(
+      {
+        cmd: 'GET_INITIAL_STATE_AND_CONFIGS'
+      },
+      response => {
+        photoShow.isEnabled = response.isPhotoShowEnabled;
+        photoShow.websiteConfig = response.websiteConfig || {};
+        photoShow.toggleXhrHook();
+        photoShowViewer.toggle();
+        photoShow.config.update(response.photoShowConfigs);
+      }
+    );
   })();
 })(jQuery.noConflict());

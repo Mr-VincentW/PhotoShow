@@ -26,10 +26,11 @@
  * @version 4.1.0.0 | 2020-03-13 | Vincent    // Updates: Support for image address copying;
  *                                            // Updates: Add global message.
  * @version 4.1.2.0 | 2020-03-14 | Vincent    // Bug Fix: Fix global message style issues on Instagram.
+ * @version 4.5.6.0 | 2020-12-31 | Vincent    // Bug Fix: Increase z-index value of the viewer to avoid being overlaid.
  */
 
 // Color definitions
-@PHOTOSHOW_BLUE: #6CBCEF;
+@PHOTOSHOW_BLUE: #6cbcef;
 
 // Font icon
 @font-face {
@@ -220,7 +221,7 @@
 
   &-logo:before {
     content: '\e900';
-    color: #FFF;
+    color: #fff;
   }
 
   &-load {
@@ -230,7 +231,7 @@
       animation: photoshow-icons-load-ani 1.5s linear 0s infinite;
     }
 
-    &+*:after {
+    & + *:after {
       content: '';
       display: inline-block;
       width: 1em;
@@ -253,10 +254,10 @@
   min-height: 40px;
   background: rgba(248, 248, 248, 0.9);
   box-sizing: border-box;
-  border: solid 1px #FFF;
+  border: solid 1px #fff;
   border-radius: 1px;
   position: fixed;
-  z-index: 2147483646;
+  z-index: 2147483647;
   box-shadow: 0 0 3px rgba(0, 0, 0, 0.5);
   opacity: 0;
   pointer-events: none;
@@ -277,12 +278,15 @@
     }
   }
 
-  &.logo-hidden .photoshow-icons-logo{
+  &.logo-hidden .photoshow-icons-logo {
     transition: none;
     opacity: 0;
   }
 
-  &.top-end, &.right-end, &.bottom-end, &.left-end {
+  &.top-end,
+  &.right-end,
+  &.bottom-end,
+  &.left-end {
     .photoshow-img-wrapper:after {
       content: '';
       position: absolute;
@@ -292,7 +296,7 @@
     }
   }
 
-  &.top-end .photoshow-img-wrapper:after{
+  &.top-end .photoshow-img-wrapper:after {
     width: 100%;
     height: 0;
     top: 0;
@@ -300,7 +304,7 @@
     animation: photoshow-viewer-top-end-ani 1s linear 0s forwards;
   }
 
-  &.right-end .photoshow-img-wrapper:after{
+  &.right-end .photoshow-img-wrapper:after {
     width: 0;
     height: 100%;
     top: 0;
@@ -308,7 +312,7 @@
     animation: photoshow-viewer-right-end-ani 1s linear 0s forwards;
   }
 
-  &.bottom-end .photoshow-img-wrapper:after{
+  &.bottom-end .photoshow-img-wrapper:after {
     width: 100%;
     height: 0;
     bottom: 0;
@@ -316,7 +320,7 @@
     animation: photoshow-viewer-bottom-end-ani 1s linear 0s forwards;
   }
 
-  &.left-end .photoshow-img-wrapper:after{
+  &.left-end .photoshow-img-wrapper:after {
     width: 0;
     height: 100%;
     top: 0;
@@ -353,8 +357,8 @@
       left: 50%;
       transform: translate(-50%, -50%);
       border-radius: 1px;
-      max-width: unset !important;    // Some websites set this rule which will cause image displaying problem in Firefox when rotated.
-      max-height: unset !important;    // Some websites set this rule which will cause image displaying problem in Firefox when rotated.
+      max-width: unset !important; // Some websites set this rule which will cause image displaying problem in Firefox when rotated.
+      max-height: unset !important; // Some websites set this rule which will cause image displaying problem in Firefox when rotated.
     }
 
     .photoshow-view-mode-switch-tip {
@@ -365,7 +369,7 @@
       left: 0;
       background: fade(gray, 75%);
       text-align: center;
-      color: #FFF;
+      color: #fff;
       mix-blend-mode: multiply;
       opacity: 0;
     }
@@ -400,10 +404,10 @@
     right: 0;
     bottom: 0;
     padding-left: 2px;
-    border: solid 1px #FFF;
+    border: solid 1px #fff;
     border-width: 1px 0 0 1px;
     border-radius: 90% 0 0;
-    background: #52A3F5;
+    background: #52a3f5;
     transition: opacity 0s 0.2s;
     opacity: 1;
 
@@ -433,7 +437,7 @@
     border-radius: 2px;
     line-height: 1;
     font-size: 0;
-    color: #FFF;
+    color: #fff;
     box-shadow: 0 0 4px fade(#000, 20%);
     font-family: -apple-system, system-ui, BlinkMacSystemFont, 'Segoe UI', 'Microsoft Yahei', '\5b8b\4f53', sans-serif;
 
@@ -449,7 +453,7 @@
 
     .photoshow-icons-logo {
       margin-right: 0.25em;
-      color: #FFF;
+      color: #fff;
       font-size: 24px;
     }
   }
