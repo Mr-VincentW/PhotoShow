@@ -1,4 +1,4 @@
-<!doctype html>
+<!DOCTYPE html>
 <!--
  * Copyright (c) 2012-2020 Vincent W., MIT-licensed.
  * @fileOverview PhotoShow popup page.
@@ -20,6 +20,8 @@
  * @version 4.0.3.0 | 2019-11-23 | Vincent    // Updates: Add 'share' links.
  * @version 4.0.12.0 | 2020-01-24 | Vincent   // Updates: Add GitHub link.
  * @version 4.2.0.0 | 2020-03-20 | Vincent    // Updates: Supports nested data structure for configuration items.
+ * @version 4.6.0.0 | 2021-01-24 | Vincent    // Updates: Add a config item for image-size-displaying settings;
+ *                                            // Updates: Remove the item form logo-displaying settings.
 -->
 
 <html>
@@ -47,10 +49,14 @@
         </dt>
         <dd>
           <span id="activationModeDesc"></span><span>+</span>
-          <label><input type="radio" name="activationModeRadio" checked value="" /><span id="activationModeOption_None"></span></label>
-          <label><input type="radio" name="activationModeRadio" value="shift"/><span>Shift</span></label>
-          <label><input type="radio" name="activationModeRadio" value="ctrl"/><span>Ctrl</span></label>
-          <label><input type="radio" name="activationModeRadio" value="alt"/><span>Alt</span></label>
+          <label
+            ><input type="radio" name="activationModeRadio" checked value="" /><span
+              id="activationModeOption_None"
+            ></span
+          ></label>
+          <label><input type="radio" name="activationModeRadio" value="shift" /><span>Shift</span></label>
+          <label><input type="radio" name="activationModeRadio" value="ctrl" /><span>Ctrl</span></label>
+          <label><input type="radio" name="activationModeRadio" value="alt" /><span>Alt</span></label>
         </dd>
       </dl>
       <dl class="desc radios" config-item="viewMode" id="viewModeSection">
@@ -60,13 +66,13 @@
         </dt>
         <dd></dd>
       </dl>
-      <dl class="desc checkboxes" config-item="logoDisplay" id="logoDisplaySection">
+      <dl class="desc checkboxes" config-item="imageSizeDisplay" id="imageSizeDisplaySection">
         <dt>
-          <em class="icon icon-logo-display"></em>
+          <em class="icon icon-image-size-display"></em>
           <h3></h3>
         </dt>
         <dd>
-          <label><input type="checkbox" checked /><span id="logoDisplayDesc"></span></label>
+          <label><input type="checkbox" checked /><span id="imageSizeDisplayDesc"></span></label>
         </dd>
       </dl>
       <dl class="desc checkboxes" config-item="shadowDisplay" id="shadowDisplaySection">

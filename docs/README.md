@@ -79,8 +79,8 @@ More settings are provided in the popup window, click the **PhotoShow** icon in 
 
 - **Turn on/off PhotoShow for particular websites**: Switch the toggle button and **PhotoShow** will be enabled/disabled for websites under current hostname.
 - **Set activation mode**: Displaying an HD image every time you stop your mouse at a thumbnail on a page might be disturbing. With this configuration, you can choose to bind a "modifier key" for triggering the image viewer displaying - press it when you wanna see the HD images.
-- **Toggle logo display**: If you are so serious about enjoying a feast for the eyes that no contamination is allowed to the images, this configuration allows you to deal a final blow to the "annoying" **Photoshow** icon that cowers in the bottom-right corner of the image viewer.
-- **Toggle shadow display**: Likewise, if you just can't stand the dark shade between the image viewer and its source thumbnail, "KAPOW"!
+- **Toggle image size display**: If you care about the original size of the HD image, use this toggle to show or hide the image size information displaying in the bottom-right corner of the image viewer.
+- **Toggle shadow display**: If you just can't stand the dark shade between the image viewer and its source thumbnail, "KAPOW"!
 - **Check the shortcuts**: If you happen to forget the hotkeys or their actions, here's the right place to go.
 - **Make everything better**: Feel free to give your feedback should you have any advice or brilliant ideas. It would, of course, be appreciated if you could share **PhotoShow** with your friends!
 

@@ -138,6 +138,9 @@
  * @version 4.5.6.0 | 2020-12-31 | Vincent    // Updates: Support adnmb2.com, gamer.com.tw, IMDb, ixigua.com, nga.cn, wattpad, in response to user feedback;
  *                                            // Updates: Support Sportsfuel.
  *                                            // Updates: Better support for jandan.net.
+ * @version 4.6.0.0 | 2021-01-24 | Vincent    // Updates: Support displaying HD image size in the viewer;
+ *                                            // Updates: Remove the feature of displaying PhotoShow logo in the viewer;
+ *                                            // Updates: Better support for Amazon, Instagram and wekan.
  */
 
 // TODO: Extract websiteConfig to independent files and import them (after porting to webpack).
@@ -341,8 +344,9 @@ const websiteConfig = {
       pointerNone: '.backGround'
     },
     srcMatching: {
-      selectors: 'img,.a-button-thumbnail .a-button-input,.a-link-normal,.floor-hotasin-item-image',
-      srcRegExp: '(//.*\\.(?:ssl-images|media)-amazon\\.(?:com|[a-z]{2})/images/.*?)\\._.+(@IMG@)',
+      selectors:
+        'img,.a-button-thumbnail .a-button-input,.a-link-normal,.floor-hotasin-item-image,.thumnail,.thumbnailPreviewTile',
+      srcRegExp: '(//.*\\.(?:ssl-images|media)-amazon\\.(?:com|[a-z]{2})/images/.*?)\\..+(@IMG@)',
       processor: (trigger, src, srcRegExpObj) =>
         srcRegExpObj.test(src || trigger.parent().find('img').attr('src')) ? RegExp.$1 + RegExp.$2 : ''
     }
@@ -1275,7 +1279,7 @@ const websiteConfig = {
   },
   'www\\.instagram\\.com': {
     amendStyles: {
-      pointerNone: '.qn-0x,._9AhH0'
+      pointerNone: '.qn-0x,._9AhH0,._7Tu5q'
     },
     srcMatching: [
       {
@@ -2033,7 +2037,7 @@ const websiteConfig = {
   },
   'www\\.wekan\\.tv': {
     amendStyles: {
-      pointerNone: '[class$="poster"] [class$="poster__pic"]~*'
+      pointerNone: '[class$="poster"] [class$="poster__pic"]~*,.screen-room-item__playbutton'
     },
     srcMatching: {
       srcRegExp: '(.+?@IMG@).*',
@@ -2622,6 +2626,15 @@ chrome.downloads.onChanged.addListener(downloadInfo => {
 // Initialization.
 chrome.storage.sync.get(['disabledWebsites', 'photoShowConfigs'], response => {
   if (!chrome.runtime.lastError && response) {
+    // TODO: Remove this later.
+    if (response.photoShowConfigs && response.photoShowConfigs.logoDisplay != undefined) {
+      delete response.photoShowConfigs.logoDisplay;
+      chrome.storage.sync.set({
+        photoShowConfigs: response.photoShowConfigs
+      });
+    }
+    //////////////////////////////////////////////
+
     DISABLED_WEBSITES = response.disabledWebsites || [];
     PHOTOSHOW_CONFIGS = response.photoShowConfigs || {};
   }

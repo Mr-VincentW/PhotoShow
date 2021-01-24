@@ -12,6 +12,7 @@
  * @version 4.1.0.0 | 2020-03-13 | Vincent    // Updates: Add items for image address copy.
  * @version 4.1.2.0 | 2020-03-14 | Vincent    // Updates: Add global messages for image downloading and opening in new tab.
  * @version 4.2.0.0 | 2020-03-20 | Vincent    // Updates: Add items for hotkey toggles.
+ * @version 4.6.0.0 | 2021-01-24 | Vincent    // Updates: Replace logo-displaying items with image-size-displaying items.
  */
 
 {
@@ -81,7 +82,7 @@
     "description": "Message displayed when PhotoShow does not support for current website."
   },
   "extensionUpdateDate": {
-    "message": "Update: 1 January 2021",
+    "message": "Update: 24 January 2021",
     "description": "Update time of current installed version of PhotoShow."
   },
   "stateToggleOnTitle": {
@@ -145,13 +146,13 @@
     "description": "Corresponding mouse-hovering tip."
   },
 
-  // Section LOGO DISPLAY:
-  "logoDisplayHeader": {
-    "message": "LOGO DISPLAY",
+  // Section IMAGE SIZE DISPLAY:
+  "imageSizeDisplayHeader": {
+    "message": "IMAGE SIZE DISPLAY",
     "description": "Section title."
   },
-  "logoDisplayDesc": {
-    "message": "Display PhotoShow logo within the viewer",
+  "imageSizeDisplayDesc": {
+    "message": "Display HD image size within the viewer",
     "description": "Setting item description."
   },
 

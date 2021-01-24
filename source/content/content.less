@@ -27,6 +27,8 @@
  *                                            // Updates: Add global message.
  * @version 4.1.2.0 | 2020-03-14 | Vincent    // Bug Fix: Fix global message style issues on Instagram.
  * @version 4.5.6.0 | 2020-12-31 | Vincent    // Bug Fix: Increase z-index value of the viewer to avoid being overlaid.
+ * @version 4.6.0.0 | 2021-01-24 | Vincent    // Updates: Support displaying HD image size in the viewer;
+ *                                            // Updates: Remove the feature of displaying PhotoShow logo in the viewer
  */
 
 // Color definitions
@@ -276,11 +278,14 @@
     .photoshow-msg {
       display: none;
     }
+
+    .photoshow-img-size {
+      opacity: 1;
+    }
   }
 
-  &.logo-hidden .photoshow-icons-logo {
-    transition: none;
-    opacity: 0;
+  &.img-size-hidden .photoshow-img-size {
+    display: none;
   }
 
   &.top-end,
@@ -398,22 +403,38 @@
     }
   }
 
-  .photoshow-icons-logo {
+  .photoshow-img-size {
     position: absolute;
     display: block;
     right: 0;
     bottom: 0;
-    padding-left: 2px;
-    border: solid 1px #fff;
-    border-width: 1px 0 0 1px;
-    border-radius: 90% 0 0;
-    background: #52a3f5;
-    transition: opacity 0s 0.2s;
-    opacity: 1;
+    font-style: normal;
+    color: #fff;
+    overflow: hidden;
+    opacity: 0;
+    transition: opacity 0.2s;
 
     &:before {
+      content: '';
+      position: absolute;
       display: block;
-      height: 14px;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      left: 0;
+      border: solid 1px #fff;
+      border-width: 1px 0 0 1px;
+      border-radius: 4px 0 0 0;
+      background: fade(@PHOTOSHOW_BLUE, 75%);
+      transform: skew(-20deg);
+      transform-origin: left bottom;
+    }
+
+    &:after {
+      content: attr(size);
+      position: relative;
+      padding: 0 2px 0 10px;
+      z-index: 1;
     }
   }
 }

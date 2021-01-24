@@ -101,6 +101,8 @@
  *                                            // Updates: Optimize mask hosting element detecting algorithm.
  * @version 4.5.2.0 | 2020-08-23 | Vincent    // Updates: Fit 'onToggle' and 'onXhrLoad' callbacks;
  *                                            // Updates: Replace Object.assign with spread syntax.
+ * @version 4.6.0.0 | 2021-01-24 | Vincent    // Updates: Support displaying HD image size in the viewer;
+ *                                            // Updates: Remove the feature of displaying PhotoShow logo in the viewer.
  */
 
 // TODO: Extract common tool methods to external modules.
@@ -358,14 +360,14 @@
           !photoShowViewer.isViewerChanged &&
           photoShowViewer.viewerBox.removeClass('view-mode-switching').show().addClass('view-mode-switching');
       },
-      _logoDisplay: true, // Logo display.
-      get logoDisplay() {
-        return this._logoDisplay;
+      _imageSizeDisplay: true, // ImageSize display.
+      get imageSizeDisplay() {
+        return this._imageSizeDisplay;
       },
-      set logoDisplay(isVisible) {
-        (this._logoDisplay = isVisible)
-          ? photoShowViewer.viewerLogo.appendTo(photoShowViewer.viewerBox)
-          : photoShowViewer.viewerLogo.remove();
+      set imageSizeDisplay(isVisible) {
+        (this._imageSizeDisplay = isVisible)
+          ? photoShowViewer.viewerImgSizeTip.appendTo(photoShowViewer.viewerBox)
+          : photoShowViewer.viewerImgSizeTip.remove();
       },
       _shadowDisplay: true, // Shadow display.
       get shadowDisplay() {
@@ -484,15 +486,15 @@
       y: -1
     },
     viewerBox: $(
-      '<div id="photoShowViewer" class="sb_BingCA photoShow"><div class="photoshow-viewer-shadow"></div><div class="photoshow-img-wrapper"><img /><div class="photoshow-view-mode-switch-tip">A</div></div><div class="photoshow-msg"><em class="photoshow-icons"></em><i></i></div><em class="photoshow-icons photoshow-icons-logo"></em></div>'
+      '<div id="photoShowViewer" class="sb_BingCA photoShow"><div class="photoshow-viewer-shadow"></div><div class="photoshow-img-wrapper"><img /><div class="photoshow-view-mode-switch-tip">A</div></div><div class="photoshow-msg"><em class="photoshow-icons"></em><i></i></div><i class="photoshow-img-size"></i></div>'
     ), // Main container of the image viewer. (To avoid being automatically removed on https://www.bing.com/?mkt=en-ca, a class name prefixed with 'sb_' is needed.)
     viewerMask: $(
       '<svg xmlns="http://www.w3.org/2000/svg" id="photoShowViewerMaskDef" class="photoShow photoshow-hidden-elements"><defs><mask id="photoShowViewerMask" maskUnits="objectBoundingBox" maskContentUnits="objectBoundingBox"><rect fill="#FFF" opacity="0.25" width="1" height="1" x="0" y="0"></rect><rect fill="#FFF"></rect></mask></defs></svg>'
     ), // Viewer mask.
     viewerShadow: null, // Shadow element.
-    viewerLogo: null, // PhotoShow logo element.
     viewerImg: null, // Image element.
     viewerMsg: null, // Message container.
+    viewerImgSizeTip: null, // Image size tip.
     viewModeSwitchTip: null, // View mode switch tip element.
     isViewerPosHor: true, // Indicates if the displaying position of the image viewer is on either the LEFT or RIGHT side of the trigger element.
     isViewerChanged: true, // Indicates if the displaying features of the image viewer changes frome last time it was displayed.
@@ -998,12 +1000,13 @@
                     width: imgInfo.width,
                     height: imgInfo.height
                   };
+                  this.viewerImgSizeTip.attr('size', Object.values(this.imgOriginalSize).join('×'));
 
                   var displayingStyles = this.getDisplayingStyles();
 
-                  photoShow.config.logoDisplay &&
-                    (displayingStyles.viewerFinal.width < 50 || displayingStyles.viewerFinal.height < 50) &&
-                    this.viewerBox.addClass('logo-hidden');
+                  photoShow.config.imageSizeDisplay &&
+                    (displayingStyles.viewerFinal.width < 100 || displayingStyles.viewerFinal.height < 50) &&
+                    this.viewerBox.addClass('img-size-hidden');
 
                   if (imgLoadingTipTimer) {
                     clearTimeout(imgLoadingTipTimer);
@@ -1262,7 +1265,7 @@
           }
         ]
       ]);
-      photoShow.config.logoDisplay && this.viewerBox.removeClass('logo-hidden');
+      photoShow.config.imageSizeDisplay && this.viewerBox.removeClass('img-size-hidden');
       $(this.curTrigger).off('.photoShow');
 
       keepTriggerBlocked || $('[photoshow-trigger-blocked]').removeAttr('photoshow-trigger-blocked');
@@ -1645,7 +1648,7 @@
     photoShowViewer.viewerImg = $('img', photoShowViewer.viewerBox);
     photoShowViewer.viewModeSwitchTip = $('.photoshow-view-mode-switch-tip', photoShowViewer.viewerBox);
     photoShowViewer.viewerMsg = $('.photoshow-msg', photoShowViewer.viewerBox);
-    photoShowViewer.viewerLogo = $('.photoshow-icons-logo', photoShowViewer.viewerBox);
+    photoShowViewer.viewerImgSizeTip = $('.photoshow-img-size', photoShowViewer.viewerBox);
 
     // Response to messages.
     chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {

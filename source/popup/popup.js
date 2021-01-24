@@ -31,6 +31,9 @@
  *                                            // Updates: Support disabling hotkeys;
  *                                            // Updates: Optimize hotkey specifications.
  * @version 4.2.1.0 | 2020-03-26 | Vincent    // Updates: Replace the PhotoShow poster image for sharing.
+ * @version 4.6.0.0 | 2021-01-24 | Vincent    // Updates: Support displaying HD image size in the viewer;
+ *                                            // Updates: Remove the feature of displaying PhotoShow logo in the viewer;
+ *                                            // Updates: Remove download link for QQ browsers app centre.
  */
 
 // TODO: Add animation toggle configuration (allow users to turn off all the animation).
@@ -39,30 +42,42 @@
 var curTabUrl = '';
 
 const UI_LANGUAGE = chrome.i18n.getUILanguage(),
-  PHOTOSHOW_LINK = /\bFirefox\b/.test(navigator.userAgent) ?
-    `https://addons.mozilla.org/${UI_LANGUAGE}/firefox/addon/photoshow/` :
-    (/\bEdg\b/.test(navigator.userAgent) ?
-      `https://microsoftedge.microsoft.com/addons/detail/afdelcfalkgcfelngdclbaijgeaklbjk?hl=${UI_LANGUAGE}` :
-      (/\bQQBrowser\b/.test(navigator.userAgent) ?
-        'https://appcenter.browser.qq.com/search/detail?key=%E6%B5%AE%E5%9B%BE%E7%A7%80&id=mgpdnhlllbpncjpgokgfogidhoegebod%20&title=%E6%B5%AE%E5%9B%BE%E7%A7%80' :
-        `https://chrome.google.com/webstore/detail/photoshow/mgpdnhlllbpncjpgokgfogidhoegebod?hl=${UI_LANGUAGE}`));
+  PHOTOSHOW_LINK = /\bFirefox\b/.test(navigator.userAgent)
+    ? `https://addons.mozilla.org/${UI_LANGUAGE}/firefox/addon/photoshow/`
+    : /\bEdg\b/.test(navigator.userAgent)
+    ? `https://microsoftedge.microsoft.com/addons/detail/afdelcfalkgcfelngdclbaijgeaklbjk?hl=${UI_LANGUAGE}`
+    : `https://chrome.google.com/webstore/detail/photoshow/mgpdnhlllbpncjpgokgfogidhoegebod?hl=${UI_LANGUAGE}`;
 
 function turnOnPhotoShow() {
   $('#stateMsg').text(chrome.i18n.getMessage('photoShowEnabledMsg'));
-  $('#stateToggle').removeClass('disabled no-ani')
-    .find('.state-icon').removeClass('icon-bubble-warn').addClass('icon-bubble-check');
+  $('#stateToggle')
+    .removeClass('disabled no-ani')
+    .find('.state-icon')
+    .removeClass('icon-bubble-warn')
+    .addClass('icon-bubble-check');
   $('#stateToggleBtn').attr('title', chrome.i18n.getMessage('stateToggleOnTitle'));
-};
+}
 
 function turnOffPhotoShow(disableAni) {
   $('#stateMsg').text(chrome.i18n.getMessage('photoShowDisabledMsg'));
-  $('#stateToggle').addClass(`disabled${disableAni ? ' no-ani' : ''}`)
-    .find('.state-icon').removeClass('icon-bubble-check').addClass('icon-bubble-warn');
+  $('#stateToggle')
+    .addClass(`disabled${disableAni ? ' no-ani' : ''}`)
+    .find('.state-icon')
+    .removeClass('icon-bubble-check')
+    .addClass('icon-bubble-warn');
   $('#stateToggleBtn').attr('title', chrome.i18n.getMessage('stateToggleOffTitle'));
-};
+}
 
 function getSharingUrl(link, params) {
-  return params ? [link, '?'].concat(Object.keys(params).map(key => `${key}=${encodeURIComponent(params[key])}`).join('&')).join('') : link;
+  return params
+    ? [link, '?']
+        .concat(
+          Object.keys(params)
+            .map(key => `${key}=${encodeURIComponent(params[key])}`)
+            .join('&')
+        )
+        .join('')
+    : link;
 }
 
 function updateConfigItems(configs, hostNode) {
@@ -81,39 +96,52 @@ function updateConfigItems(configs, hostNode) {
 }
 
 // Actions.
-$(document).on('click.photoShow', '#stateToggleBtn', () => {    // Website switch action.
-  if (curTabUrl) {
+$(document)
+  .on('click.photoShow', '#stateToggleBtn', () => {
+    // Website switch action.
+    if (curTabUrl) {
+      chrome.runtime.sendMessage({
+        cmd: 'SET_PHOTOSHOW_STATE',
+        args: {
+          tabUrl: curTabUrl,
+          isPhotoShowEnabled: $('#stateToggle').hasClass('disabled')
+        }
+      });
+    }
+  })
+  .on('keydown.photoShow keyup.photoShow', e => {
+    // Hotkey actions.
+    e.which == 27 || e.preventDefault(); // Do not block popup page closing.
+
     chrome.runtime.sendMessage({
-      cmd: 'SET_PHOTOSHOW_STATE',
+      cmd: 'DISPATCH_HOTKEY_EVENT',
+      args: (({ type, which, shiftKey, ctrlKey, altKey }) => ({ type, which, shiftKey, ctrlKey, altKey }))(e)
+    });
+  })
+  .on('change.photoShow', '[config-item] input', e => {
+    // Config items actions.
+    var curOption = $(e.currentTarget);
+
+    chrome.runtime.sendMessage({
+      cmd: 'SET_PHOTOSHOW_CONFIGS',
       args: {
-        tabUrl: curTabUrl,
-        isPhotoShowEnabled: $('#stateToggle').hasClass('disabled')
+        item: curOption
+          .parentsUntil('body', '[config-item]')
+          .map((i, configItem) => $(configItem).attr('config-item'))
+          .toArray()
+          .reverse()
+          .join('.'),
+        value: curOption.is(':checkbox') ? curOption.is(':checked') : curOption.val()
       }
     });
-  }
-}).on('keydown.photoShow keyup.photoShow', e => {    // Hotkey actions.
-  e.which == 27 || e.preventDefault();    // Do not block popup page closing.
-
-  chrome.runtime.sendMessage({
-    cmd: 'DISPATCH_HOTKEY_EVENT',
-    args: (({type, which, shiftKey, ctrlKey, altKey}) => ({type, which, shiftKey, ctrlKey, altKey}))(e)
-  });
-}).on('change.photoShow', '[config-item] input', e => {    // Config items actions.
-  var curOption = $(e.currentTarget);
-
-  chrome.runtime.sendMessage({
-    cmd: 'SET_PHOTOSHOW_CONFIGS',
-    args: {
-      item: curOption.parentsUntil('body', '[config-item]').map((i, configItem) => $(configItem).attr('config-item')).toArray().reverse().join('.'),
-      value: curOption.is(':checkbox') ? curOption.is(':checked') : curOption.val()
+  })
+  .on('click.photoShow', '#hotkeysSection tr', e => {
+    // Hotkeys toggle actions.
+    if (!$(e.target).is(':checkbox')) {
+      var curCheckbox = $(':checkbox', e.currentTarget);
+      curCheckbox.prop('checked', !curCheckbox.is(':checked')).change();
     }
   });
-}).on('click.photoShow', '#hotkeysSection tr', e => {    // Hotkeys toggle actions.
-  if (!$(e.target).is(':checkbox')) {
-    var curCheckbox = $(':checkbox', e.currentTarget);
-    curCheckbox.prop('checked', !curCheckbox.is(':checked')).change();
-  }
-});
 
 // Response to the storage change event.
 chrome.storage.onChanged.addListener(changes => {
@@ -129,7 +157,13 @@ chrome.storage.onChanged.addListener(changes => {
 });
 
 // Initialization.
-$('#name').text(`${chrome.i18n.getMessage('extensionName')} ${/(\d+\.\d+)(?:\.\d+){0,2}( Beta)?/.test(chrome.runtime.getManifest().version_name) ? RegExp.$1 + RegExp.$2 : chrome.runtime.getManifest().version}`);
+$('#name').text(
+  `${chrome.i18n.getMessage('extensionName')} ${
+    /(\d+\.\d+)(?:\.\d+){0,2}( Beta)?/.test(chrome.runtime.getManifest().version_name)
+      ? RegExp.$1 + RegExp.$2
+      : chrome.runtime.getManifest().version
+  }`
+);
 $('#updateDate').text(chrome.i18n.getMessage('extensionUpdateDate'));
 
 $('#activationModeSection dt h3').text(chrome.i18n.getMessage('activationModeHeader'));
@@ -137,16 +171,48 @@ $('#activationModeDesc').text(chrome.i18n.getMessage('activationModeDesc'));
 $('#activationModeOption_None').text(chrome.i18n.getMessage('activationModeOption_None'));
 
 $('#viewModeSection dt h3').text(chrome.i18n.getMessage('viewModeHeader'));
-$('#viewModeSection dd').append(['Mini', 'Light', 'Auto', 'Panoramic'].map(modeName => `<label title="${chrome.i18n.getMessage(`viewModeOptionTitle_${modeName}`)}" hotkey="${modeName[0]}"><input type="radio" name="viewModeRadio" value="${modeName}"${modeName == 'Auto' ? ' checked' : ''} /><span>${chrome.i18n.getMessage(`viewModeOption_${modeName}`)} (${modeName[0]})</span></label>`).join(''));
+$('#viewModeSection dd').append(
+  ['Mini', 'Light', 'Auto', 'Panoramic']
+    .map(
+      modeName =>
+        `<label title="${chrome.i18n.getMessage(`viewModeOptionTitle_${modeName}`)}" hotkey="${
+          modeName[0]
+        }"><input type="radio" name="viewModeRadio" value="${modeName}"${
+          modeName == 'Auto' ? ' checked' : ''
+        } /><span>${chrome.i18n.getMessage(`viewModeOption_${modeName}`)} (${modeName[0]})</span></label>`
+    )
+    .join('')
+);
 
-$('#logoDisplaySection dt h3').text(chrome.i18n.getMessage('logoDisplayHeader'));
-$('#logoDisplayDesc').text(chrome.i18n.getMessage('logoDisplayDesc'));
+$('#imageSizeDisplaySection dt h3').text(chrome.i18n.getMessage('imageSizeDisplayHeader'));
+$('#imageSizeDisplayDesc').text(chrome.i18n.getMessage('imageSizeDisplayDesc'));
 
 $('#shadowDisplaySection dt h3').text(chrome.i18n.getMessage('shadowDisplayHeader'));
 $('#shadowDisplayDesc').text(chrome.i18n.getMessage('shadowDisplayDesc'));
 
 $('#hotkeysSection dt h3').text(chrome.i18n.getMessage('hotkeysHeader'));
-$('#hotkeysSection dd').append(`<table>${['closeViewer', 'rotateImage', 'scrollImage', 'scrollImageByPage', 'scrollImageToEnds', 'switchViewMode', 'openImageInNewTab', 'saveImage', 'copyImageAddress'].map(keyName => `<tr class="checkboxes" config-item="${keyName}" title="${chrome.i18n.getMessage('hotkeyToggleTitle')}"><td config-item="isEnabled"><input type="checkbox" checked/></td>${chrome.i18n.getMessage(`hotkey_${keyName}`)}</tr>`).join('')}</table>`);
+$('#hotkeysSection dd').append(
+  `<table>${[
+    'closeViewer',
+    'rotateImage',
+    'scrollImage',
+    'scrollImageByPage',
+    'scrollImageToEnds',
+    'switchViewMode',
+    'openImageInNewTab',
+    'saveImage',
+    'copyImageAddress'
+  ]
+    .map(
+      keyName =>
+        `<tr class="checkboxes" config-item="${keyName}" title="${chrome.i18n.getMessage(
+          'hotkeyToggleTitle'
+        )}"><td config-item="isEnabled"><input type="checkbox" checked/></td>${chrome.i18n.getMessage(
+          `hotkey_${keyName}`
+        )}</tr>`
+    )
+    .join('')}</table>`
+);
 
 $('#shareSection dt h3').text(chrome.i18n.getMessage('shareHeader'));
 
@@ -157,20 +223,25 @@ function initContactLinks() {
       tag: chrome.i18n.getMessage('extensionName'),
       text: chrome.i18n.getMessage('shareText'),
       desc: chrome.i18n.getMessage('extensionDesc'),
-      pic: 'https://lh3.googleusercontent.com/J4PdCq4haGqB-GYF_BFEcswOtM1vucxUAiCFAYEvwMXDJH_I-ksKhLYgv97MRBVb_EJIxCwP=w1400-h560'
+      pic:
+        'https://lh3.googleusercontent.com/J4PdCq4haGqB-GYF_BFEcswOtM1vucxUAiCFAYEvwMXDJH_I-ksKhLYgv97MRBVb_EJIxCwP=w1400-h560'
     },
     contactConfig = {
-      'mail': {
+      mail: {
         link: 'mailto:vincentwang863@gmail.com',
         data: {
           subject: chrome.i18n.getMessage('feedbackMailSubject'),
-          body: chrome.i18n.getMessage('feedbackMailBody', [navigator.userAgent, chrome.runtime.getManifest().version, curTabUrl])
+          body: chrome.i18n.getMessage('feedbackMailBody', [
+            navigator.userAgent,
+            chrome.runtime.getManifest().version,
+            curTabUrl
+          ])
         }
       },
-      'github': {
+      github: {
         link: 'https://github.com/Mr-VincentW/PhotoShow'
       },
-      'facebook': {
+      facebook: {
         link: 'https://www.facebook.com/dialog/share',
         data: {
           app_id: 552746812187976,
@@ -180,7 +251,7 @@ function initContactLinks() {
           quote: shareInfo.text
         }
       },
-      'twitter': {
+      twitter: {
         link: 'https://twitter.com/intent/tweet',
         data: {
           url: shareInfo.url,
@@ -188,7 +259,7 @@ function initContactLinks() {
           text: shareInfo.text
         }
       },
-      'weibo': {
+      weibo: {
         link: 'http://service.weibo.com/share/share.php',
         data: {
           appkey: 514787745,
@@ -197,7 +268,7 @@ function initContactLinks() {
           pic: shareInfo.pic
         }
       },
-      'qzone': {
+      qzone: {
         link: 'http://sns.qzone.qq.com/cgi-bin/qzshare/cgi_qzshare_onekey',
         data: {
           url: shareInfo.url,
@@ -207,14 +278,14 @@ function initContactLinks() {
           pics: shareInfo.pic
         }
       },
-      'reddit': {
+      reddit: {
         link: 'https://www.reddit.com/submit',
         data: {
           url: `${shareInfo.text} ${shareInfo.url}`,
           title: shareInfo.tag
         }
       },
-      'tumblr': {
+      tumblr: {
         link: 'http://tumblr.com/widgets/share/tool',
         data: {
           posttype: 'link',
@@ -227,34 +298,42 @@ function initContactLinks() {
       }
     };
 
-  Object.keys(contactConfig).forEach((name, i) => $(`#shareSection .icon-${name}`).attr({
-    href: getSharingUrl(contactConfig[name].link, contactConfig[name].data),
-    title: shareInfo.iconTitles[i]
-  }));
+  Object.keys(contactConfig).forEach((name, i) =>
+    $(`#shareSection .icon-${name}`).attr({
+      href: getSharingUrl(contactConfig[name].link, contactConfig[name].data),
+      title: shareInfo.iconTitles[i]
+    })
+  );
 }
 
-chrome.tabs.query({
-  active: true,
-  currentWindow: true
-}, tabs => {
-  if (!chrome.runtime.lastError && tabs && tabs.length) {
-    curTabUrl = tabs[0].url;
+chrome.tabs.query(
+  {
+    active: true,
+    currentWindow: true
+  },
+  tabs => {
+    if (!chrome.runtime.lastError && tabs && tabs.length) {
+      curTabUrl = tabs[0].url;
 
-    initContactLinks();
+      initContactLinks();
 
-    chrome.runtime.sendMessage({
-      cmd: 'GET_INITIAL_STATE_AND_CONFIGS',
-      args: {
-        tabUrl: curTabUrl
-      }
-    }, response => {
-      if (response.isPhotoShowEnabled) {
-        turnOnPhotoShow();
-      } else {
-        turnOffPhotoShow(true);
-      }
+      chrome.runtime.sendMessage(
+        {
+          cmd: 'GET_INITIAL_STATE_AND_CONFIGS',
+          args: {
+            tabUrl: curTabUrl
+          }
+        },
+        response => {
+          if (response.isPhotoShowEnabled) {
+            turnOnPhotoShow();
+          } else {
+            turnOffPhotoShow(true);
+          }
 
-      updateConfigItems(response.photoShowConfigs);
-    });
+          updateConfigItems(response.photoShowConfigs);
+        }
+      );
+    }
   }
-});
+);

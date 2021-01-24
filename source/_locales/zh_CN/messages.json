@@ -20,6 +20,7 @@
  *                                            // Updates: Add items for image address copy.
  * @version 4.1.2.0 | 2020-03-14 | Vincent    // Updates: Add global messages for image downloading and opening in new tab.
  * @version 4.2.0.0 | 2020-03-20 | Vincent    // Updates: Add items for hotkey toggles.
+ * @version 4.6.0.0 | 2021-01-24 | Vincent    // Updates: Replace logo-displaying items with image-size-displaying items.
  */
 
 {
@@ -89,7 +90,7 @@
     "description": "浮图秀不支持当前网站时的消息。"
   },
   "extensionUpdateDate": {
-    "message": "更新：2021年1月1日",
+    "message": "更新：2021年1月24日",
     "description": "当前所安装浮图秀版本的更新时间。"
   },
   "stateToggleOnTitle": {
@@ -153,13 +154,13 @@
     "description": "相应模式的鼠标悬停提示。"
   },
 
-  // “图标显示”区：
-  "logoDisplayHeader": {
-    "message": "图标显示",
+  // “高清图片尺寸显示”区：
+  "imageSizeDisplayHeader": {
+    "message": "高清图片尺寸显示",
     "description": "区块标题。"
   },
-  "logoDisplayDesc": {
-    "message": "在图片预览窗口内显示浮图秀图标",
+  "imageSizeDisplayDesc": {
+    "message": "在图片预览窗口内显示高清图片尺寸",
     "description": "设置项描述。"
   },
 

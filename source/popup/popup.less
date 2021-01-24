@@ -23,17 +23,18 @@
  * @version 4.1.0.0 | 2020-03-13 | Vincent    // Updates: Add hotkey specification for image address copying.
  * @version 4.2.0.0 | 2020-03-20 | Vincent    // Updates: Support disabling hotkeys;
  *                                            // Updates: Optimize styles.
+ * @version 4.6.0.0 | 2021-01-24 | Vincent    // Updates: Support displaying HD image size in the viewer;
+ *                                            // Updates: Remove the feature of displaying PhotoShow logo in the viewer.
  */
 
 // Color definitions
-@PHOTOSHOW_BLUE: #6CBCEF;
-@PHOTOSHOW_RED: #DB4B37;
+@PHOTOSHOW_BLUE: #6cbcef;
+@PHOTOSHOW_RED: #db4b37;
 
 // Font icon
 @font-face {
   font-family: photoShowIconFont;
-  src: url('../resources/photoShowIcons.woff2') format('woff2'),
-    url('../resources/photoShowIcons.woff') format('woff');
+  src: url('../resources/photoShowIcons.woff2') format('woff2'), url('../resources/photoShowIcons.woff') format('woff');
 }
 
 .icon {
@@ -55,8 +56,8 @@
 
   &-logo:before {
     content: '\e900';
-    background: #52A3F5;
-    color: #FFF;
+    background: #52a3f5;
+    color: #fff;
   }
 
   &-bubble-check:before {
@@ -75,7 +76,7 @@
     content: '\e908';
   }
 
-  &-logo-display:before {
+  &-image-size-display:before {
     content: '\e909';
   }
 
@@ -125,9 +126,20 @@
 }
 
 // Page style
-html, body,
-h1, h2, h3, p, em, i,
-dl, dt, dd, ul, ol, li,
+html,
+body,
+h1,
+h2,
+h3,
+p,
+em,
+i,
+dl,
+dt,
+dd,
+ul,
+ol,
+li,
 input {
   margin: 0;
   padding: 0;
@@ -147,7 +159,9 @@ body {
   user-select: none;
 }
 
-h1, h2, h3 {
+h1,
+h2,
+h3 {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI Light', 'Microsoft Yahei Light', '\5b8b\4f53', sans-serif;
   display: inline;
 }
@@ -206,7 +220,9 @@ h1, h2, h3 {
   }
 
   &.no-ani {
-    &, & *, & *:after {
+    &,
+    & *,
+    & *:after {
       transition: none !important;
     }
   }
@@ -244,7 +260,7 @@ h1, h2, h3 {
       display: block;
       width: 16px;
       height: 16px;
-      background: #FFF;
+      background: #fff;
       border-radius: 1px;
       right: 2px;
       top: 2px;
@@ -280,7 +296,8 @@ dl.desc {
     padding: 0 24px;
   }
 
-  &.radios, &.checkboxes {
+  &.radios,
+  &.checkboxes {
     dd {
       label {
         transition: color 0.4s;
@@ -315,7 +332,7 @@ dl.desc {
 
     &.activation-mode {
       dd {
-        #activationModeDesc+span {
+        #activationModeDesc + span {
           padding: 0 35px;
         }
       }
@@ -331,7 +348,7 @@ dl.desc {
 
       tr {
         transition: background 0.4s;
-        border-bottom: dashed 1px #DDD;
+        border-bottom: dashed 1px #ddd;
 
         &:hover {
           transition: background 0.1s;
@@ -360,7 +377,8 @@ dl.desc {
   }
 
   &.share {
-    dt, dd {
+    dt,
+    dd {
       display: inline;
       vertical-align: middle;
     }
@@ -385,7 +403,7 @@ dl.desc {
       i {
         display: inline-block;
         height: 14px;
-        border-right: dashed 1px #DDD;
+        border-right: dashed 1px #ddd;
         vertical-align: middle;
         margin-left: 12px;
       }
@@ -395,27 +413,27 @@ dl.desc {
       }
 
       .icon-github {
-        color: #24292E;
+        color: #24292e;
       }
 
       .icon-facebook {
-        color: #4267B2;
+        color: #4267b2;
       }
 
       .icon-twitter {
-        color: #1DA1F2;
+        color: #1da1f2;
       }
 
       .icon-weibo {
-        color: #E6162D;
+        color: #e6162d;
       }
 
       .icon-qzone {
-        color: #FFCF00;
+        color: #ffcf00;
       }
 
       .icon-reddit {
-        color: #FF4500;
+        color: #ff4500;
       }
 
       .icon-tumblr {
