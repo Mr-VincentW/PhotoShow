@@ -141,6 +141,8 @@
  * @version 4.6.0.0 | 2021-01-24 | Vincent    // Updates: Support displaying HD image size in the viewer;
  *                                            // Updates: Remove the feature of displaying PhotoShow logo in the viewer;
  *                                            // Updates: Better support for Amazon, Instagram and wekan.
+ * @version 4.6.1.0 | 2021-02-06 | Vincent    // Updates: Remove support for wekan.tv which is no longer accessible;
+ *                                            // Updates: Support TapTap, in response to user feedback (GitHub issue #13).
  */
 
 // TODO: Extract websiteConfig to independent files and import them (after porting to webpack).
@@ -1747,6 +1749,18 @@ const websiteConfig = {
           : ''
     }
   },
+  '(?:.+\\.)?taptap\\.com': {
+    amendStyles: {
+      pointerNone: '.video-duration,.video-item-vertical__definition,.editor-choice__banner-info'
+    },
+    srcMatching: {
+      selectors: 'img,.lb-container,.video-thumb-box',
+      srcRegExp: '(//(?:img\\d*\\.tapimg\\.com|static-tapad\\.tapdb\\.net)/.+@IMG@).*',
+      processor: (trigger, src, srcRegExpObj) => {
+        return srcRegExpObj.test(src) || srcRegExpObj.test(trigger.find('img').attr('src')) ? RegExp.$1 : '';
+      }
+    }
+  },
   'themarket\\.com': {
     srcMatching: [
       {
@@ -2034,15 +2048,6 @@ const websiteConfig = {
         processor: '$1980$2'
       }
     ]
-  },
-  'www\\.wekan\\.tv': {
-    amendStyles: {
-      pointerNone: '[class$="poster"] [class$="poster__pic"]~*,.screen-room-item__playbutton'
-    },
-    srcMatching: {
-      srcRegExp: '(.+?@IMG@).*',
-      processor: '$1'
-    }
   },
   'www\\.wikiart\\.org': {
     srcMatching: {

@@ -103,6 +103,9 @@
  *                                            // Updates: Replace Object.assign with spread syntax.
  * @version 4.6.0.0 | 2021-01-24 | Vincent    // Updates: Support displaying HD image size in the viewer;
  *                                            // Updates: Remove the feature of displaying PhotoShow logo in the viewer.
+ * @version 4.6.1.0 | 2021-02-06 | Vincent    // Bug Fix: Fix the problem of image not updating when only the src attribute of the trigger changes;
+ *                                            // Updates: Increase delay time for image loader displaying;
+ *                                            // Updates: Optimize background image src parsing method.
  */
 
 // TODO: Extract common tool methods to external modules.
@@ -205,11 +208,9 @@
           .appendTo($('head')[0]);
       }
     },
-    getBackgroundImgSrc: function (img) {
-      return /^url\([\'"]?((?:https?:|data:image\/)?\/\/.+?)[\'"]?\)$/i.test(
-        $(img)
-          .css('backgroundImage')
-          .split(/,\s*(?=url\()/)[0]
+    getBackgroundImgSrc: function (target) {
+      return /url\(['"]?((?:https?:|data:image\/)?\/\/.+?)['"]?\)/i.test(
+        typeof target == 'string' ? target : $(target).css('backgroundImage')
       )
         ? RegExp.$1
         : '';
@@ -982,7 +983,7 @@
                 tools.setStyle(this.viewerBox, this.getDisplayingStyles().viewerFinal, true);
                 this.hasImgViewerShown = true;
               }
-            }, 100);
+            }, 200);
 
             // Load image.
             tools.loadImage(this.imgSrc).then(imgInfo => {
@@ -1176,7 +1177,8 @@
         this.domObserver.observe(document, {
           childList: true,
           subtree: true,
-          attributeFilter: ['src', 'srcset', 'style']
+          attributeFilter: ['src', 'srcset', 'style'],
+          attributeOldValue: true
         });
 
         // Construction callbacks.
@@ -1628,9 +1630,16 @@
             case 'attributes':
               if (
                 (~mutation.attributeName.indexOf('src') && target.is('img,source')) ||
-                (mutation.attributeName == 'style' && tools.getBackgroundImgSrc(target))
+                (mutation.attributeName == 'style' &&
+                  tools.getBackgroundImgSrc(target) != tools.getBackgroundImgSrc(mutation.oldValue))
               ) {
-                target.closest('[photoshow-hd-img-src]').removeAttr('photoshow-hd-img-src');
+                const srcCacheHost = target.closest('[photoshow-hd-img-src]');
+
+                this.hasImgViewerShown &&
+                  srcCacheHost.attr('photoshow-hd-img-src') == this.imgSrc &&
+                  this.mouseLeaveAction();
+
+                srcCacheHost.removeAttr('photoshow-hd-img-src');
               }
 
               break;

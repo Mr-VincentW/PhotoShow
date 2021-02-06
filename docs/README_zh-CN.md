@@ -120,7 +120,7 @@
 
 4.  **社交 / 社区 类：**
 
-    Facebook、IMDb、Imgur、Instagram、Reddit、Tumblr、Twipu、Twitter、wattpad
+    Facebook、IMDb、Imgur、Instagram、Reddit、TapTap、Tumblr、Twipu、Twitter、wattpad
 
     A 岛匿名版、巴哈姆特、百度贴吧、豆瓣、堆糖、煎蛋、NGA 玩家社区、QQ 空间、微博、微信公众号
 
@@ -128,7 +128,7 @@
 
     YouTube
 
-    bilibili、优酷、土豆、看 TV、西瓜视频
+    bilibili、优酷、土豆、西瓜视频
 
 如果上述列表中不包含您所钟爱的网站，欢迎[向作者反馈](#%E8%81%94%E7%B3%BB%E4%BD%9C%E8%80%85)以获取更多支持。
 <br />

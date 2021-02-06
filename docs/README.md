@@ -111,11 +111,11 @@ Hereby is a list of part of the websites (hostnames) that **PhotoShow** currentl
 
 4.  **SOCIAL NETWORKING:**
 
-    adnmb2.com, Duitang, Facebook, gamer.com.tw, IMDb, Imgur, Instagram, Jandan, nga.cn, Qzone, Reddit, Tumblr, Twipu, Twitter, Sina weibo, wattpad, WeChat webpages
+    adnmb2.com, Duitang, Facebook, gamer.com.tw, IMDb, Imgur, Instagram, Jandan, nga.cn, Qzone, Reddit, TapTap, Tumblr, Twipu, Twitter, Sina weibo, wattpad, WeChat webpages
 
 5.  **VIDEOS:**
 
-    bilibili, ixigua.com, wekan.tv, YOUKU, YouTube
+    bilibili, ixigua.com, YOUKU, YouTube
 
 If you can't find your favourite websites in the above list, it is always welcomed to [contact the author](#contact) to get more support.
 <br />
