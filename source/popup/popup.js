@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2012-2020 Vincent W., MIT-licensed.
+ * Copyright (c) 2012-2021 Vincent W., MIT-licensed.
  * @fileOverview PhotoShow popup page script.
  * @author Vincent | vincentwang863@gmail.com
  * @version 1.0.0.0 | 2012-12-07 | Vincent    // Initial version.
@@ -111,11 +111,11 @@ $(document)
   })
   .on('keydown.photoShow keyup.photoShow', e => {
     // Hotkey actions.
-    e.which == 27 || e.preventDefault(); // Do not block popup page closing.
+    e.key == 'Escape' || e.preventDefault(); // Do not block popup page closing.
 
     chrome.runtime.sendMessage({
       cmd: 'DISPATCH_HOTKEY_EVENT',
-      args: (({ type, which, shiftKey, ctrlKey, altKey }) => ({ type, which, shiftKey, ctrlKey, altKey }))(e)
+      args: (({ type, key, which, shiftKey, ctrlKey, altKey }) => ({ type, key, which, shiftKey, ctrlKey, altKey }))(e)
     });
   })
   .on('change.photoShow', '[config-item] input', e => {

@@ -1,5 +1,5 @@
 ﻿/**
- * Copyright (c) 2012-2020 Vincent W., MIT-licensed.
+ * Copyright (c) 2012-2021 Vincent W., MIT-licensed.
  * @fileOverview PhotoShow localization messages (Chinese Traditional).
  * @author Vincent | vincentwang863@gmail.com
  * @version 3.0.0.0 | 2018-11-08 | Vincent    // Initial version.
@@ -88,7 +88,7 @@
     "description": "浮圖秀不支持當前網站時的消息。"
   },
   "extensionUpdateDate": {
-    "message": "更新：2021年2月6日",
+    "message": "更新：2021年3月1日",
     "description": "當前所安裝浮圖秀版本的更新時間。"
   },
   "stateToggleOnTitle": {

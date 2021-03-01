@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2012-2020 Vincent W., MIT-licensed.
+ * Copyright (c) 2012-2021 Vincent W., MIT-licensed.
  * @fileOverview PhotoShow content script for nested iframes.
  * @author Vincent | vincentwang863@gmail.com
  * @version 3.8.5.0 | 2019-07-10 | Vincent    // Initial version.
@@ -23,7 +23,7 @@
 (($, isInFrame) => {
   if (isInFrame) {
     const tools = {
-      addStyle: function(styleName, selectors) {
+      addStyle: function (styleName, selectors) {
         if (!$(`#photoShowStyles_${styleName}`).length) {
           var rules = [];
 
@@ -41,7 +41,8 @@
             default:
           }
 
-          $('<style type="text/css"></style>').attr('id', `photoShowStyles_${styleName}`)
+          $('<style type="text/css"></style>')
+            .attr('id', `photoShowStyles_${styleName}`)
             .append(`${selectors}{${rules.join(';')}}`)
             .appendTo($('head')[0]);
         }
@@ -49,29 +50,32 @@
     };
 
     const photoShow = {
-      isEnabled: false,    // PhotoShow availability flag.
-      websiteConfig: {}    // Configuration for current website.
+      isEnabled: false, // PhotoShow availability flag.
+      websiteConfig: {} // Configuration for current website.
     };
 
     const photoShowViewer = {
-      domObserver: null,             // Observer for the document.
-      toggle: function() {
+      domObserver: null, // Observer for the document.
+      toggle: function () {
         if (photoShow.isEnabled) {
           // Handle mouseover event in capture phase.
           // This ensures a proper behavior when it comes to a trigger in iframes.
           document.addEventListener('mouseover', this.mouseOverAction, true);
 
-          $(document).on('mousemove.photoShow mouseout.photoShow keydown.photoShow keyup.photoShow contextmenu.photoShow', e => {
-            window.top.jQuery(window.top.document).trigger(e);
-          })
-          .on('topWinScroll.photoShow', this.winScrollAction.bind(this));
+          $(document)
+            .on('mousemove.photoShow mouseout.photoShow keydown.photoShow keyup.photoShow contextmenu.photoShow', e => {
+              window.top.jQuery(window.top.document).trigger(e);
+            })
+            .on('topWinScroll.photoShow', this.winScrollAction.bind(this));
 
           // Add amend styles.
           photoShow.websiteConfig = {
             ...photoShow.websiteConfig,
             amendStyles: {
               ...(photoShow.websiteConfig.amendStyles || {}),
-              pointerNone: ['*:before,*:after'].concat(photoShow.websiteConfig.amendStyles && photoShow.websiteConfig.amendStyles.pointerNone || []).join(',')
+              pointerNone: ['*:before,*:after']
+                .concat((photoShow.websiteConfig.amendStyles && photoShow.websiteConfig.amendStyles.pointerNone) || [])
+                .join(',')
             }
           };
 
@@ -94,7 +98,7 @@
           $('[id^="photoShowStyles_"]').remove();
 
           // Remove cached hd-image srcs.
-          $('[photoshow-hd-img-src]').removeAttr('photoshow-hd-img-src');
+          $('[photoshow-hd-src]').removeAttr('photoshow-hd-src');
 
           // Stop observing triggers.
           if (this.domObserver) {
@@ -104,14 +108,16 @@
           }
         }
       },
-      mouseOverAction: function(e) {
-        window.top.document.dispatchEvent(new CustomEvent('mouseover', {
-          detail: {
-            target: e.target
-          }
-        }));
+      mouseOverAction: function (e) {
+        window.top.document.dispatchEvent(
+          new CustomEvent('mouseover', {
+            detail: {
+              target: e.target
+            }
+          })
+        );
       },
-      winScrollAction: function(e, mouseClientPos) {
+      winScrollAction: function (e, mouseClientPos) {
         var curElementUnderMouse = document.elementFromPoint(mouseClientPos.x, mouseClientPos.y);
 
         if (curElementUnderMouse) {
@@ -119,10 +125,12 @@
             try {
               var frameRect = curElementUnderMouse.getBoundingClientRect();
 
-              curElementUnderMouse.contentWindow.jQuery(curElementUnderMouse.contentWindow.document).trigger('topWinScroll', {
-                x: mouseClientPos.x - frameRect.left,
-                y: mouseClientPos.y - frameRect.top
-              });
+              curElementUnderMouse.contentWindow
+                .jQuery(curElementUnderMouse.contentWindow.document)
+                .trigger('topWinScroll', {
+                  x: mouseClientPos.x - frameRect.left,
+                  y: mouseClientPos.y - frameRect.top
+                });
             } catch (error) {
               // Usually a cross-origin exception.
             }
@@ -133,28 +141,34 @@
           }
         }
       },
-      domMutateAction: function(mutations) {
+      domMutateAction: function (mutations) {
         window.top.jQuery(window.top.document).trigger('frameDomMutate', [mutations]);
       }
     };
 
     try {
       // Get initial state.
-      chrome.runtime.sendMessage({
-        cmd: 'GET_INITIAL_STATE_AND_CONFIGS',
-        args: {
-          tabUrl: window.top.location.href
-        }
-      }, response => {
-        photoShow.isEnabled = response.isPhotoShowEnabled;
-        photoShow.websiteConfig = response.websiteConfig || {};
+      chrome.runtime.sendMessage(
+        {
+          cmd: 'GET_INITIAL_STATE_AND_CONFIGS',
+          args: {
+            tabUrl: window.top.location.href
+          }
+        },
+        response => {
+          photoShow.isEnabled = response.isPhotoShowEnabled;
+          photoShow.websiteConfig = response.websiteConfig || {};
 
-        photoShowViewer.toggle();
-      });
+          photoShowViewer.toggle();
+        }
+      );
 
       // Response to storage change event.
       chrome.storage.onChanged.addListener(changes => {
-        if (changes.disabledWebsites && photoShow.isEnabled != !changes.disabledWebsites.newValue.includes(location.hostname)) {
+        if (
+          changes.disabledWebsites &&
+          photoShow.isEnabled != !changes.disabledWebsites.newValue.includes(location.hostname)
+        ) {
           photoShow.isEnabled = !photoShow.isEnabled;
           photoShowViewer.toggle();
         }

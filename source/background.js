@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2012-2020 Vincent W., MIT-licensed.
+ * Copyright (c) 2012-2021 Vincent W., MIT-licensed.
  * @fileOverview PhotoShow background js.
  * @author Vincent | vincentwang863@gmail.com
  * @version 1.0.0.0 | 2012-11-30 | Vincent    // Initial version.
@@ -143,6 +143,9 @@
  *                                            // Updates: Better support for Amazon, Instagram and wekan.
  * @version 4.6.1.0 | 2021-02-06 | Vincent    // Updates: Remove support for wekan.tv which is no longer accessible;
  *                                            // Updates: Support TapTap, in response to user feedback (GitHub issue #13).
+ * @version 4.6.2.0 | 2021-03-01 | Vincent    // Updates: Support DuckDuckGo, in response to user feedback (GitHub issue #14);
+ *                                            // Updates: Better support for GitHub;
+ *                                            // Updates: Remove cleaning code for deprecated 'logoDisplay' setting item.
  */
 
 // TODO: Extract websiteConfig to independent files and import them (after porting to webpack).
@@ -155,6 +158,7 @@
 // TODO: jandan.net uses sina image.
 // TODO: gamer.com.tw uses YouTube image.
 // TODO: rules for all shopify websites.
+// TODO: duckduckgo.com uses Bing image.
 
 // Website info structure:
 // {
@@ -851,6 +855,61 @@ const websiteConfig = {
       }
     ]
   },
+  'duckduckgo\\.com': {
+    amendStyles: {
+      pointerNone: '.tile--img__dimensions,.place-list-item__image__img'
+    },
+    srcMatching: [
+      {
+        selectors: 'img,.place-list-item__image,.module--carousel__image,.result__image__img',
+        srcRegExp: '(//external-content\\.duckduckgo\\.com/iu/\\?u=)([^&]+)',
+        processor: (trigger, src, srcRegExpObj) => {
+          if (srcRegExpObj.test(src)) {
+            const proxySrcPrefix = RegExp.$1,
+              externalSrc = decodeURIComponent(RegExp.$2),
+              dataHdSrc = trigger.data('photoshow-hd-src');
+
+            if (dataHdSrc) {
+              src = tools
+                .detectImage(dataHdSrc, `${proxySrcPrefix}${encodeURIComponent(dataHdSrc)}`)
+                .then(imgInfo => imgInfo.src);
+            } else if (/.+\.bing\.(?:com|net)\/th\?id=.+/.test(externalSrc)) {
+              const url = new URL(RegExp['$&']),
+                params = url.searchParams;
+
+              params.delete('w');
+              params.delete('h');
+              params.set('qlt', 100);
+
+              src = url.href;
+            } else {
+              src = tools.detectImage(externalSrc, src).then(imgInfo => imgInfo.src);
+            }
+          } else {
+            src = '';
+          }
+
+          return src;
+        }
+      },
+      {
+        srcRegExp: '/i/.+(@IMG@)'
+      }
+    ],
+    onXhrLoad: (url, response) => {
+      if (/^\/?i\.js\b/.test(url)) {
+        try {
+          JSON.parse(response).results.forEach(({ image, thumbnail }) =>
+            document
+              .querySelector(
+                `img[data-src*="${encodeURIComponent('?id=')}${new URL(thumbnail).searchParams.get('id')}"]`
+              )
+              .setAttribute('data-photoshow-hd-src', image)
+          );
+        } catch (error) {}
+      }
+    }
+  },
   'www\\.duitang\\.com': {
     amendStyles: {
       pointerNone: 'u,.album-mask'
@@ -1146,7 +1205,7 @@ const websiteConfig = {
         processor: '//raw.githubusercontent.com$1$2'
       },
       {
-        srcRegExp: '((?:avatars\\d+|marketplace-screenshots)\\.githubusercontent\\.com/[^?]+).*',
+        srcRegExp: '((?:avatars\\d*|marketplace-screenshots)\\.githubusercontent\\.com/[^?]+).*',
         processor: '$1'
       },
       {}
@@ -1167,7 +1226,7 @@ const websiteConfig = {
     srcMatching: [
       {
         selectors: 'img',
-        processor: (trigger, src) =>
+        processor: trigger =>
           window.photoShowHdSrcCache[trigger.closest('[data-tbnid]').data('tbnid')] ||
           trigger.closest('[data-photoshow-hd-src]').data('photoshow-hd-src') ||
           ''
@@ -1224,6 +1283,7 @@ const websiteConfig = {
         [...response.matchAll(/\\"([-\w]{14})\\",\[.*?\]\\n,\[\\"(https?:\/\/.+?)\\"(?:,\d+)+\]/g)].forEach(
           ([match, id, hdSrc], i) => {
             try {
+              // Using 'data-photoshow-hd-src' instead of directly writing 'photoshow-hd-src' attribute on triggers is because in this stage the image triggers may not exist.
               document
                 .querySelector(`[data-tbnid="${id}"]`)
                 .setAttribute('data-photoshow-hd-src', JSON.parse(`"${hdSrc.replace(/\\\\(?=u[a-f\d]+)/gi, '\\')}"`));
@@ -2631,15 +2691,6 @@ chrome.downloads.onChanged.addListener(downloadInfo => {
 // Initialization.
 chrome.storage.sync.get(['disabledWebsites', 'photoShowConfigs'], response => {
   if (!chrome.runtime.lastError && response) {
-    // TODO: Remove this later.
-    if (response.photoShowConfigs && response.photoShowConfigs.logoDisplay != undefined) {
-      delete response.photoShowConfigs.logoDisplay;
-      chrome.storage.sync.set({
-        photoShowConfigs: response.photoShowConfigs
-      });
-    }
-    //////////////////////////////////////////////
-
     DISABLED_WEBSITES = response.disabledWebsites || [];
     PHOTOSHOW_CONFIGS = response.photoShowConfigs || {};
   }

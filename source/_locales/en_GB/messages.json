@@ -1,5 +1,5 @@
 ﻿/**
- * Copyright (c) 2012-2020 Vincent W., MIT-licensed.
+ * Copyright (c) 2012-2021 Vincent W., MIT-licensed.
  * @fileOverview PhotoShow localization messages (British English).
  * @author Vincent | vincentwang863@gmail.com
  * @version 3.8.4.0 | 2019-06-20 | Vincent    // Initial version.
@@ -78,11 +78,11 @@
     "description": "Message displayed when PhotoShow is disabled for current website."
   },
   "photoShowUnavailableMsg": {
-    "message": "PhotoShow does not support for this website, should it be needed, please contact the author.",
-    "description": "Message displayed when PhotoShow does not support for current website."
+    "message": "PhotoShow does not support this website, should it be needed, please contact the author.",
+    "description": "Message displayed when PhotoShow does not support current website."
   },
   "extensionUpdateDate": {
-    "message": "Update: 6 February 2021",
+    "message": "Update: 1 March 2021",
     "description": "Update time of current installed version of PhotoShow."
   },
   "stateToggleOnTitle": {
