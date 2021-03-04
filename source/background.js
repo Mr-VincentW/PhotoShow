@@ -146,6 +146,7 @@
  * @version 4.6.2.0 | 2021-03-01 | Vincent    // Updates: Support DuckDuckGo, in response to user feedback (GitHub issue #14);
  *                                            // Updates: Better support for GitHub;
  *                                            // Updates: Remove cleaning code for deprecated 'logoDisplay' setting item.
+ * @version 4.6.3.0 | 2021-03-04 | Vincent    // Updates: Better support for Google.
  */
 
 // TODO: Extract websiteConfig to independent files and import them (after porting to webpack).
@@ -1223,6 +1224,9 @@ const websiteConfig = {
     }
   },
   'www\\.google\\.com': {
+    amendStyles: {
+      pointerNone: '.fWhgmd'
+    },
     srcMatching: [
       {
         selectors: 'img',

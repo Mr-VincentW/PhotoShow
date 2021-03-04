@@ -107,6 +107,7 @@
  *                                            // Updates: Increase delay time for image loader displaying;
  *                                            // Updates: Optimize background image src parsing method.
  * @version 4.6.2.0 | 2021-03-01 | Vincent    // Updates: Partly replace using of e.which to e.key in keyboard events, for better usability (GitHub issue #15).
+ * @version 4.6.3.0 | 2021-03-04 | Vincent    // Updates: Toggle on/off PhotoShow initially after the document is ready.
  */
 
 // TODO: Extract common tool methods to external modules.
@@ -1184,7 +1185,6 @@
         });
 
         // Construction callbacks.
-        // Destuction callbacks.
         photoShow.websiteConfig.onToggle && eval(`(${photoShow.websiteConfig.onToggle})`)(true);
       } else {
         // Stop observing the document.
@@ -1719,8 +1719,12 @@
         photoShow.isEnabled = response.isPhotoShowEnabled;
         photoShow.websiteConfig = response.websiteConfig || {};
         photoShow.toggleXhrHook();
-        photoShowViewer.toggle();
         photoShow.config.update(response.photoShowConfigs);
+
+        // Toggle when document is ready as some onToggle callbacks might wanna manipulate the DOM.
+        $(document).ready(() => {
+          photoShowViewer.toggle();
+        });
       }
     );
   })();
