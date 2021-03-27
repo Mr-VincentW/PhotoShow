@@ -109,9 +109,9 @@ Hereby is a list of part of the websites (hostnames) that **PhotoShow** currentl
 
     ACP Journals, Baidu, Baidu baike, Bing, Google, GitHub, JAMA Network, NEJM, Quora, Wiki
 
-4.  **SOCIAL NETWORKING:**
+4.  **NEWS / SOCIAL NETWORKING:**
 
-    adnmb2.com, Duitang, Facebook, gamer.com.tw, IMDb, Imgur, Instagram, Jandan, nga.cn, Qzone, Reddit, TapTap, Tumblr, Twipu, Twitter, Sina weibo, wattpad, WeChat webpages
+    115.com, adnmb2.com, Duitang, Facebook, gamer.com.tw, IMDb, Imgur, Instagram, Jandan, nga.cn, Qzone, Reddit, TapTap, toutiao.com, Tumblr, Twipu, Twitter, Sina weibo, wattpad, WeChat webpages
 
 5.  **VIDEOS:**
 

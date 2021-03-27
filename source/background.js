@@ -147,6 +147,7 @@
  *                                            // Updates: Better support for GitHub;
  *                                            // Updates: Remove cleaning code for deprecated 'logoDisplay' setting item.
  * @version 4.6.3.0 | 2021-03-04 | Vincent    // Updates: Better support for Google.
+ * @version 4.6.4.0 | 2021-03-27 | Vincent    // Updates: Support 115.com, toutiao.com, in response to user feedback.
  */
 
 // TODO: Extract websiteConfig to independent files and import them (after porting to webpack).
@@ -205,6 +206,38 @@
 // · Omitted: the original src or the src of the largest image in the srcset list (if applicable) will be used.
 
 const websiteConfig = {
+  '(?:.+\\.)?115\\.com': {
+    amendStyles: {
+      pointerNone: '[class^="icon-picture-"]'
+    },
+    srcMatching: [
+      {
+        selectors: 'img,.select-box',
+        srcRegExp: '//thumb\\.115\\.com/.+/(\\w+)_(.+?)\\?(.+)',
+        processor: (trigger, src, srcRegExpObj) =>
+          srcRegExpObj.test(src || trigger.next('.pic').find('img').attr('src')) && parseInt(RegExp.$2) > 0
+            ? `//imgjump.115.com/?sha1=${RegExp.$1}&${RegExp.$3}&size=0`
+            : ''
+      },
+      {
+        srcRegExp: '//.+\\.115\\.com/.*?\\bimgload\\?.*',
+        processor: (trigger, src, srcRegExpObj) => {
+          if (srcRegExpObj.test(src) && !/\braw=1\b/.test(src)) {
+            const url = new URL(src);
+            url.searchParams.set('raw', '1');
+            url.searchParams.set('i', '1');
+            return url.href;
+          } else {
+            return '';
+          }
+        }
+      },
+      {
+        srcRegExp: '(avatars\\.115\\.com/.+_)\\w+(@IMG@)',
+        processor: '$1l$2'
+      }
+    ]
+  },
   '(?:www|[a-z]{2})\\.123rf\\.com': {
     // de|es|fr|it|tr|hu|nl|pl|ru|pt|jp|kr|tw
     amendStyles: {
@@ -1339,7 +1372,7 @@ const websiteConfig = {
         processor: '$1noop$2'
       },
       {
-        srcRegExp: '.+.byteimg.com/.+(?!@IMG@)'
+        srcRegExp: '.+\\.byteimg\\.com/.+(?!@IMG@)'
       }
     ]
   },
@@ -1767,18 +1800,26 @@ const websiteConfig = {
   'www\\.reddit\\.com': {
     srcMatching: [
       {
-        srcRegExp: '@IMG@$',
-        processor: (trigger, src, srcRegExpObj) => {
-          var externalImgUrl = trigger.closest('.Post').find('.styled-outbound-link').attr('href');
-          return srcRegExpObj.test(externalImgUrl) ? externalImgUrl : src;
-        }
+        srcRegExp: 'external-preview\\.redd\\.it/.+'
       },
       {
-        srcRegExp: '(?:preview|i)(\\.redd\\.it/.+@IMG@)',
+        srcRegExp: '(?:preview|i)(\\.redd\\.it/.+@IMG@).*',
         processor: 'i$1'
       },
       {
-        srcRegExp: '.*\\.(?:redditmedia|redditstatic)\\.com/.+@IMG@'
+        srcRegExp: '(.*\\.(?:redditmedia|redditstatic)\\.com/.+@IMG@).*',
+        processor: '$1'
+      }
+    ]
+  },
+  '(?:www\\.sportsfuel|1-day\\.winecentral)\\.co\\.nz': {
+    srcMatching: [
+      {
+        srcRegExp: '(cdn\\.shopify\\.com/.+)_(?:small|medium|large|grande|\\d+x(?:\\d+)?)(@IMG@)',
+        processor: '$1$2'
+      },
+      {
+        srcRegExp: 'cdn\\.shopify\\.com/.+@IMG@'
       }
     ]
   },
@@ -1891,6 +1932,25 @@ const websiteConfig = {
       }
     ]
   },
+  'www\\.toutiao\\.com': {
+    amendStyles: {
+      pointerNone: '.pic-tip'
+    },
+    srcMatching: [
+      {
+        srcRegExp: '(p\\d*\\.pstatp\\.com/)list/\\d+x\\d+(/.+)',
+        processor: '$1origin$2'
+      },
+      {
+        srcRegExp: '(.+?~).+(\\.image)',
+        processor: '$1noop$2'
+      },
+      {
+        srcRegExp: '(.+\\.byteimg\\.com/)[^/]+(/.+)',
+        processor: '$1origin$2'
+      }
+    ]
+  },
   '(?:www\\.)?trademe(?:\\.co)?\\.nz': {
     amendStyles: {
       pointerNone: '.tm-marketplace-search-card-summary-image__gradient',
@@ -1930,17 +1990,6 @@ const websiteConfig = {
               .then(imgInfo => imgInfo.src)
           : ''
     }
-  },
-  '(?:www\\.sportsfuel|1-day\\.winecentral)\\.co\\.nz': {
-    srcMatching: [
-      {
-        srcRegExp: '(cdn\\.shopify\\.com/.+)_(?:small|medium|large|grande|\\d+x(?:\\d+)?)(@IMG@)',
-        processor: '$1$2'
-      },
-      {
-        srcRegExp: 'cdn\\.shopify\\.com/.+@IMG@'
-      }
-    ]
   },
   '.+\\.tumblr\\.com': {
     amendStyles: {
