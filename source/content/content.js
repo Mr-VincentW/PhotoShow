@@ -108,6 +108,8 @@
  *                                            // Updates: Optimize background image src parsing method.
  * @version 4.6.2.0 | 2021-03-01 | Vincent    // Updates: Partly replace using of e.which to e.key in keyboard events, for better usability (GitHub issue #15).
  * @version 4.6.3.0 | 2021-03-04 | Vincent    // Updates: Toggle on/off PhotoShow initially after the document is ready.
+ * @version 4.6.6.0 | 2021-05-09 | Vincent    // Bug Fix: Prevent working on links that contain image-file-extension-name keywords in their href but actually are not image links;
+ *                                            // Updates: Add statistics.
  */
 
 // TODO: Extract common tool methods to external modules.
@@ -242,7 +244,7 @@
 
       !src &&
         target.is('a') &&
-        /\b(?:jpe?g|gifv?|pn[gj]|bmp|webp|svg)\b/.test(target.attr('href')) &&
+        /\.(?:jpe?g|gifv?|pn[gj]|bmp|webp|svg)\b/.test(target.attr('href')) &&
         (src = target.attr('href')); // Get link address if it doesn't have a background image.
 
       return src;
@@ -919,9 +921,9 @@
         this.imgSrc = triggersParsingResult ? triggersParsingResult.src : '';
 
         chrome.runtime.sendMessage({
-          cmd: 'UPDATE_PHOTOSHOW_CONTEXTMENU',
+          cmd: 'VIEW_IMAGE',
           args: {
-            isEnabled: !!this.imgSrc
+            imgSrc: this.imgSrc
           }
         });
 

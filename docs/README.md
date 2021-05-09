@@ -99,7 +99,7 @@ Hereby is a list of part of the websites (hostnames) that **PhotoShow** currentl
 
 1.  **DESIGN / PHOTOGRAPH / GRAPHICS:**
 
-    123rf, 500px, ArtStation, Behance, DeviantArt, Dribbble, Flickr, Pinterest, pixiv, POCO, WikiArt
+    123rf, 500px, ArtStation, Behance, DeviantArt, Dribbble, Flickr, Pinterest, pixiv, POCO, WikiArt, zhisheji
 
 2.  **SHOPPING / TRADING / SERVICES:**
 
@@ -155,7 +155,7 @@ Don't worry, it's pretty short and clear.
 
 **PhotoShow** only works in the local browser environment, all the permissions it asks when being installed are only for image preview and download.
 
-The extension itself and all its developers and contributors do **NOT** collect any of your personal data and are not responsible for any loss, personal information leak, disputes and/or any consequences caused by your illegal download, use of resources (including but not limited to images) of any websites. Installing and using **PhotoShow** is deemed as your acceptance of the above terms.
+All the developers and contributors **DO NOT** collect any of your personal data and are not responsible for any loss, personal information leak, disputes and/or any consequences caused by your illegal download, use of resources (including but not limited to images) of any websites. Installing and using **PhotoShow** is deemed as your acceptance of the above terms.
 
 We reserve the right to change this Privacy Policy at any time without notifying you respectively. Any amended Privacy Policy will be posted on relevant websites. This Privacy Policy was last updated on January 24th, 2020 and replaces any other versions previously applicable from this date.
 

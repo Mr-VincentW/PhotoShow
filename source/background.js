@@ -148,6 +148,9 @@
  *                                            // Updates: Remove cleaning code for deprecated 'logoDisplay' setting item.
  * @version 4.6.3.0 | 2021-03-04 | Vincent    // Updates: Better support for Google.
  * @version 4.6.4.0 | 2021-03-27 | Vincent    // Updates: Support 115.com, toutiao.com, in response to user feedback.
+ * @version 4.6.5.0 | 2021-04-28 | Vincent    // Updates: Support Google.hk, InterPals, and wallhaven, in response to user feedback.
+ * @version 4.6.6.0 | 2021-05-09 | Vincent    // Updates: Support zhisheji.com, in response to user feedback;
+ *                                            // Updates: Add statistics.
  */
 
 // TODO: Extract websiteConfig to independent files and import them (after porting to webpack).
@@ -1256,7 +1259,7 @@ const websiteConfig = {
         srcRegExpObj.test(src || trigger.parent().find('img[src]').attr('src')) ? `${RegExp.$1}=w10000` : ''
     }
   },
-  'www\\.google\\.com': {
+  'www\\.google\\.com(?:\\.hk)?': {
     amendStyles: {
       pointerNone: '.fWhgmd'
     },
@@ -1359,6 +1362,12 @@ const websiteConfig = {
       selectors: 'img,.Tag,.sg-list-image,.Suggestion-item .thumbnail',
       srcRegExp: '(i\\.imgur\\.com/\\w{7}).*?(@IMG@).*',
       processor: '$1$2'
+    }
+  },
+  '(?:www\\.)?interpals\\.net': {
+    srcMatching: {
+      srcRegExp: '(ipstatic\\.net/)thumbs/\\d+x\\d+(/.+@IMG@).*',
+      processor: '$1photos$2'
     }
   },
   '(.+\\.)?ixigua\\.com': {
@@ -2070,6 +2079,27 @@ const websiteConfig = {
       }
     ]
   },
+  'wallhaven\\.cc': {
+    srcMatching: [
+      {
+        selector: 'img,a',
+        srcRegExp: '(wallhaven\\.cc/)w/((\\w{2})\\w+)',
+        processor: (trigger, src, srcRegExpObj) =>
+          srcRegExpObj.test(trigger.closest('a').attr('href'))
+            ? tools
+                .detectImage(
+                  `//w.${RegExp.$1}full/${RegExp.$3}/wallhaven-${RegExp.$2}.jpg`,
+                  `//w.${RegExp.$1}full/${RegExp.$3}/wallhaven-${RegExp.$2}.png`
+                )
+                .then(imgInfo => imgInfo.src)
+            : ''
+      },
+      {
+        srcRegExp: '(wallhaven\\.cc/images/user/avatar/)\\d+(/.+@IMG@)',
+        processor: '$1200$2'
+      }
+    ]
+  },
   'www\\.walmart\\.com': {
     srcMatching: [
       {
@@ -2288,6 +2318,21 @@ const websiteConfig = {
       }
     ]
   },
+  'www\\.zhisheji\\.com': {
+    amendStyles: {
+      pointerNone: '.zsj-box .desc'
+    },
+    srcMatching: [
+      {
+        srcRegExp: '(img\\.zhisheji\\.com/[^?]+).*',
+        processor: '$1'
+      },
+      {
+        srcRegExp: '(zhisheji\\.com/uc_server/data/avatar/.+_avatar_)(?:big|middle|small)(@IMG@).*',
+        processor: '$1big$2'
+      }
+    ]
+  },
   '(?:www|zhuanlan)\\.zhihu\\.com': {
     amendStyles: {
       pointerNone: '.Thumbnail-Surplus-Sign,.RichContent-cover-play'
@@ -2368,6 +2413,8 @@ const tools = {
           conflictAction: 'uniquify'
         });
       }
+
+      statistics.update('imageDownloaded');
     }
   },
   openImgInNewTab: function (imgSrc, curTabIndex) {
@@ -2542,6 +2589,34 @@ var photoShowContextMenus = {
   }
 };
 
+var statistics = {
+  data: {
+    imageViewed: 0,
+    imageDownloaded: 0
+  },
+  asyncTime: 0,
+  async: function () {
+    if (new Date() - this.asyncTime > 60 * 60 * 1000) {
+      chrome.storage.sync.set(
+        {
+          statistics: this.data
+        },
+        () => !chrome.runtime.lastError && (this.asyncTime = new Date())
+      );
+    }
+  },
+  init: function (initialData) {
+    if (initialData) {
+      this.data = initialData;
+      this.asyncTime = new Date();
+    }
+  },
+  update: function (item) {
+    this.data[item] += 1;
+    this.async();
+  }
+};
+
 // Response to tab actions.
 chrome.tabs.onActivated.addListener(tabInfo => {
   chrome.tabs.get(tabInfo.tabId, tab => {
@@ -2633,8 +2708,9 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 
       break;
 
-    case 'UPDATE_PHOTOSHOW_CONTEXTMENU': // Args: isEnabled
-      photoShowContextMenus[request.args.isEnabled ? 'create' : 'remove'].call(photoShowContextMenus, sender.tab.id);
+    case 'VIEW_IMAGE': // Args: imgSrc
+      photoShowContextMenus[!!request.args.imgSrc ? 'create' : 'remove'].call(photoShowContextMenus, sender.tab.id);
+      request.args.imgSrc && statistics.update('imageViewed');
 
       break;
 
@@ -2742,9 +2818,10 @@ chrome.downloads.onChanged.addListener(downloadInfo => {
 });
 
 // Initialization.
-chrome.storage.sync.get(['disabledWebsites', 'photoShowConfigs'], response => {
+chrome.storage.sync.get(['disabledWebsites', 'photoShowConfigs', 'statistics'], response => {
   if (!chrome.runtime.lastError && response) {
     DISABLED_WEBSITES = response.disabledWebsites || [];
     PHOTOSHOW_CONFIGS = response.photoShowConfigs || {};
+    statistics.init(response.statistics);
   }
 });

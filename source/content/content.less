@@ -30,6 +30,7 @@
  * @version 4.6.0.0 | 2021-01-24 | Vincent    // Updates: Support displaying HD image size in the viewer;
  *                                            // Updates: Remove the feature of displaying PhotoShow logo in the viewer
  * @version 4.6.2.0 | 2021-03-01 | Vincent    // Bug Fix: Add fixed font size to image size label.
+ * @version 4.6.5.0 | 2021-04-28 | Vincent    // Bug Fix: Fix loading message line-wrapping problem.
  */
 
 // Color definitions
@@ -207,7 +208,6 @@
   width: auto;
   height: auto;
   -webkit-font-smoothing: antialiased;
-  speak: none;
   font-family: photoShowIconFont;
   font-style: normal;
   font-weight: 400;
@@ -237,7 +237,7 @@
     & + *:after {
       content: '';
       display: inline-block;
-      width: 1em;
+      width: 1.2em;
       text-align: left;
       animation: photoshow-icons-load-dot-ani 1.5s linear 0s infinite;
     }
