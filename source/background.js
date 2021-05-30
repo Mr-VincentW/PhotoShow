@@ -151,6 +151,7 @@
  * @version 4.6.5.0 | 2021-04-28 | Vincent    // Updates: Support Google.hk, InterPals, and wallhaven, in response to user feedback.
  * @version 4.6.6.0 | 2021-05-09 | Vincent    // Updates: Support zhisheji.com, in response to user feedback;
  *                                            // Updates: Add statistics.
+ * @version 4.6.7.0 | 2021-05-30 | Vincent    // Updates: Better support for douban and jandan.
  */
 
 // TODO: Extract websiteConfig to independent files and import them (after porting to webpack).
@@ -669,28 +670,29 @@ const websiteConfig = {
         srcRegExpObj.test(src || trigger.find('img').attr('src')) ? RegExp.$1 : ''
     }
   },
-  '(?:.+\\.)?(?:(?:catch(?:oftheday)?|treatme)\\.co\\.nz|(?:catch|cudo|deals|groceryrun|luxuryescapes|mumgo|scoopon)\\.com(?:\\.au)?)': {
-    amendStyles: {
-      pointerNone: '.product--buy-form--container',
-      pointerAuto: '.product--buy-form--container a'
+  '(?:.+\\.)?(?:(?:catch(?:oftheday)?|treatme)\\.co\\.nz|(?:catch|cudo|deals|groceryrun|luxuryescapes|mumgo|scoopon)\\.com(?:\\.au)?)':
+    {
+      amendStyles: {
+        pointerNone: '.product--buy-form--container',
+        pointerAuto: '.product--buy-form--container a'
+      },
+      srcMatching: [
+        {
+          selectors: 'img,.cnt-deal-list',
+          srcRegExp: '(.+\\.com/lux-group/image/upload/)[^/]+/(.+)',
+          processor: (trigger, src, srcRegExpObj) =>
+            srcRegExpObj.test(src || trigger.find('img').attr('src')) ? RegExp.$1 + RegExp.$2 : ''
+        },
+        {
+          srcRegExp: '(//s\\.catch\\.com\\.au/.+)_[^/]+(@IMG@)',
+          processor: '$1$2'
+        },
+        {
+          srcRegExp: '(/magazine/.+?)(?:-\\d+x\\d+)?(@IMG@)',
+          processor: '$1$2'
+        }
+      ]
     },
-    srcMatching: [
-      {
-        selectors: 'img,.cnt-deal-list',
-        srcRegExp: '(.+\\.com/lux-group/image/upload/)[^/]+/(.+)',
-        processor: (trigger, src, srcRegExpObj) =>
-          srcRegExpObj.test(src || trigger.find('img').attr('src')) ? RegExp.$1 + RegExp.$2 : ''
-      },
-      {
-        srcRegExp: '(//s\\.catch\\.com\\.au/.+)_[^/]+(@IMG@)',
-        processor: '$1$2'
-      },
-      {
-        srcRegExp: '(/magazine/.+?)(?:-\\d+x\\d+)?(@IMG@)',
-        processor: '$1$2'
-      }
-    ]
-  },
   'shop\\.countdown\\.co\\.nz': {
     //TODO: detect 'large', fallback to 'big'
     srcMatching: {
@@ -850,8 +852,8 @@ const websiteConfig = {
   '(?:.+\\.)?douban\\.(?:com|fm)': {
     srcMatching: [
       {
-        selectors: 'img,.programme-list .cover,.programme-cover,.songlist .cover',
-        srcRegExp: 'img\\d+\\.doubanio\\.com/(?:view|img)/.*(?:large|raw|retina)/.+@IMG@',
+        selectors: 'img,.programme-list .cover,.programme-cover,.songlist .cover,.related-pic-video',
+        srcRegExp: '//img\\d+\\.doubanio\\.com/(?:view|img)/.*(?:medium|large|raw|retina)/.+@IMG@',
         processor: (trigger, src, srcRegExpObj) =>
           srcRegExpObj.test(src || trigger.find('img').attr('src')) ? RegExp['$&'] : ''
       },
@@ -1437,7 +1439,7 @@ const websiteConfig = {
   },
   'jandan\\.net': {
     amendStyles: {
-      pointerNone: '.gif-mask,.show_more'
+      pointerNone: '.gif-mask,.hotcomment .show_more'
     },
     noReferrer: true,
     srcMatching: [
@@ -1446,7 +1448,7 @@ const websiteConfig = {
         processor: '$1'
       },
       {
-        selectors: '.view_img_link~img',
+        selectors: 'img',
         srcRegExp:
           '((?:.+\\.sinaimg\\.cn|image\\.storage\\.weibo\\.com)(?:/.+)?/)(?:small|large|thumbnail|c?mw\\d+|small|sq\\d+|thumb\\d+|bmiddle|orj\\d+|crop\\.[^/]+|square|wap\\d+)(/.+(?:@IMG@)?).*',
         processor: (trigger, src, srcRegExpObj) =>
@@ -1459,7 +1461,17 @@ const websiteConfig = {
                 )
                 .then(imgInfo => imgInfo.src)
             : ''
-      } // TODO: Sina image, duplicated, need to be removed.
+      }, // TODO: Sina image, duplicated, need to be removed.
+      {
+        srcRegExp: '(.+\\.360buyimg\\.com/).*((?:jfs|g\\d+)/.+@IMG@).*',
+        processor: '$1n1/s800x800_$2'
+      }, // TODO: Jd image, duplicated, need to be removed.
+      {
+        srcRegExp:
+          '(//.+\\.(?:alicdn|china\\.alibaba)\\.com/.*?(?:bao|t[fp]s(?:com)?|upload|simba|i\\d+|bttopic|sc\\d+|nonpublic|kf)/.+?(?:@IMG@|.(?=_\\d+x\\d+.*))).*',
+        processor: (trigger, src, srcRegExpObj) =>
+          srcRegExpObj.test(src) || srcRegExpObj.test(trigger.parent().find('img').attr('src')) ? RegExp.$1 : ''
+      } // TODO: Ali image, duplicated, need to be removed.
     ]
   },
   '(?:.+\\.)?(jd|yhd|tuniu)\\.(?:com|hk)': {
@@ -1893,54 +1905,55 @@ const websiteConfig = {
       processor: '$1$2'
     }
   },
-  '(?:.+\\.)?(tmall|taobao|etao|fliggy|alitrip|1688|alibaba|aliexpress|liangxinyao|alipay|alicdn|alimama|wsy)\\.(?:com|[a-z]{2})': {
-    amendStyles: {
-      pointerNone:
-        '.mask,.itemSoldout .product-mask,.ju-itemlist .link-box .detail,.tb-img li span,.offerImg .offerMask,.NervModuleKjIndexCateOfferUi>div:first-child>div:last-child,.imageGallery .imgItem .imgBg,.img-box .img-bg-layer,.img-zhe,.img-mask,.product .shadow,.item .shade'
+  '(?:.+\\.)?(tmall|taobao|etao|fliggy|alitrip|1688|alibaba|aliexpress|liangxinyao|alipay|alicdn|alimama|wsy)\\.(?:com|[a-z]{2})':
+    {
+      amendStyles: {
+        pointerNone:
+          '.mask,.itemSoldout .product-mask,.ju-itemlist .link-box .detail,.tb-img li span,.offerImg .offerMask,.NervModuleKjIndexCateOfferUi>div:first-child>div:last-child,.imageGallery .imgItem .imgBg,.img-box .img-bg-layer,.img-zhe,.img-mask,.product .shadow,.item .shade'
+      },
+      srcMatching: [
+        {
+          selectors: 'img,.zhibo-show-list .img-item,.abs.jibbg,.item-list .item-img,.act-list .itemLink',
+          srcRegExp:
+            '(//.+\\.(?:alicdn|china\\.alibaba)\\.com/.*?(?:bao|t[fp]s(?:com)?|upload|simba|i\\d+|bttopic|sc\\d+|nonpublic|kf)/.+?(?:@IMG@|.(?=_\\d+x\\d+.*))).*',
+          processor: (trigger, src, srcRegExpObj) =>
+            srcRegExpObj.test(src) || srcRegExpObj.test(trigger.parent().find('img').attr('src')) ? RegExp.$1 : ''
+        },
+        {
+          srcRegExp: '(.+\\.(?:alicdn|taobao)\\.com/avatar/get_?Avatar\\.do\\?user(?:Id(?:Str)?|Nick)=[^&]+).*',
+          processor: '$1&width=1280&height=1280'
+        },
+        {
+          srcRegExp:
+            '(.+\\.(?:alicdn|china\\.alibaba)\\.com/img/(?:(?:back_)?ibank|order)/.+?)\\.(?:\\d+x\\d+[a-z]*|search|summ)(@IMG@).*',
+          processor: '$1$2'
+        },
+        {
+          selectors: 'img,.abs.jibbg,.tb-select-goods a,.tb-img li a[style]',
+          srcRegExp:
+            '(.+\\.(?:alicdn|china\\.alibaba)\\.com/(?:imgextra|kf|img/(?:(?:back_)?ibank|order))/.+?@IMG@)(?!_\\.webp|$).+',
+          processor: '$1'
+        },
+        {
+          selectors: '.tb-select-goods a,.tb-img li a[style]',
+          srcRegExp: '(.+\\.(?:alicdn|china\\.alibaba)\\.com/imgextra/.+)_\\d+x\\d+.*?@IMG@.*',
+          processor: '$1'
+        },
+        {
+          selectors: 'img,.process-item-bigImg',
+          srcRegExp: '.+\\.(?:alicdn|china\\.alibaba)\\.com/(?:kf/[^/]+|imgextrai\\d+/.+)@IMG@'
+        },
+        {
+          srcRegExp: '.+\\.(?:alicdn|china\\.alibaba)\\.com/montage/.+@IMG@\\?.*&img_path2=(.+?@IMG@)',
+          processor: (trigger, src, srcRegExpObj) => (srcRegExpObj.test(src) ? decodeURIComponent(RegExp.$1) : '')
+        },
+        {
+          // This is for www.wsy.com that links a lot of images under ali's hostnames.
+          srcRegExp: '(imgcdn\\.wsy\\.com/.+?@IMG@).*',
+          processor: '$1'
+        }
+      ]
     },
-    srcMatching: [
-      {
-        selectors: 'img,.zhibo-show-list .img-item,.abs.jibbg,.item-list .item-img,.act-list .itemLink',
-        srcRegExp:
-          '(//.+\\.(?:alicdn|china\\.alibaba)\\.com/.*?(?:bao|t[fp]s(?:com)?|upload|simba|i\\d+|bttopic|sc\\d+|nonpublic|kf)/.+?(?:@IMG@|.(?=_\\d+x\\d+.*))).*',
-        processor: (trigger, src, srcRegExpObj) =>
-          srcRegExpObj.test(src) || srcRegExpObj.test(trigger.parent().find('img').attr('src')) ? RegExp.$1 : ''
-      },
-      {
-        srcRegExp: '(.+\\.(?:alicdn|taobao)\\.com/avatar/get_?Avatar\\.do\\?user(?:Id(?:Str)?|Nick)=[^&]+).*',
-        processor: '$1&width=1280&height=1280'
-      },
-      {
-        srcRegExp:
-          '(.+\\.(?:alicdn|china\\.alibaba)\\.com/img/(?:(?:back_)?ibank|order)/.+?)\\.(?:\\d+x\\d+[a-z]*|search|summ)(@IMG@).*',
-        processor: '$1$2'
-      },
-      {
-        selectors: 'img,.abs.jibbg,.tb-select-goods a,.tb-img li a[style]',
-        srcRegExp:
-          '(.+\\.(?:alicdn|china\\.alibaba)\\.com/(?:imgextra|kf|img/(?:(?:back_)?ibank|order))/.+?@IMG@)(?!_\\.webp|$).+',
-        processor: '$1'
-      },
-      {
-        selectors: '.tb-select-goods a,.tb-img li a[style]',
-        srcRegExp: '(.+\\.(?:alicdn|china\\.alibaba)\\.com/imgextra/.+)_\\d+x\\d+.*?@IMG@.*',
-        processor: '$1'
-      },
-      {
-        selectors: 'img,.process-item-bigImg',
-        srcRegExp: '.+\\.(?:alicdn|china\\.alibaba)\\.com/(?:kf/[^/]+|imgextrai\\d+/.+)@IMG@'
-      },
-      {
-        srcRegExp: '.+\\.(?:alicdn|china\\.alibaba)\\.com/montage/.+@IMG@\\?.*&img_path2=(.+?@IMG@)',
-        processor: (trigger, src, srcRegExpObj) => (srcRegExpObj.test(src) ? decodeURIComponent(RegExp.$1) : '')
-      },
-      {
-        // This is for www.wsy.com that links a lot of images under ali's hostnames.
-        srcRegExp: '(imgcdn\\.wsy\\.com/.+?@IMG@).*',
-        processor: '$1'
-      }
-    ]
-  },
   'www\\.toutiao\\.com': {
     amendStyles: {
       pointerNone: '.pic-tip'
