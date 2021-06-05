@@ -152,6 +152,8 @@
  * @version 4.6.6.0 | 2021-05-09 | Vincent    // Updates: Support zhisheji.com, in response to user feedback;
  *                                            // Updates: Add statistics.
  * @version 4.6.7.0 | 2021-05-30 | Vincent    // Updates: Better support for douban and jandan.
+ * @version 4.6.8.0 | 2021-06-02 | Vincent    // Updates: Better support for bilibili and nga.178.com, in response to user feedback;
+ *                                            // Updates: Optimize statistics sync frequency and correct a typo.
  */
 
 // TODO: Extract websiteConfig to independent files and import them (after porting to webpack).
@@ -583,7 +585,7 @@ const websiteConfig = {
   '.+\\.bilibili\\.com': {
     amendStyles: {
       pointerNone:
-        '.groom-module .card-mark,.spread-module .pic img~*,.spread-module .pic .lazy-img~*,.cover-ctn .cover-back,.hot-list-content .hover-mask,.play-mask,.recommend-box .info,.hover-cover-box *,.cover *:not(img),.image-area *:not(img),.face-pendants,.pendant,.user-decorator,.bilibili-player-ending-panel-box-recommend-cover,.van-framepreview,.fake-danmu,.fake-danmu-mask,.preview-bg,.pl__mask',
+        '.groom-module .card-mark,.spread-module .pic img~*,.spread-module .pic .lazy-img~*,.cover-ctn .cover-back,.hot-list-content .hover-mask,.play-mask,.recommend-box .info,.hover-cover-box *,.cover *:not(img),.image-area *:not(img),.face-pendants,.pendant,.user-decorator,.bilibili-player-ending-panel-box-recommend-cover,.van-framepreview,.fake-danmu,.fake-danmu-mask,.preview-bg,.pl__mask,.video-card-reco .info,.card-pic a *:not(img)',
       pointerAuto: '.hover-cover-box .cover-ctnr,.image-area .see-later,.cover .i-watchlater'
     },
     srcMatching: [
@@ -1578,7 +1580,7 @@ const websiteConfig = {
       }
     ]
   },
-  '(?:.+\\.)?nga\\.cn': {
+  '(?:.+\\.)?nga\\.cn|nga\\.178\\.com': {
     srcMatching: {
       srcRegExp: '(img\\d*\\.nga\\.178\\.com/.+?@IMG@).*',
       processor: '$1'
@@ -2607,26 +2609,26 @@ var statistics = {
     imageViewed: 0,
     imageDownloaded: 0
   },
-  asyncTime: 0,
-  async: function () {
-    if (new Date() - this.asyncTime > 60 * 60 * 1000) {
+  syncTime: 0,
+  sync: function () {
+    if (new Date() - this.syncTime > 30 * 1000) {
       chrome.storage.sync.set(
         {
           statistics: this.data
         },
-        () => !chrome.runtime.lastError && (this.asyncTime = new Date())
+        () => !chrome.runtime.lastError && (this.syncTime = new Date())
       );
     }
   },
   init: function (initialData) {
     if (initialData) {
       this.data = initialData;
-      this.asyncTime = new Date();
+      this.syncTime = new Date();
     }
   },
   update: function (item) {
     this.data[item] += 1;
-    this.async();
+    this.sync();
   }
 };
 
