@@ -154,6 +154,9 @@
  * @version 4.6.7.0 | 2021-05-30 | Vincent    // Updates: Better support for douban and jandan.
  * @version 4.6.8.0 | 2021-06-02 | Vincent    // Updates: Better support for bilibili and nga.178.com, in response to user feedback;
  *                                            // Updates: Optimize statistics sync frequency and correct a typo.
+ * @version 4.6.9.0 | 2021-06-27 | Vincent    // Updates: Support allhistory.com, Discogs, haokan.baidu.com, bandcamp.com, Fandango, Flixter, Rotten Tomatoes, and metal-archives.com, in response to user feedback;
+ *                                            // Updates: Better support for eBay;
+ *                                            // Updates: Stop supporting Quora.
  */
 
 // TODO: Extract websiteConfig to independent files and import them (after porting to webpack).
@@ -167,6 +170,9 @@
 // TODO: gamer.com.tw uses YouTube image.
 // TODO: rules for all shopify websites.
 // TODO: duckduckgo.com uses Bing image.
+// TODO: Image viewer positioning issue on https://m.xiaomiyoupin.com/w/universal?_rt=weex&pageid=5545&sign=e34c2d8dde5fe25ef83112cbaa154e76&pdl=jianyu&spmref=YouPinPC.$Home$.list.0.86425397
+// TODO: Bulk download.
+// TODO: Use "raw injection" way to fix hot key conflict.
 
 // Website info structure:
 // {
@@ -384,6 +390,17 @@ const websiteConfig = {
       processor: '$1image$2'
     }
   },
+  '(?:.+\\.)?allhistory\\.com': {
+    amendStyles: {
+      pointerAuto: '.period-item *',
+      pointerNone:
+        '.imageonhoverbackground,.book-cover *:not(.book-cover-image),.mask,.period-item,.article-desc-wrapper'
+    },
+    srcMatching: {
+      srcRegExp: '((?:pic|img)\\.allhistory\\.com/[^?]+).*',
+      processor: '$1'
+    }
+  },
   'www\\.amazon(?:\\.(?:com|[a-z]{2}))+': {
     // co|au|br|ca|cn|de|es|fr|hk|in|it|jp|mx|nl|tr|uk
     amendStyles: {
@@ -510,10 +527,22 @@ const websiteConfig = {
       pointerNone:
         '.sl-player-list-item__overlay,.picture img,.seleced-cover,.next-album span,.avator_shd,.tashuo-multiple .cover *:not(img),.tashuo-item-cover a *:not(img)'
     },
+    srcMatching: {
+      srcRegExp: '(bkimg\\.cdn\\.bcebos\\.com/[^?]+).*',
+      processor: '$1'
+    }
+  },
+  '(?:haokan|sv)\\.baidu\\.com': {
+    amendStyles: {
+      pointerNone: '.video-time,a *[class*="-top"]>*:not(picture),a *[class*="-bottom"]'
+    },
     srcMatching: [
       {
-        srcRegExp: '(bkimg\\.cdn\\.bcebos\\.com/[^?]+).*',
+        srcRegExp: '(.+)@(?:\\w_\\w+,?)+.*',
         processor: '$1'
+      },
+      {
+        srcRegExp: '(himg\\.bdimg\\.com/sys/portrait/.+@IMG@)'
       }
     ]
   },
@@ -542,6 +571,15 @@ const websiteConfig = {
         srcRegExp: '.+\\.(?:bdstatic|baidu)\\.com/.+@IMG@'
       }
     ]
+  },
+  '(?:.+\\.)?bandcamp\\.com': {
+    amendStyles: {
+      pointerNone: '.plb-btn,.art-play,.item_link_play,.play-button'
+    },
+    srcMatching: {
+      srcRegExp: '(f\\d+\\.bcbits\\.com/img/.+_)\\d+(@IMG@)?',
+      processor: '$10$2'
+    }
   },
   'www\\.behance\\.net': {
     srcMatching: [
@@ -851,6 +889,46 @@ const websiteConfig = {
       }
     ]
   },
+  'www\\.discogs\\.com': {
+    srcMatching: [
+      {
+        srcRegExp: 'img\\.discogs\\.com/.+/discogs-images/((A|L|R)-(\\d+).+@IMG@)',
+        processor: (trigger, src, srcRegExpObj) =>
+          srcRegExpObj.test(src)
+            ? new Promise((resolve, reject) => {
+                const imageName = RegExp.$1,
+                  imageType = ['artist', 'label', 'release'].find(type => type[0].toUpperCase() === RegExp.$2);
+
+                $.ajax(`/${imageType}/${RegExp.$3}/images`, {
+                  dataType: 'html',
+                  success: response => {
+                    const allImages = $('#view_images img', response).toArray(),
+                      matchedImage = allImages.find(img => ~img.src.indexOf(imageName));
+
+                    resolve(matchedImage ? matchedImage.src : '');
+                  },
+                  error: reject
+                });
+              })
+            : ''
+      },
+      {
+        srcRegExp: 'img\\.discogs\\.com/.+/discogs-avatars/.+@IMG@',
+        processor: (trigger, src, srcRegExpObj) =>
+          srcRegExpObj.test(src)
+            ? new Promise((resolve, reject) => {
+                $.ajax(trigger.closest('a').attr('href'), {
+                  dataType: 'html',
+                  success: response => {
+                    resolve($('.user_avatar[data-large-avatar]', response).data('large-avatar') || '');
+                  },
+                  error: reject
+                });
+              })
+            : ''
+      }
+    ]
+  },
   '(?:.+\\.)?douban\\.(?:com|fm)': {
     srcMatching: [
       {
@@ -966,16 +1044,26 @@ const websiteConfig = {
       processor: '$1'
     }
   },
-  '(?:.+\\.)?ebay(?:\\.(?:com|[a-z]{2}))+': {
+  '(?:.+\\.)?ebay(?:desc)?(?:\\.(?:com|[a-z]{2}))+': {
     // co|au|at|be|ca|ch|de|es|fr|hk|ie|it|my|nl|ph|pl|sg|uk
     amendStyles: {
       pointerNone: '.vi-filmstp .sel,.hl-image__background'
     },
-    srcMatching: {
-      selectors: 'img,.hl-image',
-      srcRegExp: '(i\\.ebayimg\\.com/.+/s-l)\\d+(?:/p)?(@IMG@)',
-      processor: '$12000$2'
-    }
+    srcMatching: [
+      {
+        selectors: 'img,.hl-image',
+        srcRegExp: '(i\\.ebayimg\\.com/.+/s-l)\\d+(?:/p)?(@IMG@)',
+        processor: '$12000$2'
+      },
+      {
+        srcRegExp: '(thumbs\\d+\\.ebaystatic\\.com/.+/l)\\d+(/.+@IMG@)',
+        processor: '$12000$2'
+      },
+      {
+        srcRegExp: '(i\\.ebayimg\\.com/.+/\\$_)\\d+(@IMG@)',
+        processor: '$110$2'
+      }
+    ]
   },
   'www\\.etsy\\.com': {
     amendStyles: {
@@ -1137,6 +1225,31 @@ const websiteConfig = {
               () => src
             );
         }
+      }
+    ]
+  },
+  '(?:.+\\.)?(?:fandango|flixster|rottentomatoes)\\.com': {
+    amendStyles: {
+      pointerNone: 'rt-icon-cta-video'
+    },
+    srcMatching: [
+      {
+        srcRegExp: '(images\\.fandango\\.com)(?:/.+)?((?<!/)/images/.+@IMG@)',
+        processor: '$1$2'
+      },
+      {
+        srcRegExp: 'statcdn\\.fandango\\.com/.+@IMG@',
+        processor: '$&'
+      },
+      {
+        selectors: 'img,button[slot="imageAction"]',
+        srcRegExp: 'resizing\\.flixster\\.com/.*?(https?://.+)',
+        processor: (trigger, src, srcRegExpObj) =>
+          srcRegExpObj.test(src || trigger.prev('img').attr('src')) ? RegExp.$1 : ''
+      },
+      {
+        srcRegExp: 'resizing\\.flixster\\.com/(?:.(?!\\d+x\\d+))+$',
+        processor: '$&'
       }
     ]
   },
@@ -1514,6 +1627,11 @@ const websiteConfig = {
       processor: '$1sz$2sz$3'
     }
   },
+  '(?:.+\\.)?metal-archives\\.com': {
+    srcMatching: {
+      srcRegExp: 'www\\.metal-archives\\.com/images/.+@IMG@'
+    }
+  },
   '(.+\\.(?:mi|xiaomiyoupin))\\.com': {
     amendStyles: {
       pointerNone: '.home-good-item-big .pro-text,'
@@ -1730,71 +1848,6 @@ const websiteConfig = {
       processor: '//pic3$1$2'
     }
   },
-  'www\\.quora.com': {
-    amendStyles: {
-      pointerNone: '.Toggle[id$="__truncated"] a.ui_overlay'
-    },
-    srcMatching: [
-      {
-        selectors: 'img[master_src]',
-        processor: trigger => trigger.attr('master_src')
-      },
-      {
-        selectors: '.HyperLinkFeedStory [style*="background-image"],.HyperLinkPreview .link_overlay',
-        processor: (trigger, src) =>
-          trigger.is('.link_overlay')
-            ? tools.getBackgroundImgSrc(trigger.closest('.HyperLinkPreview').find('.hyperlink_image'))
-            : src
-      },
-      {
-        selectors: 'img,.CarouselItem .ui_overlay,.switcher_item_image [style*="background-image"]',
-        srcRegExp: '(//qph\\.fs\\.quoracdn\\.net/main-thumb-[-\\w]+-)\\d+(-\\w+@IMG@)',
-        processor: (trigger, src, srcRegExpObj) =>
-          srcRegExpObj.test(src || trigger.parent().find('img').attr('src')) ? `${RegExp.$1}200${RegExp.$2}` : ''
-      },
-      {
-        selectors: '.ui_layout_thumbnail',
-        processor: (trigger, src) => {
-          var expandedCon = $(
-              `#${trigger
-                .closest('.Toggle[id$="__truncated"]')
-                .attr('id')
-                .replace(/__truncated$/, '__expanded')}`
-            ),
-            hasEmbededCon = $('.ui_qtext_embed_overlay_icon', trigger).length,
-            imgs = $(hasEmbededCon ? '.ui_qtext_embed' : 'img.ui_qtext_image', expandedCon);
-
-          return imgs.length
-            ? imgs.attr('master_src') || imgs.attr('src') || tools.getBackgroundImgSrc(imgs) || src
-            : new Promise(resolve => {
-                var expandedConObserver = new MutationObserver(mutations => {
-                  imgs = $(hasEmbededCon ? '.ui_qtext_embed' : 'img.ui_qtext_image', expandedCon);
-                  if (imgs.length) {
-                    src = imgs.attr('master_src') || imgs.attr('src') || tools.getBackgroundImgSrc(imgs) || src;
-
-                    expandedConObserver.disconnect();
-                    expandedConObserver = null;
-                    clearTimeout(observerTimer);
-
-                    resolve(src);
-                  }
-                });
-
-                expandedConObserver.observe(expandedCon.get(0), {
-                  childList: true
-                });
-
-                var observerTimer = setTimeout(() => {
-                  expandedConObserver.disconnect();
-                  expandedConObserver = null;
-
-                  resolve(src);
-                }, 3000);
-              });
-        }
-      }
-    ]
-  },
   '(?:user|h5)\\.qzone\\.qq\\.com': {
     amendStyles: {
       pointerNone:
@@ -1915,7 +1968,7 @@ const websiteConfig = {
       },
       srcMatching: [
         {
-          selectors: 'img,.zhibo-show-list .img-item,.abs.jibbg,.item-list .item-img,.act-list .itemLink',
+          selectors: 'img,.zhibo-show-list .img-item,.abs.jibbg,.item-list .item-img,.act-list .itemLink,.pic',
           srcRegExp:
             '(//.+\\.(?:alicdn|china\\.alibaba)\\.com/.*?(?:bao|t[fp]s(?:com)?|upload|simba|i\\d+|bttopic|sc\\d+|nonpublic|kf)/.+?(?:@IMG@|.(?=_\\d+x\\d+.*))).*',
           processor: (trigger, src, srcRegExpObj) =>
@@ -2097,7 +2150,7 @@ const websiteConfig = {
   'wallhaven\\.cc': {
     srcMatching: [
       {
-        selector: 'img,a',
+        selectors: 'img,a',
         srcRegExp: '(wallhaven\\.cc/)w/((\\w{2})\\w+)',
         processor: (trigger, src, srcRegExpObj) =>
           srcRegExpObj.test(trigger.closest('a').attr('href'))

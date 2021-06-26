@@ -107,15 +107,15 @@ Hereby is a list of part of the websites (hostnames) that **PhotoShow** currentl
 
 3.  **SEARCHING / KNOWLEDGE / EXPERTISE:**
 
-    ACP Journals, Baidu, Baidu baike, Bing, Google, GitHub, JAMA Network, NEJM, Quora, Wiki
+    ACP Journals, allhistory.com, Baidu, Baidu baike, Bing, Google, GitHub, JAMA Network, NEJM, Wiki
 
 4.  **NEWS / SOCIAL NETWORKING:**
 
     115.com, adnmb2.com, Duitang, Facebook, gamer.com.tw, IMDb, Imgur, Instagram, Jandan, nga.cn, Qzone, Reddit, TapTap, toutiao.com, Tumblr, Twipu, Twitter, Sina weibo, wattpad, WeChat webpages
 
-5.  **VIDEOS:**
+5.  **VIDEOS / MUSIC:**
 
-    bilibili, ixigua.com, YOUKU, YouTube
+    Bandcamp, bilibili, Discogs, Encyclopaedia Metallum, Fandango, Flixster, haokan.baidu.com, ixigua.com, Rotten Tomatoes, YOUKU, YouTube
 
 If you can't find your favourite websites in the above list, it is always welcomed to [contact the author](#contact) to get more support.
 <br />

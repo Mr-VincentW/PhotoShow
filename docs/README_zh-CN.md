@@ -114,9 +114,9 @@
 
 3.  **搜索 / 知识 / 专业 类：**
 
-    ACP Journals、Bing、Google、GitHub、JAMA Network、NEJM、Quora、Wiki
+    ACP Journals、Bing、Google、GitHub、JAMA Network、NEJM、Wiki
 
-    百度、百度百科、知乎
+    全历史、百度、百度百科、知乎
 
 4.  **新闻 / 社交 / 社区 类：**
 
@@ -124,11 +124,11 @@
 
     115 网盘、A 岛匿名版、巴哈姆特、百度贴吧、豆瓣、堆糖、煎蛋、NGA 玩家社区、QQ 空间、今日头条、微博、微信公众号
 
-5.  **视频 类：**
+5.  **视频、音乐 类：**
 
-    YouTube
+    Bandcamp、Discogs、Encyclopaedia Metallum、Fandango、Flixster、Rotten Tomatoes、YouTube
 
-    bilibili、优酷、土豆、西瓜视频
+    bilibili、好看视频、西瓜视频、优酷、土豆
 
 如果上述列表中不包含您所钟爱的网站，欢迎[向作者反馈](#%E8%81%94%E7%B3%BB%E4%BD%9C%E8%80%85)以获取更多支持。
 <br />
