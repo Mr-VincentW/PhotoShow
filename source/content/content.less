@@ -216,7 +216,6 @@
   text-transform: none;
   line-height: 1;
   outline: 0;
-  vertical-align: middle;
 
   &:before {
     display: inline-block;
@@ -382,20 +381,16 @@
   }
 
   .photoshow-msg {
-    display: block;
-    text-align: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
     line-height: 40px;
     font-size: 0;
     font-family: -apple-system, system-ui, BlinkMacSystemFont, 'Segoe UI', 'Microsoft Yahei', '\5b8b\4f53', sans-serif;
-
-    * {
-      color: #333;
-      display: inline-block;
-      vertical-align: middle;
-      font-style: normal;
-    }
+    color: #333;
 
     i {
+      font-style: normal;
       font-size: 14px;
     }
 
@@ -454,7 +449,8 @@
   animation: photoshow-global-msg-ani 2.5s ease 0s forwards;
 
   .photoshow-global-msg {
-    display: block;
+    display: flex;
+    align-items: center;
     background: fade(@PHOTOSHOW_BLUE, 85%);
     padding: 12px 20px;
     border-radius: 2px;
@@ -464,13 +460,8 @@
     box-shadow: 0 0 4px fade(#000, 20%);
     font-family: -apple-system, system-ui, BlinkMacSystemFont, 'Segoe UI', 'Microsoft Yahei', '\5b8b\4f53', sans-serif;
 
-    * {
-      display: inline-block;
-      vertical-align: middle;
-      font-style: normal;
-    }
-
     i {
+      font-style: normal;
       font-size: 16px;
     }
 

@@ -25,6 +25,7 @@
  *                                            // Updates: Optimize styles.
  * @version 4.6.0.0 | 2021-01-24 | Vincent    // Updates: Support displaying HD image size in the viewer;
  *                                            // Updates: Remove the feature of displaying PhotoShow logo in the viewer.
+ * @version 4.7.0.0 | 2021-07-04 | Vincent    // Updates: Add config items for activation exemption, loading states display, transition animation, and context menu items.
  */
 
 // Color definitions
@@ -48,7 +49,6 @@
   text-transform: none;
   line-height: 1;
   outline: 0;
-  vertical-align: middle;
 
   &:before {
     display: inline-block;
@@ -58,6 +58,10 @@
     content: '\e900';
     background: #52a3f5;
     color: #fff;
+  }
+
+  &-loading:before {
+    content: '\e902';
   }
 
   &-bubble-check:before {
@@ -72,56 +76,68 @@
     content: '\e907';
   }
 
-  &-view-mode:before {
+  &-activation-exemption:before {
     content: '\e908';
   }
 
-  &-image-size-display:before {
+  &-view-mode:before {
     content: '\e909';
   }
 
-  &-shadow-display:before {
+  &-image-size-display:before {
     content: '\e90a';
   }
 
-  &-keyboard:before {
+  &-shadow-display:before {
     content: '\e90b';
   }
 
-  &-share:before {
+  &-animation:before {
     content: '\e90c';
   }
 
-  &-facebook:before {
+  &-context-menu:before {
     content: '\e90d';
   }
 
-  &-twitter:before {
+  &-keyboard:before {
     content: '\e90e';
   }
 
-  &-weibo:before {
+  &-share:before {
     content: '\e90f';
   }
 
-  &-qzone:before {
+  &-facebook:before {
     content: '\e910';
   }
 
-  &-reddit:before {
+  &-twitter:before {
     content: '\e911';
   }
 
-  &-tumblr:before {
+  &-weibo:before {
     content: '\e912';
   }
 
-  &-mail:before {
+  &-qzone:before {
     content: '\e913';
   }
 
-  &-github:before {
+  &-reddit:before {
     content: '\e914';
+  }
+
+  &-tumblr:before {
+    content: '\e915';
+  }
+
+  &-mail:before {
+    content: '\e916';
+  }
+
+  &-github:before {
+    content: '\e917';
   }
 }
 
@@ -148,7 +164,6 @@ input {
 }
 
 body {
-  padding: 10px 12px;
   -webkit-font-smoothing: antialiased;
   -webkit-text-size-adjust: 100%;
   font-size: 14px;
@@ -168,7 +183,9 @@ h3 {
 
 // Header
 .header {
-  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  padding: 10px;
 
   .icon-logo {
     display: inline-block;
@@ -181,15 +198,13 @@ h3 {
   #name {
     display: inline-block;
     font-size: 20px;
-    vertical-align: middle;
   }
 
   #updateDate {
-    position: absolute;
+    align-self: flex-start;
+    margin-left: auto;
     color: #999;
     font-size: 12px;
-    top: 10px;
-    right: 12px;
     opacity: 1;
     transition: 0.2s 0.1s;
   }
@@ -197,8 +212,11 @@ h3 {
 
 // State toggle
 .state-toggle {
+  display: flex;
+  align-items: center;
   transition: 0.2s;
   padding: 5px 0;
+  margin: 0 10px;
   border-bottom: solid 1px @PHOTOSHOW_BLUE;
 
   &.disabled {
@@ -246,9 +264,8 @@ h3 {
     display: block;
     width: 36px;
     height: 20px;
-    margin-top: 3px;
+    margin-left: auto;
     cursor: pointer;
-    float: right;
     background: @PHOTOSHOW_BLUE;
     border-radius: 2px;
     box-shadow: inset 1px 1px 2px rgba(0, 0, 0, 0.2);
@@ -269,16 +286,69 @@ h3 {
   }
 }
 
+// Settings.
+.settings {
+  position: relative;
+  height: 465px;
+  overflow: auto;
+  margin: 10px;
+  scrollbar-width: thin;
+  scrollbar-color: #c1c1c1 #f1f1f1;
+
+  &::-webkit-scrollbar {
+    width: 2px;
+    height: 2px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: #f1f1f1;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+
+    &:hover {
+      background: #a8a8a8;
+    }
+
+    &:active {
+      background: #787878;
+    }
+  }
+
+  &:before,
+  &:after {
+    content: '';
+    position: sticky;
+    display: block;
+    left: 0;
+    right: 0;
+    height: 10px;
+  }
+
+  &:before {
+    top: 0;
+    background: linear-gradient(0deg, transparent, #fff);
+    margin-bottom: -5px;
+  }
+
+  &:after {
+    bottom: 0;
+    background: linear-gradient(0deg, #fff, transparent);
+    margin-top: -5px;
+  }
+}
+
 // Description
 dl.desc {
-  margin-top: 8px;
+  & + & {
+    margin-top: 15px;
+  }
 
   dt {
+    display: flex;
+    align-items: center;
     color: @PHOTOSHOW_BLUE;
-
-    * {
-      vertical-align: middle;
-    }
 
     .icon {
       width: 18px;
@@ -287,7 +357,7 @@ dl.desc {
     }
 
     h3 {
-      font-size: 14px;
+      font-size: 16px;
     }
   }
 
@@ -300,10 +370,9 @@ dl.desc {
   &.checkboxes {
     dd {
       label {
+        display: flex;
+        align-items: center;
         transition: color 0.4s;
-        * {
-          vertical-align: middle;
-        }
 
         &:hover {
           transition: color 0.1s;
@@ -312,7 +381,7 @@ dl.desc {
         }
 
         input {
-          margin-right: 2px;
+          margin-right: 4px;
         }
       }
     }
@@ -344,7 +413,7 @@ dl.desc {
       border-collapse: collapse;
       border-spacing: 0;
       width: 100%;
-      line-height: 1.5;
+      line-height: 2;
 
       tr {
         transition: background 0.4s;
@@ -366,10 +435,7 @@ dl.desc {
 
           &:nth-child(2) {
             text-align: right;
-          }
-
-          &:last-child {
-            color: #999;
+            font-weight: bold;
           }
         }
       }
@@ -377,13 +443,12 @@ dl.desc {
   }
 
   &.share {
-    dt,
-    dd {
-      display: inline;
-      vertical-align: middle;
-    }
+    display: flex;
+    align-items: center;
 
     dd {
+      display: flex;
+      align-items: center;
       font-size: 0;
       padding: 0 0 0 6px;
 
@@ -404,7 +469,6 @@ dl.desc {
         display: inline-block;
         height: 14px;
         border-right: dashed 1px #ddd;
-        vertical-align: middle;
         margin-left: 12px;
       }
 

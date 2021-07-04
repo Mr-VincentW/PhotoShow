@@ -82,7 +82,7 @@
     "description": "Message displayed when PhotoShow does not support current website."
   },
   "extensionUpdateDate": {
-    "message": "Update: 27 June 2021",
+    "message": "Update: 4 July 2021",
     "description": "Update time of current installed version of PhotoShow."
   },
   "stateToggleOnTitle": {
@@ -106,6 +106,16 @@
   "activationModeOption_None": {
     "message": "None",
     "description": "Description of the option that requires no other operations when triggering the image viewer display (only mouse hover required)."
+  },
+
+  // Section ACTIVATION EXEMPTION:
+  "activationExemptionHeader": {
+    "message": "ACTIVATION EXEMPTION",
+    "description": "Section title."
+  },
+  "activationExemptionDesc": {
+    "message": "DO NOT activate when thumbnails are larger than 25% of the viewport",
+    "description": "Description for the operation of triggerring a image viewer display."
   },
 
   // Section VIEW MODE:
@@ -163,6 +173,36 @@
   },
   "shadowDisplayDesc": {
     "message": "Display shadow between the viewer and the source thumbnail",
+    "description": "Setting item description."
+  },
+
+  // Section LOADING STATES DISPLAY:
+  "loadingStatesDisplayHeader": {
+    "message": "LOADING STATES DISPLAY",
+    "description": "Section title."
+  },
+  "loadingStatesDisplayDesc": {
+    "message": "Display image loading states",
+    "description": "Setting item description."
+  },
+
+  // Section ANIMATION TOGGLE:
+  "animationToggleHeader": {
+    "message": "ANIMATION",
+    "description": "Section title."
+  },
+  "animationToggleDesc": {
+    "message": "Enable transition animation",
+    "description": "Setting item description."
+  },
+
+  // Section CONTEXT MENU TOGGLE:
+  "contextMenuToggleHeader": {
+    "message": "CONTEXT MENU",
+    "description": "Section title."
+  },
+  "contextMenuToggleDesc": {
+    "message": "Enable context menu items",
     "description": "Setting item description."
   },
 

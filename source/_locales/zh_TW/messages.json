@@ -88,7 +88,7 @@
     "description": "浮圖秀不支持當前網站時的消息。"
   },
   "extensionUpdateDate": {
-    "message": "更新：2021年6月27日",
+    "message": "更新：2021年7月4日",
     "description": "當前所安裝浮圖秀版本的更新時間。"
   },
   "stateToggleOnTitle": {
@@ -112,6 +112,16 @@
   "activationModeOption_None": {
     "message": "無",
     "description": "選項“無需額外操作（僅鼠標移過即可）”的描述。"
+  },
+
+  // “激活豁免”區：
+  "activationExemptionHeader": {
+    "message": "激活豁免",
+    "description": "區塊標題。"
+  },
+  "activationExemptionDesc": {
+    "message": "當縮略圖大於窗口面積的25%時，不激活圖片預覽",
+    "description": "設置項描述。"
   },
 
   // “視圖模式”區：
@@ -169,6 +179,36 @@
   },
   "shadowDisplayDesc": {
     "message": "在圖片預覽窗口和源縮略圖之間顯示陰影",
+    "description": "設置項描述。"
+  },
+
+  // “圖片加載狀態顯示”區：
+  "loadingStatesDisplayHeader": {
+    "message": "圖片加載狀態顯示",
+    "description": "區塊標題。"
+  },
+  "loadingStatesDisplayDesc": {
+    "message": "顯示圖片加載狀態提示",
+    "description": "設置項描述。"
+  },
+
+  // “過渡動畫”區：
+  "animationToggleHeader": {
+    "message": "過渡動畫",
+    "description": "區塊標題。"
+  },
+  "animationToggleDesc": {
+    "message": "啟用過渡動畫",
+    "description": "設置項描述。"
+  },
+
+  // “右鍵菜單”區：
+  "contextMenuToggleHeader": {
+    "message": "右鍵菜單",
+    "description": "區塊標題。"
+  },
+  "contextMenuToggleDesc": {
+    "message": "啟用右鍵菜單項",
     "description": "設置項描述。"
   },
 

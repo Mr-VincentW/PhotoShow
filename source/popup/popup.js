@@ -34,9 +34,9 @@
  * @version 4.6.0.0 | 2021-01-24 | Vincent    // Updates: Support displaying HD image size in the viewer;
  *                                            // Updates: Remove the feature of displaying PhotoShow logo in the viewer;
  *                                            // Updates: Remove download link for QQ browsers app centre.
+ * @version 4.7.0.0 | 2021-07-04 | Vincent    // Updates: Add config items for activation exemption, loading states display, transition animation, and context menu items.
  */
 
-// TODO: Add animation toggle configuration (allow users to turn off all the animation).
 // TODO: Support customising hotkeys.
 
 var curTabUrl = '';
@@ -166,8 +166,18 @@ $('#name').text(
 );
 $('#updateDate').text(chrome.i18n.getMessage('extensionUpdateDate'));
 
-$('#activationModeSection dt h3').text(chrome.i18n.getMessage('activationModeHeader'));
-$('#activationModeDesc').text(chrome.i18n.getMessage('activationModeDesc'));
+[
+  'activationMode',
+  'activationExemption',
+  'imageSizeDisplay',
+  'shadowDisplay',
+  'loadingStatesDisplay',
+  'animationToggle',
+  'contextMenuToggle'
+].forEach(item => {
+  $(`#${item}Section dt h3`).text(chrome.i18n.getMessage(`${item}Header`));
+  $(`#${item}Desc`).text(chrome.i18n.getMessage(`${item}Desc`));
+});
 $('#activationModeOption_None').text(chrome.i18n.getMessage('activationModeOption_None'));
 
 $('#viewModeSection dt h3').text(chrome.i18n.getMessage('viewModeHeader'));
@@ -183,12 +193,6 @@ $('#viewModeSection dd').append(
     )
     .join('')
 );
-
-$('#imageSizeDisplaySection dt h3').text(chrome.i18n.getMessage('imageSizeDisplayHeader'));
-$('#imageSizeDisplayDesc').text(chrome.i18n.getMessage('imageSizeDisplayDesc'));
-
-$('#shadowDisplaySection dt h3').text(chrome.i18n.getMessage('shadowDisplayHeader'));
-$('#shadowDisplayDesc').text(chrome.i18n.getMessage('shadowDisplayDesc'));
 
 $('#hotkeysSection dt h3').text(chrome.i18n.getMessage('hotkeysHeader'));
 $('#hotkeysSection dd').append(
@@ -223,8 +227,7 @@ function initContactLinks() {
       tag: chrome.i18n.getMessage('extensionName'),
       text: chrome.i18n.getMessage('shareText'),
       desc: chrome.i18n.getMessage('extensionDesc'),
-      pic:
-        'https://lh3.googleusercontent.com/J4PdCq4haGqB-GYF_BFEcswOtM1vucxUAiCFAYEvwMXDJH_I-ksKhLYgv97MRBVb_EJIxCwP=w1400-h560'
+      pic: 'https://lh3.googleusercontent.com/J4PdCq4haGqB-GYF_BFEcswOtM1vucxUAiCFAYEvwMXDJH_I-ksKhLYgv97MRBVb_EJIxCwP=w1400-h560'
     },
     contactConfig = {
       mail: {

@@ -90,7 +90,7 @@
     "description": "浮图秀不支持当前网站时的消息。"
   },
   "extensionUpdateDate": {
-    "message": "更新：2021年6月27日",
+    "message": "更新：2021年7月4日",
     "description": "当前所安装浮图秀版本的更新时间。"
   },
   "stateToggleOnTitle": {
@@ -114,6 +114,16 @@
   "activationModeOption_None": {
     "message": "无",
     "description": "选项“无需额外操作（仅鼠标移过即可）”的描述。"
+  },
+
+  // “激活豁免”区：
+  "activationExemptionHeader": {
+    "message": "激活豁免",
+    "description": "区块标题。"
+  },
+  "activationExemptionDesc": {
+    "message": "当缩略图大于窗口面积的25%时，不激活图片预览",
+    "description": "设置项描述。"
   },
 
   // “视图模式”区：
@@ -171,6 +181,36 @@
   },
   "shadowDisplayDesc": {
     "message": "在图片预览窗口和源缩略图之间显示阴影",
+    "description": "设置项描述。"
+  },
+
+  // “图片加载状态显示”区：
+  "loadingStatesDisplayHeader": {
+    "message": "图片加载状态显示",
+    "description": "区块标题。"
+  },
+  "loadingStatesDisplayDesc": {
+    "message": "显示图片加载状态提示",
+    "description": "设置项描述。"
+  },
+
+  // “过渡动画”区：
+  "animationToggleHeader": {
+    "message": "过渡动画",
+    "description": "区块标题。"
+  },
+  "animationToggleDesc": {
+    "message": "启用过渡动画",
+    "description": "设置项描述。"
+  },
+
+  // “右键菜单”区：
+  "contextMenuToggleHeader": {
+    "message": "右键菜单",
+    "description": "区块标题。"
+  },
+  "contextMenuToggleDesc": {
+    "message": "启用右键菜单项",
     "description": "设置项描述。"
   },
 

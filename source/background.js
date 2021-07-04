@@ -157,6 +157,9 @@
  * @version 4.6.9.0 | 2021-06-27 | Vincent    // Updates: Support allhistory.com, Discogs, haokan.baidu.com, bandcamp.com, Fandango, Flixter, Rotten Tomatoes, and metal-archives.com, in response to user feedback;
  *                                            // Updates: Better support for eBay;
  *                                            // Updates: Stop supporting Quora.
+ * @version 4.7.0.0 | 2021-07-04 | Vincent    // Updates: Fix Google compatibility issue;
+ *                                            // Updates: Support TweetDeck, in response to user feedback;
+ *                                            // Updates: Allow user to disable adding context menu items.
  */
 
 // TODO: Extract websiteConfig to independent files and import them (after porting to webpack).
@@ -172,7 +175,6 @@
 // TODO: duckduckgo.com uses Bing image.
 // TODO: Image viewer positioning issue on https://m.xiaomiyoupin.com/w/universal?_rt=weex&pageid=5545&sign=e34c2d8dde5fe25ef83112cbaa154e76&pdl=jianyu&spmref=YouPinPC.$Home$.list.0.86425397
 // TODO: Bulk download.
-// TODO: Use "raw injection" way to fix hot key conflict.
 
 // Website info structure:
 // {
@@ -1378,13 +1380,13 @@ const websiteConfig = {
   },
   'www\\.google\\.com(?:\\.hk)?': {
     amendStyles: {
-      pointerNone: '.fWhgmd'
+      pointerNone: '.fWhgmd,.ZUQgzb'
     },
     srcMatching: [
       {
         selectors: 'img',
         processor: trigger =>
-          window.photoShowHdSrcCache[trigger.closest('[data-tbnid]').data('tbnid')] ||
+          window.photoShowHdSrcCache[trigger.closest('[data-id]').data('tbnid')] ||
           trigger.closest('[data-photoshow-hd-src]').data('photoshow-hd-src') ||
           ''
       },
@@ -1401,7 +1403,7 @@ const websiteConfig = {
                 $.ajax(link, {
                   success: imgSearchResultDoc =>
                     resolve(
-                      new RegExp(`"${imgId}",\\[.*?\\]\\n,\\["(https?:\/\/.+?)"(?:,\\d+)+\\]`).test(imgSearchResultDoc)
+                      new RegExp(`"${imgId}",\\[.*?\\],\\["(https?:\/\/.+?)"(?:,\\d+)+\\]`).test(imgSearchResultDoc)
                         ? JSON.parse(`"${RegExp.$1}"`)
                         : ''
                     ),
@@ -1419,7 +1421,7 @@ const websiteConfig = {
         [...document.scripts]
           .filter(script => /^AF_initDataCallback\b/.test(script.text))
           .forEach(script => {
-            [...script.text.matchAll(/"([-\w]{14})",\[.*?\]\n,\["(https?:\/\/.+?)"(?:,\d+)+\]/g)].forEach(
+            [...script.text.matchAll(/"([-\w]{14})",\[.*?\],\["(https?:\/\/.+?)"(?:,\d+)+\]/g)].forEach(
               ([match, id, hdSrc]) => {
                 try {
                   window.photoShowHdSrcCache = {
@@ -1437,12 +1439,12 @@ const websiteConfig = {
     },
     onXhrLoad: (url, response) => {
       if (/\bbatchexecute\b/.test(url)) {
-        [...response.matchAll(/\\"([-\w]{14})\\",\[.*?\]\\n,\[\\"(https?:\/\/.+?)\\"(?:,\d+)+\]/g)].forEach(
+        [...`${response}`.matchAll(/\\"([-\w]{14})\\",\[.*?\],\[\\"(https?:\/\/.+?)\\"(?:,\d+)+\]/g)].forEach(
           ([match, id, hdSrc], i) => {
             try {
               // Using 'data-photoshow-hd-src' instead of directly writing 'photoshow-hd-src' attribute on triggers is because in this stage the image triggers may not exist.
               document
-                .querySelector(`[data-tbnid="${id}"]`)
+                .querySelector(`[data-id="${id}"]`)
                 .setAttribute('data-photoshow-hd-src', JSON.parse(`"${hdSrc.replace(/\\\\(?=u[a-f\d]+)/gi, '\\')}"`));
             } catch (error) {}
           }
@@ -2117,7 +2119,7 @@ const websiteConfig = {
       }
     ]
   },
-  '(?:(?:mobile\\.)?twitter|www\\.twipu)\\.com': {
+  '(?:(?:.+\\.)?twitter|www\\.twipu)\\.com': {
     amendStyles: {
       pointerNone:
         '.PlayableMedia-player [data-testid="posterPlayBtn"],.PlayableMedia-player [data-testid="poster"]~div,.LastSeenProfiles__shadow,.css-1dbjc4n.r-u8s1d:empty:not(.r-1loqt21)', // :not(.r-1loqt21): filter out video controller
@@ -2129,13 +2131,12 @@ const websiteConfig = {
         processor: '$1$2'
       },
       {
-        selectors: '.ProfileCard-bg',
         srcRegExp: '(\\w+\\.twimg\\.com/profile_banners/.+)/\\d+x\\d+',
         processor: '$1'
       },
       {
-        srcRegExp: '(\\w+\\.twimg\\.com/media/.+@IMG@)(?::(?:small|thumb))?',
-        processor: '$1:large'
+        srcRegExp: '(\\w+\\.twimg\\.com/media/.+?)(?:@IMG@:\\w+)?(.+[?&]name=)[^&]+(.*)',
+        processor: '$1$2large$3'
       },
       {
         srcRegExp: '(\\w+\\.twimg\\.com/.+\\?format=.*&name=).+',
@@ -2619,9 +2620,8 @@ var photoShow = {
 
 var photoShowContextMenus = {
   hasMenuCreated: false,
-  hasMenuShown: false, // Works in firefox only.
   create: function () {
-    if (!this.hasMenuCreated) {
+    if (PHOTOSHOW_CONFIGS.contextMenu !== false && !this.hasMenuCreated) {
       chrome.contextMenus.create({
         id: 'photoShowContextMenu_open',
         title: chrome.i18n.getMessage('contextMenuTitle_open'),
@@ -2650,10 +2650,8 @@ var photoShowContextMenus = {
     }
   },
   remove: function () {
-    if (!this.hasMenuShown) {
-      this.hasMenuCreated = false;
-      chrome.contextMenus.removeAll();
-    }
+    this.hasMenuCreated = false;
+    chrome.contextMenus.removeAll();
   }
 };
 
@@ -2701,17 +2699,6 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
     photoShow.setWebsiteState(tab.id, tab.url);
   }
 });
-
-// Response to contextmenu show/hide actions (for firefox only).
-try {
-  browser.contextMenus.onShown.addListener(() => {
-    photoShowContextMenus.hasMenuShown = true;
-  });
-
-  browser.contextMenus.onHidden.addListener((info, tab) => {
-    photoShowContextMenus.hasMenuShown = false;
-  });
-} catch (error) {}
 
 // Response to messages.
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
@@ -2776,9 +2763,9 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 
       break;
 
-    case 'VIEW_IMAGE': // Args: imgSrc
-      photoShowContextMenus[!!request.args.imgSrc ? 'create' : 'remove'].call(photoShowContextMenus, sender.tab.id);
-      request.args.imgSrc && statistics.update('imageViewed');
+    case 'VIEW_IMAGE': // Args: hasSrc
+      photoShowContextMenus[request.args.hasSrc ? 'create' : 'remove'].call(photoShowContextMenus, sender.tab.id);
+      request.args.hasSrc && statistics.update('imageViewed');
 
       break;
 

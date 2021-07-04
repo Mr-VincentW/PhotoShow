@@ -110,6 +110,10 @@
  * @version 4.6.3.0 | 2021-03-04 | Vincent    // Updates: Toggle on/off PhotoShow initially after the document is ready.
  * @version 4.6.6.0 | 2021-05-09 | Vincent    // Bug Fix: Prevent working on links that contain image-file-extension-name keywords in their href but actually are not image links;
  *                                            // Updates: Add statistics.
+ * @version 4.7.0.0 | 2021-07-04 | Vincent    // Updates: Allow user to disable transition animation;
+ *                                            // Updates: Allow user to disable loading states display;
+ *                                            // Updates: Resolve hotkey conflicts (with original document) issue;
+ *                                            // Updates: Add activation exemption feature.
  */
 
 // TODO: Extract common tool methods to external modules.
@@ -117,6 +121,7 @@
 // TODO: Exclude background images with a repeating pattern.
 // TODO: Render viewer in absolute position so that it can scroll with the viewport.
 // TODO: Might need to replace all the usecases of e.which to e.key.
+// TODO: Might need to check the hotkey de-conflict feature for iframes.
 
 ($ => {
   $.ajaxSetup({
@@ -134,7 +139,7 @@
       // el, styles, useAni || [el, styles, useAni]
       for (let [el, styles, useAni = false] of arguments.length > 1 ? [arguments] : arguments[0]) {
         if (styles) {
-          $(el).css('transition', useAni ? '0.2s ease-out' : '');
+          $(el).css('transition', useAni && photoShow.config.enableAnimation ? '0.2s ease-out' : '');
           $(el).css(styles);
         }
       }
@@ -279,7 +284,7 @@
       return Promise.resolve(src).then(src => (/^\/\//.test(src) ? location.protocol : '') + src);
     },
     executeScript: function (scriptText) {
-      const nonce = document.scripts[0].nonce || '',
+      const nonce = document.scripts[0] ? document.scripts[0].nonce || '' : '',
         script = document.createElement('script');
 
       script.type = 'text/javascript';
@@ -344,8 +349,15 @@
               (typeof item[key] == 'object' ? arguments.callee(item[key], value) : (item[key] = value))
           );
         })(this, config);
+
+        // Reset hotkey deconflict agent.
+        if (photoShow.isEnabled) {
+          photoShow.toggleHotkeyDeconflictAgent(false);
+          photoShow.toggleHotkeyDeconflictAgent(true);
+        }
       },
       activationMode: '', // Activation mode ('', 'shift', 'ctrl', 'alt').
+      activationExemption: true, // Activation exemption.
       _viewMode: VIEW_MODES['A'], // View mode.
       get viewMode() {
         // View mode getter.
@@ -384,6 +396,16 @@
           ? photoShowViewer.viewerShadow.prependTo(photoShowViewer.viewerBox)
           : photoShowViewer.viewerShadow.remove();
       },
+      _loadingStatesDisplay: true, // Loading states display.
+      get loadingStatesDisplay() {
+        return this._loadingStatesDisplay;
+      },
+      set loadingStatesDisplay(isVisible) {
+        (this._loadingStatesDisplay = isVisible)
+          ? photoShowViewer.viewerMsg.appendTo(photoShowViewer.viewerBox)
+          : photoShowViewer.viewerMsg.remove();
+      },
+      enableAnimation: true, // Transition animation.
       hotkeys: {
         // Hotkey toggles.
         closeViewer: {
@@ -476,6 +498,55 @@
             delete window.photoShowOriXhrOpen;
           }`
         );
+      }
+    },
+    toggleHotkeyDeconflictAgent: function (isEnabled) {
+      if (isEnabled) {
+        tools.executeScript(`
+          if (!window.photoShowHotkeyDeconflictHook) {
+            window.photoShowHotkeyDeconflictHook = e => {
+              const eventKey = e.key?.toUpperCase(),
+              imgViewer = document.getElementById('photoShowViewer'),
+              isViewerActive = imgViewer?.dataset.active != undefined,
+              hasImgShown = imgViewer?.dataset.imgShown != undefined,
+              hasMask = imgViewer?.dataset.hasMask != undefined,
+              isActiveElementAnInput = /^text(?:area)?$/.test(document.activeElement.type) || document.activeElement.isContentEditable;
+
+              if (!isActiveElementAnInput && isViewerActive) {
+                if(eventKey == 'TAB' && ${this.config.hotkeys.openImageInNewTab.isEnabled} ||
+                  eventKey == 'C' && ${this.config.hotkeys.copyImageAddress.isEnabled} ||
+                  eventKey == 'S' && ${this.config.hotkeys.saveImage.isEnabled}) {
+                  e.preventDefault();
+                }
+
+                if (hasImgShown) {
+                  if(eventKey == 'ESCAPE' && ${this.config.hotkeys.closeViewer.isEnabled} ||
+                    /^ARROW(?:LEFT|RIGHT)$/.test(eventKey) && e.shiftKey && e.ctrlKey && ${this.config.hotkeys.rotateImage.isEnabled}) {
+                    e.preventDefault();
+                  }
+
+                  if (hasMask) {
+                    if(/^PAGE(?:UP|DOWN)$/.test(eventKey) && ${this.config.hotkeys.scrollImageByPage.isEnabled} ||
+                      /^(?:END|HOME)$/.test(eventKey) && ${this.config.hotkeys.scrollImageToEnds.isEnabled} ||
+                      /^ARROW(?:UP|RIGHT|DOWN|LEFT)$/.test(eventKey) && ${this.config.hotkeys.scrollImage.isEnabled} ||
+                      /^(?:A|L|M|P)$/.test(eventKey) && ${this.config.hotkeys.switchViewMode.isEnabled}) {
+                      e.preventDefault();
+                    }
+                  }
+                }
+              }
+            };
+
+            document.addEventListener('keydown', window.photoShowHotkeyDeconflictHook, true);
+          }
+        `);
+      } else {
+        tools.executeScript(`
+          if (window.photoShowHotkeyDeconflictHook) {
+            document.removeEventListener('keydown', window.photoShowHotkeyDeconflictHook, true);
+            delete window.photoShowHotkeyDeconflictHook;
+          }
+        `);
       }
     }
   };
@@ -836,11 +907,11 @@
       };
 
       for (let element of [startingElement].concat($(startingElement).parents().get())) {
-        let hdSrc = photoShow.getImgHDSrc(element);
+        const hdSrc = photoShow.getImgHDSrc(element);
 
         if (hdSrc) {
           result = {
-            trigger: $(element),
+            trigger: element,
             src: hdSrc
           };
 
@@ -917,162 +988,181 @@
       if (!this.curTrigger) {
         // Get src of the high-definition image.
         const triggersParsingResult = this.parseTriggers(srcTarget);
-
-        this.imgSrc = triggersParsingResult ? triggersParsingResult.src : '';
+        this.preservedImgSrc = this.imgSrc = triggersParsingResult ? triggersParsingResult.src : '';
 
         chrome.runtime.sendMessage({
           cmd: 'VIEW_IMAGE',
           args: {
-            imgSrc: this.imgSrc
+            hasSrc: !!this.preservedImgSrc
           }
         });
 
+        if (this.imgSrc) {
+          this.viewerBox.attr('data-active', '');
+        } else {
+          this.viewerBox.removeAttr('data-active');
+        }
+
+        const triggerBBox = triggersParsingResult.trigger
+          ? triggersParsingResult.trigger.getBoundingClientRect()
+          : {
+              width: Infinity,
+              height: Infinity
+            };
+
         // Show high-definition image.
-        if (this.imgSrc && (!photoShow.config.activationMode || this.isModifierKeyDown)) {
-          if (!triggersParsingResult.trigger.is('[photoshow-trigger-blocked]')) {
-            this.curTrigger = this.maskHost = triggersParsingResult.trigger.get(0);
+        if (
+          this.imgSrc &&
+          (!photoShow.config.activationMode || this.isModifierKeyDown) &&
+          !$(triggersParsingResult.trigger).is('[photoshow-trigger-blocked]') &&
+          (!photoShow.config.activationExemption ||
+            triggerBBox.width * triggerBBox.height <= (window.innerWidth * window.innerHeight) / 4)
+        ) {
+          this.curTrigger = this.maskHost = triggersParsingResult.trigger;
 
-            // Get mask host.
-            triggersParsingResult.trigger
-              .parents()
-              .toArray()
-              .reduce((maskHostBBox, curAncestor) => {
-                var maskHostArea = maskHostBBox.width * maskHostBBox.height,
-                  curAncestorBBox = curAncestor.getBoundingClientRect(),
-                  curAncestorArea = curAncestorBBox.width * curAncestorBBox.height;
+          // Get mask host.
+          $(triggersParsingResult.trigger)
+            .parents()
+            .toArray()
+            .reduce((maskHostBBox, curAncestor) => {
+              var maskHostArea = maskHostBBox.width * maskHostBBox.height,
+                curAncestorBBox = curAncestor.getBoundingClientRect(),
+                curAncestorArea = curAncestorBBox.width * curAncestorBBox.height;
 
-                if (
-                  $(curAncestor).css('position') != 'static' &&
-                  $(curAncestor).css('display') != 'inline' &&
-                  (!maskHostArea || (curAncestorArea && curAncestorArea <= maskHostArea)) &&
-                  curAncestorBBox.left <= maskHostBBox.right &&
-                  curAncestorBBox.right >= maskHostBBox.left &&
-                  curAncestorBBox.top <= maskHostBBox.bottom &&
-                  curAncestorBBox.bottom >= maskHostBBox.top
-                ) {
-                  this.maskHost = curAncestor;
-                  maskHostBBox = curAncestorBBox;
+              if (
+                $(curAncestor).css('position') != 'static' &&
+                !/^inline|(?:flex|grid)$/.test($(curAncestor).css('display')) &&
+                (!maskHostArea || (curAncestorArea && curAncestorArea <= maskHostArea)) &&
+                curAncestorBBox.left <= maskHostBBox.right &&
+                curAncestorBBox.right >= maskHostBBox.left &&
+                curAncestorBBox.top <= maskHostBBox.bottom &&
+                curAncestorBBox.bottom >= maskHostBBox.top
+              ) {
+                this.maskHost = curAncestor;
+                maskHostBBox = curAncestorBBox;
+              }
+
+              return maskHostBBox;
+            }, this.maskHost.getBoundingClientRect());
+
+          // Reset image viewer.
+          this.viewerBox
+            .removeClass('img-shown has-mask top-end right-end bottom-end left-end')
+            .appendTo(document.body)
+            .add(this.viewerShadow, this.viewerImg)
+            .removeAttr('style');
+
+          this.hasMask = false;
+          this.imgRotation = {
+            angle: 0,
+            isVertical: false,
+            angleSin: 0,
+            angleCos: 1
+          };
+          this.imgOriginalSize = null;
+
+          // Set image loading state.
+          var imgLoadingTipTimer = photoShow.config.loadingStatesDisplay
+            ? setTimeout(() => {
+                imgLoadingTipTimer = null;
+
+                if (this.curTrigger) {
+                  // Show image loading state.
+                  $('.photoshow-icons', this.viewerMsg)
+                    .removeClass('photoshow-icons-bubble-warn')
+                    .addClass('photoshow-icons-load')
+                    .next('i')
+                    .text(chrome.i18n.getMessage('imageLoadingTip'));
+
+                  tools.setStyle(this.viewerBox, this.getDisplayingStyles().viewerFinal, true);
+                  this.hasImgViewerShown = true;
+                }
+              }, 200)
+            : null;
+
+          // Load image.
+          tools.loadImage(this.imgSrc).then(imgInfo => {
+            if (imgInfo.src) {
+              // Loading succeeds.
+              // Note: Both the photoShowViewer.imgSrc and the imgInfo.oriSrc may be either a string or a Promise object.
+              if (this.imgSrc && this.imgSrc == imgInfo.oriSrc) {
+                this.imgSrc = imgInfo.src; // Assign the actual image src to the photoShowViewer.imgSrc, in case it may be a Promise object.
+                $(this.curTrigger).attr('photoshow-hd-src', this.imgSrc); // Cache the actual src of the high-definition image.
+
+                this.viewerBox.addClass('img-shown');
+                this.viewerImg.attr('src', this.imgSrc);
+
+                this.imgOriginalSize = {
+                  width: imgInfo.width,
+                  height: imgInfo.height
+                };
+                this.viewerImgSizeTip.attr('size', Object.values(this.imgOriginalSize).join('×'));
+
+                var displayingStyles = this.getDisplayingStyles();
+
+                photoShow.config.imageSizeDisplay &&
+                  (displayingStyles.viewerFinal.width < 100 || displayingStyles.viewerFinal.height < 50) &&
+                  this.viewerBox.addClass('img-size-hidden');
+
+                if (imgLoadingTipTimer) {
+                  clearTimeout(imgLoadingTipTimer);
+                  imgLoadingTipTimer = null;
                 }
 
-                return maskHostBBox;
-              }, this.maskHost.getBoundingClientRect());
+                tools.setStyle([
+                  [this.viewerImg, displayingStyles.img],
+                  [this.viewModeSwitchTip, displayingStyles.viewModeSwitchTip]
+                ]);
 
-            // Reset image viewer.
-            this.viewerBox
-              .removeClass('img-shown has-mask top-end right-end bottom-end left-end')
-              .appendTo(document.body)
-              .add(this.viewerShadow, this.viewerImg)
-              .removeAttr('style');
+                if (photoShow.config.enableAnimation && displayingStyles.viewerInitial) {
+                  tools.setStyle(this.viewerBox, displayingStyles.viewerInitial);
+                  photoShow.config.shadowDisplay && tools.setStyle(this.viewerShadow, displayingStyles.shadowInitial);
 
-            this.hasMask = false;
-            this.imgRotation = {
-              angle: 0,
-              isVertical: false,
-              angleSin: 0,
-              angleCos: 1
-            };
-            this.imgOriginalSize = null;
+                  // Trick: To show() is only for triggering a reflow on the viewerBox element to make sure the initial styles are applied before setting the final styles.
+                  this.viewerBox.show();
+                }
+                tools.setStyle(this.viewerBox, displayingStyles.viewerFinal, true);
+                photoShow.config.shadowDisplay && tools.setStyle(this.viewerShadow, displayingStyles.shadow, true);
 
-            // Set image loading state.
-            var imgLoadingTipTimer = setTimeout(() => {
-              imgLoadingTipTimer = null;
+                this.hasImgViewerShown = true;
+                this.hasImgShown = true;
+                this.viewerBox.attr('data-img-shown', '');
 
-              if (this.curTrigger) {
-                // Show image loading state.
+                // Show image mask initially.
+                if (this.hasMask) {
+                  this.initViewerMask();
+                  this.viewerBox.addClass('has-mask').attr('data-has-mask', '');
+                  this.moveAction();
+                }
+              }
+            } else if (photoShow.config.loadingStatesDisplay) {
+              // Loading fails.
+              if (this.imgSrc && this.imgSrc == imgInfo.oriSrc) {
                 $('.photoshow-icons', this.viewerMsg)
-                  .removeClass('photoshow-icons-bubble-warn')
-                  .addClass('photoshow-icons-load')
+                  .removeClass('photoshow-icons-load')
+                  .addClass('photoshow-icons-bubble-warn')
                   .next('i')
-                  .text(chrome.i18n.getMessage('imageLoadingTip'));
+                  .text(chrome.i18n.getMessage('imageLoadingFailTip'));
 
-                tools.setStyle(this.viewerBox, this.getDisplayingStyles().viewerFinal, true);
+                var displayingStyles = this.getDisplayingStyles();
+
+                if (imgLoadingTipTimer) {
+                  clearTimeout(imgLoadingTipTimer);
+                  imgLoadingTipTimer = null;
+
+                  tools.setStyle(this.viewerBox, displayingStyles.viewerFinal, true);
+                } else {
+                  tools.setStyle(this.viewerBox, displayingStyles.viewerFinal);
+                }
+
                 this.hasImgViewerShown = true;
               }
-            }, 200);
+            }
+          });
 
-            // Load image.
-            tools.loadImage(this.imgSrc).then(imgInfo => {
-              if (imgInfo.src) {
-                // Loading succeeds.
-                // Note: Both the photoShowViewer.imgSrc and the imgInfo.oriSrc may be either a string or a Promise object.
-                if (this.imgSrc && this.imgSrc == imgInfo.oriSrc) {
-                  this.imgSrc = imgInfo.src; // Assign the actual image src to the photoShowViewer.imgSrc, in case it may be a Promise object.
-                  $(this.curTrigger).attr('photoshow-hd-src', this.imgSrc); // Cache the actual src of the high-definition image.
-
-                  this.viewerBox.addClass('img-shown');
-                  this.viewerImg.attr('src', this.imgSrc);
-
-                  this.imgOriginalSize = {
-                    width: imgInfo.width,
-                    height: imgInfo.height
-                  };
-                  this.viewerImgSizeTip.attr('size', Object.values(this.imgOriginalSize).join('×'));
-
-                  var displayingStyles = this.getDisplayingStyles();
-
-                  photoShow.config.imageSizeDisplay &&
-                    (displayingStyles.viewerFinal.width < 100 || displayingStyles.viewerFinal.height < 50) &&
-                    this.viewerBox.addClass('img-size-hidden');
-
-                  if (imgLoadingTipTimer) {
-                    clearTimeout(imgLoadingTipTimer);
-                    imgLoadingTipTimer = null;
-                  }
-
-                  tools.setStyle([
-                    [this.viewerImg, displayingStyles.img],
-                    [this.viewModeSwitchTip, displayingStyles.viewModeSwitchTip]
-                  ]);
-
-                  if (displayingStyles.viewerInitial) {
-                    tools.setStyle(this.viewerBox, displayingStyles.viewerInitial);
-                    photoShow.config.shadowDisplay && tools.setStyle(this.viewerShadow, displayingStyles.shadowInitial);
-
-                    // Trick: To show() is only for triggering a reflow on the viewerBox element to make sure the initial styles are applied before setting the final styles.
-                    this.viewerBox.show();
-                  }
-                  tools.setStyle(this.viewerBox, displayingStyles.viewerFinal, true);
-                  photoShow.config.shadowDisplay && tools.setStyle(this.viewerShadow, displayingStyles.shadow, true);
-
-                  this.hasImgViewerShown = true;
-                  this.hasImgShown = true;
-
-                  // Show image mask initially.
-                  if (this.hasMask) {
-                    this.initViewerMask();
-                    this.viewerBox.addClass('has-mask');
-                    this.moveAction();
-                  }
-                }
-              } else {
-                // Loading fails.
-                if (this.imgSrc && this.imgSrc == imgInfo.oriSrc) {
-                  $('.photoshow-icons', this.viewerMsg)
-                    .removeClass('photoshow-icons-load')
-                    .addClass('photoshow-icons-bubble-warn')
-                    .next('i')
-                    .text(chrome.i18n.getMessage('imageLoadingFailTip'));
-
-                  var displayingStyles = this.getDisplayingStyles();
-
-                  if (imgLoadingTipTimer) {
-                    clearTimeout(imgLoadingTipTimer);
-                    imgLoadingTipTimer = null;
-
-                    tools.setStyle(this.viewerBox, displayingStyles.viewerFinal, true);
-                  } else {
-                    tools.setStyle(this.viewerBox, displayingStyles.viewerFinal);
-                  }
-
-                  this.hasImgViewerShown = true;
-                }
-              }
-            });
-
-            // Bind mouse leave event handler.
-            // For websites on which the mouseleave event handler binded on the document will not be triggered for unknown reasons (e.g. Google Image).
-            $(this.curTrigger).one('mouseleave.photoShow', () => this.mouseLeaveAction());
-          }
+          // Bind mouse leave event handler.
+          // For websites on which the mouseleave event handler binded on the document will not be triggered for unknown reasons (e.g. Google Image).
+          $(this.curTrigger).one('mouseleave.photoShow', () => this.mouseLeaveAction());
         }
       }
     },
@@ -1132,9 +1222,6 @@
             e.detail && Object.assign(e, e.detail);
             this[`${e.type}Action`](e);
           })
-          .on('contextmenu.photoShow', () => {
-            this.preservedImgSrc = this.imgSrc;
-          })
           .on('focusin.photoShow focusout.photoShow', e => {
             this.isActiveElementAnInput = $(document.activeElement).is(
               'textarea,input:not([type="button"],[type="checkbox"],[type="color"],[type="file"],[type="image"],[type="radio"],[type="range"],[type="reset"],[type="submit"]),[contenteditable]'
@@ -1162,7 +1249,7 @@
           )
           .on('blur.photoShow', () => this.winBlurAction());
 
-        // Addamend styles.
+        // Add amend styles.
         photoShow.websiteConfig = {
           ...photoShow.websiteConfig,
           amendStyles: {
@@ -1176,6 +1263,9 @@
         for (let styleName in photoShow.websiteConfig.amendStyles) {
           tools.addStyle(styleName, photoShow.websiteConfig.amendStyles[styleName]);
         }
+
+        // Resolve hotkey conflicts.
+        photoShow.toggleHotkeyDeconflictAgent(true);
 
         // Start observing the document.
         this.domObserver = new MutationObserver(mutations => this.domMutateAction(mutations));
@@ -1210,6 +1300,7 @@
         $('[photoshow-trigger-blocked]').removeAttr('photoshow-trigger-blocked');
         $('[id^="photoShowStyles_"]').remove();
         $('[photoshow-cache-id]').remove();
+        photoShow.toggleHotkeyDeconflictAgent(false);
 
         // Destuction callbacks.
         photoShow.websiteConfig.onToggle && eval(`(${photoShow.websiteConfig.onToggle})`)(false);
@@ -1288,6 +1379,8 @@
         maskAcceleration: 0,
         hasMask: false
       });
+
+      this.viewerBox.removeAttr('data-active data-img-shown data-has-mask');
     },
     moveAction: function (useAni) {
       window.requestAnimationFrame(() => {
