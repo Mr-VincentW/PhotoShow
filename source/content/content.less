@@ -31,6 +31,7 @@
  *                                            // Updates: Remove the feature of displaying PhotoShow logo in the viewer
  * @version 4.6.2.0 | 2021-03-01 | Vincent    // Bug Fix: Add fixed font size to image size label.
  * @version 4.6.5.0 | 2021-04-28 | Vincent    // Bug Fix: Fix loading message line-wrapping problem.
+ * @version 4.7.1.0 | 2021-07-07 | Vincent    // Bug Fix: PhotoShow message style issue on Instagram.
  */
 
 // Color definitions
@@ -382,6 +383,7 @@
 
   .photoshow-msg {
     display: flex;
+    flex-flow: row nowrap;
     justify-content: center;
     align-items: center;
     line-height: 40px;
@@ -450,6 +452,7 @@
 
   .photoshow-global-msg {
     display: flex;
+    flex-flow: row nowrap;
     align-items: center;
     background: fade(@PHOTOSHOW_BLUE, 85%);
     padding: 12px 20px;

@@ -35,6 +35,7 @@
  *                                            // Updates: Remove the feature of displaying PhotoShow logo in the viewer;
  *                                            // Updates: Remove download link for QQ browsers app centre.
  * @version 4.7.0.0 | 2021-07-04 | Vincent    // Updates: Add config items for activation exemption, loading states display, transition animation, and context menu items.
+ * @version 4.7.1.0 | 2021-07-07 | Vincent    // Updates: Optimize view mode options order.
  */
 
 // TODO: Support customising hotkeys.
@@ -182,7 +183,7 @@ $('#activationModeOption_None').text(chrome.i18n.getMessage('activationModeOptio
 
 $('#viewModeSection dt h3').text(chrome.i18n.getMessage('viewModeHeader'));
 $('#viewModeSection dd').append(
-  ['Mini', 'Light', 'Auto', 'Panoramic']
+  ['Auto', 'Mini', 'Light', 'Panoramic']
     .map(
       modeName =>
         `<label title="${chrome.i18n.getMessage(`viewModeOptionTitle_${modeName}`)}" hotkey="${

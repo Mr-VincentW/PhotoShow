@@ -160,6 +160,7 @@
  * @version 4.7.0.0 | 2021-07-04 | Vincent    // Updates: Fix Google compatibility issue;
  *                                            // Updates: Support TweetDeck, in response to user feedback;
  *                                            // Updates: Allow user to disable adding context menu items.
+ * @version 4.7.1.0 | 2021-07-07 | Vincent    // Updates: Better support for Pinterest, in response to user feedback.
  */
 
 // TODO: Extract websiteConfig to independent files and import them (after porting to webpack).
@@ -1768,18 +1769,22 @@ const websiteConfig = {
       }
     ]
   },
-  'www\\.pinterest(?:\\.(?:com|[a-z]{2}))+': {
+  '(?:.+\\.)?pinterest(?:\\.(?:com|[a-z]{2}))+': {
     amendStyles: {
-      pointerNone: 'img~.MIw.QLY.Rym.ojN.p6V'
+      pointerAuto: 'button,[role="button"],a',
+      pointerNone: 'img~.MIw.QLY.Rym.ojN.p6V,[data-test-id="pointer-events-wrapper"]'
     },
     srcMatching: {
-      selectors: 'img,.pinWrapper a,[role="img"],.relative',
+      selectors: 'a,img,[data-test-id="pinWrapper"]',
       srcRegExp: '(//i\\.pinimg\\.com/)(?:originals|\\d+x(?:\\d+(?:_\\w+)?)?)(/.+@IMG@)',
       processor: (trigger, src, srcRegExpObj) =>
-        trigger.find('video').attr('poster') ||
-        (srcRegExpObj.test(src || tools.getLargestImgSrc(trigger.closest('.pinWrapper').find('img')))
-          ? `${RegExp.$1}originals${RegExp.$2}`
-          : '')
+        srcRegExpObj.test(
+          src || trigger.find('video').attr('poster') || tools.getLargestImgSrc(trigger.find('[role="img"]'))
+        )
+          ? tools
+              .detectImage(`${RegExp.$1}originals${RegExp.$2}`, `${RegExp.$1}736x${RegExp.$2}`)
+              .then(imgInfo => imgInfo.src)
+          : ''
     }
   },
   '(?:.+\\.)?(?:pixiv(?:ision|-bungei)?\\.net|booth\\.pm|vroid\\.com)': {
