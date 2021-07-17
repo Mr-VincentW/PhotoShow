@@ -32,6 +32,7 @@
  * @version 4.6.2.0 | 2021-03-01 | Vincent    // Bug Fix: Add fixed font size to image size label.
  * @version 4.6.5.0 | 2021-04-28 | Vincent    // Bug Fix: Fix loading message line-wrapping problem.
  * @version 4.7.1.0 | 2021-07-07 | Vincent    // Bug Fix: PhotoShow message style issue on Instagram.
+ * @version 4.7.2.0 | 2021-07-17 | Vincent    // Updates: Optimize image size label style.
  */
 
 // Color definitions
@@ -410,7 +411,7 @@
     color: #fff;
     overflow: hidden;
     opacity: 0;
-    transition: opacity 0.2s;
+    transition: opacity 0.2s 0.2s;
 
     &:before {
       content: '';
@@ -431,9 +432,10 @@
     &:after {
       content: attr(size);
       position: relative;
-      padding: 0 2px 0 10px;
+      padding: 0 4px 0 12px;
       z-index: 1;
       font-size: 14px;
+      line-height: 1.5;
     }
   }
 }

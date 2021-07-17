@@ -106,7 +106,7 @@
 
 1.  **设计 / 摄影 / 图库 类：**
 
-    123rf、500px、ArtStation、Behance、DeviantArt、Dribbble、Flickr、Pinterest、pixiv、WikiArt
+    123rf、500px、ArtStation、Behance、DeviantArt、Dribbble、Flickr、iStock、Pexels、Pinterest、pixiv、Unsplash、WikiArt
 
     花瓣网、昵图网、汇图网、POCO、站酷、站酷海洛、致设计
 
@@ -144,7 +144,7 @@
 
 近来，一项“大计划”正在进行中——为了给参与者们提供更好的开发体验及引入更多新特性，**浮图秀**已启动重构。以下**任务列表**是从功能及项目视角的一份粗略梳理，也许会有值得您期待的内容：
 
-- [ ] 基于 `React` 及 `webpack` 重构工程。
+- [ ] 重构。
 - [ ] 支持所有网站，对域名不在解析列表中的网站，如果页面图片的展示尺寸小于其原始尺寸，则对原图予以展示。
 - [ ] 为扩展添加 `OPTIONS` 页以支持更多更复杂的设置。
 - [x] 添加动画启闭配置项以允许用户关闭所有动画。

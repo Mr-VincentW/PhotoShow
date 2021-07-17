@@ -161,6 +161,7 @@
  *                                            // Updates: Support TweetDeck, in response to user feedback;
  *                                            // Updates: Allow user to disable adding context menu items.
  * @version 4.7.1.0 | 2021-07-07 | Vincent    // Updates: Better support for Pinterest, in response to user feedback.
+ * @version 4.7.2.0 | 2021-07-17 | Vincent    // Updates: Support iStock, Pexels, and Unsplash, in response to user feedback (GitHub issue #23).
  */
 
 // TODO: Extract websiteConfig to independent files and import them (after porting to webpack).
@@ -1489,6 +1490,20 @@ const websiteConfig = {
       srcRegExp: '(ipstatic\\.net/)thumbs/\\d+x\\d+(/.+@IMG@).*',
       processor: '$1photos$2'
     }
+  },
+  '(?:.+\\.)?(?:istockphoto|pexels|unsplash)\\.com': {
+    srcMatching: [
+      {
+        srcRegExp: '(.+\\.(?:istockphoto|pexels|unsplash)\\.com/(?:[^?](?!video-id))+)(?:\\?.*)?$',
+        processor: '$1'
+      },
+      {
+        selectors: 'video',
+        srcRegExp: '(.+\\.pexels\\.com/[^?]+).*',
+        processor: (trigger, src, srcRegExpObj) =>
+          srcRegExpObj.test(trigger.parent().find('img').attr('src')) ? RegExp.$1 : ''
+      }
+    ]
   },
   '(.+\\.)?ixigua\\.com': {
     amendStyles: {

@@ -103,7 +103,7 @@ Hereby is a list of part of the websites (hostnames) that **PhotoShow** currentl
 
 1.  **DESIGN / PHOTOGRAPH / GRAPHICS:**
 
-    123rf, 500px, ArtStation, Behance, DeviantArt, Dribbble, Flickr, Pinterest, pixiv, POCO, WikiArt, zhisheji
+    123rf, 500px, ArtStation, Behance, DeviantArt, Dribbble, Flickr, iStock, Pexels, Pinterest, pixiv, POCO, WikiArt, Unsplash, zhisheji
 
 2.  **SHOPPING / TRADING / SERVICES:**
 
@@ -130,7 +130,7 @@ If you can't find your favourite websites in the above list, it is always welcom
 **PhotoShow** keeps optimising its functionality while enlarging its websites support list. This is why you might have already noticed that it is updated frequently.
 These days, a "big" plan is taking place as **PhotoShow** is going to be refactored for better developing experience for the contributors and introducing some new features as well. Here is a coarse **ONGOING LIST** from the project and functional perspectives where you may find something worth looking forward to.
 
-- [ ] Refactor with `React` and `webpack` .
+- [ ] Refactor.
 - [ ] Support all websites, displaying original images (if their intrinsic sizes are larger than they are displayed) for those not in the websites support list.
 - [ ] Add an extension `OPTIONS` page for more complex settings.
 - [x] Add animation toggle configuration (allow users to turn off all the animation).
