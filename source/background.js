@@ -162,6 +162,7 @@
  *                                            // Updates: Allow user to disable adding context menu items.
  * @version 4.7.1.0 | 2021-07-07 | Vincent    // Updates: Better support for Pinterest, in response to user feedback.
  * @version 4.7.2.0 | 2021-07-17 | Vincent    // Updates: Support iStock, Pexels, and Unsplash, in response to user feedback (GitHub issue #23).
+ * @version 4.7.3.0 | 2021-07-30 | Vincent    // Updates: Better support for Sportsfuel and Google, in response to user feedback.
  */
 
 // TODO: Extract websiteConfig to independent files and import them (after porting to webpack).
@@ -1380,7 +1381,7 @@ const websiteConfig = {
         srcRegExpObj.test(src || trigger.parent().find('img[src]').attr('src')) ? `${RegExp.$1}=w10000` : ''
     }
   },
-  'www\\.google\\.com(?:\\.hk)?': {
+  'www\\.google(?:\\.(?:com|[a-z]{2}))+': {
     amendStyles: {
       pointerNone: '.fWhgmd,.ZUQgzb'
     },
@@ -1910,7 +1911,7 @@ const websiteConfig = {
       }
     ]
   },
-  '(?:www\\.sportsfuel|1-day\\.winecentral)\\.co\\.nz': {
+  '(?:.+\\.)?(?:sportsfuel|1-day\\.winecentral)\\.co\\.nz': {
     srcMatching: [
       {
         srcRegExp: '(cdn\\.shopify\\.com/.+)_(?:small|medium|large|grande|\\d+x(?:\\d+)?)(@IMG@)',
