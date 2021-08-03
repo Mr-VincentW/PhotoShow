@@ -114,6 +114,7 @@
  *                                            // Updates: Allow user to disable loading states display;
  *                                            // Updates: Resolve hotkey conflicts (with original document) issue;
  *                                            // Updates: Add activation exemption feature.
+ * @version 4.7.4.0 | 2021-08-03 | Vincent    // Updates: Works better with data-photoshow-hd-src cache.
  */
 
 // TODO: Extract common tool methods to external modules.
@@ -442,7 +443,11 @@
       var imgSrc = '',
         target = $(element);
 
-      if (element && !(imgSrc = target.attr('photoshow-hd-src'))) {
+      if (
+        element &&
+        !(imgSrc =
+          target.attr('photoshow-hd-src') || target.closest('[data-photoshow-hd-src]').data('photoshow-hd-src'))
+      ) {
         for (let i = 0; i < this.websiteConfig.srcMatching.length; ++i) {
           let curMatchingRule = this.websiteConfig.srcMatching[i];
 
@@ -482,21 +487,21 @@
         tools.executeScript(
           this.isEnabled
             ? `
-          if (!window.photoShowOriXhrOpen) {
-            window.photoShowOriXhrOpen = window.XMLHttpRequest.prototype.open;
+              if (!window.photoShowOriXhrOpen) {
+                window.photoShowOriXhrOpen = window.XMLHttpRequest.prototype.open;
 
-            window.XMLHttpRequest.prototype.open = function(method, url) {
-              this.addEventListener('load', function() {
-                (${photoShow.websiteConfig.onXhrLoad})(url, this.responseText);
-              });
-              return window.photoShowOriXhrOpen.apply(this, arguments);
-            }
-          }`
+                window.XMLHttpRequest.prototype.open = function(method, url) {
+                  this.addEventListener('load', function() {
+                    (${photoShow.websiteConfig.onXhrLoad})(url, this.responseText);
+                  });
+                  return window.photoShowOriXhrOpen.apply(this, arguments);
+                }
+              }`
             : `
-          if (window.photoShowOriXhrOpen) {
-            window.XMLHttpRequest.prototype.open = window.photoShowOriXhrOpen;
-            delete window.photoShowOriXhrOpen;
-          }`
+              if (window.photoShowOriXhrOpen) {
+                window.XMLHttpRequest.prototype.open = window.photoShowOriXhrOpen;
+                delete window.photoShowOriXhrOpen;
+              }`
         );
       }
     },
@@ -545,8 +550,7 @@
           if (window.photoShowHotkeyDeconflictHook) {
             document.removeEventListener('keydown', window.photoShowHotkeyDeconflictHook, true);
             delete window.photoShowHotkeyDeconflictHook;
-          }
-        `);
+          }`);
       }
     }
   };
@@ -1087,7 +1091,13 @@
               // Note: Both the photoShowViewer.imgSrc and the imgInfo.oriSrc may be either a string or a Promise object.
               if (this.imgSrc && this.imgSrc == imgInfo.oriSrc) {
                 this.imgSrc = imgInfo.src; // Assign the actual image src to the photoShowViewer.imgSrc, in case it may be a Promise object.
-                $(this.curTrigger).attr('photoshow-hd-src', this.imgSrc); // Cache the actual src of the high-definition image.
+
+                // Cache the actual src of the high-definition image.
+                $(this.curTrigger)
+                  .attr('photoshow-hd-src', this.imgSrc)
+                  .closest('[data-photoshow-hd-src]')
+                  .removeAttr('data-photoshow-hd-src')
+                  .removeData('photoshow-hd-src');
 
                 this.viewerBox.addClass('img-shown');
                 this.viewerImg.attr('src', this.imgSrc);
@@ -1734,13 +1744,16 @@
                 (mutation.attributeName == 'style' &&
                   tools.getBackgroundImgSrc(target) != tools.getBackgroundImgSrc(mutation.oldValue))
               ) {
-                const srcCacheHost = target.closest('[photoshow-hd-src]');
+                const srcCacheHost = target.closest('[photoshow-hd-src],[data-photoshow-hd-src]');
 
                 this.hasImgViewerShown &&
                   srcCacheHost.attr('photoshow-hd-src') == this.imgSrc &&
                   this.mouseLeaveAction();
 
-                srcCacheHost.removeAttr('photoshow-hd-src');
+                srcCacheHost
+                  .removeAttr('photoshow-hd-src')
+                  .removeAttr('data-photoshow-hd-src')
+                  .removeData('photoshow-hd-src');
               }
 
               break;

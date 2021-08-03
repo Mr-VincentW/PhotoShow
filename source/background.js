@@ -163,6 +163,8 @@
  * @version 4.7.1.0 | 2021-07-07 | Vincent    // Updates: Better support for Pinterest, in response to user feedback.
  * @version 4.7.2.0 | 2021-07-17 | Vincent    // Updates: Support iStock, Pexels, and Unsplash, in response to user feedback (GitHub issue #23).
  * @version 4.7.3.0 | 2021-07-30 | Vincent    // Updates: Better support for Sportsfuel and Google, in response to user feedback.
+ * @version 4.7.4.0 | 2021-08-03 | Vincent    // Bug Fix: Gif play button failure on jandan.net, in response to user feedback;
+ *                                            // Updates: Support lofter.com and soutushenqi.com, in response to user feedback.
  */
 
 // TODO: Extract websiteConfig to independent files and import them (after porting to webpack).
@@ -178,6 +180,8 @@
 // TODO: duckduckgo.com uses Bing image.
 // TODO: Image viewer positioning issue on https://m.xiaomiyoupin.com/w/universal?_rt=weex&pageid=5545&sign=e34c2d8dde5fe25ef83112cbaa154e76&pdl=jianyu&spmref=YouPinPC.$Home$.list.0.86425397
 // TODO: Bulk download.
+// TODO: Some abstraction is needed for onXhrLoad, like providing a url filter, unifying try...catch, removing 'data-photoshow-hd-src' when PhotoShow is toggled off, etc.
+// TODO: After 'data-photoshow-hd-src' is removed by toggling off PhotoShow, it won't work when PhotoShow's toggled on again. Need other ways to cache data.
 
 // Website info structure:
 // {
@@ -1028,7 +1032,7 @@ const websiteConfig = {
               .querySelector(
                 `img[data-src*="${encodeURIComponent('?id=')}${new URL(thumbnail).searchParams.get('id')}"]`
               )
-              .setAttribute('data-photoshow-hd-src', image)
+              ?.setAttribute('data-photoshow-hd-src', image)
           );
         } catch (error) {}
       }
@@ -1448,7 +1452,7 @@ const websiteConfig = {
               // Using 'data-photoshow-hd-src' instead of directly writing 'photoshow-hd-src' attribute on triggers is because in this stage the image triggers may not exist.
               document
                 .querySelector(`[data-id="${id}"]`)
-                .setAttribute('data-photoshow-hd-src', JSON.parse(`"${hdSrc.replace(/\\\\(?=u[a-f\d]+)/gi, '\\')}"`));
+                ?.setAttribute('data-photoshow-hd-src', JSON.parse(`"${hdSrc.replace(/\\\\(?=u[a-f\d]+)/gi, '\\')}"`));
             } catch (error) {}
           }
         );
@@ -1573,7 +1577,7 @@ const websiteConfig = {
   },
   'jandan\\.net': {
     amendStyles: {
-      pointerNone: '.gif-mask,.hotcomment .show_more'
+      pointerNone: '.hotcomment .show_more'
     },
     noReferrer: true,
     srcMatching: [
@@ -1582,11 +1586,11 @@ const websiteConfig = {
         processor: '$1'
       },
       {
-        selectors: 'img',
+        selectors: 'img,.gif-mask',
         srcRegExp:
           '((?:.+\\.sinaimg\\.cn|image\\.storage\\.weibo\\.com)(?:/.+)?/)(?:small|large|thumbnail|c?mw\\d+|small|sq\\d+|thumb\\d+|bmiddle|orj\\d+|crop\\.[^/]+|square|wap\\d+)(/.+(?:@IMG@)?).*',
         processor: (trigger, src, srcRegExpObj) =>
-          srcRegExpObj.test(src)
+          srcRegExpObj.test(src || trigger.prev('img').attr('src'))
             ? tools
                 .detectImage(
                   `${RegExp.$1}original${RegExp.$2}`,
@@ -1644,6 +1648,21 @@ const websiteConfig = {
     srcMatching: {
       srcRegExp: '(/wcsstore/Kmart/images/ncatalog/)\\w+(/.+-)\\w+(@IMG@)',
       processor: '$1sz$2sz$3'
+    }
+  },
+  '(?:.+\\.)?lofter\\.com': {
+    amendStyles: {
+      pointerNone: 'img~*:empty,.picnum,.vicon,._1QbO27i89o9oNUgIiATHoz'
+    },
+    srcMatching: {
+      selectors: 'img,.layer,[style*="background-image"]',
+      srcRegExp: '(//.+\\.lf\\d+\\.net/.+?@IMG@).*',
+      processor: (trigger, src, srcRegExpObj) =>
+        srcRegExpObj.test(
+          src || tools.getLargestImgSrc(trigger.prev('.pic')) || trigger.parent().find('img').attr('src')
+        )
+          ? RegExp.$1
+          : ''
     }
   },
   '(?:.+\\.)?metal-archives\\.com': {
@@ -1910,6 +1929,45 @@ const websiteConfig = {
         processor: '$1'
       }
     ]
+  },
+  'soutushenqi\\.com': {
+    amendStyles: {
+      pointerNone: '[class^=goodItemLayout_Resolution_]'
+    },
+    srcMatching: {
+      selectors: '.detail_page_footer_more_img img',
+      processor: (trigger, src) => {
+        const imgListName = /\btime=(\d+)/.test(new URLSearchParams(location.search).get('img'))
+          ? `imgList${RegExp.$1}`
+          : '';
+
+        if (imgListName) {
+          try {
+            return JSON.parse(sessionStorage[imgListName])?.imgList.reduce((acc, { largeUrl, thumbUrl }) => {
+              document.querySelector(`img[src="${thumbUrl}"]`)?.setAttribute('data-photoshow-hd-src', largeUrl);
+              return thumbUrl === src ? largeUrl : acc;
+            }, '');
+          } catch (error) {
+            return '';
+          }
+        } else {
+          return '';
+        }
+      }
+    },
+    onXhrLoad: (url, response) => {
+      try {
+        if (/\/UserActionImage\?/.test(url)) {
+          JSON.parse(response).results.forEach(({ largeImageUrl, smallImageUrl }) =>
+            document.querySelector(`img[src="${smallImageUrl}"]`)?.setAttribute('data-photoshow-hd-src', largeImageUrl)
+          );
+        } else if (/server\.jianzhuxuezhang\.com\/api\/v\d\/imageFlow\//.test(url)) {
+          JSON.parse(response).data.forEach(({ largeUrl, thumbUrl }) =>
+            document.querySelector(`img[src="${thumbUrl}"]`)?.setAttribute('data-photoshow-hd-src', largeUrl)
+          );
+        }
+      } catch (error) {}
+    }
   },
   '(?:.+\\.)?(?:sportsfuel|1-day\\.winecentral)\\.co\\.nz': {
     srcMatching: [

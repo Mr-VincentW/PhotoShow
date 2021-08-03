@@ -120,13 +120,13 @@
 
     ACP Journals、Bing、Google、GitHub、JAMA Network、NEJM、Wiki
 
-    全历史、百度、百度百科、知乎
+    全历史、百度、百度百科、搜图神器、知乎
 
 4.  **新闻 / 社交 / 社区 类：**
 
     Facebook、IMDb、Imgur、Instagram、Reddit、TapTap、Tumblr、TweetDeck、Twipu、Twitter、wattpad
 
-    115 网盘、A 岛匿名版、巴哈姆特、百度贴吧、豆瓣、堆糖、煎蛋、NGA 玩家社区、QQ 空间、今日头条、微博、微信公众号
+    115 网盘、A 岛匿名版、巴哈姆特、百度贴吧、豆瓣、堆糖、煎蛋、乐乎、NGA 玩家社区、QQ 空间、今日头条、微博、微信公众号
 
 5.  **视频、音乐 类：**
 
