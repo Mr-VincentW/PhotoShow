@@ -165,6 +165,8 @@
  * @version 4.7.3.0 | 2021-07-30 | Vincent    // Updates: Better support for Sportsfuel and Google, in response to user feedback.
  * @version 4.7.4.0 | 2021-08-03 | Vincent    // Bug Fix: Gif play button failure on jandan.net, in response to user feedback;
  *                                            // Updates: Support lofter.com and soutushenqi.com, in response to user feedback.
+ * @version 4.8.0.0 | 2021-08-14 | Vincent    // Updates: Support Baidu map, ctrip, dianping, Google books, Google map, mafengwo, maoyan, and meituan;
+ *                                            // Updates: Better support for bilibili, in response to user feedback; pixiv, and Ali series websites.
  */
 
 // TODO: Extract websiteConfig to independent files and import them (after porting to webpack).
@@ -182,6 +184,7 @@
 // TODO: Bulk download.
 // TODO: Some abstraction is needed for onXhrLoad, like providing a url filter, unifying try...catch, removing 'data-photoshow-hd-src' when PhotoShow is toggled off, etc.
 // TODO: After 'data-photoshow-hd-src' is removed by toggling off PhotoShow, it won't work when PhotoShow's toggled on again. Need other ways to cache data.
+// TODO: Prefix 'img,[style*=background]' by default as selectors for all matching rules.
 
 // Website info structure:
 // {
@@ -190,7 +193,7 @@
 //     pointerAuto: {String}           // Selectors that are to be set to 'pointer-events:auto'
 //   },
 //   srcMatching: {                    // (Required) Matching configuration.
-//     selectors: {String},            // (Optional) Selectors for elements responsible for mouse-enter action. Default value: '' (equivalent to 'img,[style*=background-image]').
+//     selectors: {String},            // (Optional) Selectors for elements responsible for mouse-enter action. Default value: '' (equivalent to 'img,[style*=background],image,a[href]').
 //     srcRegExp: {String},            // (Optional) Pattern for trigger image src matching in src replacement.
 //     processor: {String|Function}    // (Optional) Replacement string or process function. ('this' -> the selected element. NOTE: Not applicable to arrow functions.)
 //                                     // Arguments: trigger{Object}         // The selected element (jQuery object of 'this').
@@ -198,7 +201,7 @@
 //                                     // Arguments: srcRegExpObj{RegExp}    // An RegExp object constructed by srcRegExp.
 //                                     // Return Value: {String}             // Src of the high-definition image; return '' if not applicable.
 //   },
-//   xhrDownload: {String|Array},      // (Optional) If downloading images under certain hostnames on this website needs the 'referer' header of the HTTP request set, list the hostnames here.
+//   xhrDownload: {String|Array},      // (Optional) If downloading images under certain hostnames on this website needs the 'referer' header of the HTTP(S) request set, list the hostnames here.
 //   noReferrer: {Boolean},            // (Optional) Set the 'referrerPolicy' field of the img element to 'no-referrer' when displaying the HD image, if this parameter is specified as true.
 //   onToggle: {Function},             // (Optional) Callback when PhotoShow is toggled on/off on the hosting page.
 //                                     // Arguments: isOn {Boolean}    // Specify whether PhotoShow is turnned on.
@@ -272,7 +275,7 @@ const websiteConfig = {
   '(?:web\\.)?500px\\.com': {
     srcMatching: [
       {
-        selectors: 'img,[style*=background-image],a[href^="/photo/"],a.link_wrap',
+        selectors: 'img,[style*=background],a[href^="/photo/"],a.link_wrap',
         srcRegExp: '/photo/(\\d+)/',
         processor: (trigger, src, srcRegExpObj) => {
           var link = trigger.is('.link_wrap')
@@ -551,9 +554,42 @@ const websiteConfig = {
         processor: '$1'
       },
       {
-        srcRegExp: '(himg\\.bdimg\\.com/sys/portrait/.+@IMG@)'
+        srcRegExp: '((?:.+\\.)?(?:bdstatic|himg\\.(?:baidu|bdimg))\\.com/.+)/portrait/(.+)',
+        processor: '$1/portraith/$2'
       }
     ]
+  },
+  'map\\.baidu\\.com': {
+    amendStyles: {
+      pointerNone: '.photo-li .tag,.indoor-pano,.video-greybg'
+    },
+    srcMatching: [
+      {
+        srcRegExp: 'webmap\\d+\\.bdimg\\.com/client/services/thumbnails\\?.*\\bsrc=([^&]+)',
+        processor: (trigger, src, srcRegExpObj) => (srcRegExpObj.test(src) ? decodeURIComponent(RegExp.$1) : '')
+      },
+      {
+        srcRegExp: '(.+\\.cdn\\.bcebos\\.com/images/[^?]+).*',
+        processor: '$1'
+      },
+      {
+        srcRegExp: '((?:.+\\.)?(?:bdstatic|himg\\.(?:baidu|bdimg))\\.com/.+)/portrait/(.+)',
+        processor: '$1/portraith/$2'
+      }, // TODO: Duplicated.
+      {
+        srcRegExp: '(.+\\.(?:mafengwo|meituan)\\.net/)(?:[\\d.]+/)?(.+?@IMG@).*',
+        processor: '$1$2'
+      }, // TODO: Duplicated.
+      {
+        srcRegExp: 'store\\.is\\.autonavi\\.com/showpic/.+',
+        processor: '$&'
+      },
+      {
+        srcRegExp: '(.+\\.(?:c-ctrip|tripcdn)\\.com/.+?)(?:_\\w+)*(@IMG@)',
+        processor: '$1$2'
+      } // TODO: Duplicated.
+    ],
+    xhrDownload: 'userimg.qunar.com'
   },
   'tieba\\.baidu\\.com': {
     amendStyles: {
@@ -569,8 +605,8 @@ const websiteConfig = {
         processor: '$1pic/item$2'
       },
       {
-        srcRegExp: '(.+\\.(?:bdstatic|himg\\.baidu)\\.com/.+)/portrait/(.+)',
-        processor: '$1/portraith/$2'
+        srcRegExp: '((?:.+\\.)?(?:bdstatic|himg\\.(?:baidu|bdimg))\\.com/.+)/portrait/(.+)',
+        processor: '$1/portraith/$2' // TODO: Duplicated.
       },
       {
         srcRegExp: '.+\\.bdstatic\\.com/.+\\bsrc=(.+@IMG@)',
@@ -632,13 +668,13 @@ const websiteConfig = {
   '.+\\.bilibili\\.com': {
     amendStyles: {
       pointerNone:
-        '.groom-module .card-mark,.spread-module .pic img~*,.spread-module .pic .lazy-img~*,.cover-ctn .cover-back,.hot-list-content .hover-mask,.play-mask,.recommend-box .info,.hover-cover-box *,.cover *:not(img),.image-area *:not(img),.face-pendants,.pendant,.user-decorator,.bilibili-player-ending-panel-box-recommend-cover,.van-framepreview,.fake-danmu,.fake-danmu-mask,.preview-bg,.pl__mask,.video-card-reco .info,.card-pic a *:not(img)',
+        '.biref-img img~*,.bili-avatar img~*,.groom-module .card-mark,.spread-module .pic img~*,.spread-module .pic .common-lazy-img~*,.cover-ctn .cover-back,.hot-list-content .hover-mask,.play-mask,.recommend-box .info,.hover-cover-box *,.cover *:not(img),.image-area *:not(img),.face-pendants,.pendant,.user-decorator,.bilibili-player-ending-panel-box-recommend-cover,.van-framepreview,.fake-danmu,.fake-danmu-mask,.preview-bg,.pl__mask,.video-card-reco .info,.card-pic a *:not(img),.bg-cover~*',
       pointerAuto: '.hover-cover-box .cover-ctnr,.image-area .see-later,.cover .i-watchlater'
     },
     srcMatching: [
       {
         selectors:
-          'img,[style*=background-image],.card-live-module .pic .mask,.cover-ctn .cover,.album-img,.user-container i,.drawer-card .img-ctn,.canvas-card .img-contain',
+          'img,[style*=background],.card-live-module .pic .mask,.cover-ctn .cover,.album-img,.user-container i,.drawer-card .img-ctn,.canvas-card .img-contain',
         srcRegExp: '(i\\d+\\.hdslb\\.com/.+?@IMG@)[^?]*(\\?.*)?',
         processor: '$1$2'
       },
@@ -754,6 +790,17 @@ const websiteConfig = {
           : ''
     }
   },
+  '(?:.+\\.)?c?trip\\.com': {
+    amendStyles: {
+      pointerNone:
+        '.img_tit,.list_tips,.list_address,.productcard_imgmask,a .item-thumbnail~*,.m_aroundcity_img_mask,.m_desc_con,.taglist_img,.gl-poi-top-list_head-mask,.gl-poi-top-list_sidebar-item-mask,.m-popularDistinations_itemMask,.carousel-list,.carousel-wrapper .top-area',
+      pointerAuto: '.ct-review-photo-item img,.carousel-list>[style*=background]'
+    },
+    srcMatching: {
+      srcRegExp: '(.+\\.(?:c-ctrip|tripcdn)\\.com/.+?)(?:_\\w+)*(@IMG@)',
+      processor: '$1$2'
+    }
+  },
   '(?:.+\\.)?dangdang\\.com': {
     srcMatching: [
       {
@@ -784,7 +831,7 @@ const websiteConfig = {
         processor: trigger => {
           var deviationId = /(\d+)$/.test(trigger.attr('href') || trigger.closest('a').attr('href')) ? RegExp.$1 : '';
 
-          return deviationId && (trigger.is('img') || trigger.prev().find('>img,>[style*=background-image]').length)
+          return deviationId && (trigger.is('img') || trigger.prev().find('>img,>[style*=background]').length)
             ? new Promise((resolve, reject) => {
                 $.ajax('/_napi/shared_api/deviation/extended_fetch', {
                   dataType: 'json',
@@ -895,6 +942,44 @@ const websiteConfig = {
       },
       {
         srcRegExp: 'www\\.dhresource\\.com/.+@IMG@'
+      }
+    ]
+  },
+  '(?:.+\\.)?(?:dianping|gewara|maoyan|meituan)\\.com': {
+    amendStyles: {
+      pointerNone:
+        '.film-mark,.film-info,.abstract-item>.abstract-pic span,.review-pictures .mask,.pic-overlay,.movie-overlay,.movie-ver,.ranking-top-icon,.ranking-index,.hotlist-item-location,a[data-act$="-click"] :not(img),.news-header'
+    },
+    srcMatching: [
+      {
+        srcRegExp: '(.+\\.meituan\\.net/)(?:[\\d.]+/)?(.+?@IMG@).*',
+        processor: '$1$2'
+      },
+      {
+        srcRegExp: '(.+\\.meituan\\.net/.+?=@).*',
+        processor: '$10w'
+      },
+      {
+        srcRegExp: '(.+\\.pipi\\.cn/.+?@IMG@).*',
+        processor: '$1'
+      },
+      {
+        processor: 'img,.block-link',
+        srcRegExp: 'qcloud\\.dpfile\\.com/.+@IMG@',
+        processor: (trigger, src, srcRegExpObj) =>
+          trigger.data('big') || /\/photos\/\d+/.test(trigger.closest('a').attr('href'))
+            ? new Promise((resolve, reject) => {
+                $.ajax(RegExp['$&'], {
+                  dataType: 'html',
+                  success: response => {
+                    resolve($('#J_main-img', response).attr('src') || '');
+                  },
+                  error: reject
+                });
+              })
+            : srcRegExpObj.test(src) || srcRegExpObj.test(trigger.parent().find('img').attr('src'))
+            ? RegExp.$_
+            : ''
       }
     ]
   },
@@ -1118,7 +1203,7 @@ const websiteConfig = {
         processor: (trigger, src, srcRegExpObj) => (srcRegExpObj.test(src) ? decodeURIComponent(RegExp.$1) : '')
       },
       {
-        selectors: 'img,[style*=background-image],a[data-video-channel-id],image',
+        selectors: 'img,[style*=background],a[data-video-channel-id],image',
         srcRegExp: '/\\d+_(\\d+)_\\w+@IMG@\\?',
         processor: (trigger, src, srcRegExpObj) => {
           var bgSrc = tools.getBackgroundImgSrc(trigger);
@@ -1269,7 +1354,7 @@ const websiteConfig = {
     srcMatching: [
       {
         selectors:
-          'img,[style*="background-image"],.photo-list-description-view,.photo-list-gallery-photo-view .photo-container',
+          'img,[style*=background],.photo-list-description-view,.photo-list-gallery-photo-view .photo-container',
         srcRegExp: '//.+\\.static\\.?flickr\\.com/(?:\\d+/)+(\\d+)_.+@IMG@',
         processor: (trigger, src, srcRegExpObj) => {
           var apiKey =
@@ -1379,17 +1464,57 @@ const websiteConfig = {
       pointerNone: '.rg_anbg,.rg_ilmbg'
     },
     srcMatching: {
-      selectors: 'img,[style*="background-image"],.wXUyZd,.TdqJUe',
-      srcRegExp: '(//(?:.*\\.googleusercontent|books\\.google)\\.com/[^=]+)=.*',
+      selectors: 'img,[style*=background],.wXUyZd,.TdqJUe',
+      srcRegExp: '(//(.*\\.googleusercontent|books\\.google)\\.com/[^=]+)=.*',
       processor: (trigger, src, srcRegExpObj) =>
-        srcRegExpObj.test(src || trigger.parent().find('img[src]').attr('src')) ? `${RegExp.$1}=w10000` : ''
+        srcRegExpObj.test(src || trigger.parent().find('img[src]').attr('src'))
+          ? `${RegExp.$1}=w${~RegExp.$2.indexOf('books') ? '10000' : '0'}`
+          : ''
     }
   },
   'www\\.google(?:\\.(?:com|[a-z]{2}))+': {
     amendStyles: {
-      pointerNone: '.fWhgmd,.ZUQgzb'
+      pointerNone:
+        '.fWhgmd,.ZUQgzb,.hNLpDc-HiaYvf-DWDkFd-HiaYvf-haAclf~label,.a4izxd-tUdTXb-xJzy8c-haAclf-UDotu,.gallery-image-highlight,.HgKUEe,.d6JfQc'
     },
     srcMatching: [
+      {
+        selectors: 'img,[style*=background],.hNLpDc-HiaYvf-DWDkFd-HiaYvf-haAclf+*,.a4gq8e-aVTXAb-haAclf-jRmmHf-hSRGPd', // Google map images.
+        srcRegExp: '(//streetviewpixels-pa\\.googleapis\\.com/.+?&w=)(\\d+)&h=(\\d+)(.*)',
+        processor: (trigger, src, srcRegExpObj) =>
+          srcRegExpObj.test(
+            src ||
+              trigger
+                .siblings('.hNLpDc-HiaYvf-DWDkFd-HiaYvf-haAclf,.MVVflb-haAclf-uxVfW-hSRGPd')
+                .find('.CJY91c-jRmmHf-aVTXAb-haAclf-HiaYvf img,img')
+                .attr('src')
+          )
+            ? `${RegExp.$1}1024&h=${Math.round((parseInt(RegExp.$3) * 1024) / parseInt(RegExp.$2))}${RegExp.$4}`
+            : ''
+      },
+      {
+        selectors: 'img,[style*=background],.a4gq8e-aVTXAb-haAclf-jRmmHf-hSRGPd,.jtJMuf', // Google map images.
+        srcRegExp: '(//lh\\d+\\.googleusercontent\\.com/.+[/=])(?:-?[\\w\\d]+)+',
+        processor: (trigger, src, srcRegExpObj) => {
+          return srcRegExpObj.test(
+            src ||
+              trigger
+                .siblings('.MVVflb-haAclf-uxVfW-hSRGPd')
+                .find('.CJY91c-jRmmHf-aVTXAb-haAclf-HiaYvf img')
+                .attr('src') ||
+              trigger.find('img').attr('src')
+          )
+            ? `${RegExp.$1}w0`
+            : '';
+        }
+      },
+      {
+        selectors: 'img',
+        processor: trigger =>
+          /books\.google\..+\bid=([^&]+)|books\/edition\/.+\/([^?]+)/.test(trigger.closest('a').attr('href'))
+            ? `/books/publisher/content/images/frontcover/${RegExp.$1 || RegExp.$2}?fife=w100000`
+            : '' // Google books images.
+      },
       {
         selectors: 'img',
         processor: trigger =>
@@ -1605,8 +1730,7 @@ const websiteConfig = {
         processor: '$1n1/s800x800_$2'
       }, // TODO: Jd image, duplicated, need to be removed.
       {
-        srcRegExp:
-          '(//.+\\.(?:alicdn|china\\.alibaba)\\.com/.*?(?:bao|t[fp]s(?:com)?|upload|simba|i\\d+|bttopic|sc\\d+|nonpublic|kf)/.+?(?:@IMG@|.(?=_\\d+x\\d+.*))).*',
+        srcRegExp: '(//.+\\.(?:alicdn|china\\.alibaba)\\.com/.+?@IMG@).*',
         processor: (trigger, src, srcRegExpObj) =>
           srcRegExpObj.test(src) || srcRegExpObj.test(trigger.parent().find('img').attr('src')) ? RegExp.$1 : ''
       } // TODO: Ali image, duplicated, need to be removed.
@@ -1655,7 +1779,7 @@ const websiteConfig = {
       pointerNone: 'img~*:empty,.picnum,.vicon,._1QbO27i89o9oNUgIiATHoz'
     },
     srcMatching: {
-      selectors: 'img,.layer,[style*="background-image"]',
+      selectors: 'img,.layer,[style*=background]',
       srcRegExp: '(//.+\\.lf\\d+\\.net/.+?@IMG@).*',
       processor: (trigger, src, srcRegExpObj) =>
         srcRegExpObj.test(
@@ -1663,6 +1787,15 @@ const websiteConfig = {
         )
           ? RegExp.$1
           : ''
+    }
+  },
+  '(?:.+\\.)?mafengwo\\.cn': {
+    amendStyles: {
+      pointerNone: 'a .pic~*,.pic a~*,.per_avatar i,a img~:not(img)'
+    },
+    srcMatching: {
+      srcRegExp: '(.+\\.mafengwo\\.net/.+?@IMG@).*',
+      processor: '$1'
     }
   },
   '(?:.+\\.)?metal-archives\\.com': {
@@ -1799,7 +1932,6 @@ const websiteConfig = {
         processor: '$1imgprod$2'
       },
       {
-        selectors: 'img,[style*="background-image"]',
         srcRegExp: 'www\\.pbtech\\.(?:com/au|co\\.nz)/imgprod/.+@IMG@'
       }
     ]
@@ -1824,36 +1956,35 @@ const websiteConfig = {
   },
   '(?:.+\\.)?(?:pixiv(?:ision|-bungei)?\\.net|booth\\.pm|vroid\\.com)': {
     amendStyles: {
-      pointerNone: '.dxCZpw,.TagImageMainBack,.search-guide-tablet-label',
+      pointerNone: '.dxCZpw,.TagImageMainBack,.search-guide-tablet-label,.feypLD',
       pointerAuto: '.thumb img'
     },
     srcMatching: [
       {
-        selectors: 'img,[style*="background-image"]',
         srcRegExp: '(.+\\.pximg\\.net/user-profile/.+)_\\d+(@IMG@)',
         processor: '$1$2'
       },
       {
-        selectors: 'img,[style*="background-image"]',
         srcRegExp: '.+\\.pximg\\.net/(?:imgaz|img-novel)/.+@IMG@'
       },
       {
-        selectors: 'img,[style*="background-image"]',
         srcRegExp: '(.+\\.pximg\\.net/.+/.+_thumb/.+)_\\w+(@IMG@)',
         processor: '$1$2'
       },
       {
-        selectors: 'img,[style*="background-image"]',
         srcRegExp: '(.+\\.pximg\\.net)(?=/).+(/uploads/.+/)(?:.+_)?(\\d+@IMG@)',
         processor: '$1$2$3'
       },
       {
-        selectors: 'img,[style*="background-image"]',
         srcRegExp: '(.+\\.pixiv\\.net/images/post/\\d+)/w/\\d+(/.+@IMG@)',
         processor: '$1$2'
       },
       {
-        selectors: 'img,[style*="background-image"],.kTOQSN',
+        srcRegExp: '(.+\\.pximg\\.net/)\\w+/\\d+x\\d+/(.+@IMG@)',
+        processor: '$1$2'
+      },
+      {
+        selectors: 'img,[style*=background],.kTOQSN',
         srcRegExp: '(//.+\\.pximg\\.net/).+(/img/.+?)(_p\\d+)?_.+(@IMG@)',
         processor: (trigger, src, srcRegExpObj) => {
           src = src || tools.getLargestImgSrc(trigger.find('img'));
@@ -1868,12 +1999,10 @@ const websiteConfig = {
         }
       },
       {
-        selectors: 'img,[style*="background-image"]',
         srcRegExp: '(.+\\.pximg\\.net)/c!?/[^/]+(/.+@IMG@)',
         processor: '$1$2'
       },
       {
-        selectors: 'img,[style*="background-image"]',
         srcRegExp: '.+\\.pximg\\.net/.+@IMG@'
       }
     ],
@@ -2045,43 +2174,33 @@ const websiteConfig = {
     {
       amendStyles: {
         pointerNone:
-          '.mask,.itemSoldout .product-mask,.ju-itemlist .link-box .detail,.tb-img li span,.offerImg .offerMask,.NervModuleKjIndexCateOfferUi>div:first-child>div:last-child,.imageGallery .imgItem .imgBg,.img-box .img-bg-layer,.img-zhe,.img-mask,.product .shadow,.item .shade'
+          '.mask,.itemSoldout .product-mask,.ju-itemlist .link-box .detail,.tb-img li span,.offerImg .offerMask,.NervModuleKjIndexCateOfferUi>div:first-child>div:last-child,.imageGallery .imgItem .imgBg,.img-box .img-bg-layer,.img-zhe,.img-mask,.product .shadow,.item .shade,.changhuo_pank,img~div:empty,[style*=background]~div:empty,.lazyload-wrapper~div:empty'
       },
       srcMatching: [
         {
-          selectors: 'img,.zhibo-show-list .img-item,.abs.jibbg,.item-list .item-img,.act-list .itemLink,.pic',
-          srcRegExp:
-            '(//.+\\.(?:alicdn|china\\.alibaba)\\.com/.*?(?:bao|t[fp]s(?:com)?|upload|simba|i\\d+|bttopic|sc\\d+|nonpublic|kf)/.+?(?:@IMG@|.(?=_\\d+x\\d+.*))).*',
-          processor: (trigger, src, srcRegExpObj) =>
-            srcRegExpObj.test(src) || srcRegExpObj.test(trigger.parent().find('img').attr('src')) ? RegExp.$1 : ''
+          srcRegExp: 'union-etao\\.aliyuncs\\.com|gcodex\\.alicdn\\.com/qrcode.do'
+        },
+        {
+          srcRegExp: '(gqrcode\\.alicdn\\.com/img\\?.*?)&w=\\d+(.*?)&h=\\d+(.*)',
+          processor: '$1&w=300$2&h=300$3'
         },
         {
           srcRegExp: '(.+\\.(?:alicdn|taobao)\\.com/avatar/get_?Avatar\\.do\\?user(?:Id(?:Str)?|Nick)=[^&]+).*',
           processor: '$1&width=1280&height=1280'
         },
         {
-          srcRegExp:
-            '(.+\\.(?:alicdn|china\\.alibaba)\\.com/img/(?:(?:back_)?ibank|order)/.+?)\\.(?:\\d+x\\d+[a-z]*|search|summ)(@IMG@).*',
+          srcRegExp: '(.+\\.(?:alicdn|china\\.alibaba)\\.com/.+?)\\.(?:\\d+x\\d+[a-z]*|search|summ)(@IMG@).*',
           processor: '$1$2'
         },
         {
-          selectors: 'img,.abs.jibbg,.tb-select-goods a,.tb-img li a[style]',
-          srcRegExp:
-            '(.+\\.(?:alicdn|china\\.alibaba)\\.com/(?:imgextra|kf|img/(?:(?:back_)?ibank|order))/.+?@IMG@)(?!_\\.webp|$).+',
+          srcRegExp: '(.+\\.(?:alicdn|china\\.alibaba)\\.com/.+?@IMG@).*',
           processor: '$1'
         },
         {
-          selectors: '.tb-select-goods a,.tb-img li a[style]',
-          srcRegExp: '(.+\\.(?:alicdn|china\\.alibaba)\\.com/imgextra/.+)_\\d+x\\d+.*?@IMG@.*',
-          processor: '$1'
-        },
-        {
-          selectors: 'img,.process-item-bigImg',
-          srcRegExp: '.+\\.(?:alicdn|china\\.alibaba)\\.com/(?:kf/[^/]+|imgextrai\\d+/.+)@IMG@'
-        },
-        {
-          srcRegExp: '.+\\.(?:alicdn|china\\.alibaba)\\.com/montage/.+@IMG@\\?.*&img_path2=(.+?@IMG@)',
-          processor: (trigger, src, srcRegExpObj) => (srcRegExpObj.test(src) ? decodeURIComponent(RegExp.$1) : '')
+          selectors: '.itemLink',
+          srcRegExp: '(.+\\.(?:alicdn|china\\.alibaba)\\.com/.+?@IMG@).*',
+          processor: (trigger, src, srcRegExpObj) =>
+            srcRegExpObj.test(trigger.parent().find('img').attr('src')) ? RegExp.$1 : ''
         },
         {
           // This is for www.wsy.com that links a lot of images under ali's hostnames.
@@ -2124,7 +2243,7 @@ const websiteConfig = {
             : ''
       },
       {
-        selectors: '[style*="background-image"]',
+        selectors: '[style*=background]',
         srcRegExp: '(//trademe\\.tmcdn\\.co\\.nz/photoserver/)\\w+(/\\d+@IMG@)',
         processor: '$1plusw$2'
       },
@@ -2438,8 +2557,8 @@ const websiteConfig = {
         processor: '$10'
       },
       {
-        srcRegExp: 'lh3\\.googleusercontent\\.com/[-\\w]+',
-        processor: '$&=w0'
+        srcRegExp: '(lh\\d+\\.googleusercontent\\.com/[^=]+=).*',
+        processor: '$1w0' // TODO: Google images, duplicated, need to be removed.
       }
     ]
   },
@@ -2920,7 +3039,7 @@ XHR_DOWNLOAD_REQUIRED_HOSTNAMES = Object.values(websiteConfig)
 
 // Note:
 // The value 'extraHeaders' of the third argument is not supported (neither needed) by Firefox,
-// it will be removed in the compiling procedure.
+// it will be removed during compilation.
 chrome.webRequest.onBeforeSendHeaders.addListener(
   details => {
     for (let header of details.requestHeaders) {

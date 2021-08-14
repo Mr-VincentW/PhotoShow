@@ -115,6 +115,8 @@
  *                                            // Updates: Resolve hotkey conflicts (with original document) issue;
  *                                            // Updates: Add activation exemption feature.
  * @version 4.7.4.0 | 2021-08-03 | Vincent    // Updates: Works better with data-photoshow-hd-src cache.
+ * @version 4.8.0.0 | 2021-08-14 | Vincent    // Bug Fix: Trigger style mutations cause image viewer hiding;
+ *                                            // Updates: Compatible with triggers having 'background' rather than 'background-image' styles.
  */
 
 // TODO: Extract common tool methods to external modules.
@@ -452,7 +454,7 @@
           let curMatchingRule = this.websiteConfig.srcMatching[i];
 
           if (
-            target.is(curMatchingRule.selectors || 'img,[style*=background-image],image,a[href]') &&
+            target.is(curMatchingRule.selectors || 'img,[style*=background],image,a[href]') &&
             target.css('pointerEvents') != 'none'
           ) {
             let targetSrc = tools.getLargestImgSrc(element),
@@ -1718,7 +1720,7 @@
     domMutateAction: function (mutations) {
       // Some websites update images only by changing their src attributes instead of replacing the whole img elements,
       // which could cause problems when the triggers have had their high-definition image srcs cached.
-      // Some websites remove photoShow's elements when updating their page contents, in which case those elements need to be add back to the DOM.
+      // Some websites remove photoShow's elements when updating their page contents, in which case those elements need to be added back again.
       mutations.forEach(mutation => {
         var target = $(mutation.target);
 
@@ -1742,6 +1744,7 @@
               if (
                 (~mutation.attributeName.indexOf('src') && target.is('img,source')) ||
                 (mutation.attributeName == 'style' &&
+                  tools.getBackgroundImgSrc(mutation.oldValue) &&
                   tools.getBackgroundImgSrc(target) != tools.getBackgroundImgSrc(mutation.oldValue))
               ) {
                 const srcCacheHost = target.closest('[photoshow-hd-src],[data-photoshow-hd-src]');

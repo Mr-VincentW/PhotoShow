@@ -114,13 +114,13 @@
 
     1-day、Alibaba、AliExpress、Amazon、Andino、Apple、Best Buy、Briscoes、Countdown、DHgate、eBay、Etsy、Google Play、Kmart、Myprotein、Newegg、noel leeming、NZSALE、PBTech、Target、TheMarket、thewarehouse、Torpedo7、Trade Me、TreatMe、Walmart、warehouse stationery、Yelp
 
-    当当、多看、京东、一号店、小米、小米有品、苏宁易购、天猫、淘宝、一淘、1688、阿里妈妈、阿里健康大药房、飞猪、途牛、网商园
+    携程、当当、大众点评、多看、京东、一号店、马蜂窝、猫眼电影、美团、小米、小米有品、苏宁易购、天猫、淘宝、一淘、1688、阿里妈妈、阿里健康大药房、飞猪、途牛、网商园
 
 3.  **搜索 / 知识 / 专业 类：**
 
-    ACP Journals、Bing、Google、GitHub、JAMA Network、NEJM、Wiki
+    ACP Journals、Bing、Google、Google books、Google Map、GitHub、JAMA Network、NEJM、Wiki
 
-    全历史、百度、百度百科、搜图神器、知乎
+    全历史、百度、百度百科、百度地图、搜图神器、知乎
 
 4.  **新闻 / 社交 / 社区 类：**
 
