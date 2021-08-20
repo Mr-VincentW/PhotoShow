@@ -130,7 +130,7 @@
 
 5.  **视频、音乐 类：**
 
-    Bandcamp、Discogs、Encyclopaedia Metallum、Fandango、Flixster、Rotten Tomatoes、YouTube
+    Bandcamp、Discogs、Encyclopaedia Metallum、Fandango、Flixster、Pornhub、Rotten Tomatoes、YouTube
 
     bilibili、好看视频、西瓜视频、优酷、土豆
 

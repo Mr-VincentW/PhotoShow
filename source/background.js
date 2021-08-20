@@ -167,6 +167,9 @@
  *                                            // Updates: Support lofter.com and soutushenqi.com, in response to user feedback.
  * @version 4.8.0.0 | 2021-08-14 | Vincent    // Updates: Support Baidu map, ctrip, dianping, Google books, Google map, mafengwo, maoyan, and meituan;
  *                                            // Updates: Better support for bilibili, in response to user feedback; pixiv, and Ali series websites.
+ * @version 4.8.1.0 | 2021-08-20 | Vincent    // Bug Fix: An issue for bilibili, in response to user feedback (GitHub issue #24);
+ *                                            // Updates: Better support for bilibili, InterPals and weixin.qq.com;
+ *                                            // Updates: Support biligame and Pornhub.
  */
 
 // TODO: Extract websiteConfig to independent files and import them (after porting to webpack).
@@ -665,24 +668,36 @@ const websiteConfig = {
       }
     ]
   },
-  '.+\\.bilibili\\.com': {
+  '.+\\.bili(?:bili|game)\\.com': {
     amendStyles: {
       pointerNone:
-        '.biref-img img~*,.bili-avatar img~*,.groom-module .card-mark,.spread-module .pic img~*,.spread-module .pic .common-lazy-img~*,.cover-ctn .cover-back,.hot-list-content .hover-mask,.play-mask,.recommend-box .info,.hover-cover-box *,.cover *:not(img),.image-area *:not(img),.face-pendants,.pendant,.user-decorator,.bilibili-player-ending-panel-box-recommend-cover,.van-framepreview,.fake-danmu,.fake-danmu-mask,.preview-bg,.pl__mask,.video-card-reco .info,.card-pic a *:not(img),.bg-cover~*',
+        '.biref-img img~*,.bili-avatar img~*,.groom-module .card-mark,.spread-module .pic img~*,.spread-module .pic .common-lazy-img~*,.cover-ctn .cover-back,.hot-list-content .hover-mask,.play-mask,.recommend-box .info,.hover-cover-box *,.cover *:not(img),.image-area *:not(img),.face-pendants,.pendant,.user-decorator,.bilibili-player-ending-panel-box-recommend-cover,.van-framepreview,.fake-danmu,.fake-danmu-mask,.preview-bg,.pl__mask,.video-card-reco .info,.card-pic a *:not(img),.rib-info,.video-mask',
       pointerAuto: '.hover-cover-box .cover-ctnr,.image-area .see-later,.cover .i-watchlater'
     },
     srcMatching: [
       {
         selectors:
           'img,[style*=background],.card-live-module .pic .mask,.cover-ctn .cover,.album-img,.user-container i,.drawer-card .img-ctn,.canvas-card .img-contain',
-        srcRegExp: '(i\\d+\\.hdslb\\.com/.+?@IMG@)[^?]*(\\?.*)?',
+        srcRegExp: '(.+\\.hdslb\\.com/.+?@IMG@)[^?]*(\\?.*)?',
         processor: '$1$2'
       },
       {
         selectors: '.cardBangumibox .modal-box,.song-shadow',
-        srcRegExp: '(//i\\d+\\.hdslb\\.com/.+?@IMG@)[^?]*(\\?.*)?',
+        srcRegExp: '(//.+\\.hdslb\\.com/.+?@IMG@)[^?]*(\\?.*)?',
         processor: (trigger, src, srcRegExpObj) =>
           srcRegExpObj.test(trigger.find('img').attr('src')) ? RegExp.$1 + RegExp.$2 : ''
+      },
+      {
+        srcRegExp: '(//patchwiki\\.biligame\\.com/.+/)\\d+(px-.+@IMG@)',
+        processor: (trigger, src, srcRegExpObj) =>
+          srcRegExpObj.test(src)
+            ? tools
+                .detectImage(`${RegExp.$1}180${RegExp.$2}`, `${RegExp.$1}60${RegExp.$2}`)
+                .then(imgInfo => imgInfo.src)
+            : ''
+      },
+      {
+        srcRegExp: 'patchwiki\\.biligame\\.com/.+@IMG@'
       }
     ]
   },
@@ -1617,8 +1632,8 @@ const websiteConfig = {
   },
   '(?:www\\.)?interpals\\.net': {
     srcMatching: {
-      srcRegExp: '(ipstatic\\.net/)thumbs/\\d+x\\d+(/.+@IMG@).*',
-      processor: '$1photos$2'
+      srcRegExp: '(ipstatic\\.net/)thumbs/\\d+x\\d+(/.+?)(?:_\\d{1,2})?(@IMG@).*',
+      processor: '$1photos$2$3'
     }
   },
   '(?:.+\\.)?(?:istockphoto|pexels|unsplash)\\.com': {
@@ -2018,6 +2033,52 @@ const websiteConfig = {
       srcRegExp: '.+(\\.pocoimg\\.cn/image/.+?)(?:_[A-Z]\\d+)?(@IMG@).*',
       processor: '//pic3$1$2'
     }
+  },
+  '(?:.+\\.)?pornhub\\.com': {
+    amendStyles: {
+      pointerNone: '.videoPreviewEl,.marker-overlays,.pornstar_label'
+    },
+    srcMatching: [
+      {
+        selectors: 'a[href^="/photo/"],.thumbImage a[href^="/photo/"] img,.photoAlbumListBlock',
+        srcRegExp: '.+\\.ph(?:n|pr)cdn\\.com/pics/.+?_(\\d+)@IMG@',
+        processor: (trigger, src, srcRegExpObj) => {
+          const url = srcRegExpObj.test(src)
+            ? `/photo/${RegExp.$1}`
+            : /\/photo\/\d+/.test(trigger.closest('a[href^="/photo/"]').attr('href'))
+            ? RegExp.$_
+            : '';
+
+          return url
+            ? new Promise((resolve, reject) => {
+                $.ajax(url, {
+                  dataType: 'html',
+                  success: response => {
+                    resolve($('#photoImageSection .centerImage img', response).attr('src') || '');
+                  },
+                  error: reject
+                });
+              })
+            : '';
+        }
+      },
+      {
+        srcRegExp: '(.+\\.ph(?:n|pr)cdn\\.com/images/categories/)\\d+x\\d+/(.+@IMG@)',
+        processor: '$1$2'
+      },
+      {
+        srcRegExp: '(//.+\\.ph(?:n|pr)cdn\\.com/.+?)\\(.+\\)(\\d+@IMG@)',
+        processor: (trigger, src, srcRegExpObj) =>
+          srcRegExpObj.test(src) ? tools.detectImage(`${RegExp.$1}${RegExp.$2}`, src).then(imgInfo => imgInfo.src) : ''
+      },
+      {
+        srcRegExp: '(.+\\.nsimg\\.net/biopic/)\\d+x\\d+(/\\d+)',
+        processor: '$1320x240$2'
+      },
+      {
+        srcRegExp: '.+\\.ph(?:n|pr)cdn\\.com/.+@IMG@'
+      }
+    ]
   },
   '(?:user|h5)\\.qzone\\.qq\\.com': {
     amendStyles: {
@@ -2450,7 +2511,7 @@ const websiteConfig = {
   'mp\\.weixin\\.qq\\.com': {
     srcMatching: [
       {
-        srcRegExp: '(mmbiz\\.qpic\\.cn/mmbiz\\w*/\\w+/).*',
+        srcRegExp: '(mmbiz\\.q(?:logo|pic)\\.cn/(?:\\w*/){2}).*',
         processor: '$1'
       },
       {

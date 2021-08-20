@@ -119,7 +119,7 @@ Hereby is a list of part of the websites (hostnames) that **PhotoShow** currentl
 
 5.  **VIDEOS / MUSIC:**
 
-    Bandcamp, bilibili, Discogs, Encyclopaedia Metallum, Fandango, Flixster, haokan.baidu.com, ixigua.com, Rotten Tomatoes, YOUKU, YouTube
+    Bandcamp, bilibili, Discogs, Encyclopaedia Metallum, Fandango, Flixster, haokan.baidu.com, ixigua.com, Pornhub, Rotten Tomatoes, YOUKU, YouTube
 
 If you can't find your favourite websites in the above list, it is always welcomed to [contact the author](#contact) to get more support.
 <br />

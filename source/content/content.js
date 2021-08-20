@@ -117,6 +117,10 @@
  * @version 4.7.4.0 | 2021-08-03 | Vincent    // Updates: Works better with data-photoshow-hd-src cache.
  * @version 4.8.0.0 | 2021-08-14 | Vincent    // Bug Fix: Trigger style mutations cause image viewer hiding;
  *                                            // Updates: Compatible with triggers having 'background' rather than 'background-image' styles.
+ * @version 4.8.1.0 | 2021-08-20 | Vincent    // Bug Fix: Compatibility issue for background-image url that contains brackets;
+ *                                            // Updates: Normalize image urls;
+ *                                            // Updates: Handle exceptions that occur during image loading.
+ *
  */
 
 // TODO: Extract common tool methods to external modules.
@@ -222,10 +226,8 @@
       }
     },
     getBackgroundImgSrc: function (target) {
-      return /url\(['"]?((?:https?:|data:image\/)?\/\/.+?)['"]?\)/i.test(
-        typeof target == 'string' ? target : $(target).css('backgroundImage')
-      )
-        ? RegExp.$1
+      return /url\(['"]?([^'"]+)['"]?\)/i.test(typeof target == 'string' ? target : $(target).css('backgroundImage'))
+        ? new URL(RegExp.$1, location.origin).href
         : '';
     },
     getLargestImgSrc: function (target) {
@@ -255,7 +257,7 @@
         /\.(?:jpe?g|gifv?|pn[gj]|bmp|webp|svg)\b/.test(target.attr('href')) &&
         (src = target.attr('href')); // Get link address if it doesn't have a background image.
 
-      return src;
+      return src ? new URL(src, location.origin).href : '';
     },
     getBoundingClientRectToTopWin: function (element) {
       var clientRect = $.extend({}, element.getBoundingClientRect()); // TODO: Find better ways to transfer DOMRect object to plain JavaScript object.
@@ -284,7 +286,9 @@
       preservedActiveElement.focus();
     },
     resolveImgSrc: function (src) {
-      return Promise.resolve(src).then(src => (/^\/\//.test(src) ? location.protocol : '') + src);
+      return Promise.resolve(src)
+        .then(src => (/^\/\//.test(src) ? location.protocol : '') + src)
+        .catch(error => '');
     },
     executeScript: function (scriptText) {
       const nonce = document.scripts[0] ? document.scripts[0].nonce || '' : '',
