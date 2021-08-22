@@ -13,6 +13,7 @@
  * @version 4.1.2.0 | 2020-03-14 | Vincent    // Updates: Add global messages for image downloading and opening in new tab.
  * @version 4.2.0.0 | 2020-03-20 | Vincent    // Updates: Add items for hotkey toggles.
  * @version 4.6.0.0 | 2021-01-24 | Vincent    // Updates: Replace logo-displaying items with image-size-displaying items.
+ * @version 4.9.0.0 | 2021-08-22 | Vincent    // Updates: Add 'works-everywhere' related items.
  */
 
 {
@@ -73,16 +74,20 @@
     "message": "PhotoShow is enabled on this website.",
     "description": "Message displayed when PhotoShow is enabled for current website."
   },
+  "photoShowEnabledMsg_basic": {
+    "message": "PhotoShow offers basic support on this website.",
+    "description": "Message displayed when PhotoShow is enabled on an unknown website."
+  },
   "photoShowDisabledMsg": {
     "message": "PhotoShow is disabled on this website.",
     "description": "Message displayed when PhotoShow is disabled for current website."
   },
   "photoShowUnavailableMsg": {
-    "message": "PhotoShow does not support this website, should it be needed, please contact the author.",
-    "description": "Message displayed when PhotoShow does not support current website."
+    "message": "Support for unknown websites is turned off.",
+    "description": "Message displayed when PhotoShow is shut down for unknown websites."
   },
   "extensionUpdateDate": {
-    "message": "Update: 20 August 2021",
+    "message": "Update: 22 August 2021",
     "description": "Update time of current installed version of PhotoShow."
   },
   "stateToggleOnTitle": {
@@ -92,6 +97,16 @@
   "stateToggleOffTitle": {
     "message": "Click to enable PhotoShow on this website",
     "description": "Mouse-hovering tip for PhotoShow toggle button when it is 'OFF'."
+  },
+
+  // Section WORKS EVERYWHERE:
+  "worksEverywhereHeader": {
+    "message": "WORKS EVERYWHERE",
+    "description": "Section title."
+  },
+  "worksEverywhereDesc": {
+    "message": "Enable basic support on unknown websites, displaying original images when their intrinsic sizes are larger than displayed",
+    "description": "Setting item description."
   },
 
   // Section ACTIVATION MODE:
@@ -115,7 +130,7 @@
   },
   "activationExemptionDesc": {
     "message": "DO NOT activate when thumbnails are larger than 25% of the viewport",
-    "description": "Description for the operation of triggerring a image viewer display."
+    "description": "Setting item description."
   },
 
   // Section VIEW MODE:

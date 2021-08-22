@@ -36,6 +36,7 @@
  *                                            // Updates: Remove download link for QQ browsers app centre.
  * @version 4.7.0.0 | 2021-07-04 | Vincent    // Updates: Add config items for activation exemption, loading states display, transition animation, and context menu items.
  * @version 4.7.1.0 | 2021-07-07 | Vincent    // Updates: Optimize view mode options order.
+ * @version 4.9.0.0 | 2021-08-22 | Vincent    // Updates: Add 'works-everywhere' related items.
  */
 
 // TODO: Support customising hotkeys.
@@ -49,24 +50,40 @@ const UI_LANGUAGE = chrome.i18n.getUILanguage(),
     ? `https://microsoftedge.microsoft.com/addons/detail/afdelcfalkgcfelngdclbaijgeaklbjk?hl=${UI_LANGUAGE}`
     : `https://chrome.google.com/webstore/detail/photoshow/mgpdnhlllbpncjpgokgfogidhoegebod?hl=${UI_LANGUAGE}`;
 
-function turnOnPhotoShow() {
-  $('#stateMsg').text(chrome.i18n.getMessage('photoShowEnabledMsg'));
+function enablePhotoShow(isWebsiteUnknown) {
+  $('#stateMsg').text(chrome.i18n.getMessage(`photoShowEnabledMsg${isWebsiteUnknown ? '_basic' : ''}`));
   $('#stateToggle')
-    .removeClass('disabled no-ani')
+    .removeClass('disabled no-ani shut-down')
+    .addClass(isWebsiteUnknown ? 'basic' : '')
     .find('.state-icon')
-    .removeClass('icon-bubble-warn')
+    .removeClass('icon-bubble-error icon-bubble-warn')
     .addClass('icon-bubble-check');
   $('#stateToggleBtn').attr('title', chrome.i18n.getMessage('stateToggleOnTitle'));
+  $('#settings .desc').show();
 }
 
-function turnOffPhotoShow(disableAni) {
+function disablePhotoShow(disableAni) {
   $('#stateMsg').text(chrome.i18n.getMessage('photoShowDisabledMsg'));
   $('#stateToggle')
+    .removeClass('basic no-ani shut-down')
     .addClass(`disabled${disableAni ? ' no-ani' : ''}`)
     .find('.state-icon')
-    .removeClass('icon-bubble-check')
+    .removeClass('icon-bubble-check icon-bubble-error')
     .addClass('icon-bubble-warn');
   $('#stateToggleBtn').attr('title', chrome.i18n.getMessage('stateToggleOffTitle'));
+  $('#settings .desc').show();
+}
+
+function shutDownPhotoShow(disableAni) {
+  $('#stateMsg').text(chrome.i18n.getMessage('photoShowUnavailableMsg'));
+  $('#stateToggle')
+    .removeClass('basic disabled no-ani')
+    .addClass(`shut-down${disableAni ? ' no-ani' : ''}`)
+    .find('.state-icon')
+    .removeClass('icon-bubble-check icon-bubble-warn')
+    .addClass('icon-bubble-error');
+  $('#stateToggleBtn').removeAttr('title');
+  $('#settings .desc:not(#worksEverywhereSection,#shareSection)').hide();
 }
 
 function getSharingUrl(link, params) {
@@ -81,19 +98,45 @@ function getSharingUrl(link, params) {
     : link;
 }
 
-function updateConfigItems(configs, hostNode) {
-  Object.entries(configs).forEach(([key, value]) => {
-    let curConfigItemNode = $(`[config-item="${key}"]`, hostNode);
+function updateStateAndConfigs(isInitializing) {
+  function updateConfigItems(configs, hostNode) {
+    Object.entries(configs).forEach(([key, value]) => {
+      let curConfigItemNode = $(`[config-item="${key}"]`, hostNode);
 
-    if (curConfigItemNode.length) {
-      if (typeof value === 'object') {
-        arguments.callee(value, curConfigItemNode);
-      } else {
-        let configInput = $('input', curConfigItemNode);
-        typeof value == 'boolean' ? configInput.prop('checked', value) : configInput.val([value]);
+      if (curConfigItemNode.length) {
+        if (typeof value === 'object') {
+          arguments.callee(value, curConfigItemNode);
+        } else {
+          let configInput = $('input', curConfigItemNode);
+          typeof value == 'boolean' ? configInput.prop('checked', value) : configInput.val([value]);
+        }
       }
-    }
-  });
+    });
+  }
+
+  curTabUrl &&
+    chrome.runtime.sendMessage(
+      {
+        cmd: 'GET_PHOTOSHOW_STATE_AND_CONFIGS',
+        args: {
+          tabUrl: curTabUrl
+        }
+      },
+      response => {
+        if (!response.isWebsiteUnknown || response.photoShowConfigs.worksEverywhere !== false) {
+          if (response.isPhotoShowEnabled) {
+            enablePhotoShow(response.isWebsiteUnknown);
+          } else {
+            disablePhotoShow(isInitializing);
+          }
+        } else {
+          shutDownPhotoShow(isInitializing);
+        }
+
+        // Update config items.
+        updateConfigItems(response.photoShowConfigs);
+      }
+    );
 }
 
 // Actions.
@@ -146,18 +189,13 @@ $(document)
 
 // Response to the storage change event.
 chrome.storage.onChanged.addListener(changes => {
-  if (curTabUrl && changes.disabledWebsites) {
-    if (changes.disabledWebsites.newValue.includes(new URL(curTabUrl).hostname)) {
-      turnOffPhotoShow();
-    } else {
-      turnOnPhotoShow();
-    }
+  if (['disabledWebsites', 'photoShowConfigs'].some(item => Object.keys(changes).includes(item))) {
+    updateStateAndConfigs();
   }
-
-  changes.photoShowConfigs && updateConfigItems(changes.photoShowConfigs.newValue);
 });
 
 // Initialization.
+$(document.documentElement).attr('lang', UI_LANGUAGE);
 $('#name').text(
   `${chrome.i18n.getMessage('extensionName')} ${
     /(\d+\.\d+)(?:\.\d+){0,2}( Beta)?/.test(chrome.runtime.getManifest().version_name)
@@ -174,7 +212,8 @@ $('#updateDate').text(chrome.i18n.getMessage('extensionUpdateDate'));
   'shadowDisplay',
   'loadingStatesDisplay',
   'animationToggle',
-  'contextMenuToggle'
+  'contextMenuToggle',
+  'worksEverywhere'
 ].forEach(item => {
   $(`#${item}Section dt h3`).text(chrome.i18n.getMessage(`${item}Header`));
   $(`#${item}Desc`).text(chrome.i18n.getMessage(`${item}Desc`));
@@ -310,6 +349,7 @@ function initContactLinks() {
   );
 }
 
+// Initialization.
 chrome.tabs.query(
   {
     active: true,
@@ -321,23 +361,7 @@ chrome.tabs.query(
 
       initContactLinks();
 
-      chrome.runtime.sendMessage(
-        {
-          cmd: 'GET_INITIAL_STATE_AND_CONFIGS',
-          args: {
-            tabUrl: curTabUrl
-          }
-        },
-        response => {
-          if (response.isPhotoShowEnabled) {
-            turnOnPhotoShow();
-          } else {
-            turnOffPhotoShow(true);
-          }
-
-          updateConfigItems(response.photoShowConfigs);
-        }
-      );
+      updateStateAndConfigs(true);
     }
   }
 );

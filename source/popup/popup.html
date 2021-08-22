@@ -21,8 +21,9 @@
  * @version 4.0.12.0 | 2020-01-24 | Vincent   // Updates: Add GitHub link.
  * @version 4.2.0.0 | 2020-03-20 | Vincent    // Updates: Supports nested data structure for configuration items.
  * @version 4.6.0.0 | 2021-01-24 | Vincent    // Updates: Add a config item for image-size-displaying settings;
- *                                            // Updates: Remove the item form logo-displaying settings.
+ *                                            // Updates: Remove the item for logo-displaying settings.
  * @version 4.7.0.0 | 2021-07-04 | Vincent    // Updates: Add config items for activation exemption, loading states display, transition animation, and context menu items.
+ * @version 4.9.0.0 | 2021-08-22 | Vincent    // Updates: Add config item for 'works-everywhere' settings.
 -->
 
 <html>
@@ -42,7 +43,16 @@
       <h3 id="stateMsg"></h3>
       <span id="stateToggleBtn" class="state-toggle-btn"></span>
     </div>
-    <div class="settings">
+    <div class="settings" id="settings">
+      <dl class="desc checkboxes works-everywhere" config-item="worksEverywhere" id="worksEverywhereSection">
+        <dt>
+          <em class="icon icon-works-everywhere"></em>
+          <h3></h3>
+        </dt>
+        <dd>
+          <label><input type="checkbox" checked /><span id="worksEverywhereDesc"></span></label>
+        </dd>
+      </dl>
       <dl class="desc radios activation-mode" config-item="activationMode" id="activationModeSection">
         <dt>
           <em class="icon icon-activation"></em>

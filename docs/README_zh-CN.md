@@ -130,9 +130,9 @@
 
 5.  **视频、音乐 类：**
 
-    Bandcamp、Discogs、Encyclopaedia Metallum、Fandango、Flixster、Pornhub、Rotten Tomatoes、YouTube
+    Acfun、Bandcamp、Discogs、Encyclopaedia Metallum、Fandango、Flixster、Pornhub、Rotten Tomatoes、TikTok、YouTube
 
-    bilibili、好看视频、西瓜视频、优酷、土豆
+    bilibili、抖音、好看视频、快手、西瓜视频、优酷、土豆
 
 如果上述列表中不包含您所钟爱的网站，欢迎[向作者反馈](#%E8%81%94%E7%B3%BB%E4%BD%9C%E8%80%85)以获取更多支持。
 <br />
@@ -145,7 +145,7 @@
 近来，一项“大计划”正在进行中——为了给参与者们提供更好的开发体验及引入更多新特性，**浮图秀**已启动重构。以下**任务列表**是从功能及项目视角的一份粗略梳理，也许会有值得您期待的内容：
 
 - [ ] 重构。
-- [ ] 支持所有网站，对域名不在解析列表中的网站，如果页面图片的展示尺寸小于其原始尺寸，则对原图予以展示。
+- [x] 支持所有网站，对域名不在解析列表中的网站，如果页面图片的展示尺寸小于其原始尺寸，则对原图予以展示。
 - [ ] 为扩展添加 `OPTIONS` 页以支持更多更复杂的设置。
 - [x] 添加动画启闭配置项以允许用户关闭所有动画。
 - [ ] 支持自定义热键。

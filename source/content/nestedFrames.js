@@ -18,6 +18,7 @@
  * @version 4.2.0.0 | 2020-03-20 | Vincent    // Updates: Replace string concatenation with template literals.
  * @version 4.4.0.0 | 2020-04-18 | Vincent    // Bug Fix: Fix the problem that image src fails to be preserved for contextmenu actions.
  * @version 4.5.2.0 | 2020-08-23 | Vincent    // Updates: Replace Object.assign with spread syntax.
+ * @version 4.9.0.0 | 2021-08-22 | Vincent    // Updates: Offer basic support for unknown websites.
  */
 
 (($, isInFrame) => {
@@ -51,7 +52,34 @@
 
     const photoShow = {
       isEnabled: false, // PhotoShow availability flag.
-      websiteConfig: {} // Configuration for current website.
+      websiteConfig: {}, // Configuration for current website.
+      updateState: function () {
+        try {
+          chrome.runtime.sendMessage(
+            {
+              cmd: 'GET_PHOTOSHOW_STATE_AND_CONFIGS',
+              args: {
+                tabUrl: window.top.location.href
+              }
+            },
+            response => {
+              this.websiteConfig = response.websiteConfig || {};
+
+              const newEnableState = !!(
+                response.isPhotoShowEnabled &&
+                !response.isWebsiteUnknown | (response.photoShowConfigs.worksEverywhere !== false)
+              );
+
+              if (this.isEnabled != newEnableState) {
+                this.isEnabled = newEnableState;
+                photoShowViewer.toggle();
+              }
+            }
+          );
+        } catch (error) {
+          // Usually a cross-origin exception.
+        }
+      }
     };
 
     const photoShowViewer = {
@@ -88,7 +116,8 @@
           this.domObserver.observe(document, {
             // childList: true,    // CAUTION: DO NOT turn on 'childList' mutation observation as on some websites (e.g. QZone), this will cause serious performance problem.
             subtree: true,
-            attributeFilter: ['src', 'srcset', 'style']
+            attributeFilter: ['src', 'srcset', 'style'],
+            attributeOldValue: true
           });
         } else {
           document.removeEventListener('mouseover', this.mouseOverAction, true);
@@ -146,35 +175,14 @@
       }
     };
 
-    try {
-      // Get initial state.
-      chrome.runtime.sendMessage(
-        {
-          cmd: 'GET_INITIAL_STATE_AND_CONFIGS',
-          args: {
-            tabUrl: window.top.location.href
-          }
-        },
-        response => {
-          photoShow.isEnabled = response.isPhotoShowEnabled;
-          photoShow.websiteConfig = response.websiteConfig || {};
+    // Response to storage change event.
+    chrome.storage.onChanged.addListener(changes => {
+      if (['disabledWebsites', 'photoShowConfigs'].some(item => Object.keys(changes).includes(item))) {
+        photoShow.updateState();
+      }
+    });
 
-          photoShowViewer.toggle();
-        }
-      );
-
-      // Response to storage change event.
-      chrome.storage.onChanged.addListener(changes => {
-        if (
-          changes.disabledWebsites &&
-          photoShow.isEnabled != !changes.disabledWebsites.newValue.includes(location.hostname)
-        ) {
-          photoShow.isEnabled = !photoShow.isEnabled;
-          photoShowViewer.toggle();
-        }
-      });
-    } catch (error) {
-      // Usually a cross-origin exception.
-    }
+    // Get initial state.
+    photoShow.updateState();
   }
 })(jQuery.noConflict(), window != window.top);

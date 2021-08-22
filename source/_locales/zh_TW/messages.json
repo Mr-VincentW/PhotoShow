@@ -19,6 +19,8 @@
  * @version 4.1.2.0 | 2020-03-14 | Vincent    // Updates: Add global messages for image downloading and opening in new tab.
  * @version 4.2.0.0 | 2020-03-20 | Vincent    // Updates: Add items for hotkey toggles.
  * @version 4.6.0.0 | 2021-01-24 | Vincent    // Updates: Replace logo-displaying items with image-size-displaying items.
+ * @version 4.9.0.0 | 2021-08-22 | Vincent    // Updates: Add 'works-everywhere' related items;
+ *                                            // Updates: Optimize several section titles.
  */
 
 {
@@ -79,16 +81,20 @@
     "message": "浮圖秀已對當前網站啟用。",
     "description": "浮圖秀對當前網站啟用時的消息。"
   },
+  "photoShowEnabledMsg_basic": {
+    "message": "浮圖秀對當前網站僅提供基本支持。",
+    "description": "浮圖秀對未知網站啟用時的消息。"
+  },
   "photoShowDisabledMsg": {
     "message": "浮圖秀已對當前網站關閉。",
     "description": "浮圖秀對當前網站關閉時的消息。"
   },
   "photoShowUnavailableMsg": {
-    "message": "浮圖秀尚未支持當前網站，如有需要，您可以向開發者反饋。",
-    "description": "浮圖秀不支持當前網站時的消息。"
+    "message": "已關閉浮圖秀對未知網站的支持。",
+    "description": "禁止浮圖秀支持未知網站時的消息。"
   },
   "extensionUpdateDate": {
-    "message": "更新：2021年8月20日",
+    "message": "更新：2021年8月22日",
     "description": "當前所安裝浮圖秀版本的更新時間。"
   },
   "stateToggleOnTitle": {
@@ -98,6 +104,16 @@
   "stateToggleOffTitle": {
     "message": "點擊對當前網站啟用浮圖秀",
     "description": "浮圖秀啟閉按鈕的鼠標懸停提示（關閉狀態下）。"
+  },
+
+  // “隨處可用”區:
+  "worksEverywhereHeader": {
+    "message": "隨處可用",
+    "description": "模式名。"
+  },
+  "worksEverywhereDesc": {
+    "message": "對未知網站提供基本支持，當圖片原始尺寸大於頁面顯示尺寸時，展示原圖",
+    "description": "設置項描述。"
   },
 
   // “激活模式”區：
@@ -162,9 +178,9 @@
     "description": "相應模式的鼠標懸停提示。"
   },
 
-  // “高清圖片尺寸顯示”區：
+  // “尺寸顯示”區：
   "imageSizeDisplayHeader": {
-    "message": "高清圖片尺寸顯示",
+    "message": "尺寸顯示",
     "description": "區塊標題。"
   },
   "imageSizeDisplayDesc": {
@@ -182,9 +198,9 @@
     "description": "設置項描述。"
   },
 
-  // “圖片加載狀態顯示”區：
+  // “加載狀態”區：
   "loadingStatesDisplayHeader": {
-    "message": "圖片加載狀態顯示",
+    "message": "加載狀態",
     "description": "區塊標題。"
   },
   "loadingStatesDisplayDesc": {

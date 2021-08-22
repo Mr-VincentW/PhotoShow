@@ -34,6 +34,7 @@
  * @version 4.7.1.0 | 2021-07-07 | Vincent    // Bug Fix: PhotoShow message style issue on Instagram.
  * @version 4.7.2.0 | 2021-07-17 | Vincent    // Updates: Optimize image size label style.
  * @version 4.8.0.0 | 2021-08-14 | Vincent    // Bug Fix: Image viewer message icon color is overridden by host page styles.
+ * @version 4.9.0.0 | 2021-08-22 | Vincent    // Updates: Reset styles to reduce conflicts.
  */
 
 // Color definitions
@@ -250,6 +251,15 @@
   }
 }
 
+// Reset styles.
+#photoShowViewer,
+.photoshow-global-msg-layer,
+.photoshow-hidden-elements {
+  all: initial;
+  font: 14px -apple-system, system-ui, BlinkMacSystemFont, 'Segoe UI', 'Microsoft Yahei', '\5b8b\4f53', sans-serif;
+  pointer-events: none;
+}
+
 // Viewer style
 #photoShowViewer {
   display: block;
@@ -265,7 +275,6 @@
   z-index: 2147483647;
   box-shadow: 0 0 3px rgba(0, 0, 0, 0.5);
   opacity: 0;
-  pointer-events: none;
   margin: 0 0 0 0;
   overflow: hidden;
 
@@ -358,6 +367,7 @@
     overflow: hidden;
 
     img {
+      all: unset;
       width: 100%;
       height: 100%;
       position: absolute;
@@ -365,8 +375,6 @@
       left: 50%;
       transform: translate(-50%, -50%);
       border-radius: 1px;
-      max-width: unset !important; // Some websites set this rule which will cause image displaying problem in Firefox when rotated.
-      max-height: unset !important; // Some websites set this rule which will cause image displaying problem in Firefox when rotated.
     }
 
     .photoshow-view-mode-switch-tip {
@@ -388,9 +396,8 @@
     flex-flow: row nowrap;
     justify-content: center;
     align-items: center;
-    line-height: 40px;
+    height: 100%;
     font-size: 0;
-    font-family: -apple-system, system-ui, BlinkMacSystemFont, 'Segoe UI', 'Microsoft Yahei', '\5b8b\4f53', sans-serif;
     color: #333;
 
     i {
@@ -436,7 +443,6 @@
       position: relative;
       padding: 0 4px 0 12px;
       z-index: 1;
-      font-size: 14px;
       line-height: 1.5;
     }
   }
@@ -451,7 +457,6 @@
   display: flex;
   flex-flow: row nowrap;
   justify-content: center;
-  pointer-events: none;
   animation: photoshow-global-msg-ani 2.5s ease 0s forwards;
 
   .photoshow-global-msg {
@@ -465,7 +470,6 @@
     font-size: 0;
     color: #fff;
     box-shadow: 0 0 4px fade(#000, 20%);
-    font-family: -apple-system, system-ui, BlinkMacSystemFont, 'Segoe UI', 'Microsoft Yahei', '\5b8b\4f53', sans-serif;
 
     i {
       font-style: normal;
@@ -486,5 +490,4 @@
   top: -1px;
   height: 0;
   z-index: -1;
-  pointer-events: none;
 }

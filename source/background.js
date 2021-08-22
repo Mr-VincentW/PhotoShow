@@ -170,11 +170,13 @@
  * @version 4.8.1.0 | 2021-08-20 | Vincent    // Bug Fix: An issue for bilibili, in response to user feedback (GitHub issue #24);
  *                                            // Updates: Better support for bilibili, InterPals and weixin.qq.com;
  *                                            // Updates: Support biligame and Pornhub.
+ * @version 4.9.0.0 | 2021-08-22 | Vincent    // Updates: Support Acfun, kuaishou.com, douyin.com, mi-store, and TikTok;
+ *                                            // Updates: Better support for mi.com, Myprotein, and Tumblr;
+ *                                            // Updates: Offer basic support for unknown websites.
  */
 
 // TODO: Extract websiteConfig to independent files and import them (after porting to webpack).
 // TODO: Preload images (ideally, only for the thumbnails near the mouse cursor).
-// TODO: Support all websites, displaying original images (if their intrinsic sizes are larger than they are displayed) for those not in websiteConfig.
 // TODO: Add an extension `OPTIONS` page for more complex settings.
 // TODO: Images in the searching result of Baidu have a scaled overlayer when mouse hovering on, which covers the mask on the trigger.
 // TODO: Remove jQuery and deal with the events dispatching between frames.
@@ -196,7 +198,7 @@
 //     pointerAuto: {String}           // Selectors that are to be set to 'pointer-events:auto'
 //   },
 //   srcMatching: {                    // (Required) Matching configuration.
-//     selectors: {String},            // (Optional) Selectors for elements responsible for mouse-enter action. Default value: '' (equivalent to 'img,[style*=background],image,a[href]').
+//     selectors: {String},            // (Optional) Selectors for elements responsible for mouse-enter action. Default value: '' (equivalent to 'img,[style*=background],image,a[href],video[poster]').
 //     srcRegExp: {String},            // (Optional) Pattern for trigger image src matching in src replacement.
 //     processor: {String|Function}    // (Optional) Replacement string or process function. ('this' -> the selected element. NOTE: Not applicable to arrow functions.)
 //                                     // Arguments: trigger{Object}         // The selected element (jQuery object of 'this').
@@ -388,6 +390,22 @@ const websiteConfig = {
       }
     ]
   },
+  '(?:.+\\.)?(?:acfun\\.cn|(?:aixifan|kuaishou)\\.com)': {
+    amendStyles: {
+      pointerNone:
+        '.danmaku-mask,.list-content-data,.live-status,.normal-video-cover .block-top,.normal-video-cover .tag,.block-left span:first-child,.recommend-video .video-mask,.recommend-video .video-title,.video-image :not(img),.mask-gradient,.rank-list-main .number,.video-item .block-top,.block-img .action-data,.header-banner .pointer,.side-item .item-cover~*,.up-avatar :not(img),[class*="avatar-bg-"]'
+    },
+    srcMatching: [
+      {
+        srcRegExp: '(.+\\.kwimgs\\.com/uhead/.+_)\\w+(@IMG@)',
+        processor: '$1o$2'
+      },
+      {
+        srcRegExp: '(.+\\.(?:acfun\\.cn|(?:aixifan|kwimgs)\\.com)/[^?]+)\\?image.*',
+        processor: '$1'
+      }
+    ]
+  },
   '(?:.+\\.)?acpjournals\\.org': {
     srcMatching: [
       {
@@ -489,7 +507,8 @@ const websiteConfig = {
   },
   '(?:www|image)\\.baidu\\.com': {
     amendStyles: {
-      pointerNone: '.imgbox+.hover,.opr-recommends-merge-mask,.op-short-video-pc-img-new *:not(img),.c-img-border',
+      pointerNone:
+        '.imgbox+.hover,.opr-recommends-merge-mask,.op-short-video-pc-img-new *:not(img),.c-img-border,.s-img-mask',
       pointerAuto: '.imgbox+.hover a[href]'
     },
     srcMatching: [
@@ -857,7 +876,7 @@ const websiteConfig = {
                   },
                   success: response => {
                     var mediaInfo = response && response.deviation && response.deviation.media,
-                      imgInfo = mediaInfo ? mediaInfo.types.pop() : null;
+                      imgInfo = mediaInfo?.types.pop() || null;
 
                     mediaInfo && mediaInfo.baseUri && imgInfo
                       ? resolve(
@@ -901,7 +920,7 @@ const websiteConfig = {
                   },
                   success: response => {
                     var mediaInfo = response && response.results && response.results[0].deviation.media,
-                      imgInfo = mediaInfo ? mediaInfo.types.pop() : null;
+                      imgInfo = mediaInfo?.types.pop() || null;
 
                     mediaInfo && mediaInfo.baseUri && imgInfo
                       ? resolve(
@@ -1014,7 +1033,7 @@ const websiteConfig = {
                     const allImages = $('#view_images img', response).toArray(),
                       matchedImage = allImages.find(img => ~img.src.indexOf(imageName));
 
-                    resolve(matchedImage ? matchedImage.src : '');
+                    resolve(matchedImage?.src || '');
                   },
                   error: reject
                 });
@@ -1060,6 +1079,16 @@ const websiteConfig = {
         processor: '$1raw$2'
       }
     ]
+  },
+  '(?:.+\\.)?douyin\\.com': {
+    amendStyles: {
+      pointerNone:
+        '._46cb4690b43b2c3500c78191b9c87d80-scss~*,._49ee5f1e4cac7106a58702ced0e36540-scss,._5b630f3ad5eb8d49496dc2895ca5ebdc-scss'
+    },
+    srcMatching: {
+      srcRegExp: 'p\\d+.*(\\.douyinpic\\.com/.+?~).+?(\\.image|@IMG@).*',
+      processor: 'p3$1noop$2'
+    }
   },
   'dribbble\\.com': {
     amendStyles: {
@@ -1456,8 +1485,7 @@ const websiteConfig = {
                 )
                 .then(imgInfo => imgInfo.src)
             : ''
-      }, // TODO: YouTube image, duplicated, need to be removed.
-      {}
+      } // TODO: YouTube image, duplicated, need to be removed.
     ]
   },
   '(.+\\.)?github\\.(?:com|blog)': {
@@ -1470,8 +1498,7 @@ const websiteConfig = {
       {
         srcRegExp: '((?:avatars\\d*|marketplace-screenshots)\\.githubusercontent\\.com/[^?]+).*',
         processor: '$1'
-      },
-      {}
+      }
     ]
   },
   'play\\.google\\.com': {
@@ -1702,8 +1729,7 @@ const websiteConfig = {
               error: () => resolve(src)
             });
           })
-      },
-      {}
+      }
     ]
   },
   '(?:.+\\.)?jamanetwork\\.com': {
@@ -1824,29 +1850,38 @@ const websiteConfig = {
     },
     srcMatching: [
       {
-        srcRegExp: '((?:.+\\.mifile\\.cn|static\\.home\\.mi\\.com)/.+?)(?:!\\d+x\\d+)?(@IMG@).*',
+        srcRegExp: '((?:.+\\.(?:app)?mifile\\.(?:com|cn)|static\\.home\\.mi\\.com)/.+?)(?:!\\d+x\\d+)?(@IMG@).*',
         processor: '$1$2'
       },
       {
-        srcRegExp: '.+\\.(?:mifile\\.cn|files.xiaomi.net/.+/avatar)/.+(?!@IMG@)'
+        srcRegExp: '.+\\.(?:(?:app)?mifile\\.(?:com|cn)|files.xiaomi.net/.+/avatar)/.+(?!@IMG@)'
       },
       {
-        srcRegExp: '(.+\\.mi-img\\.com/.+@IMG@).*',
+        srcRegExp: '(.+\\.(?:(?:app)?mifile|mi-img)\\.(?:com|cn)/.+@IMG@).*',
         processor: '$1'
       }
     ]
   },
+  '(?:.+\\.)?mi-store(?:\\.(?:com|[a-z]{2}))+': {
+    srcMatching: {
+      srcRegExp: '(.+\\.mi-store(?:\\.(?:com|[a-z]{2}))+/.+/products/)thumbs(/.+@IMG@)',
+      processor: '$1images$2'
+    }
+  },
   '.+\\.myprotein(?:\\.(?:com|[a-z]{2}))+': {
     srcMatching: [
       {
-        srcRegExp: '(s\\d+\\.thcdn\\.com/productimg/)\\d+/\\d+(/.+@IMG@)',
-        processor: '$11600/1600$2'
+        srcRegExp: '(.+\\.thcdn\\.com/).+(/[-\\d]+@IMG@)',
+        processor: '$1productimg/original$2'
+      },
+      {
+        srcRegExp: '(.+\\.thcdn\\.com/images/)(?:x?small|medium|large)(/.+@IMG@)',
+        processor: '$1large$2'
       },
       {
         srcRegExp: '(uploads-cdn\\.thgblogs\\.com/.+?)(?:-150x150)?(@IMG@)',
         processor: '$1$2'
-      },
-      {}
+      }
     ]
   },
   '(?:.+\\.)?nejm\\.org': {
@@ -1862,8 +1897,7 @@ const websiteConfig = {
       {
         srcRegExp: '(.+-wpengine\\.netdna-ssl\\.com/.+)-\\d+x\\d+(@IMG@)',
         processor: '$1$2'
-      },
-      {}
+      }
     ]
   },
   '(?:.+\\.)?newegg(?:\\.(?:com|[a-z]{2}))+': {
@@ -2231,6 +2265,21 @@ const websiteConfig = {
       processor: '$1$2'
     }
   },
+  '(?:.+\\.)?tiktok\\.com': {
+    srcMatching: [
+      {
+        srcRegExp: '(p\\d+).*(\\.tiktokcdn\\.com/.+/)\\d+x\\d+(/.+(?:\\.image|@IMG@)).*',
+        processor: '$1$2720x720$3'
+      },
+      {
+        srcRegExp: '(//p\\d+).*(\\.tiktokcdn\\.com/.+?~).+?(\\.image|@IMG@).*',
+        processor: (trigger, src, srcRegExpObj) =>
+          srcRegExpObj.test(src)
+            ? tools.detectImage(`${RegExp.$1}${RegExp.$2}noop${RegExp.$3}`, src).then(imgInfo => imgInfo.src)
+            : ''
+      }
+    ]
+  },
   '(?:.+\\.)?(tmall|taobao|etao|fliggy|alitrip|1688|alibaba|aliexpress|liangxinyao|alipay|alicdn|alimama|wsy)\\.(?:com|[a-z]{2})':
     {
       amendStyles: {
@@ -2331,6 +2380,7 @@ const websiteConfig = {
   },
   '.+\\.tumblr\\.com': {
     amendStyles: {
+      pointerNone: '.ks50i',
       pointerAuto: '.post_avatar_image,.post_sub_avatar_image,.search_results_container .header_image'
     },
     srcMatching: [
@@ -2362,7 +2412,6 @@ const websiteConfig = {
           srcRegExpObj.test(
             src ||
               trigger.parent().find('.post_content img,.post-content img').attr('src') ||
-              trigger.find('[poster]').attr('poster') ||
               tools.getBackgroundImgSrc(trigger.parent().find('.post_thumbnail_container,.post-thumbnail-container'))
           )
             ? RegExp['$&']
@@ -2504,8 +2553,7 @@ const websiteConfig = {
       {
         srcRegExp: '(upload\\.api\\.weibo\\.com/.+/msget)_thumbnail\\?.*(fid=\\w+).*(source=\\w+).*',
         processor: '$1?$2&$3'
-      },
-      {}
+      }
     ]
   },
   'mp\\.weixin\\.qq\\.com': {
@@ -2680,8 +2728,9 @@ let WEBSITE_INFO = {},
   PHOTOSHOW_CONFIGS = {};
 
 const tools = {
-  getUrlHostname: function (url) {
-    return new URL(url).hostname || '';
+  getUrlHostname: function (sourceUrl) {
+    const url = new URL(sourceUrl);
+    return (/^http/.test(url.protocol) && url.hostname) || '';
   },
   getDateStr: function () {
     const padNum = num => (num > 9 ? '' : '0') + num,
@@ -2761,27 +2810,25 @@ var photoShow = {
 
     if (!WEBSITE_INFO[urlHostname]) {
       WEBSITE_INFO[urlHostname] = {
-        isPhotoShowAvailable: false,
-        isPhotoShowEnabled: false
+        isWebsiteUnknown: true,
+        isPhotoShowEnabled: !DISABLED_WEBSITES.includes(urlHostname)
       };
 
-      for (let website in websiteConfig) {
+      for (const website in websiteConfig) {
         if (new RegExp(`^${website}$`).test(urlHostname)) {
-          WEBSITE_INFO[urlHostname].isPhotoShowAvailable = true;
-          WEBSITE_INFO[urlHostname].isPhotoShowEnabled = !DISABLED_WEBSITES.includes(urlHostname);
+          WEBSITE_INFO[urlHostname].isWebsiteUnknown = false;
           WEBSITE_INFO[urlHostname].websiteConfig = websiteConfig[website];
           WEBSITE_INFO[urlHostname].websiteConfig.srcMatching = [].concat(
             WEBSITE_INFO[urlHostname].websiteConfig.srcMatching || {}
           );
 
-          for (let i = 0; i < WEBSITE_INFO[urlHostname].websiteConfig.srcMatching.length; ++i) {
-            WEBSITE_INFO[urlHostname].websiteConfig.srcMatching[i].srcRegExp &&
-              (WEBSITE_INFO[urlHostname].websiteConfig.srcMatching[i].srcRegExp = WEBSITE_INFO[
-                urlHostname
-              ].websiteConfig.srcMatching[i].srcRegExp.replace(/@IMG@/g, '\\.(?:jpe?g|gifv?|pn[gj]|bmp|webp|svg)'));
-            WEBSITE_INFO[urlHostname].websiteConfig.srcMatching[i].processor &&
-              (WEBSITE_INFO[urlHostname].websiteConfig.srcMatching[i].processor =
-                '' + WEBSITE_INFO[urlHostname].websiteConfig.srcMatching[i].processor);
+          for (const matchingRule of WEBSITE_INFO[urlHostname].websiteConfig.srcMatching) {
+            matchingRule.srcRegExp &&
+              (matchingRule.srcRegExp = matchingRule.srcRegExp.replace(
+                /@IMG@/g,
+                '\\.(?:jpe?g|gifv?|pn[gj]|bmp|webp|svg)'
+              ));
+            matchingRule.processor && (matchingRule.processor = '' + matchingRule.processor);
           }
 
           WEBSITE_INFO[urlHostname].websiteConfig.onToggle &&
@@ -2797,36 +2844,33 @@ var photoShow = {
 
     return WEBSITE_INFO[urlHostname];
   },
-  setWebsiteState: function (tabIds, tabUrl) {
+  setWebsiteState: function (tabId, tabUrl) {
     var urlHostname = tools.getUrlHostname(tabUrl);
-    tabIds = [].concat(tabIds);
 
-    for (let i = 0; i < tabIds.length; ++i) {
-      if (urlHostname) {
-        if (WEBSITE_INFO[urlHostname].isPhotoShowAvailable) {
-          chrome.browserAction.enable(tabIds[i]);
+    if (urlHostname) {
+      chrome.browserAction.enable(tabId);
 
-          if (WEBSITE_INFO[urlHostname].isPhotoShowEnabled) {
-            photoShow.enable(tabIds[i], urlHostname);
-          } else {
-            photoShow.disable(tabIds[i], urlHostname);
-          }
+      if (!WEBSITE_INFO[urlHostname].isWebsiteUnknown || PHOTOSHOW_CONFIGS.worksEverywhere !== false) {
+        if (WEBSITE_INFO[urlHostname].isPhotoShowEnabled) {
+          photoShow.enable(tabId, WEBSITE_INFO[urlHostname].isWebsiteUnknown);
         } else {
-          photoShow.shutdown(tabIds[i]);
+          photoShow.disable(tabId);
         }
       } else {
-        photoShow.shutdown(tabIds[i]);
+        photoShow.shutDown(tabId);
       }
+    } else {
+      photoShow.shutDown(tabId, true);
     }
   },
-  enable: function (tabId) {
+  enable: function (tabId, isWebsiteUnknown) {
     chrome.browserAction.setIcon({
       tabId: tabId,
       path: 'resources/icon32.png'
     });
     chrome.browserAction.setTitle({
       tabId: tabId,
-      title: chrome.i18n.getMessage('photoShowEnabledMsg')
+      title: chrome.i18n.getMessage(`photoShowEnabledMsg${isWebsiteUnknown ? '_basic' : ''}`)
     });
   },
   disable: function (tabId) {
@@ -2839,16 +2883,16 @@ var photoShow = {
       title: chrome.i18n.getMessage('photoShowDisabledMsg')
     });
   },
-  shutdown: function (tabId) {
+  shutDown: function (tabId, isFully) {
     chrome.browserAction.setIcon({
       tabId: tabId,
       path: 'resources/icon32_unavailable.png'
     });
     chrome.browserAction.setTitle({
       tabId: tabId,
-      title: chrome.i18n.getMessage('photoShowUnavailableMsg')
+      title: isFully ? '' : chrome.i18n.getMessage('photoShowUnavailableMsg')
     });
-    chrome.browserAction.disable(tabId);
+    isFully && chrome.browserAction.disable(tabId);
 
     photoShowContextMenus.remove();
   },
@@ -2964,7 +3008,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   var needAsyncResponse;
 
   switch (request.cmd) {
-    case 'GET_INITIAL_STATE_AND_CONFIGS': // Args: tabUrl (optional)
+    case 'GET_PHOTOSHOW_STATE_AND_CONFIGS': // Args: tabUrl (optional)
       sendResponse({
         ...photoShow.checkWebsiteState((request.args && request.args.tabUrl) || sender.url),
         photoShowConfigs: PHOTOSHOW_CONFIGS
@@ -2975,7 +3019,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     case 'SET_PHOTOSHOW_STATE': // Args: tabUrl, isPhotoShowEnabled
       var urlHostname = tools.getUrlHostname(request.args.tabUrl);
 
-      if (WEBSITE_INFO[urlHostname] && WEBSITE_INFO[urlHostname].isPhotoShowAvailable) {
+      if (WEBSITE_INFO[urlHostname]) {
         var newDisabledWebsitesList = DISABLED_WEBSITES.slice(),
           urlHostnameIndex = newDisabledWebsitesList.indexOf(urlHostname);
 
@@ -3047,11 +3091,10 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
         },
         tabs => {
           if (!chrome.runtime.lastError) {
-            photoShow.checkWebsiteState(tabs[0].url).isPhotoShowAvailable &&
-              chrome.tabs.sendMessage(tabs[0].id, {
-                cmd: 'DISPATCH_HOTKEY_EVENT',
-                args: request.args
-              });
+            chrome.tabs.sendMessage(tabs[0].id, {
+              cmd: 'DISPATCH_HOTKEY_EVENT',
+              args: request.args
+            });
           }
         }
       );
@@ -3072,25 +3115,24 @@ chrome.storage.onChanged.addListener(changes => {
     Object.keys(WEBSITE_INFO).forEach(
       hostname => (WEBSITE_INFO[hostname].isPhotoShowEnabled = !DISABLED_WEBSITES.includes(hostname))
     );
-
-    chrome.tabs.query(
-      {
-        active: true
-      },
-      tabs => {
-        if (!chrome.runtime.lastError) {
-          for (let i = 0; i < tabs.length; ++i) {
-            photoShow[photoShow.checkWebsiteState(tabs[i].url).isPhotoShowEnabled ? 'enable' : 'disable'].call(
-              photoShow,
-              tabs[i].id
-            );
-          }
-        }
-      }
-    );
   }
 
-  changes.photoShowConfigs && (PHOTOSHOW_CONFIGS = changes.photoShowConfigs.newValue);
+  if (changes.photoShowConfigs) {
+    PHOTOSHOW_CONFIGS = changes.photoShowConfigs.newValue;
+  }
+
+  chrome.tabs.query(
+    {
+      active: true
+    },
+    tabs => {
+      if (!chrome.runtime.lastError) {
+        for (let i = 0; i < tabs.length; ++i) {
+          photoShow.setWebsiteState(tabs[i].id, tabs[i].url);
+        }
+      }
+    }
+  );
 });
 
 // Deal with xhr-downloading requests.
@@ -3138,4 +3180,19 @@ chrome.storage.sync.get(['disabledWebsites', 'photoShowConfigs', 'statistics'], 
     PHOTOSHOW_CONFIGS = response.photoShowConfigs || {};
     statistics.init(response.statistics);
   }
+});
+
+chrome.runtime.onInstalled.addListener(function () {
+  chrome.tabs.query(
+    {
+      active: true
+    },
+    tabs => {
+      if (!chrome.runtime.lastError) {
+        for (let i = 0; i < tabs.length; ++i) {
+          photoShow.setWebsiteState(tabs[i].id, tabs[i].url);
+        }
+      }
+    }
+  );
 });

@@ -119,7 +119,7 @@ Hereby is a list of part of the websites (hostnames) that **PhotoShow** currentl
 
 5.  **VIDEOS / MUSIC:**
 
-    Bandcamp, bilibili, Discogs, Encyclopaedia Metallum, Fandango, Flixster, haokan.baidu.com, ixigua.com, Pornhub, Rotten Tomatoes, YOUKU, YouTube
+    Acfun, Bandcamp, bilibili, Discogs, douyin.com, Encyclopaedia Metallum, Fandango, Flixster, haokan.baidu.com, ixigua.com, kuaishou.com, Pornhub, Rotten Tomatoes, TikTok, YOUKU, YouTube
 
 If you can't find your favourite websites in the above list, it is always welcomed to [contact the author](#contact) to get more support.
 <br />
@@ -131,7 +131,7 @@ If you can't find your favourite websites in the above list, it is always welcom
 These days, a "big" plan is taking place as **PhotoShow** is going to be refactored for better developing experience for the contributors and introducing some new features as well. Here is a coarse **ONGOING LIST** from the project and functional perspectives where you may find something worth looking forward to.
 
 - [ ] Refactor.
-- [ ] Support all websites, displaying original images (if their intrinsic sizes are larger than they are displayed) for those not in the websites support list.
+- [x] Support all websites, displaying original images (if their intrinsic sizes are larger than they are displayed) for those not in the websites support list.
 - [ ] Add an extension `OPTIONS` page for more complex settings.
 - [x] Add animation toggle configuration (allow users to turn off all the animation).
 - [ ] Support customising hotkeys.

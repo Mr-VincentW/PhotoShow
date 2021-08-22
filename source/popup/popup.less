@@ -26,10 +26,13 @@
  * @version 4.6.0.0 | 2021-01-24 | Vincent    // Updates: Support displaying HD image size in the viewer;
  *                                            // Updates: Remove the feature of displaying PhotoShow logo in the viewer.
  * @version 4.7.0.0 | 2021-07-04 | Vincent    // Updates: Add config items for activation exemption, loading states display, transition animation, and context menu items.
+ * @version 4.9.0.0 | 2021-08-22 | Vincent    // Updates: Add 'works-everywhere' related styles;
+ *                                            // Updates: Optimize whole page styles.
  */
 
 // Color definitions
 @PHOTOSHOW_BLUE: #6cbcef;
+@PHOTOSHOW_GREY: #ccc;
 @PHOTOSHOW_RED: #db4b37;
 
 // Font icon
@@ -71,72 +74,80 @@
     content: '\e906';
   }
 
-  &-activation:before {
+  &-bubble-error:before {
     content: '\e907';
   }
 
-  &-activation-exemption:before {
+  &-activation:before {
     content: '\e908';
   }
 
-  &-view-mode:before {
+  &-activation-exemption:before {
     content: '\e909';
   }
 
-  &-image-size-display:before {
+  &-view-mode:before {
     content: '\e90a';
   }
 
-  &-shadow-display:before {
+  &-image-size-display:before {
     content: '\e90b';
   }
 
-  &-animation:before {
+  &-shadow-display:before {
     content: '\e90c';
   }
 
-  &-context-menu:before {
+  &-animation:before {
     content: '\e90d';
   }
 
-  &-keyboard:before {
+  &-context-menu:before {
     content: '\e90e';
   }
 
-  &-share:before {
+  &-works-everywhere:before {
     content: '\e90f';
   }
 
-  &-facebook:before {
+  &-keyboard:before {
     content: '\e910';
   }
 
-  &-twitter:before {
+  &-share:before {
     content: '\e911';
   }
 
-  &-weibo:before {
+  &-facebook:before {
     content: '\e912';
   }
 
-  &-qzone:before {
+  &-twitter:before {
     content: '\e913';
   }
 
-  &-reddit:before {
+  &-weibo:before {
     content: '\e914';
   }
 
-  &-tumblr:before {
+  &-qzone:before {
     content: '\e915';
   }
 
-  &-mail:before {
+  &-reddit:before {
     content: '\e916';
   }
 
-  &-github:before {
+  &-tumblr:before {
     content: '\e917';
+  }
+
+  &-mail:before {
+    content: '\e918';
+  }
+
+  &-github:before {
+    content: '\e919';
   }
 }
 
@@ -169,8 +180,13 @@ body {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Microsoft Yahei', '\5b8b\4f53', sans-serif;
   line-height: 1.5;
   color: #333;
-  white-space: nowrap;
   user-select: none;
+  min-width: 540px;
+  max-width: 600px;
+
+  &:lang(zh) {
+    min-width: 560px;
+  }
 }
 
 h1,
@@ -184,7 +200,7 @@ h3 {
 .header {
   display: flex;
   align-items: center;
-  padding: 10px;
+  padding: 20px;
 
   .icon-logo {
     display: inline-block;
@@ -213,10 +229,10 @@ h3 {
 .state-toggle {
   display: flex;
   align-items: center;
+  background: fade(@PHOTOSHOW_BLUE, 20%);
   transition: 0.2s;
-  padding: 5px 0;
-  margin: 0 10px;
-  border-bottom: solid 1px @PHOTOSHOW_BLUE;
+  padding: 5px 20px;
+  box-shadow: -25px 0 0 0 fade(@PHOTOSHOW_BLUE, 20%), 25px 0 0 0 fade(@PHOTOSHOW_BLUE, 20%);
 
   &.disabled {
     background: fade(@PHOTOSHOW_RED, 20%);
@@ -229,6 +245,25 @@ h3 {
 
     .state-toggle-btn {
       background: @PHOTOSHOW_RED;
+
+      &:after {
+        right: 18px;
+      }
+    }
+  }
+
+  &.shut-down {
+    background: fade(@PHOTOSHOW_GREY, 20%);
+    border-bottom-color: @PHOTOSHOW_GREY;
+    box-shadow: -25px 0 0 0 fade(@PHOTOSHOW_GREY, 20%), 25px 0 0 0 fade(@PHOTOSHOW_GREY, 20%);
+
+    .state-icon {
+      color: @PHOTOSHOW_GREY;
+    }
+
+    .state-toggle-btn {
+      background: @PHOTOSHOW_GREY;
+      cursor: not-allowed;
 
       &:after {
         right: 18px;
@@ -288,11 +323,15 @@ h3 {
 // Settings.
 .settings {
   position: relative;
-  height: 465px;
+  max-height: 400px;
   overflow: auto;
-  margin: 10px;
+  margin: 10px 10px 20px 20px;
   scrollbar-width: thin;
   scrollbar-color: #c1c1c1 #f1f1f1;
+
+  &:lang(zh) {
+    max-height: 380px;
+  }
 
   &::-webkit-scrollbar {
     width: 2px;
@@ -370,8 +409,12 @@ dl.desc {
     dd {
       label {
         display: flex;
-        align-items: center;
+        align-items: baseline;
         transition: color 0.4s;
+
+        &:lang(zh) {
+          align-items: center;
+        }
 
         &:hover {
           transition: color 0.1s;

@@ -120,6 +120,8 @@
  * @version 4.8.1.0 | 2021-08-20 | Vincent    // Bug Fix: Compatibility issue for background-image url that contains brackets;
  *                                            // Updates: Normalize image urls;
  *                                            // Updates: Handle exceptions that occur during image loading.
+ * @version 4.9.0.0 | 2021-08-22 | Vincent    // Updates: Parse video poster attribute by default;
+ *                                            // Updates: Offer basic support for unknown websites.
  *
  */
 
@@ -170,7 +172,7 @@
           img.onload = img.onerror = null;
 
           resolve(
-            (({ src, width, height }) => ({ src, width, height }))(
+            (({ src, naturalWidth: width, naturalHeight: height }) => ({ src, width, height }))(
               isImgInvalid && isImgInvalid(img) ? { src: defaultSrc } : img
             )
           );
@@ -248,6 +250,8 @@
       } else if (target.is('image')) {
         // SVG image elements.
         src = target.attr('href') || target.attr('xlink:href');
+      } else if (target.is('video')) {
+        src = target.attr('poster');
       } else {
         src = this.getBackgroundImgSrc(target);
       }
@@ -291,7 +295,7 @@
         .catch(error => '');
     },
     executeScript: function (scriptText) {
-      const nonce = document.scripts[0] ? document.scripts[0].nonce || '' : '',
+      const nonce = document.scripts[0]?.nonce || '',
         script = document.createElement('script');
 
       script.type = 'text/javascript';
@@ -358,11 +362,12 @@
         })(this, config);
 
         // Reset hotkey deconflict agent.
-        if (photoShow.isEnabled) {
-          photoShow.toggleHotkeyDeconflictAgent(false);
-          photoShow.toggleHotkeyDeconflictAgent(true);
+        if (this.isEnabled) {
+          this.toggleHotkeyDeconflictAgent(false);
+          this.toggleHotkeyDeconflictAgent(true);
         }
       },
+      isWebsiteUnknown: true,
       activationMode: '', // Activation mode ('', 'shift', 'ctrl', 'alt').
       activationExemption: true, // Activation exemption.
       _viewMode: VIEW_MODES['A'], // View mode.
@@ -454,26 +459,25 @@
         !(imgSrc =
           target.attr('photoshow-hd-src') || target.closest('[data-photoshow-hd-src]').data('photoshow-hd-src'))
       ) {
-        for (let i = 0; i < this.websiteConfig.srcMatching.length; ++i) {
-          let curMatchingRule = this.websiteConfig.srcMatching[i];
-
+        // The default empty srcMatching rule ensures all images are parsed.
+        for (srcMatchingRule of (this.websiteConfig.srcMatching || []).concat({})) {
           if (
-            target.is(curMatchingRule.selectors || 'img,[style*=background],image,a[href]') &&
+            target.is(srcMatchingRule.selectors || 'img,[style*=background],image,a[href],video[poster]') &&
             target.css('pointerEvents') != 'none'
           ) {
             let targetSrc = tools.getLargestImgSrc(element),
-              srcRegExpObj = curMatchingRule.srcRegExp ? new RegExp(curMatchingRule.srcRegExp, 'i') : undefined;
+              srcRegExpObj = srcMatchingRule.srcRegExp ? new RegExp(srcMatchingRule.srcRegExp, 'i') : undefined;
 
-            if (/^(?:function|\(?[\w,\s]*\)?\s*=>)/.test(curMatchingRule.processor)) {
-              imgSrc = eval(`(${curMatchingRule.processor})`).call(element, target, targetSrc, srcRegExpObj) || '';
+            if (/^(?:function|\(?[\w,\s]*\)?\s*=>)/.test(srcMatchingRule.processor)) {
+              imgSrc = eval(`(${srcMatchingRule.processor})`).call(element, target, targetSrc, srcRegExpObj) || '';
             } else if (srcRegExpObj) {
               if (srcRegExpObj.test(targetSrc)) {
-                imgSrc = curMatchingRule.processor
-                  ? targetSrc.replace(srcRegExpObj, curMatchingRule.processor)
+                imgSrc = srcMatchingRule.processor
+                  ? targetSrc.replace(srcRegExpObj, srcMatchingRule.processor)
                   : targetSrc;
               }
             } else {
-              imgSrc = curMatchingRule.processor || targetSrc;
+              imgSrc = srcMatchingRule.processor || targetSrc;
             }
           }
 
@@ -489,7 +493,7 @@
       return imgSrc;
     },
     toggleXhrHook: function () {
-      if (photoShow.websiteConfig.onXhrLoad) {
+      if (this.websiteConfig.onXhrLoad) {
         tools.executeScript(
           this.isEnabled
             ? `
@@ -498,7 +502,7 @@
 
                 window.XMLHttpRequest.prototype.open = function(method, url) {
                   this.addEventListener('load', function() {
-                    (${photoShow.websiteConfig.onXhrLoad})(url, this.responseText);
+                    (${this.websiteConfig.onXhrLoad})(url, this.responseText);
                   });
                   return window.photoShowOriXhrOpen.apply(this, arguments);
                 }
@@ -511,7 +515,7 @@
         );
       }
     },
-    toggleHotkeyDeconflictAgent: function (isEnabled) {
+    toggleHotkeyDeconflictAgent: function (isEnabled = this.isEnabled) {
       if (isEnabled) {
         tools.executeScript(`
           if (!window.photoShowHotkeyDeconflictHook) {
@@ -558,6 +562,27 @@
             delete window.photoShowHotkeyDeconflictHook;
           }`);
       }
+    },
+    updateStateAndConfigs: function () {
+      chrome.runtime.sendMessage(
+        {
+          cmd: 'GET_PHOTOSHOW_STATE_AND_CONFIGS'
+        },
+        response => {
+          this.websiteConfig = response.websiteConfig || {};
+          this.config.update(response.photoShowConfigs);
+
+          const newEnableState = !!(
+            response.isPhotoShowEnabled &&
+            !response.isWebsiteUnknown | (response.photoShowConfigs.worksEverywhere !== false)
+          );
+
+          if (this.isEnabled != newEnableState) {
+            this.isEnabled = newEnableState;
+            photoShowViewer.toggle();
+          }
+        }
+      );
     }
   };
 
@@ -910,19 +935,22 @@
 
       return displayingStyles;
     },
-    parseTriggers: function (startingElement) {
+    parseTriggers: function (sourceElement) {
       let result = {
-        trigger: null,
+        element: null,
         src: ''
       };
 
-      for (let element of [startingElement].concat($(startingElement).parents().get())) {
-        const hdSrc = photoShow.getImgHDSrc(element);
+      for (let element of [sourceElement].concat($(sourceElement).parents().get())) {
+        const src = photoShow.getImgHDSrc(element);
 
-        if (hdSrc) {
+        if (src) {
+          const bbox = element.getBoundingClientRect();
+
           result = {
-            trigger: element,
-            src: hdSrc
+            element,
+            bbox: { ...bbox, area: bbox.width * bbox.height },
+            src
           };
 
           break;
@@ -998,7 +1026,7 @@
       if (!this.curTrigger) {
         // Get src of the high-definition image.
         const triggersParsingResult = this.parseTriggers(srcTarget);
-        this.preservedImgSrc = this.imgSrc = triggersParsingResult ? triggersParsingResult.src : '';
+        this.preservedImgSrc = this.imgSrc = triggersParsingResult.src;
 
         chrome.runtime.sendMessage({
           cmd: 'VIEW_IMAGE',
@@ -1013,25 +1041,19 @@
           this.viewerBox.removeAttr('data-active');
         }
 
-        const triggerBBox = triggersParsingResult.trigger
-          ? triggersParsingResult.trigger.getBoundingClientRect()
-          : {
-              width: Infinity,
-              height: Infinity
-            };
+        const triggerBBoxArea = triggersParsingResult.bbox?.area || Infinity;
 
         // Show high-definition image.
         if (
           this.imgSrc &&
           (!photoShow.config.activationMode || this.isModifierKeyDown) &&
-          !$(triggersParsingResult.trigger).is('[photoshow-trigger-blocked]') &&
-          (!photoShow.config.activationExemption ||
-            triggerBBox.width * triggerBBox.height <= (window.innerWidth * window.innerHeight) / 4)
+          !$(triggersParsingResult.element).is('[photoshow-trigger-blocked]') &&
+          (!photoShow.config.activationExemption || triggerBBoxArea <= (window.innerWidth * window.innerHeight) / 4)
         ) {
-          this.curTrigger = this.maskHost = triggersParsingResult.trigger;
+          this.curTrigger = this.maskHost = triggersParsingResult.element;
 
           // Get mask host.
-          $(triggersParsingResult.trigger)
+          $(triggersParsingResult.element)
             .parents()
             .toArray()
             .reduce((maskHostBBox, curAncestor) => {
@@ -1094,8 +1116,14 @@
           tools.loadImage(this.imgSrc).then(imgInfo => {
             if (imgInfo.src) {
               // Loading succeeds.
-              // Note: Both the photoShowViewer.imgSrc and the imgInfo.oriSrc may be either a string or a Promise object.
-              if (this.imgSrc && this.imgSrc == imgInfo.oriSrc) {
+              if (
+                !this.hasImgViewerShown &&
+                photoShow.config.isWebsiteUnknown &&
+                (imgInfo.width * imgInfo.height || 0) <= triggerBBoxArea
+              ) {
+                this.mouseLeaveAction();
+              } else if (this.imgSrc && this.imgSrc == imgInfo.oriSrc) {
+                // Note: Both the photoShowViewer.imgSrc and the imgInfo.oriSrc may be either a string or a Promise object.
                 this.imgSrc = imgInfo.src; // Assign the actual image src to the photoShowViewer.imgSrc, in case it may be a Promise object.
 
                 // Cache the actual src of the high-definition image.
@@ -1280,9 +1308,6 @@
           tools.addStyle(styleName, photoShow.websiteConfig.amendStyles[styleName]);
         }
 
-        // Resolve hotkey conflicts.
-        photoShow.toggleHotkeyDeconflictAgent(true);
-
         // Start observing the document.
         this.domObserver = new MutationObserver(mutations => this.domMutateAction(mutations));
         this.domObserver.observe(document, {
@@ -1291,17 +1316,7 @@
           attributeFilter: ['src', 'srcset', 'style'],
           attributeOldValue: true
         });
-
-        // Construction callbacks.
-        photoShow.websiteConfig.onToggle && eval(`(${photoShow.websiteConfig.onToggle})`)(true);
       } else {
-        // Stop observing the document.
-        if (this.domObserver) {
-          this.domMutateAction(this.domObserver.takeRecords());
-          this.domObserver.disconnect();
-          this.domObserver = null;
-        }
-
         // Destruction.
         IS_BROWSER_FIREFOX && this.viewerMask.remove();
         this.viewerBox.remove();
@@ -1316,11 +1331,23 @@
         $('[photoshow-trigger-blocked]').removeAttr('photoshow-trigger-blocked');
         $('[id^="photoShowStyles_"]').remove();
         $('[photoshow-cache-id]').remove();
-        photoShow.toggleHotkeyDeconflictAgent(false);
 
-        // Destuction callbacks.
-        photoShow.websiteConfig.onToggle && eval(`(${photoShow.websiteConfig.onToggle})`)(false);
+        // Stop observing the document.
+        if (this.domObserver) {
+          this.domMutateAction(this.domObserver.takeRecords());
+          this.domObserver.disconnect();
+          this.domObserver = null;
+        }
       }
+
+      // Handle xhr hook.
+      photoShow.toggleXhrHook();
+
+      // Handle hotkey conflict agent.
+      photoShow.toggleHotkeyDeconflictAgent();
+
+      // Construction/Destruction callbacks.
+      photoShow.websiteConfig.onToggle && eval(`(${photoShow.websiteConfig.onToggle})`)(photoShow.isEnabled);
     },
     mouseOverAction: function (e) {
       clearTimeout(this.viewerDisplayTimer);
@@ -1329,7 +1356,7 @@
         typeof e[`${photoShow.config.activationMode}Key`] == 'boolean' &&
         (this.isModifierKeyDown = e[`${photoShow.config.activationMode}Key`]);
 
-      var srcTarget = e.detail ? e.detail.target : e.target,
+      var srcTarget = e.detail?.target || e.target,
         evtTarget = $(srcTarget);
 
       if (this.hasImgViewerShown && $(e.detail.target).is(this.curTrigger)) {
@@ -1396,7 +1423,7 @@
         hasMask: false
       });
 
-      this.viewerBox.removeAttr('data-active data-img-shown data-has-mask');
+      this.viewerBox.removeAttr('data-img-shown data-has-mask');
     },
     moveAction: function (useAni) {
       window.requestAnimationFrame(() => {
@@ -1501,7 +1528,7 @@
       }
     },
     copyAction: function () {
-      tools.resolveImgSrc(this.imgSrc).then(imgSrc => {
+      tools.resolveImgSrc(this.preservedImgSrc).then(imgSrc => {
         if (imgSrc) {
           tools.copyText(imgSrc);
           photoShowGlobalMsg.show(chrome.i18n.getMessage('globalMsg_imgSrcCopied'));
@@ -1772,7 +1799,7 @@
     }
   };
 
-  (function init() {
+  $(document).ready(() => {
     // Initialize viewer.
     photoShowViewer.viewerShadow = $('.photoshow-viewer-shadow', photoShowViewer.viewerBox);
     photoShowViewer.viewerImg = $('img', photoShowViewer.viewerBox);
@@ -1813,34 +1840,12 @@
 
     // Response to storage change event.
     chrome.storage.onChanged.addListener(changes => {
-      if (
-        changes.disabledWebsites &&
-        photoShow.isEnabled != !changes.disabledWebsites.newValue.includes(location.hostname)
-      ) {
-        photoShow.isEnabled = !photoShow.isEnabled;
-        photoShow.toggleXhrHook();
-        photoShowViewer.toggle();
+      if (['disabledWebsites', 'photoShowConfigs'].some(item => Object.keys(changes).includes(item))) {
+        photoShow.updateStateAndConfigs();
       }
-
-      changes.photoShowConfigs && photoShow.config.update(changes.photoShowConfigs.newValue);
     });
 
     // Get initial state.
-    chrome.runtime.sendMessage(
-      {
-        cmd: 'GET_INITIAL_STATE_AND_CONFIGS'
-      },
-      response => {
-        photoShow.isEnabled = response.isPhotoShowEnabled;
-        photoShow.websiteConfig = response.websiteConfig || {};
-        photoShow.toggleXhrHook();
-        photoShow.config.update(response.photoShowConfigs);
-
-        // Toggle when document is ready as some onToggle callbacks might wanna manipulate the DOM.
-        $(document).ready(() => {
-          photoShowViewer.toggle();
-        });
-      }
-    );
-  })();
+    photoShow.updateStateAndConfigs();
+  });
 })(jQuery.noConflict());
