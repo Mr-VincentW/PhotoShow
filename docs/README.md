@@ -78,6 +78,7 @@ While viewing HD images with **PhotoShow**, you could also perform the following
 More settings are provided in the popup window, click the **PhotoShow** icon in your browser's toolbar and here you can -
 
 - **Turn on/off PhotoShow for particular websites**: Switch the toggle button and **PhotoShow** will be enabled/disabled for websites under current hostname.
+- **Toggle support for unknown websites**: PhotoShow offers basic support for its unknown websites by default - displaying original images when their intrinsic sizes are larger than they're displayed. You can toggle this behaviour here.
 - **Set activation mode**: Displaying an HD image every time you stop your mouse at a thumbnail on a page might be disturbing. With this configuration, you can choose to bind a "modifier key" for triggering the image viewer displaying - press it when you wanna see the HD images.
 - **Toggle activation exemption**: Allow to disable the HD image viewer when image thumbnails are larger than 25% of the viewport.
 - **Toggle image size display**: If you care about the original size of the HD image, use this toggle to show or hide the image size information displaying in the bottom-right corner of the image viewer.

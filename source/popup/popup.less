@@ -28,6 +28,7 @@
  * @version 4.7.0.0 | 2021-07-04 | Vincent    // Updates: Add config items for activation exemption, loading states display, transition animation, and context menu items.
  * @version 4.9.0.0 | 2021-08-22 | Vincent    // Updates: Add 'works-everywhere' related styles;
  *                                            // Updates: Optimize whole page styles.
+ * @version 4.9.1.0 | 2021-08-23 | Vincent    // Bug Fix: Firefox page scrollbar flickering issue when toggling works-everywhere feature.
  */
 
 // Color definitions
@@ -171,6 +172,10 @@ input {
   padding: 0;
   font-style: normal;
   list-style: none;
+}
+
+html {
+  scrollbar-width: none; // Hide scrollbar on the whole page for Firefox which flickers when toggling works-everywhere feature.
 }
 
 body {

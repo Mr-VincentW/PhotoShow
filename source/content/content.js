@@ -122,6 +122,8 @@
  *                                            // Updates: Handle exceptions that occur during image loading.
  * @version 4.9.0.0 | 2021-08-22 | Vincent    // Updates: Parse video poster attribute by default;
  *                                            // Updates: Offer basic support for unknown websites.
+ * @version 4.9.1.0 | 2021-08-23 | Vincent    // Bug Fix: The visual area scrolling issue for long images, reported by users;
+ *                                            // Updates: Optimize image viewer displaying behaviour on unknown websites.
  *
  */
 
@@ -228,7 +230,9 @@
       }
     },
     getBackgroundImgSrc: function (target) {
-      return /url\(['"]?([^'"]+)['"]?\)/i.test(typeof target == 'string' ? target : $(target).css('backgroundImage'))
+      return /background[^;]*url\(['"]?([^'"]+)['"]?\)/i.test(
+        typeof target == 'string' ? target : $(target).css('backgroundImage')
+      )
         ? new URL(RegExp.$1, location.origin).href
         : '';
     },
@@ -1119,7 +1123,7 @@
               if (
                 !this.hasImgViewerShown &&
                 photoShow.config.isWebsiteUnknown &&
-                (imgInfo.width * imgInfo.height || 0) <= triggerBBoxArea
+                (imgInfo.width * imgInfo.height || 0) <= triggerBBoxArea * 1.2
               ) {
                 this.mouseLeaveAction();
               } else if (this.imgSrc && this.imgSrc == imgInfo.oriSrc) {
