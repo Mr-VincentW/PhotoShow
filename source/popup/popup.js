@@ -37,6 +37,7 @@
  * @version 4.7.0.0 | 2021-07-04 | Vincent    // Updates: Add config items for activation exemption, loading states display, transition animation, and context menu items.
  * @version 4.7.1.0 | 2021-07-07 | Vincent    // Updates: Optimize view mode options order.
  * @version 4.9.0.0 | 2021-08-22 | Vincent    // Updates: Add 'works-everywhere' related items.
+ * @version 4.9.2.0 | 2021-08-27 | Vincent    // Updates: Add 'toggleViewMode' hotkey item.
  */
 
 // TODO: Support customising hotkeys.
@@ -243,6 +244,7 @@ $('#hotkeysSection dd').append(
     'scrollImageByPage',
     'scrollImageToEnds',
     'switchViewMode',
+    'toggleViewMode',
     'openImageInNewTab',
     'saveImage',
     'copyImageAddress'

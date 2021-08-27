@@ -23,6 +23,7 @@
  * @version 4.6.0.0 | 2021-01-24 | Vincent    // Updates: Replace logo-displaying items with image-size-displaying items.
  * @version 4.9.0.0 | 2021-08-22 | Vincent    // Updates: Add 'works-everywhere' related items;
  *                                            // Updates: Optimize several section titles.
+ * @version 4.9.2.0 | 2021-08-27 | Vincent    // Updates: Add 'hotkey_toggleViewMode'.
  */
 
 {
@@ -96,7 +97,7 @@
     "description": "禁止浮图秀支持未知网站时的消息。"
   },
   "extensionUpdateDate": {
-    "message": "更新：2021年8月23日",
+    "message": "更新：2021年8月27日",
     "description": "当前所安装浮图秀版本的更新时间。"
   },
   "stateToggleOnTitle": {
@@ -273,6 +274,10 @@
   },
   "hotkey_switchViewMode": {
     "message": "<td>M / L / A / P</td><td>切换视图模式</td>",
+    "description": "热键名称及相应操作描述。"
+  },
+  "hotkey_toggleViewMode": {
+    "message": "<td>V</td><td>切换到上一次使用的视图模式</td>",
     "description": "热键名称及相应操作描述。"
   },
 

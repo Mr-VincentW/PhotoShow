@@ -35,6 +35,7 @@
  * @version 4.7.2.0 | 2021-07-17 | Vincent    // Updates: Optimize image size label style.
  * @version 4.8.0.0 | 2021-08-14 | Vincent    // Bug Fix: Image viewer message icon color is overridden by host page styles.
  * @version 4.9.0.0 | 2021-08-22 | Vincent    // Updates: Reset styles to reduce conflicts.
+ * @version 4.9.2.0 | 2021-08-27 | Vincent    // Updates: Optimize the view mode switch tip styles.
  */
 
 // Color definitions
@@ -383,9 +384,13 @@
       right: 0;
       bottom: 0;
       left: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
       background: fade(gray, 75%);
-      text-align: center;
       color: #fff;
+      font-family: photoShowIconFont;
+      line-height: 1;
       mix-blend-mode: multiply;
       opacity: 0;
     }

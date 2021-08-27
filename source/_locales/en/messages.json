@@ -21,6 +21,8 @@
  * @version 4.2.0.0 | 2020-03-20 | Vincent    // Updates: Add items for hotkey toggles.
  * @version 4.6.0.0 | 2021-01-24 | Vincent    // Updates: Replace logo-displaying items with image-size-displaying items.
  * @version 4.9.0.0 | 2021-08-22 | Vincent    // Updates: Add 'works-everywhere' related items.
+ * @version 4.9.2.0 | 2021-08-27 | Vincent    // Updates: Add 'hotkey_toggleViewMode';
+ *                                            // Bug Fix: Typos.
  */
 
 {
@@ -94,7 +96,7 @@
     "description": "Message displayed when PhotoShow is shut down for unknown websites."
   },
   "extensionUpdateDate": {
-    "message": "Update: August 23, 2021",
+    "message": "Update: August 27, 2021",
     "description": "Update time of current installed version of PhotoShow."
   },
   "stateToggleOnTitle": {
@@ -239,39 +241,43 @@
   },
   "hotkey_closeViewer": {
     "message": "<td>Esc</td><td>Close image viewer</td>",
-    "description": "Hotykey name and its operation description."
+    "description": "Hotkey name and its operation description."
   },
   "hotkey_rotateImage": {
     "message": "<td>Shift + Ctrl + ← / →</td><td>Rotate counterclockwise / clockwise</td>",
-    "description": "Hotykey name and its operation description."
+    "description": "Hotkey name and its operation description."
   },
   "hotkey_scrollImage": {
     "message": "<td>↑ / → / ↓ / ←</td><td>Scroll up / right / down / left</td>",
-    "description": "Hotykey name and its operation description."
+    "description": "Hotkey name and its operation description."
   },
   "hotkey_scrollImageByPage": {
     "message": "<td>PgUp / PgDn</td><td>Scroll up / down by image visible height</td>",
-    "description": "Hotykey name and its operation description."
+    "description": "Hotkey name and its operation description."
   },
   "hotkey_scrollImageToEnds": {
     "message": "<td>Home / End</td><td>Scroll up to the top / down to the bottom</td>",
-    "description": "Hotykey name and its operation description."
+    "description": "Hotkey name and its operation description."
   },
   "hotkey_openImageInNewTab": {
     "message": "<td>Tab</td><td>Open HD image in new tab</td>",
-    "description": "Hotykey name and its operation description."
+    "description": "Hotkey name and its operation description."
   },
   "hotkey_saveImage": {
     "message": "<td>S</td><td>Save HD image</td>",
-    "description": "Hotykey name and its operation description."
+    "description": "Hotkey name and its operation description."
   },
   "hotkey_copyImageAddress": {
     "message": "<td>C</td><td>Copy HD image address</td>",
-    "description": "Hotykey name and its operation description."
+    "description": "Hotkey name and its operation description."
   },
   "hotkey_switchViewMode": {
     "message": "<td>M / L / A / P</td><td>Switch view mode</td>",
-    "description": "Hotykey name and its operation description."
+    "description": "Hotkey name and its operation description."
+  },
+  "hotkey_toggleViewMode": {
+    "message": "<td>V</td><td>Toggle to the previously used view mode</td>",
+    "description": "Hotkey name and its operation description."
   },
 
   // Section CONTACT:

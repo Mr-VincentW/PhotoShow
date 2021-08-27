@@ -173,6 +173,7 @@
  * @version 4.9.0.0 | 2021-08-22 | Vincent    // Updates: Support Acfun, kuaishou.com, douyin.com, mi-store, and TikTok;
  *                                            // Updates: Better support for mi.com, Myprotein, and Tumblr;
  *                                            // Updates: Offer basic support for unknown websites.
+ * @version 4.9.2.0 | 2021-08-27 | Vincent    // Bug Fix: A initialization error when PhotoShow is firstly installed or upgraded.
  */
 
 // TODO: Extract websiteConfig to independent files and import them (after porting to webpack).
@@ -2850,8 +2851,8 @@ var photoShow = {
     if (urlHostname) {
       chrome.browserAction.enable(tabId);
 
-      if (!WEBSITE_INFO[urlHostname].isWebsiteUnknown || PHOTOSHOW_CONFIGS.worksEverywhere !== false) {
-        if (WEBSITE_INFO[urlHostname].isPhotoShowEnabled) {
+      if (!WEBSITE_INFO[urlHostname]?.isWebsiteUnknown || PHOTOSHOW_CONFIGS.worksEverywhere !== false) {
+        if (WEBSITE_INFO[urlHostname]?.isPhotoShowEnabled) {
           photoShow.enable(tabId, WEBSITE_INFO[urlHostname].isWebsiteUnknown);
         } else {
           photoShow.disable(tabId);

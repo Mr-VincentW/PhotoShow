@@ -110,8 +110,8 @@
  * @version 4.6.3.0 | 2021-03-04 | Vincent    // Updates: Toggle on/off PhotoShow initially after the document is ready.
  * @version 4.6.6.0 | 2021-05-09 | Vincent    // Bug Fix: Prevent working on links that contain image-file-extension-name keywords in their href but actually are not image links;
  *                                            // Updates: Add statistics.
- * @version 4.7.0.0 | 2021-07-04 | Vincent    // Updates: Allow user to disable transition animation;
- *                                            // Updates: Allow user to disable loading states display;
+ * @version 4.7.0.0 | 2021-07-04 | Vincent    // Updates: Allow users to disable transition animation;
+ *                                            // Updates: Allow users to disable loading states display;
  *                                            // Updates: Resolve hotkey conflicts (with original document) issue;
  *                                            // Updates: Add activation exemption feature.
  * @version 4.7.4.0 | 2021-08-03 | Vincent    // Updates: Works better with data-photoshow-hd-src cache.
@@ -124,6 +124,10 @@
  *                                            // Updates: Offer basic support for unknown websites.
  * @version 4.9.1.0 | 2021-08-23 | Vincent    // Bug Fix: The visual area scrolling issue for long images, reported by users;
  *                                            // Updates: Optimize image viewer displaying behaviour on unknown websites.
+ * @version 4.9.2.0 | 2021-08-27 | Vincent    // Bug Fix: Fail to parse background image url, reported by users (GitHub issue #26);
+ *                                            // Bug Fix: Enabling/disabling PhotoShow doesn't reset the hotkey deconflict agent;
+ *                                            // Updates: Allow users to toggle between the last two view modes used recently, in response to user feedback (GitHub issue #25);
+ *                                            // Updates: Optimize the view mode switch tip styles.
  *
  */
 
@@ -133,6 +137,8 @@
 // TODO: Render viewer in absolute position so that it can scroll with the viewport.
 // TODO: Might need to replace all the usecases of e.which to e.key.
 // TODO: Might need to check the hotkey de-conflict feature for iframes.
+// TODO: Viewer displaying transition lags. (Will need to switch to transform wherever possible.)
+// TODO: Replace loading/error bubble with trigger outline indication.
 
 ($ => {
   $.ajaxSetup({
@@ -230,7 +236,7 @@
       }
     },
     getBackgroundImgSrc: function (target) {
-      return /background[^;]*url\(['"]?([^'"]+)['"]?\)/i.test(
+      return /(?:^|background[^;]*)url\(['"]?([^'"]+)['"]?\)/i.test(
         typeof target == 'string' ? target : $(target).css('backgroundImage')
       )
         ? new URL(RegExp.$1, location.origin).href
@@ -353,6 +359,7 @@
   const photoShow = {
     isEnabled: false, // PhotoShow availability flag.
     websiteConfig: {}, // Configuration for current website.
+    recentViewModes: ['A', 'P'], // Last two view modes that were used recently.
     config: {
       // PhotoShow configuration.
       update: function (config) {
@@ -366,9 +373,9 @@
         })(this, config);
 
         // Reset hotkey deconflict agent.
-        if (this.isEnabled) {
-          this.toggleHotkeyDeconflictAgent(false);
-          this.toggleHotkeyDeconflictAgent(true);
+        if (photoShow.isEnabled) {
+          photoShow.toggleHotkeyDeconflictAgent(false);
+          photoShow.toggleHotkeyDeconflictAgent(true);
         }
       },
       isWebsiteUnknown: true,
@@ -376,11 +383,9 @@
       activationExemption: true, // Activation exemption.
       _viewMode: VIEW_MODES['A'], // View mode.
       get viewMode() {
-        // View mode getter.
         return this._viewMode.name;
       },
       set viewMode(modeName) {
-        // View mode setter.
         if (this._viewMode.name != modeName) {
           photoShowViewer.viewModeSwitchTip && photoShowViewer.viewModeSwitchTip.text(modeName[0]);
           this._viewMode = VIEW_MODES[modeName[0]];
@@ -393,6 +398,8 @@
         photoShowViewer.hasImgShown &&
           !photoShowViewer.isViewerChanged &&
           photoShowViewer.viewerBox.removeClass('view-mode-switching').show().addClass('view-mode-switching');
+
+        photoShow.recentViewModes = [modeName[0], photoShow.recentViewModes.find(mode => mode !== modeName[0])];
       },
       _imageSizeDisplay: true, // ImageSize display.
       get imageSizeDisplay() {
@@ -440,6 +447,9 @@
           isEnabled: true
         },
         switchViewMode: {
+          isEnabled: true
+        },
+        toggleViewMode: {
           isEnabled: true
         },
         openImageInNewTab: {
@@ -797,8 +807,7 @@
           transform: `translate(-50%,-50%) rotate(${this.imgRotation.angle}deg)`
         },
         viewModeSwitchTip: {
-          lineHeight: `${chosenSpace.viewerHeight}px`,
-          fontSize: Math.min(chosenSpace.viewerWidth, chosenSpace.viewerHeight) / 2
+          fontSize: Math.min(chosenSpace.viewerWidth, chosenSpace.viewerHeight) / 2.5
         }
       };
 
@@ -1720,6 +1729,21 @@
                   }
                 });
               }
+            }
+
+            break;
+
+          case 'V':
+            if (photoShow.config.hotkeys.toggleViewMode.isEnabled && this.hasImgShown) {
+              e.preventDefault();
+
+              chrome.runtime.sendMessage({
+                cmd: 'SET_PHOTOSHOW_CONFIGS',
+                args: {
+                  item: 'viewMode',
+                  value: VIEW_MODES[photoShow.recentViewModes[1]].name
+                }
+              });
             }
 
             break;
