@@ -19,6 +19,7 @@
  * @version 4.4.0.0 | 2020-04-18 | Vincent    // Bug Fix: Fix the problem that image src fails to be preserved for contextmenu actions.
  * @version 4.5.2.0 | 2020-08-23 | Vincent    // Updates: Replace Object.assign with spread syntax.
  * @version 4.9.0.0 | 2021-08-22 | Vincent    // Updates: Offer basic support for unknown websites.
+ * @version 4.10.0.0 | 2021-09-18 | Vincent   // Updates: Optimize user interaction on certain websites by changing events binding method.
  */
 
 (($, isInFrame) => {
@@ -84,17 +85,28 @@
 
     const photoShowViewer = {
       domObserver: null, // Observer for the document.
+      _evtHandlers: {}, // Event handlers.
+      _bindEvent: function (evtTypes, handler) {
+        const _handler = handler.bind(this);
+
+        evtTypes
+          .split(' ')
+          .forEach(evtType => document.addEventListener(evtType, (this._evtHandlers[evtType] = _handler), true));
+      },
+      _unbindAllEvents: function () {
+        Object.entries(this._evtHandlers).forEach(([evtType, evtHandler]) =>
+          document.removeEventListener(evtType, evtHandler, true)
+        );
+      },
       toggle: function () {
         if (photoShow.isEnabled) {
-          // Handle mouseover event in capture phase.
-          // This ensures a proper behavior when it comes to a trigger in iframes.
-          document.addEventListener('mouseover', this.mouseOverAction, true);
-
-          $(document)
-            .on('mousemove.photoShow mouseout.photoShow keydown.photoShow keyup.photoShow contextmenu.photoShow', e => {
-              window.top.jQuery(window.top.document).trigger(e);
-            })
-            .on('topWinScroll.photoShow', this.winScrollAction.bind(this));
+          // Handle events in capture phases.
+          // This ensures proper behaviors when it comes to triggers in iframes or on some certain websites (e.g. Google Map).
+          this._bindEvent('mouseover', this.mouseOverAction);
+          this._bindEvent('mousemove mouseout keydown keyup contextmenu', function (e) {
+            window.top.jQuery(window.top.document).trigger(e);
+          });
+          this._bindEvent('topWinScroll', this.winScrollAction);
 
           // Add amend styles.
           photoShow.websiteConfig = {
@@ -120,8 +132,7 @@
             attributeOldValue: true
           });
         } else {
-          document.removeEventListener('mouseover', this.mouseOverAction, true);
-          $(document).off('.photoShow');
+          this._unbindAllEvents();
 
           // Remove amend styles.
           $('[id^="photoShowStyles_"]').remove();

@@ -16,6 +16,10 @@
  * @version 4.9.0.0 | 2021-08-22 | Vincent    // Updates: Add 'works-everywhere' related items.
  * @version 4.9.2.0 | 2021-08-27 | Vincent    // Updates: Add 'hotkey_toggleViewMode';
  *                                            // Bug Fix: Typos.
+ * @version 4.10.0.0 | 2021-09-18 | Vincent   // Updates: Add 'photoShowUnavailableMsg';
+ *                                            // Updates: Add viewer location related items;
+ *                                            // Updates: Remove 'imageLoadingTip' and 'imageLoadingFailTip';
+ *                                            // Updates: Update view mode names and loading status items.
  */
 
 {
@@ -32,14 +36,6 @@
 
   ////////////////////////////////////////////////////////////////////////////////
   // Information displayed in image viewer, context menu or global messages.
-  "imageLoadingTip": {
-    "message": "Image loading",
-    "description": "Message displayed when images are being loaded."
-  },
-  "imageLoadingFailTip": {
-    "message": "Image loading failed!",
-    "description": "Message displayed when image loading fails."
-  },
   "imageSavingNamePrefix": {
     "message": "PhotoShowImage",
     "description": "The file name prefix of the image that is saved by PhotoShow."
@@ -84,12 +80,16 @@
     "message": "PhotoShow is disabled on this website.",
     "description": "Message displayed when PhotoShow is disabled for current website."
   },
-  "photoShowUnavailableMsg": {
+  "photoShowShutdownMsg": {
     "message": "Support for unknown websites is turned off.",
     "description": "Message displayed when PhotoShow is shut down for unknown websites."
   },
+  "photoShowUnavailableMsg": {
+    "message": "PhotoShow does not support the current website.",
+    "description": "Message displayed when PhotoShow can not work on certain websites."
+  },
   "extensionUpdateDate": {
-    "message": "Update: 27 August 2021",
+    "message": "Update: ",
     "description": "Update time of current installed version of PhotoShow."
   },
   "stateToggleOnTitle": {
@@ -140,37 +140,59 @@
     "message": "VIEW MODE",
     "description": "Section title."
   },
-  "viewModeOption_Mini": {
-    "message": "Mini",
-    "description": "Mode name."
-  },
-  "viewModeOptionTitle_Mini": {
-    "message": "The viewer displays within 1/8 in area of the available space on one side of the source thumbnail",
-    "description": "Corresponding mouse-hovering tip."
-  },
-  "viewModeOption_Light": {
-    "message": "Light",
-    "description": "Mode name."
-  },
-  "viewModeOptionTitle_Light": {
-    "message": "The viewer displays within 1/4 in area of the available space on one side of the source thumbnail",
-    "description": "Corresponding mouse-hovering tip."
-  },
-  "viewModeOption_Auto": {
+  "viewModeOption_auto": {
     "message": "Auto",
     "description": "Mode name."
   },
-  "viewModeOptionTitle_Auto": {
+  "viewModeOptionTitle_auto": {
     "message": "The viewer automatically adapts its size to the available space on one side of the source thumbnail",
     "description": "Corresponding mouse-hovering tip."
   },
-  "viewModeOption_Panoramic": {
+  "viewModeOption_mini": {
+    "message": "Mini",
+    "description": "Mode name."
+  },
+  "viewModeOptionTitle_mini": {
+    "message": "The viewer displays within 1/8 in area of the available space on one side of the source thumbnail",
+    "description": "Corresponding mouse-hovering tip."
+  },
+  "viewModeOption_lite": {
+    "message": "Lite",
+    "description": "Mode name."
+  },
+  "viewModeOptionTitle_lite": {
+    "message": "The viewer displays within 1/4 in area of the available space on one side of the source thumbnail",
+    "description": "Corresponding mouse-hovering tip."
+  },
+  "viewModeOption_panoramic": {
     "message": "Panoramic",
     "description": "Mode name."
   },
-  "viewModeOptionTitle_Panoramic": {
+  "viewModeOptionTitle_panoramic": {
     "message": "The viewer takes as large space as needed and the image displays in its original size",
     "description": "Corresponding mouse-hovering tip."
+  },
+
+  // Section VIEWER LOCATION:
+  "viewerLocationHeader": {
+    "message": "VIEWER LOCATION",
+    "description": "Section title."
+  },
+  "viewerLocationOption_top": {
+    "message": "Top",
+    "description": "Location name."
+  },
+  "viewerLocationOption_bottom": {
+    "message": "Bottom",
+    "description": "Location name."
+  },
+  "viewerLocationOption_left": {
+    "message": "Left",
+    "description": "Location name."
+  },
+  "viewerLocationOption_right": {
+    "message": "Right",
+    "description": "Location name."
   },
 
   // Section IMAGE SIZE DISPLAY:
@@ -193,13 +215,13 @@
     "description": "Setting item description."
   },
 
-  // Section LOADING STATES DISPLAY:
-  "loadingStatesDisplayHeader": {
-    "message": "LOADING STATES DISPLAY",
+  // Section LOADING STATUS DISPLAY:
+  "loadingStatusDisplayHeader": {
+    "message": "LOADING STATUS DISPLAY",
     "description": "Section title."
   },
-  "loadingStatesDisplayDesc": {
-    "message": "Display image loading states",
+  "loadingStatusDisplayDesc": {
+    "message": "Indicate image loading status",
     "description": "Setting item description."
   },
 

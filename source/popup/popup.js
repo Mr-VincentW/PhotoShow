@@ -34,10 +34,12 @@
  * @version 4.6.0.0 | 2021-01-24 | Vincent    // Updates: Support displaying HD image size in the viewer;
  *                                            // Updates: Remove the feature of displaying PhotoShow logo in the viewer;
  *                                            // Updates: Remove download link for QQ browsers app centre.
- * @version 4.7.0.0 | 2021-07-04 | Vincent    // Updates: Add config items for activation exemption, loading states display, transition animation, and context menu items.
+ * @version 4.7.0.0 | 2021-07-04 | Vincent    // Updates: Add config items for activation exemption, loading status display, transition animation, and context menu items.
  * @version 4.7.1.0 | 2021-07-07 | Vincent    // Updates: Optimize view mode options order.
  * @version 4.9.0.0 | 2021-08-22 | Vincent    // Updates: Add 'works-everywhere' related items.
  * @version 4.9.2.0 | 2021-08-27 | Vincent    // Updates: Add 'toggleViewMode' hotkey item.
+ * @version 4.10.0.0 | 2021-09-18 | Vincent   // Updates: Add config items for viewer location settings;
+ *                                            // Updates: Optimize config items naming.
  */
 
 // TODO: Support customising hotkeys.
@@ -76,7 +78,7 @@ function disablePhotoShow(disableAni) {
 }
 
 function shutDownPhotoShow(disableAni) {
-  $('#stateMsg').text(chrome.i18n.getMessage('photoShowUnavailableMsg'));
+  $('#stateMsg').text(chrome.i18n.getMessage('photoShowShutdownMsg'));
   $('#stateToggle')
     .removeClass('basic disabled no-ani')
     .addClass(`shut-down${disableAni ? ' no-ani' : ''}`)
@@ -105,7 +107,11 @@ function updateStateAndConfigs(isInitializing) {
       let curConfigItemNode = $(`[config-item="${key}"]`, hostNode);
 
       if (curConfigItemNode.length) {
-        if (typeof value === 'object') {
+        if (Array.isArray(value)) {
+          $(':checkbox', curConfigItemNode).each((_, option) =>
+            $(option).prop('checked', value.includes($(option).val()))
+          );
+        } else if (typeof value === 'object') {
           arguments.callee(value, curConfigItemNode);
         } else {
           let configInput = $('input', curConfigItemNode);
@@ -159,24 +165,38 @@ $(document)
     e.key == 'Escape' || e.preventDefault(); // Do not block popup page closing.
 
     chrome.runtime.sendMessage({
-      cmd: 'DISPATCH_HOTKEY_EVENT',
+      cmd: 'DISPATCH_EVENT',
       args: (({ type, key, which, shiftKey, ctrlKey, altKey }) => ({ type, key, which, shiftKey, ctrlKey, altKey }))(e)
     });
   })
   .on('change.photoShow', '[config-item] input', e => {
     // Config items actions.
-    var curOption = $(e.currentTarget);
+    const curOption = $(e.currentTarget),
+      isMultiple = curOption.closest('[config-item]').find(':checkbox').length > 1;
+
+    if (isMultiple) {
+      const selectedOptions = curOption.closest('[config-item]').find(':checkbox:checked');
+      selectedOptions.prop('disabled', selectedOptions.length <= 1);
+    }
 
     chrome.runtime.sendMessage({
       cmd: 'SET_PHOTOSHOW_CONFIGS',
       args: {
         item: curOption
           .parentsUntil('body', '[config-item]')
-          .map((i, configItem) => $(configItem).attr('config-item'))
+          .map((_, configItem) => $(configItem).attr('config-item'))
           .toArray()
           .reverse()
           .join('.'),
-        value: curOption.is(':checkbox') ? curOption.is(':checked') : curOption.val()
+        value: isMultiple
+          ? curOption
+              .closest('[config-item]')
+              .find(':checkbox:checked')
+              .map((_, option) => $(option).val())
+              .toArray()
+          : curOption.is(':checkbox')
+          ? curOption.is(':checked')
+          : curOption.val()
       }
     });
   })
@@ -209,9 +229,11 @@ $('#updateDate').text(chrome.i18n.getMessage('extensionUpdateDate'));
 [
   'activationMode',
   'activationExemption',
+  'viewMode',
+  'viewerLocation',
   'imageSizeDisplay',
   'shadowDisplay',
-  'loadingStatesDisplay',
+  'loadingStatusDisplay',
   'animationToggle',
   'contextMenuToggle',
   'worksEverywhere'
@@ -221,16 +243,26 @@ $('#updateDate').text(chrome.i18n.getMessage('extensionUpdateDate'));
 });
 $('#activationModeOption_None').text(chrome.i18n.getMessage('activationModeOption_None'));
 
-$('#viewModeSection dt h3').text(chrome.i18n.getMessage('viewModeHeader'));
 $('#viewModeSection dd').append(
-  ['Auto', 'Mini', 'Light', 'Panoramic']
+  ['auto', 'mini', 'lite', 'panoramic']
     .map(
       modeName =>
-        `<label title="${chrome.i18n.getMessage(`viewModeOptionTitle_${modeName}`)}" hotkey="${
-          modeName[0]
-        }"><input type="radio" name="viewModeRadio" value="${modeName}"${
-          modeName == 'Auto' ? ' checked' : ''
-        } /><span>${chrome.i18n.getMessage(`viewModeOption_${modeName}`)} (${modeName[0]})</span></label>`
+        `<label title="${chrome.i18n.getMessage(
+          `viewModeOptionTitle_${modeName}`
+        )}"><input type="radio" name="viewModeRadio" value="${modeName}"${
+          modeName == 'auto' ? ' checked' : ''
+        } /><span>${chrome.i18n.getMessage(`viewModeOption_${modeName}`)} (${modeName[0].toUpperCase()})</span></label>`
+    )
+    .join('')
+);
+
+$('#viewerLocationSection dd').append(
+  ['top', 'bottom', 'left', 'right']
+    .map(
+      location =>
+        `<label><input type="checkbox" value="${location}" checked /><span>${chrome.i18n.getMessage(
+          `viewerLocationOption_${location}`
+        )}</span></label>`
     )
     .join('')
 );

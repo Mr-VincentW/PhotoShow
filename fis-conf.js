@@ -1,24 +1,29 @@
-const minifyJSON = (content, fileName, env) => {
+const minifyJSON = (content, dirName, fileName, env) => {
   let json = JSON.parse(
     content
-    .toString()
-    .replace(/(?:\/\*\*[\s\S]*?\*\/|\s*(?<!:)\/\/.*)/gm, '') // Remove head comments.
-    .replace(/(?:^\s*[\r\n]|,(?=\s*[\r\n]\s*\}))/gm, '') // Remove other comments.
+      .toString()
+      .replace(/(?:\/\*\*[\s\S]*?\*\/|\s*(?<!:)\/\/.*)/gm, '') // Remove head comments.
+      .replace(/(?:^\s*[\r\n]|,(?=\s*[\r\n]\s*\}))/gm, '') // Remove other comments.
   );
 
   if (fileName == 'manifest.json') {
     // manifest.json.
     /^chrome-/.test(env) || delete json.update_url;
-
-    /^firefox-/.test(env) ?
-      delete json.minimum_chrome_version :
-      delete json.browser_specific_settings;
-
+    /^firefox-/.test(env)
+      ? delete json.minimum_chrome_version
+      : delete json.browser_specific_settings;
     /-dev$/.test(env) && (json.name += '_dev');
   } else if (fileName == 'messages.json') {
     // i18n messages.
-    (function(json) {
-      Object.values(json).forEach(value => {
+    (function (json) {
+      Object.entries(json).forEach(([key, value]) => {
+        if (key === 'extensionUpdateDate') {
+          value.message += new Date().toLocaleDateString(
+            /(\w+)$/.test(dirName) ? RegExp.$1.replace('_', '-') : 'en',
+            { year: 'numeric', month: 'long', day: 'numeric' }
+          );
+        }
+
         delete value.description;
         typeof value == 'object' && arguments.callee(value);
       });
@@ -30,120 +35,173 @@ const minifyJSON = (content, fileName, env) => {
 
 ////////////////////////////////////////////////////////////////////////////////
 // Config for chrome development environment.
-fis.media('dev').match('source/**.json', {
-  optimizer: (content, file, settings) => minifyJSON(content, file.basename, 'chrome-dev')
-}).match('source/**.html', {
-  optimizer: fis.plugin('html-minifier', {
-    removeComments: true,
-  })
-}).match('source/(**)', {
-  release: '$1'
-});
-
-// Config for chrome production environment.
-fis.media('chrome').match(/source\/.*(?<!\.min)\.js$/, {
-  optimizer: fis.plugin('uglify-es', {
-    mangle: {
-      toplevel: true,
-      reserved: ['tools']
+fis
+  .media('dev')
+  .match('source/**.json', {
+    optimizer: (content, file, settings) => {
+      return minifyJSON(content, file.dirname, file.basename, 'chrome-dev');
     }
   })
-}).match('source/**.json', {
-  optimizer: (content, file, settings) => minifyJSON(content, file.basename, 'chrome')
-}).match('source/**.less', {
-  optimizer: fis.plugin('clean-css')
-}).match('source/**.html', {
-  optimizer: fis.plugin('html-minifier', {
-    removeComments: true,
+  .match('source/**.html', {
+    optimizer: fis.plugin('html-minifier', {
+      removeComments: true
+    })
   })
-}).match('source/(**)', {
-  release: '$1',
-  deploy: [fis.plugin('yzip', {
-    zip: './chrome/PhotoShow.zip'
-  }), fis.plugin('local-deliver')]
-});
+  .match('source/(**)', {
+    release: '$1'
+  });
+
+// Config for chrome production environment.
+fis
+  .media('chrome')
+  .match(/source\/.*(?<!\.min)\.js$/, {
+    optimizer: fis.plugin('uglify-es', {
+      mangle: {
+        toplevel: true,
+        reserved: ['tools']
+      }
+    })
+  })
+  .match('source/**.json', {
+    optimizer: (content, file, settings) =>
+      minifyJSON(content, file.dirname, file.basename, 'chrome')
+  })
+  .match('source/**.less', {
+    optimizer: fis.plugin('clean-css')
+  })
+  .match('source/**.html', {
+    optimizer: fis.plugin('html-minifier', {
+      removeComments: true
+    })
+  })
+  .match('source/(**)', {
+    release: '$1',
+    deploy: [
+      fis.plugin('yzip', {
+        zip: './chrome/PhotoShow.zip'
+      }),
+      fis.plugin('local-deliver')
+    ]
+  });
 
 ////////////////////////////////////////////////////////////////////////////////
 // Config for firefox development environment.
-const lessOptimizerForFirefox = content => content.replace(/\bchrome-extension:\/\/__MSG_@@extension_id__/g, ''),
+const lessOptimizerForFirefox = content =>
+    content.replace(/\bchrome-extension:\/\/__MSG_@@extension_id__/g, ''),
   jsOptimizerForFirefox = (content, file) => {
     content = content.replace(/\bchrome\./g, 'browser.');
-    file.filename == 'background' && (content = content.replace(', \'extraHeaders\'', ''));
+    file.filename == 'background' &&
+      (content = content.replace(", 'extraHeaders'", ''));
 
     return content;
-  }
+  };
 
-fis.media('firefox-dev').match(/source\/.*(?<!\.min)\.js$/, {
-  optimizer: jsOptimizerForFirefox
-}).match('source/**.json', {
-  optimizer: (content, file, settings) => minifyJSON(content, file.basename, 'firefox-dev')
-}).match('source/**.html', {
-  optimizer: fis.plugin('html-minifier', {
-    removeComments: true,
+fis
+  .media('firefox-dev')
+  .match(/source\/.*(?<!\.min)\.js$/, {
+    optimizer: jsOptimizerForFirefox
   })
-}).match('source/**.less', {
-  optimizer: lessOptimizerForFirefox
-}).match('source/(**)', {
-  release: '$1'
-});
+  .match('source/**.json', {
+    optimizer: (content, file, settings) =>
+      minifyJSON(content, file.dirname, file.basename, 'firefox-dev')
+  })
+  .match('source/**.html', {
+    optimizer: fis.plugin('html-minifier', {
+      removeComments: true
+    })
+  })
+  .match('source/**.less', {
+    optimizer: lessOptimizerForFirefox
+  })
+  .match('source/(**)', {
+    release: '$1'
+  });
 
 // Config for firefox production environment.
-fis.media('firefox').match(/source\/.*(?<!\.min)\.js$/, {
-  optimizer: [jsOptimizerForFirefox, fis.plugin('uglify-es', {
-    mangle: {
-      toplevel: true,
-      reserved: ['tools']
-    }
-  })]
-}).match('source/**.json', {
-  optimizer: (content, file, settings) => minifyJSON(content, file.basename, 'firefox')
-}).match('source/**.less', {
-  optimizer: [lessOptimizerForFirefox, fis.plugin('clean-css')]
-}).match('source/**.html', {
-  optimizer: fis.plugin('html-minifier', {
-    removeComments: true,
+fis
+  .media('firefox')
+  .match(/source\/.*(?<!\.min)\.js$/, {
+    optimizer: [
+      jsOptimizerForFirefox,
+      fis.plugin('uglify-es', {
+        mangle: {
+          toplevel: true,
+          reserved: ['tools']
+        }
+      })
+    ]
   })
-}).match('source/(**)', {
-  release: '$1',
-  deploy: [fis.plugin('yzip', {
-    zip: './firefox/PhotoShow.zip'
-  }), fis.plugin('local-deliver')]
-});
+  .match('source/**.json', {
+    optimizer: (content, file, settings) =>
+      minifyJSON(content, file.dirname, file.basename, 'firefox')
+  })
+  .match('source/**.less', {
+    optimizer: [lessOptimizerForFirefox, fis.plugin('clean-css')]
+  })
+  .match('source/**.html', {
+    optimizer: fis.plugin('html-minifier', {
+      removeComments: true
+    })
+  })
+  .match('source/(**)', {
+    release: '$1',
+    deploy: [
+      fis.plugin('yzip', {
+        zip: './firefox/PhotoShow.zip'
+      }),
+      fis.plugin('local-deliver')
+    ]
+  });
 
 ////////////////////////////////////////////////////////////////////////////////
 // Config for edge development environment.
-fis.media('edge-dev').match('source/**.json', {
-  optimizer: (content, file, settings) => minifyJSON(content, file.basename, 'edge-dev')
-}).match('source/**.html', {
-  optimizer: fis.plugin('html-minifier', {
-    removeComments: true,
+fis
+  .media('edge-dev')
+  .match('source/**.json', {
+    optimizer: (content, file, settings) =>
+      minifyJSON(content, file.dirname, file.basename, 'edge-dev')
   })
-}).match('source/(**)', {
-  release: '$1'
-});
+  .match('source/**.html', {
+    optimizer: fis.plugin('html-minifier', {
+      removeComments: true
+    })
+  })
+  .match('source/(**)', {
+    release: '$1'
+  });
 
 // Config for edge production environment.
-fis.media('edge').match(/source\/.*(?<!\.min)\.js$/, {
-  optimizer: fis.plugin('uglify-es', {
-    mangle: {
-      toplevel: true,
-      reserved: ['tools']
-    }
+fis
+  .media('edge')
+  .match(/source\/.*(?<!\.min)\.js$/, {
+    optimizer: fis.plugin('uglify-es', {
+      mangle: {
+        toplevel: true,
+        reserved: ['tools']
+      }
+    })
   })
-}).match('source/**.json', {
-  optimizer: (content, file, settings) => minifyJSON(content, file.basename, 'edge')
-}).match('source/**.less', {
-  optimizer: fis.plugin('clean-css')
-}).match('source/**.html', {
-  optimizer: fis.plugin('html-minifier', {
-    removeComments: true,
+  .match('source/**.json', {
+    optimizer: (content, file, settings) =>
+      minifyJSON(content, file.dirname, file.basename, 'edge')
   })
-}).match('source/(**)', {
-  release: '$1',
-  deploy: [fis.plugin('yzip', {
-    zip: './edge/PhotoShow.zip'
-  }), fis.plugin('local-deliver')]
-});
+  .match('source/**.less', {
+    optimizer: fis.plugin('clean-css')
+  })
+  .match('source/**.html', {
+    optimizer: fis.plugin('html-minifier', {
+      removeComments: true
+    })
+  })
+  .match('source/(**)', {
+    release: '$1',
+    deploy: [
+      fis.plugin('yzip', {
+        zip: './edge/PhotoShow.zip'
+      }),
+      fis.plugin('local-deliver')
+    ]
+  });
 
 ////////////////////////////////////////////////////////////////////////////////
 // Config for all environments.

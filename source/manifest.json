@@ -8,7 +8,7 @@
  * @version 3.1.0.0 | 2018-11-17 | Vincent    // Updates: Add new size icon resources;
  *                                            // Updates: Add icon font resrouces.
  * @version 3.4.0.0 | 2019-01-24 | Vincent    // Updates: Add context menu.
- * @version 3.8.6.0 | 2019-07-18 | Vincent    // Updates: Update jQuery to 3.4.1.
+ * @version 3.8.6.0 | 2019-07-18 | Vincent    // Updates: Upgrade jQuery to 3.4.1.
  * @version 3.9.1.0 | 2019-09-25 | Vincent    // Updates: Import jQuery in background scripts.
  * @version 4.0.0.0 | 2019-11-07 | Vincent    // Updates: Add 'version_name'.
  * @version 4.0.5.1 | 2019-12-23 | Vincent    // Updates: Abbreviate author's surname.
@@ -16,6 +16,8 @@
  * @version 4.0.9.3 | 2020-01-08 | Vincent    // Updates: Add permissions for storage APIs and relavant extension id information required in firefox.
  * @version 4.4.0.0 | 2020-04-18 | Vincent    // Updates: Add permissions for web requests manipulation (required for image downloading).
  * @version 4.6.2.0 | 2021-03-01 | Vincent    // Updates: Change when content scripts are injected into the page to 'document_start' as for xhr capturing.
+ * @version 4.10.0.0 | 2021-09-18 | Vincent   // Updates: Add 'strict_min_version' specification for Firefox;
+ *                                            // Updates: Upgrade jQuery to 3.6.0.
  */
 
 // TODO: Check if Chrome older than version 73 supports storage.async API.
@@ -25,14 +27,15 @@
   "browser_specific_settings": {
     // Firefox only.
     "gecko": {
-      "id": "{c23d8eea-4e71-4573-a245-4c97f8e1a1e0}" // Required if using storage.sync API.
+      "id": "{c23d8eea-4e71-4573-a245-4c97f8e1a1e0}", // Required if using storage.sync API.
+      "strict_min_version": "62.0" // Required for Array.flatMap() method.
     }
   },
   "manifest_version": 2,
   "name": "__MSG_extensionName__",
   "description": "__MSG_extensionDesc__",
-  "version": "4.9.2.0",
-  "version_name": "4.9.2.0",
+  "version": "4.10.0.0",
+  "version_name": "4.10.0.0",
   "author": "Vincent W.",
   "default_locale": "en",
   "minimum_chrome_version": "69", // Required for Array.flatMap() method.
@@ -46,7 +49,7 @@
     "128": "resources/icon128.png"
   },
   "background": {
-    "scripts": ["jquery-3.4.1.min.js", "background.js"]
+    "scripts": ["jquery-3.6.0.min.js", "background.js"]
   },
   "permissions": [
     "http://*/*",
@@ -70,12 +73,12 @@
     {
       "matches": ["http://*/*", "https://*/*"],
       "css": ["content/content.css"],
-      "js": ["jquery-3.4.1.min.js", "content/content.js"],
+      "js": ["jquery-3.6.0.min.js", "content/content.js"],
       "run_at": "document_start"
     },
     {
       "matches": ["http://*/*", "https://*/*"],
-      "js": ["jquery-3.4.1.min.js", "content/nestedFrames.js"],
+      "js": ["jquery-3.6.0.min.js", "content/nestedFrames.js"],
       "all_frames": true
     }
   ],

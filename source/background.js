@@ -174,6 +174,10 @@
  *                                            // Updates: Better support for mi.com, Myprotein, and Tumblr;
  *                                            // Updates: Offer basic support for unknown websites.
  * @version 4.9.2.0 | 2021-08-27 | Vincent    // Bug Fix: A initialization error when PhotoShow is firstly installed or upgraded.
+ * @version 4.10.0.0 | 2021-09-18 | Vincent   // Updates: Support coupang and instacart;
+ *                                            // Updates: Better support for Amazon, Facebook and weibo;
+ *                                            // Updates: Disable PhotoShow on websites where browser extensions are not allowed (e.g. extension stores);
+ *                                            // Updates: Optimize PhotoShow config items naming.
  */
 
 // TODO: Extract websiteConfig to independent files and import them (after porting to webpack).
@@ -181,7 +185,7 @@
 // TODO: Add an extension `OPTIONS` page for more complex settings.
 // TODO: Images in the searching result of Baidu have a scaled overlayer when mouse hovering on, which covers the mask on the trigger.
 // TODO: Remove jQuery and deal with the events dispatching between frames.
-// TODO: Disable 'Panoramic' mode for pure link triggers.
+// TODO: Disable 'panoramic' mode for pure link triggers.
 // TODO: jandan.net uses sina image.
 // TODO: gamer.com.tw uses YouTube image.
 // TODO: rules for all shopify websites.
@@ -438,14 +442,33 @@ const websiteConfig = {
   'www\\.amazon(?:\\.(?:com|[a-z]{2}))+': {
     // co|au|br|ca|cn|de|es|fr|hk|in|it|jp|mx|nl|tr|uk
     amendStyles: {
-      pointerNone: '.backGround'
+      pointerNone: '.backGround,.imgTagWrapper,a [class*="-shield"]'
     },
     srcMatching: {
       selectors:
-        'img,.a-button-thumbnail .a-button-input,.a-link-normal,.floor-hotasin-item-image,.thumnail,.thumbnailPreviewTile',
-      srcRegExp: '(//.*\\.(?:ssl-images|media)-amazon\\.(?:com|[a-z]{2})/images/.*?)\\..+(@IMG@)',
-      processor: (trigger, src, srcRegExpObj) =>
-        srcRegExpObj.test(src || trigger.parent().find('img').attr('src')) ? RegExp.$1 + RegExp.$2 : ''
+        'img,[style*=background],.a-button-thumbnail .a-button-input,.floor-hotasin-item-image,.thumnail,.thumbnailPreviewTile',
+      srcRegExp: '(//.*\\.(?:ssl-images|media)-amazon\\.(?:com|[a-z]{2})/images/.*?([-\\w]+))\\..+(@IMG@)',
+      processor: (trigger, src, srcRegExpObj) => {
+        if (
+          /'initial'\s*:\s*(\[\{.+\}\])/.test(
+            $('script:contains("ImageBlockATF"):not([photoshow-parsed])').attr('photoshow-parsed', '').get(0)
+              ?.textContent
+          )
+        ) {
+          try {
+            JSON.parse(RegExp.$1).forEach(imgData => {
+              srcRegExpObj.test(imgData.thumb) &&
+                tools.cacheImage(RegExp.$2, imgData.hiRes.replace(srcRegExpObj, '$1$3'));
+            });
+          } catch (error) {}
+        }
+
+        if (srcRegExpObj.test(src || trigger.parent().find('img').attr('src'))) {
+          return tools.cacheImage(RegExp.$2) || RegExp.$1 + RegExp.$3;
+        } else {
+          return '';
+        }
+      }
     }
   },
   'andino\\.shop': {
@@ -813,6 +836,15 @@ const websiteConfig = {
         }
       ]
     },
+  '(?:.+\\.)?coupang\\.com': {
+    amendStyles: {
+      pointerNone: '.prod-image__item__border'
+    },
+    srcMatching: {
+      srcRegExp: 'thumbnail(\\d+\\.coupangcdn\\.com)/.+?(/image\\d*/.+@IMG@)',
+      processor: 'image$1$2'
+    }
+  },
   'shop\\.countdown\\.co\\.nz': {
     //TODO: detect 'large', fallback to 'big'
     srcMatching: {
@@ -1232,137 +1264,112 @@ const websiteConfig = {
 
           return new Promise((resolve, reject) => {
             $.ajax(link, {
-              success: response =>
-                resolve(
-                  /id="event_header_primary".*?data-ploi="([^"]+)"/.test(response)
-                    ? RegExp.$1.replace(/&amp;/g, '&')
-                    : ''
-                ),
+              dataType: 'html',
+              success: response => {
+                if (/"url"\s*:\s*"[^"]+?\\\/photos\\\/(?:[^/"]+\/)?(\d+)[^"]*"/.test(response)) {
+                  $.ajax('/photo/', {
+                    data: {
+                      fbid: RegExp.$1
+                    },
+                    dataType: 'html',
+                    success: response => {
+                      if (/"image"\s*:\s*\{.*?"uri"\s*:\s*"(.*?)"/.test(response)) {
+                        resolve(RegExp.$1.replaceAll('\\', ''));
+                      } else {
+                        reject();
+                      }
+                    },
+                    error: reject
+                  });
+                } else {
+                  reject();
+                }
+              },
               error: reject
             });
-          });
+          }).catch(() => src);
         }
       },
       {
-        srcRegExp: '//.+\\.fbcdn\\.net/safe_image\\.php\\?.+&url=([^&]+)',
-        processor: (trigger, src, srcRegExpObj) => (srcRegExpObj.test(src) ? decodeURIComponent(RegExp.$1) : '')
-      },
-      {
-        selectors: 'img,[style*=background],a[data-video-channel-id],image',
-        srcRegExp: '/\\d+_(\\d+)_\\w+@IMG@\\?',
+        selectors:
+          'img,[style*=background-image],a[data-video-channel-id],image,.i09qtzwb.n7fi1qx3.pmk7jnqg.j9ispegn.kr520xx4',
         processor: (trigger, src, srcRegExpObj) => {
           var bgSrc = tools.getBackgroundImgSrc(trigger);
-          src =
-            (/\.gif$/.test(src) && bgSrc && !/\.gif$/.test(bgSrc) && bgSrc) || src || trigger.find('img').attr('src');
+          src = (/\.gif$/.test(src) && !/\.gif$/.test(bgSrc) && bgSrc) || src || trigger.find('img').attr('src');
 
-          var link = trigger.closest('a').attr('ajaxify') || trigger.closest('a').attr('href'),
-            asyncGetToken = /"async_get_token":"([^"]+)"/.test(document.documentElement.innerHTML) ? RegExp.$1 : '',
-            profileId = [
-              '',
-              trigger.closest('[data-hovercard]').attr('data-hovercard'),
-              trigger.closest('a').attr('href'),
-              $(`#${trigger.closest('[data-ownerid]').data('ownerid')}`).attr('data-hovercard')
-            ].reduce((acc, cur) => (acc ? acc : /\.php\?id=([^&]+)/.test(cur) ? RegExp.$1 : '')),
-            fbId = '';
+          var link = trigger.closest('a').attr('href'),
+            fbId = /\/photo\b.*?\?.*fbid=([^&]+)/.test(link)
+              ? RegExp.$1
+              : /\/photos\/(?:[^/]+\/)?(\d+)/.test(link)
+              ? RegExp.$1
+              : '',
+            profileId = /^(?:https?:\/\/www\.facebook\.com)?\/(.+?)\/?(?:\?|$)/.test(link) ? RegExp.$1 : '';
 
-          return new Promise((resolve, reject) => {
-            if (trigger.hasClass('scaledImageFitWidth') && /^https?:\/\/www\.facebook\.com\/\w+/.test(link)) {
-              // User profile card background image.
-              $.ajax(link, {
-                success: userProfileDoc => {
-                  link = /class="coverWrap\s.*?".*?href="([^"]+)"/.test(userProfileDoc) ? RegExp.$1 : link;
-                  resolve();
-                },
-                error: reject
-              });
-            } else {
-              resolve();
-            }
-          })
-            .then(() => {
-              fbId = /www\.facebook\.com\/photo\.php\?.*fbid=([^&]+)/.test(link)
-                ? RegExp.$1
-                : /(?:www\.facebook\.com)?\/[^/]+\/photos\/(?:[^/]+\/)?(\d+)/.test(link)
-                ? RegExp.$1
-                : srcRegExpObj.test(src)
-                ? RegExp.$1
-                : '';
-
-              var cachedHdImgSrc = fbId && tools.cacheImage(fbId);
-
-              return cachedHdImgSrc
-                ? {
-                    id: fbId,
-                    src: cachedHdImgSrc
+          return fbId || profileId
+            ? tools.cacheImage(fbId || profileId) ||
+                new Promise((resolve, reject) => {
+                  if (fbId) {
+                    $.ajax('/photo/', {
+                      data: {
+                        fbid: fbId
+                      },
+                      dataType: 'html',
+                      success: response => {
+                        if (/"image"\s*:\s*\{.*?"uri"\s*:\s*"(.*?)"/.test(response)) {
+                          resolve({
+                            id: fbId,
+                            src: RegExp.$1.replaceAll('\\', '')
+                          });
+                        } else {
+                          reject();
+                        }
+                      },
+                      error: reject
+                    });
+                  } else {
+                    $.ajax(link, {
+                      dataType: 'html',
+                      success: response => {
+                        if (/"profile_photo"\s*:\s*\{.*?"url"\s*:\s*"(.*?)"/.test(response)) {
+                          $.ajax(RegExp.$1.replaceAll('\\', ''), {
+                            dataType: 'html',
+                            success: response => {
+                              if (/"image"\s*:\s*\{.*?"uri"\s*:\s*"(.*?)"/.test(response)) {
+                                resolve({
+                                  id: profileId,
+                                  src: RegExp.$1.replaceAll('\\', '')
+                                });
+                              } else {
+                                reject();
+                              }
+                            },
+                            error: reject
+                          });
+                        } else if (
+                          /"profilePic\d*"\s*:\s*\{.*?"uri"\s*:\s*"(.*?)"/.test(response) ||
+                          /"ordered_images"\s*:.*?"image"\s*:\s*\{.*?"uri"\s*:\s*"(.*?)"/.test(response) ||
+                          /"image"\s*:\s*\{.*?"uri"\s*:\s*"(.*?)"/.test(response)
+                        ) {
+                          resolve({
+                            id: profileId,
+                            src: RegExp.$1.replaceAll('\\', '')
+                          });
+                        } else {
+                          reject();
+                        }
+                      },
+                      error: reject
+                    });
                   }
-                : new Promise((resolve, reject) => {
-                    (fbId &&
-                      $.ajax('/ajax/pagelet/generic.php/PhotoViewerInitPagelet', {
-                        data: {
-                          fb_dtsg_ag: asyncGetToken,
-                          data: JSON.stringify({
-                            fbid: fbId
-                          }),
-                          __a: 1
-                        },
-                        dataType: 'json',
-                        dataFilter: data => data.substr(9),
-                        success: response => {
-                          try {
-                            resolve({
-                              id: fbId,
-                              src: response.jsmods.require[2][3][0].image[fbId].url
-                            });
-                          } catch (error) {
-                            reject();
-                          }
-                        },
-                        error: reject
-                      })) ||
-                      reject();
-                  });
-            })
-            .catch(() => {
-              var cachedHdImgSrc = profileId && tools.cacheImage(profileId);
-              return cachedHdImgSrc
-                ? {
-                    id: profileId,
-                    src: cachedHdImgSrc
-                  }
-                : new Promise((resolve, reject) => {
-                    (profileId &&
-                      $.ajax('/profile/picture/view', {
-                        data: {
-                          fb_dtsg_ag: asyncGetToken,
-                          profile_id: profileId,
-                          __a: 1
-                        },
-                        dataType: 'json',
-                        dataFilter: data => data.substr(9),
-                        success: response => {
-                          try {
-                            resolve({
-                              id: fbId || profileId,
-                              src: response.jsmods.require[1][3][1].query_results.edges[0].node.image2.uri
-                            });
-                          } catch (error) {
-                            reject();
-                          }
-                        },
-                        error: () => resolve('')
-                      })) ||
-                      reject();
-                  });
-            })
-            .then(
-              hdImgInfo => {
-                hdImgInfo.src = hdImgInfo.src || src;
-                tools.cacheImage(hdImgInfo.id, hdImgInfo.src);
-
-                return hdImgInfo.src;
-              },
-              () => src
-            );
+                }).then(
+                  hdImgInfo => {
+                    const hdSrc = hdImgInfo.src || src;
+                    /^(?:media|friends)\//.test(hdImgInfo.id) || tools.cacheImage(hdImgInfo.id, hdSrc);
+                    return hdSrc;
+                  },
+                  () => src
+                )
+            : src;
         }
       }
     ]
@@ -1678,26 +1685,21 @@ const websiteConfig = {
       }
     ]
   },
-  '(.+\\.)?ixigua\\.com': {
-    amendStyles: {
-      pointerAuto: '.HorizontalFeedCard__coverWrapper__garbage__icon',
-      pointerNone: '.feed-card__cover .mask,.feed-card__cover__opacity-mask,.HorizontalFeedCard__coverWrapper__garbage'
-    },
-    srcMatching: [
-      {
-        srcRegExp: '(.+~).+(@IMG@).*',
-        processor: '$1noop$2'
-      },
-      {
-        srcRegExp: '.+\\.byteimg\\.com/.+(?!@IMG@)'
-      }
-    ]
+  '(?:.+\\.)?instacart\\.com': {
+    srcMatching: {
+      srcRegExp: '.+/(\\w+\\.cloudfront\\.net/.+/file/)\\w+?_(.+@IMG@)',
+      processor: '//$1$2'
+    }
   },
   'www\\.instagram\\.com': {
     amendStyles: {
       pointerNone: '.qn-0x,._9AhH0,._7Tu5q'
     },
     srcMatching: [
+      {
+        selectors: '[aria-label="Control"][role="button"',
+        processor: trigger => tools.getLargestImgSrc(trigger.parent().find('video')) || ''
+      },
       {
         selectors: 'a img',
         processor: (trigger, src) =>
@@ -1733,6 +1735,21 @@ const websiteConfig = {
       }
     ]
   },
+  '(.+\\.)?ixigua\\.com': {
+    amendStyles: {
+      pointerAuto: '.HorizontalFeedCard__coverWrapper__garbage__icon',
+      pointerNone: '.feed-card__cover .mask,.feed-card__cover__opacity-mask,.HorizontalFeedCard__coverWrapper__garbage'
+    },
+    srcMatching: [
+      {
+        srcRegExp: '(.+~).+(@IMG@).*',
+        processor: '$1noop$2'
+      },
+      {
+        srcRegExp: '.+\\.byteimg\\.com/.+(?!@IMG@)'
+      }
+    ]
+  },
   '(?:.+\\.)?jamanetwork\\.com': {
     srcMatching: {
       srcRegExp: 'cdn\\.jamanetwork\\.com/.+@IMG@',
@@ -1755,13 +1772,13 @@ const websiteConfig = {
       {
         selectors: 'img,.gif-mask',
         srcRegExp:
-          '((?:.+\\.sinaimg\\.cn|image\\.storage\\.weibo\\.com)(?:/.+)?/)(?:small|large|thumbnail|c?mw\\d+|small|sq\\d+|thumb\\d+|bmiddle|orj\\d+|crop\\.[^/]+|square|wap\\d+)(/.+(?:@IMG@)?).*',
+          '((?:.+\\.sinaimg\\.cn|image\\.storage\\.weibo\\.com)(?:/.+)?/)(?:small|large|thumbnail|c?mw\\d+|small|sq\\d+|thumb\\d+|bmiddle|orj\\d+|crop\\.[^/]+|square|wap\\d+)(/\\w+)(?:@IMG@)?.*',
         processor: (trigger, src, srcRegExpObj) =>
           srcRegExpObj.test(src || trigger.prev('img').attr('src'))
             ? tools
                 .detectImage(
-                  `${RegExp.$1}original${RegExp.$2}`,
-                  `${RegExp.$1}large${RegExp.$2}`,
+                  `${RegExp.$1}original${RegExp.$2}${RegExp.$2[22] === 'g' ? '.gif' : '.jpg'}`,
+                  `${RegExp.$1}large${RegExp.$2}${RegExp.$2[22] === 'g' ? '.gif' : '.jpg'}`,
                   img => img.width == 75 && img.height == 75
                 )
                 .then(imgInfo => imgInfo.src)
@@ -2519,19 +2536,23 @@ const websiteConfig = {
     },
     srcMatching: [
       {
+        srcRegExp: '.+/(weiyinyue\\.music\\.sina\\.com\\.cn/.+@IMG@).*',
+        processor: '//$1'
+      },
+      {
         srcRegExp: '(mu\\d+\\.sinaimg\\.cn/)(?:(?:square|crop|frame)\\.[^/]+|original)/(.+@IMG@).*',
         processor: '$1$2'
       },
       {
-        selectors: 'img,.layer_personcard .nc_head',
+        selectors: 'img,video,.layer_personcard .nc_head',
         srcRegExp:
-          '((?:.+\\.sinaimg\\.cn|image\\.storage\\.weibo\\.com)(?:/.+)?/)(?:small|large|thumbnail|c?mw\\d+|small|sq\\d+|thumb\\d+|bmiddle|orj\\d+|crop\\.[^/]+|square|wap\\d+)(/.+(?:@IMG@)?).*',
+          '((?:.+\\.sinaimg\\.cn|image\\.storage\\.weibo\\.com)(?:/.+)?/)(?:small|large|thumbnail|c?mw\\d+|small|sq\\d+|thumb\\d+|bmiddle|orj\\d+|crop\\.[^/]+|square|wap\\d+)(/\\w+)(?:@IMG@)?.*',
         processor: (trigger, src, srcRegExpObj) =>
-          srcRegExpObj.test(src)
+          srcRegExpObj.test(src || trigger.parent().find('.wbv-poster img').attr('src'))
             ? tools
                 .detectImage(
-                  `${RegExp.$1}original${RegExp.$2}`,
-                  `${RegExp.$1}large${RegExp.$2}`,
+                  `${RegExp.$1}original${RegExp.$2}${RegExp.$2[22] === 'g' ? '.gif' : '.jpg'}`,
+                  `${RegExp.$1}large${RegExp.$2}${RegExp.$2[22] === 'g' ? '.gif' : '.jpg'}`,
                   img => img.width == 75 && img.height == 75
                 )
                 .then(imgInfo => imgInfo.src)
@@ -2730,8 +2751,8 @@ let WEBSITE_INFO = {},
 
 const tools = {
   getUrlHostname: function (sourceUrl) {
-    const url = new URL(sourceUrl);
-    return (/^http/.test(url.protocol) && url.hostname) || '';
+    const url = sourceUrl && new URL(sourceUrl);
+    return (url && /^http/.test(url.protocol) && url.hostname) || '';
   },
   getDateStr: function () {
     const padNum = num => (num > 9 ? '' : '0') + num,
@@ -2806,6 +2827,26 @@ const tools = {
 };
 
 var photoShow = {
+  validateAvailability: function (tabId, callback) {
+    chrome.tabs.get(tabId, tab => {
+      chrome.tabs.sendMessage(
+        tab.id,
+        {
+          cmd: 'VALIDATE_PHOTOSHOW_AVAILABILITY'
+        },
+        {
+          frameId: 0
+        },
+        () => {
+          if (!chrome.runtime.lastError) {
+            callback();
+          } else {
+            photoShow.setWebsiteState(tab.id); // Shut down when unavailable.
+          }
+        }
+      );
+    });
+  },
   checkWebsiteState: function (tabUrl) {
     var urlHostname = tools.getUrlHostname(tabUrl);
 
@@ -2891,7 +2932,7 @@ var photoShow = {
     });
     chrome.browserAction.setTitle({
       tabId: tabId,
-      title: isFully ? '' : chrome.i18n.getMessage('photoShowUnavailableMsg')
+      title: chrome.i18n.getMessage(`photoShow${isFully ? 'Unavailable' : 'Shutdown'}Msg`)
     });
     isFully && chrome.browserAction.disable(tabId);
 
@@ -2990,17 +3031,19 @@ var statistics = {
 // Response to tab actions.
 chrome.tabs.onActivated.addListener(tabInfo => {
   chrome.tabs.get(tabInfo.tabId, tab => {
-    if (!chrome.runtime.lastError && tab.url) {
+    photoShow.validateAvailability(tab.id, () => {
       photoShow.checkWebsiteState(tab.url);
       photoShow.setWebsiteState(tab.id, tab.url);
-    }
+    });
   });
 });
 
 chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
-  if (changeInfo.status == 'loading') {
-    photoShow.checkWebsiteState(tab.url);
-    photoShow.setWebsiteState(tab.id, tab.url);
+  if (changeInfo.status == 'complete') {
+    photoShow.validateAvailability(tab.id, () => {
+      photoShow.checkWebsiteState(tab.url);
+      photoShow.setWebsiteState(tab.id, tab.url);
+    });
   }
 });
 
@@ -3010,8 +3053,12 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 
   switch (request.cmd) {
     case 'GET_PHOTOSHOW_STATE_AND_CONFIGS': // Args: tabUrl (optional)
+      const senderSiteState = photoShow.checkWebsiteState((request.args && request.args.tabUrl) || sender.url),
+        { isPhotoShowEnabled } = sender.frameId ? photoShow.checkWebsiteState(sender.tab.url) : senderSiteState;
+
       sendResponse({
-        ...photoShow.checkWebsiteState((request.args && request.args.tabUrl) || sender.url),
+        ...senderSiteState,
+        isPhotoShowEnabled,
         photoShowConfigs: PHOTOSHOW_CONFIGS
       });
 
@@ -3084,7 +3131,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 
       break;
 
-    case 'DISPATCH_HOTKEY_EVENT': // Args: type, which
+    case 'DISPATCH_EVENT': // Args: (event object)
       chrome.tabs.query(
         {
           currentWindow: true,
@@ -3093,7 +3140,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
         tabs => {
           if (!chrome.runtime.lastError) {
             chrome.tabs.sendMessage(tabs[0].id, {
-              cmd: 'DISPATCH_HOTKEY_EVENT',
+              cmd: 'DISPATCH_EVENT',
               args: request.args
             });
           }
@@ -3180,6 +3227,21 @@ chrome.storage.sync.get(['disabledWebsites', 'photoShowConfigs', 'statistics'], 
     DISABLED_WEBSITES = response.disabledWebsites || [];
     PHOTOSHOW_CONFIGS = response.photoShowConfigs || {};
     statistics.init(response.statistics);
+
+    // TODO: Update config items, remove some time later.
+    if (PHOTOSHOW_CONFIGS.loadingStatesDisplay !== undefined) {
+      PHOTOSHOW_CONFIGS.loadingStatusDisplay = PHOTOSHOW_CONFIGS.loadingStatesDisplay;
+      delete PHOTOSHOW_CONFIGS.loadingStatesDisplay;
+    }
+
+    if (PHOTOSHOW_CONFIGS.viewMode) {
+      PHOTOSHOW_CONFIGS.viewMode = PHOTOSHOW_CONFIGS.viewMode.toLowerCase();
+    }
+
+    chrome.storage.sync.set({
+      photoShowConfigs: PHOTOSHOW_CONFIGS
+    });
+    ////////////////////
   }
 });
 

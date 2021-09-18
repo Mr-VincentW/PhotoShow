@@ -24,6 +24,10 @@
  * @version 4.9.0.0 | 2021-08-22 | Vincent    // Updates: Add 'works-everywhere' related items;
  *                                            // Updates: Optimize several section titles.
  * @version 4.9.2.0 | 2021-08-27 | Vincent    // Updates: Add 'hotkey_toggleViewMode'.
+ * @version 4.10.0.0 | 2021-09-18 | Vincent   // Updates: Add 'photoShowUnavailableMsg';
+ *                                            // Updates: Add viewer location related items;
+ *                                            // Updates: Remove 'imageLoadingTip' and 'imageLoadingFailTip';
+ *                                            // Updates: Update view mode names and loading status items.
  */
 
 {
@@ -40,14 +44,6 @@
 
   ////////////////////////////////////////////////////////////////////////////////
   // 图片预览窗口、右键菜单及全局消息中的信息。
-  "imageLoadingTip": {
-    "message": "图片加载中",
-    "description": "图片加载时的提示。"
-  },
-  "imageLoadingFailTip": {
-    "message": "图片加载失败！",
-    "description": "图片加载失败时的提示。"
-  },
   "imageSavingNamePrefix": {
     "message": "浮图秀图片",
     "description": "浮图秀所保存图片的文件名前缀。"
@@ -92,12 +88,16 @@
     "message": "浮图秀已对当前网站关闭。",
     "description": "浮图秀对当前网站关闭时的消息。"
   },
-  "photoShowUnavailableMsg": {
+  "photoShowShutdownMsg": {
     "message": "已关闭浮图秀对未知网站的支持。",
     "description": "禁止浮图秀支持未知网站时的消息。"
   },
+  "photoShowUnavailableMsg": {
+    "message": "浮图秀不支持当前网站。",
+    "description": "浮图秀无法在特定网站工作时的消息。"
+  },
   "extensionUpdateDate": {
-    "message": "更新：2021年8月27日",
+    "message": "更新：",
     "description": "当前所安装浮图秀版本的更新时间。"
   },
   "stateToggleOnTitle": {
@@ -139,7 +139,7 @@
     "description": "区块标题。"
   },
   "activationExemptionDesc": {
-    "message": "当缩略图大于窗口面积的25%时，不激活图片预览",
+    "message": "当缩略图尺寸超过窗口面积的25%时，不激活图片预览",
     "description": "设置项描述。"
   },
 
@@ -148,37 +148,59 @@
     "message": "视图模式",
     "description": "区块标题。"
   },
-  "viewModeOption_Mini": {
-    "message": "迷你",
-    "description": "模式名。"
-  },
-  "viewModeOptionTitle_Mini": {
-    "message": "图片预览窗口以不超过源缩略图旁侧空间 1/8 的面积显示",
-    "description": "相应模式的鼠标悬停提示。"
-  },
-  "viewModeOption_Light": {
-    "message": "轻量",
-    "description": "模式名。"
-  },
-  "viewModeOptionTitle_Light": {
-    "message": "图片预览窗口以不超过源缩略图旁侧空间 1/4 的面积显示",
-    "description": "相应模式的鼠标悬停提示。"
-  },
-  "viewModeOption_Auto": {
+  "viewModeOption_auto": {
     "message": "自动",
     "description": "模式名。"
   },
-  "viewModeOptionTitle_Auto": {
+  "viewModeOptionTitle_auto": {
     "message": "图片预览窗口自适应源缩略图旁侧空间",
     "description": "相应模式的鼠标悬停提示。"
   },
-  "viewModeOption_Panoramic": {
+  "viewModeOption_mini": {
+    "message": "迷你",
+    "description": "模式名。"
+  },
+  "viewModeOptionTitle_mini": {
+    "message": "图片预览窗口以不超过源缩略图旁侧空间 1/8 的面积显示",
+    "description": "相应模式的鼠标悬停提示。"
+  },
+  "viewModeOption_lite": {
+    "message": "轻量",
+    "description": "模式名。"
+  },
+  "viewModeOptionTitle_lite": {
+    "message": "图片预览窗口以不超过源缩略图旁侧空间 1/4 的面积显示",
+    "description": "相应模式的鼠标悬停提示。"
+  },
+  "viewModeOption_panoramic": {
     "message": "全景",
     "description": "模式名。"
   },
-  "viewModeOptionTitle_Panoramic": {
+  "viewModeOptionTitle_panoramic": {
     "message": "图片预览窗口根据需要尽可能大地呈现，图片以其原始尺寸显示",
     "description": "相应模式的鼠标悬停提示。"
+  },
+
+  // “弹窗定位”区：
+  "viewerLocationHeader": {
+    "message": "弹窗定位",
+    "description": "区块标题。"
+  },
+  "viewerLocationOption_top": {
+    "message": "上部",
+    "description": "定位位置。"
+  },
+  "viewerLocationOption_bottom": {
+    "message": "下部",
+    "description": "定位位置。"
+  },
+  "viewerLocationOption_left": {
+    "message": "左侧",
+    "description": "定位位置。"
+  },
+  "viewerLocationOption_right": {
+    "message": "右侧",
+    "description": "定位位置。"
   },
 
   // “尺寸显示”区：
@@ -202,12 +224,12 @@
   },
 
   // “加载状态”区：
-  "loadingStatesDisplayHeader": {
+  "loadingStatusDisplayHeader": {
     "message": "加载状态",
     "description": "区块标题。"
   },
-  "loadingStatesDisplayDesc": {
-    "message": "显示图片加载状态提示",
+  "loadingStatusDisplayDesc": {
+    "message": "指示图片加载状态",
     "description": "设置项描述。"
   },
 

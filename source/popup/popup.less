@@ -25,10 +25,11 @@
  *                                            // Updates: Optimize styles.
  * @version 4.6.0.0 | 2021-01-24 | Vincent    // Updates: Support displaying HD image size in the viewer;
  *                                            // Updates: Remove the feature of displaying PhotoShow logo in the viewer.
- * @version 4.7.0.0 | 2021-07-04 | Vincent    // Updates: Add config items for activation exemption, loading states display, transition animation, and context menu items.
+ * @version 4.7.0.0 | 2021-07-04 | Vincent    // Updates: Add config items for activation exemption, loading status display, transition animation, and context menu items.
  * @version 4.9.0.0 | 2021-08-22 | Vincent    // Updates: Add 'works-everywhere' related styles;
  *                                            // Updates: Optimize whole page styles.
  * @version 4.9.1.0 | 2021-08-23 | Vincent    // Bug Fix: Firefox page scrollbar flickering issue when toggling works-everywhere feature.
+ * @version 4.10.0.0 | 2021-09-18 | Vincent   // Updates: Optimize config items styles and icons.
  */
 
 // Color definitions
@@ -63,92 +64,96 @@
     color: #fff;
   }
 
-  &-loading:before {
-    content: '\e902';
-  }
-
   &-bubble-check:before {
-    content: '\e905';
+    content: '\e901';
   }
 
   &-bubble-warn:before {
-    content: '\e906';
+    content: '\e902';
   }
 
   &-bubble-error:before {
-    content: '\e907';
-  }
-
-  &-activation:before {
-    content: '\e908';
-  }
-
-  &-activation-exemption:before {
-    content: '\e909';
-  }
-
-  &-view-mode:before {
-    content: '\e90a';
-  }
-
-  &-image-size-display:before {
-    content: '\e90b';
-  }
-
-  &-shadow-display:before {
-    content: '\e90c';
-  }
-
-  &-animation:before {
-    content: '\e90d';
-  }
-
-  &-context-menu:before {
-    content: '\e90e';
+    content: '\e903';
   }
 
   &-works-everywhere:before {
-    content: '\e90f';
+    content: '\e904';
+  }
+
+  &-activation:before {
+    content: '\e905';
+  }
+
+  &-activation-exemption:before {
+    content: '\e906';
+  }
+
+  &-view-mode:before {
+    content: '\e907';
+  }
+
+  &-viewer-location:before {
+    content: '\e908';
+  }
+
+  &-image-size-display:before {
+    content: '\e909';
+  }
+
+  &-shadow-display:before {
+    content: '\e90a';
+  }
+
+  &-loading:before {
+    content: '\e90b';
+  }
+
+  &-animation:before {
+    content: '\e90c';
+  }
+
+  &-context-menu:before {
+    content: '\e90d';
   }
 
   &-keyboard:before {
-    content: '\e910';
+    content: '\e90e';
   }
 
   &-share:before {
-    content: '\e911';
+    content: '\e90f';
   }
 
   &-facebook:before {
-    content: '\e912';
+    content: '\e910';
   }
 
   &-twitter:before {
-    content: '\e913';
+    content: '\e911';
   }
 
   &-weibo:before {
-    content: '\e914';
+    content: '\e912';
   }
 
   &-qzone:before {
-    content: '\e915';
+    content: '\e913';
   }
 
   &-reddit:before {
-    content: '\e916';
+    content: '\e914';
   }
 
   &-tumblr:before {
-    content: '\e917';
+    content: '\e915';
   }
 
   &-mail:before {
-    content: '\e918';
+    content: '\e916';
   }
 
   &-github:before {
-    content: '\e919';
+    content: '\e917';
   }
 }
 
@@ -413,43 +418,51 @@ dl.desc {
   &.checkboxes {
     dd {
       label {
-        display: flex;
+        display: inline-flex;
         align-items: baseline;
-        transition: color 0.4s;
+
+        &:not(:first-of-type) {
+          margin-left: 20px;
+        }
 
         &:lang(zh) {
           align-items: center;
         }
 
-        &:hover {
-          transition: color 0.1s;
-          cursor: pointer;
-          color: @PHOTOSHOW_BLUE;
-        }
-
         input {
-          margin-right: 4px;
+          + span {
+            padding-left: 4px;
+          }
+
+          &:not([disabled]) {
+            &,
+            & + span {
+              transition: color 0.4s;
+              cursor: pointer;
+
+              &:hover {
+                transition: color 0.1s;
+                color: @PHOTOSHOW_BLUE;
+              }
+            }
+          }
+
+          &[disabled] {
+            &,
+            & + span {
+              cursor: not-allowed;
+            }
+          }
         }
       }
     }
   }
 
   &.radios {
-    dd {
-      label {
-        display: inline-block;
-        min-width: 80px;
-
-        &:last-child {
-          min-width: auto;
-        }
-      }
-    }
-
     &.activation-mode {
       dd {
         #activationModeDesc + span {
-          padding: 0 35px;
+          padding: 0 30px;
         }
       }
     }

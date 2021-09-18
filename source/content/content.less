@@ -36,6 +36,8 @@
  * @version 4.8.0.0 | 2021-08-14 | Vincent    // Bug Fix: Image viewer message icon color is overridden by host page styles.
  * @version 4.9.0.0 | 2021-08-22 | Vincent    // Updates: Reset styles to reduce conflicts.
  * @version 4.9.2.0 | 2021-08-27 | Vincent    // Updates: Optimize the view mode switch tip styles.
+ * @version 4.10.0.0 | 2021-09-18 | Vincent   // Updates: Update image loading status related styles;
+ *                                            // Updates: Add frosted-glass effect to image viewer.
  */
 
 // Color definitions
@@ -46,48 +48,6 @@
   font-family: photoShowIconFont;
   src: url('chrome-extension://__MSG_@@extension_id__/resources/photoShowIcons.woff2') format('woff2'),
     url('chrome-extension://__MSG_@@extension_id__/resources/photoShowIcons.woff') format('woff');
-}
-
-@keyframes photoshow-icons-load-ani {
-  0% {
-    content: '\e901';
-  }
-
-  25% {
-    content: '\e902';
-  }
-
-  50% {
-    content: '\e903';
-  }
-
-  75% {
-    transform: rotate(0deg);
-    content: '\e904';
-  }
-
-  100% {
-    transform: rotate(180deg);
-    content: '\e904';
-  }
-}
-
-@keyframes photoshow-icons-load-dot-ani {
-  0% {
-    content: '';
-  }
-
-  25% {
-    content: '.';
-  }
-
-  50% {
-    content: '..';
-  }
-
-  75% {
-    content: '...';
-  }
 }
 
 @keyframes photoshow-viewer-top-end-ani {
@@ -230,26 +190,6 @@
     content: '\e900';
     color: #fff;
   }
-
-  &-load {
-    &:before {
-      content: '\e901';
-      display: inline-block;
-      animation: photoshow-icons-load-ani 1.5s linear 0s infinite;
-    }
-
-    & + *:after {
-      content: '';
-      display: inline-block;
-      width: 1.2em;
-      text-align: left;
-      animation: photoshow-icons-load-dot-ani 1.5s linear 0s infinite;
-    }
-  }
-
-  &-bubble-warn:before {
-    content: '\e906';
-  }
 }
 
 // Reset styles.
@@ -268,7 +208,7 @@
   min-width: 220px;
   height: 40px;
   min-height: 40px;
-  background: rgba(248, 248, 248, 0.9);
+  background: rgba(248, 248, 248, 0.8);
   box-sizing: border-box;
   border: solid 1px #fff;
   border-radius: 1px;
@@ -276,20 +216,16 @@
   z-index: 2147483647;
   box-shadow: 0 0 3px rgba(0, 0, 0, 0.5);
   opacity: 0;
-  margin: 0 0 0 0;
-  overflow: hidden;
+  will-change: opacity, transform;
+  -webkit-backdrop-filter: saturate(180%) blur(20px);
+  backdrop-filter: saturate(180%) blur(20px);
 
   &.img-shown {
     min-width: unset;
     min-height: unset;
-    overflow: visible;
 
     .photoshow-img-wrapper {
       display: block;
-    }
-
-    .photoshow-msg {
-      display: none;
     }
 
     .photoshow-img-size {
@@ -387,32 +323,13 @@
       display: flex;
       justify-content: center;
       align-items: center;
-      background: fade(gray, 75%);
+      background: gray;
       color: #fff;
       font-family: photoShowIconFont;
       line-height: 1;
       mix-blend-mode: multiply;
       opacity: 0;
-    }
-  }
-
-  .photoshow-msg {
-    display: flex;
-    flex-flow: row nowrap;
-    justify-content: center;
-    align-items: center;
-    height: 100%;
-    font-size: 0;
-    color: #333;
-
-    i {
-      font-style: normal;
-      font-size: 14px;
-    }
-
-    .photoshow-icons {
-      color: #333;
-      margin-right: 0.25em;
+      text-transform: uppercase;
     }
   }
 
@@ -425,7 +342,7 @@
     color: #fff;
     overflow: hidden;
     opacity: 0;
-    transition: opacity 0.2s 0.2s;
+    transition: opacity 0.2s;
 
     &:before {
       content: '';
@@ -451,6 +368,51 @@
       line-height: 1.5;
     }
   }
+}
+
+.photoshow-img-loading-ani-frame-loop (@n, @index: 0) when (@index <= @n) {
+  @keyframe: percentage(@index/@n);
+  @{keyframe}{
+    -webkit-mask: radial-gradient(circle closest-side, #fff 15%, transparent 16%, transparent 19%, #fff 20%),
+      conic-gradient(from unit(@index, deg), #fff 12.5%, fade(#fff, 25%) 75%);
+    mask: radial-gradient(circle closest-side, #fff 15%, transparent 16%, transparent 19%, #fff 20%),
+      conic-gradient(from unit(@index, deg), #fff 12.5%, fade(#fff, 25%) 75%);
+  }
+  .photoshow-img-loading-ani-frame-loop(@n, (@index + 18));
+}
+
+@keyframes photoshow-img-loading-ani {
+  .photoshow-img-loading-ani-frame-loop(360);
+}
+
+.photoshow-img-loading {
+  animation: photoshow-img-loading-ani 0.8s linear infinite;
+}
+
+.photoshow-img-loading-fail-ani-frame-loop (@n, @index: 0) when (@index <= @n), (@index = 90) {
+  @keyframe: percentage(@index/@n/10);
+  @{keyframe}{
+    -webkit-mask: radial-gradient(circle closest-side, transparent 20%, #fff 20%),
+      linear-gradient(unit(@index + 45, deg), #fff 49.5%, fade(#fff, 25%) 49.6%, fade(#fff, 25%) 50.4%, #fff 50.5%),
+      linear-gradient(unit(@index - 45, deg), #fff 49.5%, fade(#fff, 25%) 49.6%, fade(#fff, 25%) 50.4%, #fff 50.5%),
+      radial-gradient(circle closest-side, transparent 20%, #fff 20%);
+    mask: radial-gradient(circle closest-side, transparent 20%, #fff 20%),
+      linear-gradient(unit(@index + 45, deg), #fff 49.5%, fade(#fff, 25%) 49.6%, fade(#fff, 25%) 50.4%, #fff 50.5%),
+      linear-gradient(unit(@index - 45, deg), #fff 49.5%, fade(#fff, 25%) 49.6%, fade(#fff, 25%) 50.4%, #fff 50.5%),
+      radial-gradient(circle closest-side, transparent 20%, #fff 20%);
+    -webkit-mask-composite: xor, source-in, source-out;
+    mask-composite: exclude, intersect, subtract;
+  }
+  .photoshow-img-loading-fail-ani-frame-loop(@n, (@index + 9));
+}
+
+@keyframes photoshow-img-loading-fail-ani {
+  .photoshow-img-loading-fail-ani-frame-loop(90);
+  .photoshow-img-loading-fail-ani-frame-loop(9, 90);    // last frame (100%)
+}
+
+.photoshow-img-loading-fail{
+  animation: photoshow-img-loading-fail-ani 2s ease forwards;
 }
 
 .photoshow-global-msg-layer {
