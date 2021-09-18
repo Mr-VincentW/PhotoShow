@@ -17,7 +17,8 @@
  * @version 4.4.0.0 | 2020-04-18 | Vincent    // Updates: Add permissions for web requests manipulation (required for image downloading).
  * @version 4.6.2.0 | 2021-03-01 | Vincent    // Updates: Change when content scripts are injected into the page to 'document_start' as for xhr capturing.
  * @version 4.10.0.0 | 2021-09-18 | Vincent   // Updates: Add 'strict_min_version' specification for Firefox;
- *                                            // Updates: Upgrade jQuery to 3.6.0.
+ *                                            // Updates: Upgrade jQuery to 3.6.0;
+ *                                            // Updates: Remove support for iframes.
  */
 
 // TODO: Check if Chrome older than version 73 supports storage.async API.
@@ -75,11 +76,6 @@
       "css": ["content/content.css"],
       "js": ["jquery-3.6.0.min.js", "content/content.js"],
       "run_at": "document_start"
-    },
-    {
-      "matches": ["http://*/*", "https://*/*"],
-      "js": ["jquery-3.6.0.min.js", "content/nestedFrames.js"],
-      "all_frames": true
     }
   ],
   "web_accessible_resources": ["resources/photoShowIcons.woff2", "resources/photoShowIcons.woff"]

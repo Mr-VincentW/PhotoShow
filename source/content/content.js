@@ -134,7 +134,8 @@
  *                                            // Updates: Use CSS mask to implement viewer mask;
  *                                            // Updates: Allow user to set viewer location;
  *                                            // Updates: Optimize user interaction on certain websites by changing events binding method;
- *                                            // Bug Fix: Xhr hook error when 'responseType' of the request is not text.
+ *                                            // Bug Fix: Xhr hook error when 'responseType' of the request is not text;
+ *                                            // Updates: Remove support for iframes.
  *
  */
 
@@ -143,7 +144,6 @@
 // TODO: Exclude background images with a repeating pattern.
 // TODO: Render viewer in absolute position so that it can scroll with the viewport.
 // TODO: Might need to replace all the usecases of e.which to e.key.
-// TODO: Might need to check the hotkey de-conflict feature for iframes.
 
 ($ => {
   $.ajaxSetup({
@@ -277,17 +277,8 @@
 
       return src ? new URL(src, location.origin).href : '';
     },
-    getBoundingClientRectToTopWin: function (element) {
+    getBoundingClientRect: function (element) {
       var clientRect = $.extend({}, element.getBoundingClientRect()); // TODO: Find better ways to transfer DOMRect object to plain JavaScript object.
-
-      if (element.ownerDocument.defaultView != window.top) {
-        let curFrameRect = arguments.callee(element.ownerDocument.defaultView.frameElement);
-
-        clientRect.top += curFrameRect.top;
-        clientRect.bottom += curFrameRect.top;
-        clientRect.left += curFrameRect.left;
-        clientRect.right += curFrameRect.left;
-      }
 
       return { ...clientRect, area: clientRect.width * clientRect.height };
     },
@@ -695,7 +686,7 @@
     },
     isPreferedViewerLocationAvailable: function () {
       if (this.maskHost) {
-        this.maskHostRect = tools.getBoundingClientRectToTopWin(this.maskHost);
+        this.maskHostRect = tools.getBoundingClientRect(this.maskHost);
 
         return photoShow.config.viewerLocation.some(
           location =>
@@ -739,7 +730,7 @@
         )
       };
 
-      this.maskHostRect = tools.getBoundingClientRectToTopWin(this.maskHost);
+      this.maskHostRect = tools.getBoundingClientRect(this.maskHost);
 
       // Find best displaying space.
       var curViewMode = VIEW_MODES[photoShow.config.viewMode[0]],
@@ -1000,26 +991,10 @@
 
       var curElementUnderMouse = document.elementFromPoint(this.mouseClientPos.x, this.mouseClientPos.y);
 
-      if (curElementUnderMouse) {
-        if ($(curElementUnderMouse).is('iframe')) {
-          try {
-            var frameRect = curElementUnderMouse.getBoundingClientRect();
-
-            curElementUnderMouse.contentWindow
-              .jQuery(curElementUnderMouse.contentWindow.document)
-              .trigger('topWinScroll', {
-                x: this.mouseClientPos.x - frameRect.left,
-                y: this.mouseClientPos.y - frameRect.top
-              });
-          } catch (error) {
-            // Usually a cross-origin exception.
-          }
-        } else {
-          this.mouseOverAction({
-            target: curElementUnderMouse
-          });
-        }
-      }
+      curElementUnderMouse &&
+        this.mouseOverAction({
+          target: curElementUnderMouse
+        });
     },
     showViewer: function (displayingStyles) {
       if (photoShow.config.enableAnimation && displayingStyles.viewerInitial) {
@@ -1228,19 +1203,11 @@
 
         // Trigger actions.
         // Handle events in capture phases.
-        // This ensures proper behaviors when it comes to triggers in iframes or on some certain websites (e.g. Google Map).
+        // This ensures proper behaviors on some certain websites (e.g. Google Map).
         this._bindEvent('document', 'mouseover', this.mouseOverAction);
         this._bindEvent('document', 'mousemove', function (e) {
           this.mouseOriClientPos.x = this.mouseClientPos.x = e.clientX;
           this.mouseOriClientPos.y = this.mouseClientPos.y = e.clientY;
-
-          if (e.target.ownerDocument.defaultView != window.top) {
-            var frameRect = tools.getBoundingClientRectToTopWin(e.target.ownerDocument.defaultView.frameElement);
-            this.mouseClientPos.x += frameRect.left;
-            this.mouseClientPos.y += frameRect.top;
-            this.mouseOriClientPos.x += frameRect.left;
-            this.mouseOriClientPos.y += frameRect.top;
-          }
 
           this.hasMask && this.moveAction();
         });
@@ -1275,9 +1242,6 @@
           this.isActiveElementAnInput = $(document.activeElement).is(
             'textarea,input:not([type="button"],[type="checkbox"],[type="color"],[type="file"],[type="image"],[type="radio"],[type="range"],[type="reset"],[type="submit"]),[contenteditable]'
           );
-        });
-        this._bindEvent('document', 'frameDomMutate', function (_, mutations) {
-          return this.domMutateAction(mutations);
         });
         this._bindEvent('document', 'animationend', function (e) {
           if (/photoshow-viewer-(.+)-ani/.test(e.animationName)) {

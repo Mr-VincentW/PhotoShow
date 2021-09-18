@@ -177,7 +177,8 @@
  * @version 4.10.0.0 | 2021-09-18 | Vincent   // Updates: Support coupang and instacart;
  *                                            // Updates: Better support for Amazon, Facebook and weibo;
  *                                            // Updates: Disable PhotoShow on websites where browser extensions are not allowed (e.g. extension stores);
- *                                            // Updates: Optimize PhotoShow config items naming.
+ *                                            // Updates: Optimize PhotoShow config items naming;
+ *                                            // Updates: Remove support for iframes.
  */
 
 // TODO: Extract websiteConfig to independent files and import them (after porting to webpack).
@@ -3053,12 +3054,8 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 
   switch (request.cmd) {
     case 'GET_PHOTOSHOW_STATE_AND_CONFIGS': // Args: tabUrl (optional)
-      const senderSiteState = photoShow.checkWebsiteState((request.args && request.args.tabUrl) || sender.url),
-        { isPhotoShowEnabled } = sender.frameId ? photoShow.checkWebsiteState(sender.tab.url) : senderSiteState;
-
       sendResponse({
-        ...senderSiteState,
-        isPhotoShowEnabled,
+        ...photoShow.checkWebsiteState((request.args && request.args.tabUrl) || sender.url),
         photoShowConfigs: PHOTOSHOW_CONFIGS
       });
 
