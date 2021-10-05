@@ -178,6 +178,10 @@
  *                                            // Updates: Better support for Amazon, Facebook and weibo;
  *                                            // Updates: Disable PhotoShow on websites where browser extensions are not allowed (e.g. extension stores);
  *                                            // Updates: Optimize PhotoShow config items naming.
+ * @version 4.10.1.0 | 2021-10-05 | Vincent   // Bug Fix: Fetching incorrect images issue on Facebook, in response to user feedback;
+ *                                            // Updates: Resupport iframes (for YouTube live chatting pane), in response to user feedback;
+ *                                            // Updates: Better support for weibo's new look;
+ *                                            // Updates: Support PAK'nSAVE's new domain.
  */
 
 // TODO: Extract websiteConfig to independent files and import them (after porting to webpack).
@@ -1253,7 +1257,7 @@ const websiteConfig = {
   },
   '\\w+\\.facebook\\.com': {
     amendStyles: {
-      pointerNone: '._52d9,.uiMediaThumb+._53d,._3251,._7m4,#fbProfileCover .coverBorder,img+.pmk7jnqg',
+      pointerNone: '._52d9,.uiMediaThumb+._53d,._3251,._7m4,#fbProfileCover .coverBorder,img+.pmk7jnqg,image~circle',
       pointerAuto: '.uiMediaThumb+._53d a'
     },
     srcMatching: [
@@ -1303,10 +1307,14 @@ const websiteConfig = {
               : /\/photos\/(?:[^/]+\/)?(\d+)/.test(link)
               ? RegExp.$1
               : '',
-            profileId = /^(?:https?:\/\/www\.facebook\.com)?\/(.+?)\/?(?:\?|$)/.test(link) ? RegExp.$1 : '';
+            profileId = /^(?:https?:\/\/www\.facebook\.com)?\/(?:profile\.php\?id=(\d+)|(.+?)\/?(?:\?|$))/.test(link)
+              ? RegExp.$1 || RegExp.$2
+              : '',
+            commercePicId =
+              /^commerce\/products\//.test(profileId) && /\/(\d+_\d+_\d+)[^/]*\?/.test(src) ? RegExp.$1 : '';
 
           return fbId || profileId
-            ? tools.cacheImage(fbId || profileId) ||
+            ? tools.cacheImage(fbId || commercePicId || profileId) ||
                 new Promise((resolve, reject) => {
                   if (fbId) {
                     $.ajax('/photo/', {
@@ -1330,7 +1338,37 @@ const websiteConfig = {
                     $.ajax(link, {
                       dataType: 'html',
                       success: response => {
-                        if (/"profile_photo"\s*:\s*\{.*?"url"\s*:\s*"(.*?)"/.test(response)) {
+                        if (
+                          (/^groups\//.test(profileId) &&
+                            /\\?"profileCoverPhoto\\?"[^>]*?src=\\?"(.*?)\\?"/.test(response)) ||
+                          (/^marketplace\/item\//.test(profileId) &&
+                            /data-pagelet=\\?"MainFeed\\?".*?<img[^>]*?src=\\?"(.*?)\\?"/.test(response))
+                        ) {
+                          resolve({
+                            id: profileId,
+                            src: RegExp.$1.replaceAll('&amp;', '&')
+                          });
+                        } else if (
+                          /^commerce\/products\//.test(profileId) &&
+                          /"ordered_images":(\[[^\]]+\])/.test(response)
+                        ) {
+                          try {
+                            JSON.parse(RegExp.$1)?.forEach(({ image: { uri } }) => {
+                              /\/(\d+_\d+_\d+)[^/]*\?/.test(uri) && tools.cacheImage(RegExp.$1, uri);
+                            });
+                          } catch (error) {
+                            reject();
+                          }
+
+                          if (tools.cacheImage(commercePicId)) {
+                            resolve({
+                              id: commercePicId,
+                              src: tools.cacheImage(commercePicId)
+                            });
+                          } else {
+                            reject();
+                          }
+                        } else if (/"profile_photo"\s*:\s*\{.*?"url"\s*:\s*"(.*?)"/.test(response)) {
                           $.ajax(RegExp.$1.replaceAll('\\', ''), {
                             dataType: 'html',
                             success: response => {
@@ -1347,7 +1385,6 @@ const websiteConfig = {
                           });
                         } else if (
                           /"profilePic\d*"\s*:\s*\{.*?"uri"\s*:\s*"(.*?)"/.test(response) ||
-                          /"ordered_images"\s*:.*?"image"\s*:\s*\{.*?"uri"\s*:\s*"(.*?)"/.test(response) ||
                           /"image"\s*:\s*\{.*?"uri"\s*:\s*"(.*?)"/.test(response)
                         ) {
                           resolve({
@@ -1772,7 +1809,7 @@ const websiteConfig = {
       {
         selectors: 'img,.gif-mask',
         srcRegExp:
-          '((?:.+\\.sinaimg\\.cn|image\\.storage\\.weibo\\.com)(?:/.+)?/)(?:small|large|thumbnail|c?mw\\d+|small|sq\\d+|thumb\\d+|bmiddle|orj\\d+|crop\\.[^/]+|square|wap\\d+)(/\\w+)(?:@IMG@)?.*',
+          '((?:.+\\.sinaimg\\.cn|image\\.storage\\.weibo\\.com)(?:/.+)?/)(?:small|large|thumbnail|\\wmw\\d+|small|sq\\d+|thumb\\d+|bmiddle|orj\\d+|crop\\.[^/]+|square|wap\\d+)(/\\w+)(?:@IMG@)?.*',
         processor: (trigger, src, srcRegExpObj) =>
           srcRegExpObj.test(src || trigger.prev('img').attr('src'))
             ? tools
@@ -1986,7 +2023,7 @@ const websiteConfig = {
       processor: '$1$2'
     }
   },
-  'www\\.paknsaveonline\\.co\\.nz': {
+  'www\\.paknsave(?:online)?\\.co\\.nz': {
     srcMatching: {
       srcRegExp: '(a\\.fsimg\\.co\\.nz/.+/)\\d+x\\d+(/\\d+@IMG@)',
       processor: '$1master$2'
@@ -2529,11 +2566,6 @@ const websiteConfig = {
     ]
   },
   '(?:.+\\.)?weibo\\.com': {
-    amendStyles: {
-      pointerNone:
-        '.weibo_player .outerline,.icon_playvideo,.WB_gif_video_box,.bot_cover,.WB_feed_detail,.W_icon_tag_9p',
-      pointerAuto: '.bot_cover a,.WB_feed_detail *'
-    },
     srcMatching: [
       {
         srcRegExp: '.+/(weiyinyue\\.music\\.sina\\.com\\.cn/.+@IMG@).*',
@@ -2544,11 +2576,11 @@ const websiteConfig = {
         processor: '$1$2'
       },
       {
-        selectors: 'img,video,.layer_personcard .nc_head',
+        selectors: 'img,.woo-picture-main,.wbpv-poster',
         srcRegExp:
-          '((?:.+\\.sinaimg\\.cn|image\\.storage\\.weibo\\.com)(?:/.+)?/)(?:small|large|thumbnail|c?mw\\d+|small|sq\\d+|thumb\\d+|bmiddle|orj\\d+|crop\\.[^/]+|square|wap\\d+)(/\\w+)(?:@IMG@)?.*',
+          '((?:.+\\.sinaimg\\.cn|image\\.storage\\.weibo\\.com)(?:/.+)?/)(?:small|large|thumbnail|\\w?mw\\d+|small|sq\\d+|thumb\\d+|bmiddle|orj\\d+|crop\\.[^/]+|square|wap\\d+)(/\\w+)(?:@IMG@)?.*',
         processor: (trigger, src, srcRegExpObj) =>
-          srcRegExpObj.test(src || trigger.parent().find('.wbv-poster img').attr('src'))
+          srcRegExpObj.test(src || trigger.find('img').attr('src'))
             ? tools
                 .detectImage(
                   `${RegExp.$1}original${RegExp.$2}${RegExp.$2[22] === 'g' ? '.gif' : '.jpg'}`,
@@ -2557,24 +2589,6 @@ const websiteConfig = {
                 )
                 .then(imgInfo => imgInfo.src)
             : ''
-      },
-      {
-        selectors: '.layer_personcard .nc_head',
-        srcRegExp: '(img\\.t\\.sinajs\\.cn/.+)_[ms](@IMG@).*',
-        processor: '$1$2'
-      },
-      {
-        srcRegExp: '(.+\\.sinaedge\\.com/cimg/.+/)(?:\\d+x?)+(@IMG@).*',
-        processor: (trigger, src, srcRegExpObj) =>
-          srcRegExpObj.test(src)
-            ? tools
-                .detectImage(`${RegExp.$1}1${RegExp.$2}`, `${RegExp.$1}180x240x75x0x0x1${RegExp.$2}`)
-                .then(imgInfo => imgInfo.src)
-            : ''
-      },
-      {
-        srcRegExp: '(upload\\.api\\.weibo\\.com/.+/msget)_thumbnail\\?.*(fid=\\w+).*(source=\\w+).*',
-        processor: '$1?$2&$3'
       }
     ]
   },

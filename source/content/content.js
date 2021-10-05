@@ -135,6 +135,7 @@
  *                                            // Updates: Allow user to set viewer location;
  *                                            // Updates: Optimize user interaction on certain websites by changing events binding method;
  *                                            // Bug Fix: Xhr hook error when 'responseType' of the request is not text.
+ * @version 4.10.1.0 | 2021-10-05 | Vincent   // Updates: Optimize mask hosting element detecting algorithm.
  *
  */
 
@@ -846,7 +847,7 @@
           [chosenPos.offset]: viewerOffset,
           opacity: 1,
           transform: `translate3d(${[`${this.viewerBoxOffset * (/top|left/.test(chosenPos.anchor) ? -1 : 1)}px`, 0]
-            .sort(() => -!this.isViewerPosHor)
+            [this.isViewerPosHor ? 'slice' : 'reverse']()
             .join()},0) scale3d(1,1,1)`,
           transformOrigin: [
             chosenPos.opposite,
@@ -856,7 +857,7 @@
               100
             }%`
           ]
-            .sort(() => -!this.isViewerPosHor)
+            [this.isViewerPosHor ? 'slice' : 'reverse']()
             .join(' ')
         },
         img: {
@@ -884,7 +885,7 @@
             0,
             this.maskHostRect[offsetDimension] / displayingStyles.viewerFinal[offsetDimension]
           ]
-            .sort(() => -!this.isViewerPosHor)
+            [this.isViewerPosHor ? 'slice' : 'reverse']()
             .join()},1)`
         };
       }
@@ -1096,7 +1097,7 @@
               if (
                 $(curAncestor).css('position') != 'static' &&
                 !/^(?:contents|inline|none)$/.test($(curAncestor).css('display')) &&
-                (!maskHostArea || (curAncestorArea && curAncestorArea <= maskHostArea)) &&
+                (!maskHostArea || (curAncestorArea && curAncestorArea < maskHostArea)) &&
                 curAncestorBBox.left <= maskHostBBox.right &&
                 curAncestorBBox.right >= maskHostBBox.left &&
                 curAncestorBBox.top <= maskHostBBox.bottom &&

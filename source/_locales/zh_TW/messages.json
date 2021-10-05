@@ -179,9 +179,9 @@
     "description": "相應模式的鼠標懸停提示。"
   },
 
-  // “彈窗定位”區：
+  // “浮窗定位”區：
   "viewerLocationHeader": {
-    "message": "彈窗定位",
+    "message": "浮窗定位",
     "description": "區塊標題。"
   },
   "viewerLocationOption_top": {
