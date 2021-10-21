@@ -182,6 +182,9 @@
  *                                            // Updates: Resupport iframes (for YouTube live chatting pane), in response to user feedback;
  *                                            // Updates: Better support for weibo's new look;
  *                                            // Updates: Support PAK'nSAVE's new domain.
+ * @version 4.11.0.0 | 2021-10-21 | Vincent   // Updates: Remove parsing rules for ixigua as it's no longer valid (GitHub issue #30);
+ *                                            // Updates: Support music.163.com, in response to user feedback (GitHub issue #31);
+ *                                            // Updates: Better support for weibo.
  */
 
 // TODO: Extract websiteConfig to independent files and import them (after porting to webpack).
@@ -312,10 +315,8 @@ const websiteConfig = {
                   },
                   response =>
                     resolve(
-                      (response &&
-                        response.photos &&
-                        response.photos[photoId] &&
-                        response.photos[photoId].image_url.length &&
+                      (response?.photos &&
+                        response.photos[photoId]?.image_url.length &&
                         response.photos[photoId].image_url[0]) ||
                         ''
                     )
@@ -346,8 +347,7 @@ const websiteConfig = {
                     },
                     response =>
                       resolve(
-                        (response &&
-                          response.user &&
+                        (response?.user &&
                           ((type == 'avatar' &&
                             response.user.userpic_url &&
                             tools.cacheImage(userId, response.user.userpic_url)) ||
@@ -376,9 +376,7 @@ const websiteConfig = {
                     },
                     response =>
                       resolve(
-                        (response &&
-                          response.group &&
-                          response.group.avatars &&
+                        (response?.group?.avatars &&
                           tools.cacheImage(
                             groupId,
                             response.group.avatars[
@@ -912,10 +910,10 @@ const websiteConfig = {
                     include_session: false
                   },
                   success: response => {
-                    var mediaInfo = response && response.deviation && response.deviation.media,
+                    var mediaInfo = response?.deviation?.media,
                       imgInfo = mediaInfo?.types.pop() || null;
 
-                    mediaInfo && mediaInfo.baseUri && imgInfo
+                    mediaInfo?.baseUri && imgInfo
                       ? resolve(
                           `${mediaInfo.baseUri}${
                             imgInfo.c
@@ -956,10 +954,10 @@ const websiteConfig = {
                     limit: 1
                   },
                   success: response => {
-                    var mediaInfo = response && response.results && response.results[0].deviation.media,
+                    var mediaInfo = response?.results && response.results[0].deviation.media,
                       imgInfo = mediaInfo?.types.pop() || null;
 
-                    mediaInfo && mediaInfo.baseUri && imgInfo
+                    mediaInfo?.baseUri && imgInfo
                       ? resolve(
                           `${mediaInfo.baseUri}${
                             imgInfo.c
@@ -1398,14 +1396,16 @@ const websiteConfig = {
                       error: reject
                     });
                   }
-                }).then(
-                  hdImgInfo => {
-                    const hdSrc = hdImgInfo.src || src;
-                    /^(?:media|friends)\//.test(hdImgInfo.id) || tools.cacheImage(hdImgInfo.id, hdSrc);
-                    return hdSrc;
-                  },
-                  () => src
-                )
+                })
+                  .then(
+                    hdImgInfo => {
+                      const hdSrc = hdImgInfo.src || src;
+                      /^(?:media|friends)\//.test(hdImgInfo.id) || tools.cacheImage(hdImgInfo.id, hdSrc);
+                      return hdSrc;
+                    },
+                    () => src
+                  )
+                  .catch(() => src)
             : src;
         }
       }
@@ -1479,14 +1479,7 @@ const websiteConfig = {
                     }
                   },
                   response =>
-                    resolve(
-                      (response &&
-                        response.photo &&
-                        response.photo.sizes &&
-                        response.photo.sizes.size.length &&
-                        response.photo.sizes.size.filter(medium => medium.media == 'photo').pop().source) ||
-                        ''
-                    )
+                    resolve(response?.photo?.sizes?.size?.filter(medium => medium.media == 'photo').pop().source || '')
                 );
               })
             : '';
@@ -1748,7 +1741,7 @@ const websiteConfig = {
                 __a: 1
               },
               success: response => {
-                if (response && response.graphql) {
+                if (response?.graphql) {
                   if (/^\/p\//.test(url)) {
                     if (response.graphql.shortcode_media) {
                       src = response.graphql.shortcode_media || src;
@@ -1775,17 +1768,9 @@ const websiteConfig = {
   '(.+\\.)?ixigua\\.com': {
     amendStyles: {
       pointerAuto: '.HorizontalFeedCard__coverWrapper__garbage__icon',
-      pointerNone: '.feed-card__cover .mask,.feed-card__cover__opacity-mask,.HorizontalFeedCard__coverWrapper__garbage'
-    },
-    srcMatching: [
-      {
-        srcRegExp: '(.+~).+(@IMG@).*',
-        processor: '$1noop$2'
-      },
-      {
-        srcRegExp: '.+\\.byteimg\\.com/.+(?!@IMG@)'
-      }
-    ]
+      pointerNone:
+        '.feed-card__cover .mask,.feed-card__cover__opacity-mask,.HorizontalFeedCard__coverWrapper__garbage,.BU-MagicImage__shadow,.HorizontalFeedCard__coverWrapper__shadow'
+    }
   },
   '(?:.+\\.)?jamanetwork\\.com': {
     srcMatching: {
@@ -1901,7 +1886,7 @@ const websiteConfig = {
   },
   '(.+\\.(?:mi|xiaomiyoupin))\\.com': {
     amendStyles: {
-      pointerNone: '.home-good-item-big .pro-text,'
+      pointerNone: '.home-good-item-big .pro-text'
     },
     srcMatching: [
       {
@@ -1921,6 +1906,17 @@ const websiteConfig = {
     srcMatching: {
       srcRegExp: '(.+\\.mi-store(?:\\.(?:com|[a-z]{2}))+/.+/products/)thumbs(/.+@IMG@)',
       processor: '$1images$2'
+    }
+  },
+  'music\\.163\\.com': {
+    amendStyles: {
+      pointerNone: '.msk:not(a),.mask,.ply:not(a),.m-product .cover .spec'
+    },
+    srcMatching: {
+      selectors: 'img,a.msk',
+      srcRegExp: '(//.+\\.music\\.126\\.net/.+@IMG@).*',
+      processor: (trigger, src, srcRegExpObj) =>
+        srcRegExpObj.test(trigger.parent().find('img').attr('src') || src) ? RegExp.$1 : ''
     }
   },
   '.+\\.myprotein(?:\\.(?:com|[a-z]{2}))+': {
@@ -2566,6 +2562,9 @@ const websiteConfig = {
     ]
   },
   '(?:.+\\.)?weibo\\.com': {
+    amendStyles: {
+      pointerNone: '.picture-cover,.hoverMask,.wbs-pic .img_info,.avator img+i'
+    },
     srcMatching: [
       {
         srcRegExp: '.+/(weiyinyue\\.music\\.sina\\.com\\.cn/.+@IMG@).*',
@@ -3067,7 +3066,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 
   switch (request.cmd) {
     case 'GET_PHOTOSHOW_STATE_AND_CONFIGS': // Args: tabUrl (optional)
-      const senderSiteState = photoShow.checkWebsiteState((request.args && request.args.tabUrl) || sender.url),
+      const senderSiteState = photoShow.checkWebsiteState(request.args?.tabUrl || sender.url),
         { isPhotoShowEnabled } = sender.frameId ? photoShow.checkWebsiteState(sender.tab.url) : senderSiteState;
 
       sendResponse({
@@ -3229,7 +3228,7 @@ chrome.webRequest.onBeforeSendHeaders.addListener(
 chrome.downloads.onChanged.addListener(downloadInfo => {
   const matchedDownloadItem = XHR_DOWNLOAD_ITMES[downloadInfo.id];
 
-  if (matchedDownloadItem && downloadInfo.state && downloadInfo.state.current != 'in_progress') {
+  if (matchedDownloadItem && downloadInfo.state?.current != 'in_progress') {
     URL.revokeObjectURL(matchedDownloadItem.blobUrl);
     delete XHR_DOWNLOAD_ITMES[downloadInfo.id];
   }

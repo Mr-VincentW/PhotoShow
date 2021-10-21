@@ -38,7 +38,10 @@
  * @version 4.9.2.0 | 2021-08-27 | Vincent    // Updates: Optimize the view mode switch tip styles.
  * @version 4.10.0.0 | 2021-09-18 | Vincent   // Updates: Update image loading status related styles;
  *                                            // Updates: Add frosted-glass effect to image viewer.
+ * @version 4.11.0.0 | 2021-10-21 | Vincent   // Updates: Split image loader related styles for sharing with frame content styling.
  */
+
+@import url('../common/imageLoader.less');
 
 // Color definitions
 @PHOTOSHOW_BLUE: #6cbcef;
@@ -368,51 +371,6 @@
       line-height: 1.5;
     }
   }
-}
-
-.photoshow-img-loading-ani-frame-loop (@n, @index: 0) when (@index <= @n) {
-  @keyframe: percentage(@index/@n);
-  @{keyframe}{
-    -webkit-mask: radial-gradient(circle closest-side, #fff 15%, transparent 16%, transparent 19%, #fff 20%),
-      conic-gradient(from unit(@index, deg), #fff 12.5%, fade(#fff, 25%) 75%);
-    mask: radial-gradient(circle closest-side, #fff 15%, transparent 16%, transparent 19%, #fff 20%),
-      conic-gradient(from unit(@index, deg), #fff 12.5%, fade(#fff, 25%) 75%);
-  }
-  .photoshow-img-loading-ani-frame-loop(@n, (@index + 18));
-}
-
-@keyframes photoshow-img-loading-ani {
-  .photoshow-img-loading-ani-frame-loop(360);
-}
-
-.photoshow-img-loading {
-  animation: photoshow-img-loading-ani 0.8s linear infinite;
-}
-
-.photoshow-img-loading-fail-ani-frame-loop (@n, @index: 0) when (@index <= @n), (@index = 90) {
-  @keyframe: percentage(@index/@n/10);
-  @{keyframe}{
-    -webkit-mask: radial-gradient(circle closest-side, transparent 20%, #fff 20%),
-      linear-gradient(unit(@index + 45, deg), #fff 49.5%, fade(#fff, 25%) 49.6%, fade(#fff, 25%) 50.4%, #fff 50.5%),
-      linear-gradient(unit(@index - 45, deg), #fff 49.5%, fade(#fff, 25%) 49.6%, fade(#fff, 25%) 50.4%, #fff 50.5%),
-      radial-gradient(circle closest-side, transparent 20%, #fff 20%);
-    mask: radial-gradient(circle closest-side, transparent 20%, #fff 20%),
-      linear-gradient(unit(@index + 45, deg), #fff 49.5%, fade(#fff, 25%) 49.6%, fade(#fff, 25%) 50.4%, #fff 50.5%),
-      linear-gradient(unit(@index - 45, deg), #fff 49.5%, fade(#fff, 25%) 49.6%, fade(#fff, 25%) 50.4%, #fff 50.5%),
-      radial-gradient(circle closest-side, transparent 20%, #fff 20%);
-    -webkit-mask-composite: xor, source-in, source-out;
-    mask-composite: exclude, intersect, subtract;
-  }
-  .photoshow-img-loading-fail-ani-frame-loop(@n, (@index + 9));
-}
-
-@keyframes photoshow-img-loading-fail-ani {
-  .photoshow-img-loading-fail-ani-frame-loop(90);
-  .photoshow-img-loading-fail-ani-frame-loop(9, 90);    // last frame (100%)
-}
-
-.photoshow-img-loading-fail{
-  animation: photoshow-img-loading-fail-ani 2s ease forwards;
 }
 
 .photoshow-global-msg-layer {

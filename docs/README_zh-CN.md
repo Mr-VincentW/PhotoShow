@@ -127,7 +127,7 @@
 
     Facebook、IMDb、Imgur、Instagram、Reddit、TapTap、Tumblr、TweetDeck、Twipu、Twitter、wattpad
 
-    115 网盘、A 岛匿名版、巴哈姆特、百度贴吧、豆瓣、堆糖、煎蛋、乐乎、NGA 玩家社区、QQ 空间、今日头条、微博、微信公众号
+    115 网盘、A 岛匿名版、巴哈姆特、百度贴吧、豆瓣、堆糖、煎蛋、乐乎、网易云音乐、NGA 玩家社区、QQ 空间、今日头条、微博、微信公众号
 
 5.  **视频、音乐 类：**
 

@@ -20,6 +20,7 @@
  * @version 4.5.2.0 | 2020-08-23 | Vincent    // Updates: Replace Object.assign with spread syntax.
  * @version 4.9.0.0 | 2021-08-22 | Vincent    // Updates: Offer basic support for unknown websites.
  * @version 4.10.0.0 | 2021-09-18 | Vincent   // Updates: Optimize user interaction on certain websites by changing events binding method.
+ * @version 4.11.0.0 | 2021-10-21 | Vincent   // Bug Fix: A dom mutation event error.
  */
 
 (($, isInFrame) => {
@@ -182,7 +183,12 @@
         }
       },
       domMutateAction: function (mutations) {
-        window.top.jQuery(window.top.document).trigger('frameDomMutate', [mutations]);
+        // window.top.jQuery(window.top.document).trigger('frameDomMutate', [mutations]);
+        window.top.document.dispatchEvent(
+          new CustomEvent('frameDomMutate', {
+            detail: mutations
+          })
+        );
       }
     };
 

@@ -40,6 +40,7 @@
  * @version 4.9.2.0 | 2021-08-27 | Vincent    // Updates: Add 'toggleViewMode' hotkey item.
  * @version 4.10.0.0 | 2021-09-18 | Vincent   // Updates: Add config items for viewer location settings;
  *                                            // Updates: Optimize config items naming.
+ * @version 4.11.0.0 | 2021-10-21 | Vincent   // Bug Fix: Toggle button can still be triggered when PhotoShow is in shut-down state.
  */
 
 // TODO: Support customising hotkeys.
@@ -150,7 +151,7 @@ function updateStateAndConfigs(isInitializing) {
 $(document)
   .on('click.photoShow', '#stateToggleBtn', () => {
     // Website switch action.
-    if (curTabUrl) {
+    if (curTabUrl && !$('#stateToggle').hasClass('shut-down')) {
       chrome.runtime.sendMessage({
         cmd: 'SET_PHOTOSHOW_STATE',
         args: {

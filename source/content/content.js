@@ -136,7 +136,10 @@
  *                                            // Updates: Optimize user interaction on certain websites by changing events binding method;
  *                                            // Bug Fix: Xhr hook error when 'responseType' of the request is not text.
  * @version 4.10.1.0 | 2021-10-05 | Vincent   // Updates: Optimize mask hosting element detecting algorithm.
- *
+ * @version 4.11.0.0 | 2021-10-21 | Vincent   // Updates: Optimize background image detecting rule, reducing the chances of displaying css-sprite images;
+ *                                            // Bug Fix: Deconflict key events for activation mode hot key actions;
+ *                                            // Bug Fix: A frame-dom-mutation event error;
+ *                                            // Updates: Optimize mask hosting element detecting algorithm.
  */
 
 // TODO: Extract common tool methods to external modules.
@@ -242,7 +245,7 @@
     },
     getBackgroundImgSrc: function (target) {
       return /(?:^|background[^;]*)url\(['"]?([^'"]+)['"]?\)/i.test(
-        typeof target == 'string' ? target : $(target).css('backgroundImage')
+        typeof target == 'string' ? target : $(target).attr('style')
       )
         ? new URL(RegExp.$1, location.origin).href
         : '';
@@ -540,15 +543,18 @@
               isActiveElementAnInput = /^text(?:area)?$/.test(document.activeElement.type) || document.activeElement.isContentEditable;
 
               if (isViewerActive) {
-                if(eventKey == 'TAB' && ${this.config.hotkeys.openImageInNewTab.isEnabled} ||
-                  eventKey == 'C' && ${this.config.hotkeys.copyImageAddress.isEnabled} ||
-                  eventKey == 'S' && ${this.config.hotkeys.saveImage.isEnabled}) {
+                if(eventKey === 'TAB' && ${this.config.hotkeys.openImageInNewTab.isEnabled} ||
+                  eventKey === 'C' && ${this.config.hotkeys.copyImageAddress.isEnabled} ||
+                  eventKey === 'S' && ${this.config.hotkeys.saveImage.isEnabled} ||
+                  eventKey === '${this.config.activationMode?.toUpperCase()}') {
                   isActiveElementAnInput || e.preventDefault();
                 }
 
                 if (hasImgShown) {
                   if(eventKey == 'ESCAPE' && ${this.config.hotkeys.closeViewer.isEnabled} ||
-                    /^ARROW(?:LEFT|RIGHT)$/.test(eventKey) && e.shiftKey && e.ctrlKey && ${this.config.hotkeys.rotateImage.isEnabled}) {
+                    /^ARROW(?:LEFT|RIGHT)$/.test(eventKey) && e.shiftKey && e.ctrlKey && ${
+                      this.config.hotkeys.rotateImage.isEnabled
+                    }) {
                     isActiveElementAnInput || e.preventDefault();
                   }
 
@@ -565,12 +571,14 @@
             };
 
             document.addEventListener('keydown', window.photoShowHotkeyDeconflictHook, true);
+            document.addEventListener('keyup', window.photoShowHotkeyDeconflictHook, true);
           }
         `);
       } else {
         tools.executeScript(`
           if (window.photoShowHotkeyDeconflictHook) {
             document.removeEventListener('keydown', window.photoShowHotkeyDeconflictHook, true);
+            document.removeEventListener('keyup', window.photoShowHotkeyDeconflictHook, true);
             delete window.photoShowHotkeyDeconflictHook;
           }`);
       }
@@ -1097,11 +1105,12 @@
               if (
                 $(curAncestor).css('position') != 'static' &&
                 !/^(?:contents|inline|none)$/.test($(curAncestor).css('display')) &&
-                (!maskHostArea || (curAncestorArea && curAncestorArea < maskHostArea)) &&
+                (!maskHostArea || (curAncestorArea && curAncestorArea <= maskHostArea)) &&
                 curAncestorBBox.left <= maskHostBBox.right &&
                 curAncestorBBox.right >= maskHostBBox.left &&
                 curAncestorBBox.top <= maskHostBBox.bottom &&
-                curAncestorBBox.bottom >= maskHostBBox.top
+                curAncestorBBox.bottom >= maskHostBBox.top &&
+                $(curAncestor).css('overflow').includes('hidden')
               ) {
                 this.maskHost = curAncestor;
                 maskHostBBox = curAncestorBBox;
@@ -1277,7 +1286,7 @@
             'textarea,input:not([type="button"],[type="checkbox"],[type="color"],[type="file"],[type="image"],[type="radio"],[type="range"],[type="reset"],[type="submit"]),[contenteditable]'
           );
         });
-        this._bindEvent('document', 'frameDomMutate', function (_, mutations) {
+        this._bindEvent('document', 'frameDomMutate', function (mutations) {
           return this.domMutateAction(mutations);
         });
         this._bindEvent('document', 'animationend', function (e) {

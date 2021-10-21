@@ -1,0 +1,210 @@
+/**
+ * Copyright (c) 2012-2021 Vincent W., MIT-licensed.
+ * @fileOverview PhotoShow content script for main frame.
+ * @author Vincent | vincentwang863@gmail.com
+ * @version 4.11.0.0 | 2021-10-21 | Vincent   // Initial version.
+ */
+
+// TODO: Split common tool methods for PhotoShow to external modules and remove the terser plugin settings.
+
+const path = require('path'),
+  stripJsonComments = require('strip-json-comments'),
+  CopyPlugin = require('copy-webpack-plugin'),
+  CssMinimizerPlugin = require('css-minimizer-webpack-plugin'),
+  JsonMinimizerPlugin = require('json-minimizer-webpack-plugin'),
+  MiniCssExtractPlugin = require('mini-css-extract-plugin'),
+  TerserPlugin = require('terser-webpack-plugin'),
+  ZipPlugin = require('zip-webpack-plugin');
+
+const jsonTransformers = {
+  messages: (_, data, path) => {
+    const locale = /_locales[/\\](\w+)/.test(path) ? RegExp.$1 : 'en';
+
+    (function (entry) {
+      Object.entries(entry).forEach(([key, value]) => {
+        // Update extension-update-date.
+        if (key === 'extensionUpdateDate') {
+          value.message += new Date().toLocaleDateString(
+            locale.replace('_', '-'),
+            { year: 'numeric', month: 'long', day: 'numeric' }
+          );
+        }
+
+        // Remove all descriptions.
+        delete value.description;
+
+        typeof value === 'object' && arguments.callee(value);
+      });
+    })(data);
+  },
+  manifest: (env, data) => {
+    if (!env.prod) data.name += '_DEV';
+
+    // Non-chrome.
+    if (env.vendor) {
+      delete data.update_url;
+    }
+
+    if (env.vendor === 'firefox') {
+      delete data.minimum_chrome_version;
+    } else {
+      delete data.browser_specific_settings;
+    }
+  }
+};
+
+module.exports = env => ({
+  mode: env.prod ? 'production' : 'development',
+  devtool: false,
+  context: path.resolve(__dirname, 'source'),
+  resolve: {
+    preferRelative: true
+  },
+  entry: {
+    background: 'background.js',
+    content: ['content/content.js', 'content/content.less'],
+    frameContent: [
+      'frameContent/frameContent.js',
+      'frameContent/frameContent.less'
+    ],
+    popup: ['popup/popup.html', 'popup/popup.js', 'popup/popup.less']
+  },
+  output: {
+    path: path.resolve(
+      __dirname,
+      `${env.prod ? 'dist' : 'dev'}/${env.vendor || 'chrome'}`
+    ),
+    filename: pathData =>
+      pathData.chunk.name === 'background' ? '[name].js' : '[name]/[name].js',
+    clean: true
+  },
+  module: {
+    rules: [
+      {
+        test: /\.html$/,
+        type: 'asset/resource',
+        generator: {
+          filename: '[name]/[name][ext]'
+        }
+      },
+      {
+        test: /\.html$/,
+        use: [
+          'extract-loader',
+          {
+            loader: 'html-loader',
+            options: {
+              sources: false
+            }
+          }
+        ]
+      },
+      {
+        test: /\.less$/,
+        use: [
+          MiniCssExtractPlugin.loader,
+          {
+            loader: 'css-loader',
+            options: {
+              url: false
+            }
+          },
+          'less-loader'
+        ].concat(
+          env.vendor === 'firefox'
+            ? {
+                loader: 'string-replace-loader',
+                options: {
+                  search: /\bchrome-extension:\/\/__MSG_@@extension_id__/g,
+                  replace: ''
+                }
+              }
+            : []
+        )
+      },
+      {
+        test: /\.js$/,
+        exclude: /node_modules/,
+        use: [
+          {
+            loader: 'babel-loader',
+            options: {
+              presets: ['@babel/preset-env']
+            }
+          }
+        ].concat(
+          env.vendor === 'firefox'
+            ? [
+                {
+                  loader: 'string-replace-loader',
+                  options: {
+                    multiple: [
+                      {
+                        search: /\bchrome\./g,
+                        replace: 'browser.'
+                      },
+                      {
+                        search: ", 'extraHeaders'",
+                        replace: ''
+                      }
+                    ]
+                  }
+                }
+              ]
+            : []
+        )
+      }
+    ]
+  },
+  plugins: [
+    new MiniCssExtractPlugin({
+      filename: '[name]/[name].css'
+    }),
+    new CopyPlugin({
+      patterns: [
+        { from: 'resources', to: 'resources' },
+        {
+          from: '**/*.json',
+          transform: {
+            transformer: (content, path) => {
+              const parsedContent = JSON.parse(
+                  stripJsonComments(content.toString())
+                ),
+                fileName = /(\w+)\.json$/.test(path) ? RegExp.$1 : '';
+
+              jsonTransformers[fileName](env, parsedContent, path);
+
+              return JSON.stringify(parsedContent, ' ', env.prod ? 0 : 2);
+            },
+            cache: true
+          }
+        },
+        {
+          from: '*.min.js',
+          info: {
+            minimized: true
+          }
+        }
+      ]
+    })
+  ].concat(
+    env.prod
+      ? new ZipPlugin({
+          filename: 'PhotoShow.zip'
+        })
+      : []
+  ),
+  optimization: {
+    minimizer: [
+      new TerserPlugin({
+        terserOptions: {
+          mangle: {
+            reserved: ['tools']
+          }
+        }
+      }),
+      new CssMinimizerPlugin(),
+      new JsonMinimizerPlugin()
+    ]
+  }
+});

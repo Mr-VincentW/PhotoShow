@@ -1,0 +1,51 @@
+/**
+ * Copyright (c) 2012-2021 Vincent W., MIT-licensed.
+ * @fileOverview PhotoShow content style - image loader styles.
+ * @author Vincent | vincentwang863@gmail.com
+ * @version 4.11.0.0 | 2021-10-21 | Vincent   // Initial version.
+ */
+
+.photoshow-img-loading-ani-frame-loop (@n, @index: 0) when (@index <= @n) {
+  @keyframe: percentage((@index/@n));
+  @{keyframe}{
+    -webkit-mask: radial-gradient(circle closest-side, #fff 15%, transparent 16%, transparent 19%, #fff 20%),
+      conic-gradient(from unit(@index, deg), #fff 12.5%, fade(#fff, 25%) 75%);
+    mask: radial-gradient(circle closest-side, #fff 15%, transparent 16%, transparent 19%, #fff 20%),
+      conic-gradient(from unit(@index, deg), #fff 12.5%, fade(#fff, 25%) 75%);
+  }
+  .photoshow-img-loading-ani-frame-loop(@n, (@index + 18));
+}
+
+@keyframes photoshow-img-loading-ani {
+  .photoshow-img-loading-ani-frame-loop(360);
+}
+
+.photoshow-img-loading {
+  animation: photoshow-img-loading-ani 0.8s linear infinite !important;
+}
+
+.photoshow-img-loading-fail-ani-frame-loop (@n, @index: 0) when (@index <= @n), (@index = 90) {
+  @keyframe: percentage((@index/@n/10));
+  @{keyframe}{
+    -webkit-mask: radial-gradient(circle closest-side, transparent 20%, #fff 20%),
+      linear-gradient(unit(@index + 45, deg), #fff 49.5%, fade(#fff, 25%) 49.6%, fade(#fff, 25%) 50.4%, #fff 50.5%),
+      linear-gradient(unit(@index - 45, deg), #fff 49.5%, fade(#fff, 25%) 49.6%, fade(#fff, 25%) 50.4%, #fff 50.5%),
+      radial-gradient(circle closest-side, transparent 20%, #fff 20%);
+    mask: radial-gradient(circle closest-side, transparent 20%, #fff 20%),
+      linear-gradient(unit(@index + 45, deg), #fff 49.5%, fade(#fff, 25%) 49.6%, fade(#fff, 25%) 50.4%, #fff 50.5%),
+      linear-gradient(unit(@index - 45, deg), #fff 49.5%, fade(#fff, 25%) 49.6%, fade(#fff, 25%) 50.4%, #fff 50.5%),
+      radial-gradient(circle closest-side, transparent 20%, #fff 20%);
+    -webkit-mask-composite: xor, source-in, source-out;
+    mask-composite: exclude, intersect, subtract;
+  }
+  .photoshow-img-loading-fail-ani-frame-loop(@n, (@index + 9));
+}
+
+@keyframes photoshow-img-loading-fail-ani {
+  .photoshow-img-loading-fail-ani-frame-loop(90);
+  .photoshow-img-loading-fail-ani-frame-loop(9, 90);    // last frame (100%)
+}
+
+.photoshow-img-loading-fail{
+  animation: photoshow-img-loading-fail-ani 2s ease forwards !important;
+}
