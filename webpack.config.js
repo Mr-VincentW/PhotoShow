@@ -3,9 +3,12 @@
  * @fileOverview PhotoShow content script for main frame.
  * @author Vincent | vincentwang863@gmail.com
  * @version 4.11.0.0 | 2021-10-21 | Vincent   // Initial version.
+ * @version 4.11.1.0 | 2021-10-27 | Vincent   // Bug Fix: Remove Babel loader as the helper functions can not be addressed across modules;
+ *                                            // Updates: Pack readme file to Firefox output for code review.
  */
 
 // TODO: Split common tool methods for PhotoShow to external modules and remove the terser plugin settings.
+// TODO: Figure out a way to load all those website specified config code and resume Babel transpilation.
 
 const path = require('path'),
   stripJsonComments = require('strip-json-comments'),
@@ -125,14 +128,7 @@ module.exports = env => ({
       {
         test: /\.js$/,
         exclude: /node_modules/,
-        use: [
-          {
-            loader: 'babel-loader',
-            options: {
-              presets: ['@babel/preset-env']
-            }
-          }
-        ].concat(
+        use:
           env.vendor === 'firefox'
             ? [
                 {
@@ -152,7 +148,6 @@ module.exports = env => ({
                 }
               ]
             : []
-        )
       }
     ]
   },
@@ -185,7 +180,13 @@ module.exports = env => ({
             minimized: true
           }
         }
-      ]
+      ].concat(
+        env.prod && env.vendor === 'firefox'
+          ? {
+              from: '../readme.md'
+            }
+          : []
+      )
     })
   ].concat(
     env.prod

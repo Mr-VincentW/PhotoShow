@@ -185,6 +185,7 @@
  * @version 4.11.0.0 | 2021-10-21 | Vincent   // Updates: Remove parsing rules for ixigua as it's no longer valid (GitHub issue #30);
  *                                            // Updates: Support music.163.com, in response to user feedback (GitHub issue #31);
  *                                            // Updates: Better support for weibo.
+ * @version 4.11.1.0 | 2021-10-27 | Vincent   // Updates: Better support for Pinterest in user-unlogged-in state.
  */
 
 // TODO: Extract websiteConfig to independent files and import them (after porting to webpack).
@@ -2039,7 +2040,7 @@ const websiteConfig = {
   '(?:.+\\.)?pinterest(?:\\.(?:com|[a-z]{2}))+': {
     amendStyles: {
       pointerAuto: 'button,[role="button"],a',
-      pointerNone: 'img~.MIw.QLY.Rym.ojN.p6V,[data-test-id="pointer-events-wrapper"]'
+      pointerNone: 'img~.MIw.QLY.Rym.ojN.p6V,[data-test-id="pointer-events-wrapper"],.MIw.QLY.Rym.ojN.p6V.prG.Hsu'
     },
     srcMatching: {
       selectors: 'a,img,[data-test-id="pinWrapper"]',
