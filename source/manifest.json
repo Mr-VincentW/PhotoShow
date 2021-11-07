@@ -19,6 +19,7 @@
  * @version 4.10.0.0 | 2021-09-18 | Vincent   // Updates: Add 'strict_min_version' specification for Firefox;
  *                                            // Updates: Upgrade jQuery to 3.6.0.
  * @version 4.11.0.0 | 2021-10-21 | Vincent   // Updates: Add style resources for iframes.
+ * @version 4.12.0.0 | 2021-11-07 | Vincent   // Updates: Add 'devtools_page' for developer mode detection.
  */
 
 // TODO: Check if Chrome older than version 73 supports storage.async API.
@@ -35,8 +36,8 @@
   "manifest_version": 2,
   "name": "__MSG_extensionName__",
   "description": "__MSG_extensionDesc__",
-  "version": "4.11.1.0",
-  "version_name": "4.11.1.0",
+  "version": "4.12.0.0",
+  "version_name": "4.12.0.0",
   "author": "Vincent W.",
   "default_locale": "en",
   "minimum_chrome_version": "69", // Required for Array.flatMap() method.
@@ -52,6 +53,7 @@
   "background": {
     "scripts": ["jquery-3.6.0.min.js", "background.js"]
   },
+  "devtools_page": "devtools/devtools.html",
   "permissions": [
     "http://*/*",
     "https://*/*",

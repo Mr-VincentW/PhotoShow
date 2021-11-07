@@ -21,6 +21,7 @@
  * @version 4.9.0.0 | 2021-08-22 | Vincent    // Updates: Offer basic support for unknown websites.
  * @version 4.10.0.0 | 2021-09-18 | Vincent   // Updates: Optimize user interaction on certain websites by changing events binding method.
  * @version 4.11.0.0 | 2021-10-21 | Vincent   // Bug Fix: A dom mutation event error.
+ * @version 4.12.0.0 | 2021-11-07 | Vincent   // Updates: Allow user to suspend PhotoShow when in developer mode, in response to user feedback.
  */
 
 (($, isInFrame) => {
@@ -54,7 +55,11 @@
 
     const photoShow = {
       isEnabled: false, // PhotoShow availability flag.
+      isInDeveloperMode: false, // Developer mode flag.
       websiteConfig: {}, // Configuration for current website.
+      config: {
+        developerModeSuspension: true
+      },
       updateState: function () {
         try {
           chrome.runtime.sendMessage(
@@ -65,17 +70,15 @@
               }
             },
             response => {
-              this.websiteConfig = response.websiteConfig || {};
-
-              const newEnableState = !!(
+              this.isEnabled = !!(
                 response.isPhotoShowEnabled &&
                 !response.isWebsiteUnknown | (response.photoShowConfigs.worksEverywhere !== false)
               );
+              this.isInDeveloperMode = response.isInDeveloperMode || false;
+              this.websiteConfig = response.websiteConfig || {};
+              this.config.developerModeSuspension = response.photoShowConfigs.developerModeSuspension;
 
-              if (this.isEnabled != newEnableState) {
-                this.isEnabled = newEnableState;
-                photoShowViewer.toggle();
-              }
+              photoShowViewer.toggle();
             }
           );
         } catch (error) {
@@ -85,6 +88,7 @@
     };
 
     const photoShowViewer = {
+      isRunning: false, // Running state flag.
       domObserver: null, // Observer for the document.
       _evtHandlers: {}, // Event handlers.
       _bindEvent: function (evtTypes, handler) {
@@ -100,52 +104,61 @@
         );
       },
       toggle: function () {
-        if (photoShow.isEnabled) {
-          // Handle events in capture phases.
-          // This ensures proper behaviors when it comes to triggers in iframes or on some certain websites (e.g. Google Map).
-          this._bindEvent('mouseover', this.mouseOverAction);
-          this._bindEvent('mousemove mouseout keydown keyup contextmenu', function (e) {
-            window.top.jQuery(window.top.document).trigger(e);
-          });
-          this._bindEvent('topWinScroll', this.winScrollAction);
+        const prevIsRunning = this.isRunning;
 
-          // Add amend styles.
-          photoShow.websiteConfig = {
-            ...photoShow.websiteConfig,
-            amendStyles: {
-              ...(photoShow.websiteConfig.amendStyles || {}),
-              pointerNone: ['*:before,*:after']
-                .concat((photoShow.websiteConfig.amendStyles && photoShow.websiteConfig.amendStyles.pointerNone) || [])
-                .join(',')
+        this.isRunning =
+          photoShow.isEnabled && !(photoShow.isInDeveloperMode && photoShow.config.developerModeSuspension);
+
+        if (prevIsRunning !== this.isRunning) {
+          if (this.isRunning) {
+            // Handle events in capture phases.
+            // This ensures proper behaviors when it comes to triggers in iframes or on some certain websites (e.g. Google Map).
+            this._bindEvent('mouseover', this.mouseOverAction);
+            this._bindEvent('mousemove mouseout keydown keyup contextmenu', function (e) {
+              window.top.jQuery(window.top.document).trigger(e);
+            });
+            this._bindEvent('topWinScroll', this.winScrollAction);
+
+            // Add amend styles.
+            photoShow.websiteConfig = {
+              ...photoShow.websiteConfig,
+              amendStyles: {
+                ...(photoShow.websiteConfig.amendStyles || {}),
+                pointerNone: ['*:before,*:after']
+                  .concat(
+                    (photoShow.websiteConfig.amendStyles && photoShow.websiteConfig.amendStyles.pointerNone) || []
+                  )
+                  .join(',')
+              }
+            };
+
+            for (let styleName in photoShow.websiteConfig.amendStyles) {
+              tools.addStyle(styleName, photoShow.websiteConfig.amendStyles[styleName]);
             }
-          };
 
-          for (let styleName in photoShow.websiteConfig.amendStyles) {
-            tools.addStyle(styleName, photoShow.websiteConfig.amendStyles[styleName]);
-          }
+            // Start observing triggers.
+            this.domObserver = new MutationObserver(this.domMutateAction);
+            this.domObserver.observe(document, {
+              // childList: true,    // CAUTION: DO NOT turn on 'childList' mutation observation as on some websites (e.g. QZone), this will cause serious performance problem.
+              subtree: true,
+              attributeFilter: ['src', 'srcset', 'style'],
+              attributeOldValue: true
+            });
+          } else {
+            this._unbindAllEvents();
 
-          // Start observing triggers.
-          this.domObserver = new MutationObserver(this.domMutateAction);
-          this.domObserver.observe(document, {
-            // childList: true,    // CAUTION: DO NOT turn on 'childList' mutation observation as on some websites (e.g. QZone), this will cause serious performance problem.
-            subtree: true,
-            attributeFilter: ['src', 'srcset', 'style'],
-            attributeOldValue: true
-          });
-        } else {
-          this._unbindAllEvents();
+            // Remove amend styles.
+            $('[id^="photoShowStyles_"]').remove();
 
-          // Remove amend styles.
-          $('[id^="photoShowStyles_"]').remove();
+            // Remove cached hd-image srcs.
+            $('[photoshow-hd-src]').removeAttr('photoshow-hd-src');
 
-          // Remove cached hd-image srcs.
-          $('[photoshow-hd-src]').removeAttr('photoshow-hd-src');
-
-          // Stop observing triggers.
-          if (this.domObserver) {
-            this.domMutateAction(this.domObserver.takeRecords());
-            this.domObserver.disconnect();
-            this.domObserver = null;
+            // Stop observing triggers.
+            if (this.domObserver) {
+              this.domMutateAction(this.domObserver.takeRecords());
+              this.domObserver.disconnect();
+              this.domObserver = null;
+            }
           }
         }
       },
@@ -191,6 +204,23 @@
         );
       }
     };
+
+    // Response to messages.
+    chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+      var needAsyncResponse;
+
+      switch (request.cmd) {
+        case 'TOGGLE_DEVELOPER_MODE':
+          photoShow.isInDeveloperMode = request.args.isInDeveloperMode;
+          photoShowViewer.toggle();
+
+          break;
+
+        default:
+      }
+
+      return needAsyncResponse;
+    });
 
     // Response to storage change event.
     chrome.storage.onChanged.addListener(changes => {

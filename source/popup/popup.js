@@ -41,11 +41,12 @@
  * @version 4.10.0.0 | 2021-09-18 | Vincent   // Updates: Add config items for viewer location settings;
  *                                            // Updates: Optimize config items naming.
  * @version 4.11.0.0 | 2021-10-21 | Vincent   // Bug Fix: Toggle button can still be triggered when PhotoShow is in shut-down state.
+ * @version 4.12.0.0 | 2021-11-07 | Vincent   // Updates: Add config items for 'developer mode' settings.
  */
 
 // TODO: Support customising hotkeys.
 
-var curTabUrl = '';
+var curTab;
 
 const UI_LANGUAGE = chrome.i18n.getUILanguage(),
   PHOTOSHOW_LINK = /\bFirefox\b/.test(navigator.userAgent)
@@ -78,8 +79,8 @@ function disablePhotoShow(disableAni) {
   $('#settings .desc').show();
 }
 
-function shutDownPhotoShow(disableAni) {
-  $('#stateMsg').text(chrome.i18n.getMessage('photoShowShutdownMsg'));
+function shutDownPhotoShow(disableAni, isSuspended) {
+  $('#stateMsg').text(chrome.i18n.getMessage(`photoShow${isSuspended ? 'Suspended' : 'Shutdown'}Msg`));
   $('#stateToggle')
     .removeClass('basic disabled no-ani')
     .addClass(`shut-down${disableAni ? ' no-ani' : ''}`)
@@ -87,7 +88,8 @@ function shutDownPhotoShow(disableAni) {
     .removeClass('icon-bubble-check icon-bubble-warn')
     .addClass('icon-bubble-error');
   $('#stateToggleBtn').removeAttr('title');
-  $('#settings .desc:not(#worksEverywhereSection,#shareSection)').hide();
+  $('#settings .desc').show();
+  $(`#settings .desc:not(#${isSuspended ? 'developerModeToggle' : 'worksEverywhere'}Section,#shareSection)`).hide();
 }
 
 function getSharingUrl(link, params) {
@@ -122,25 +124,25 @@ function updateStateAndConfigs(isInitializing) {
     });
   }
 
-  curTabUrl &&
+  curTab &&
     chrome.runtime.sendMessage(
       {
         cmd: 'GET_PHOTOSHOW_STATE_AND_CONFIGS',
         args: {
-          tabUrl: curTabUrl
+          tabId: curTab.id,
+          tabUrl: curTab.url
         }
       },
       response => {
-        if (!response.isWebsiteUnknown || response.photoShowConfigs.worksEverywhere !== false) {
-          if (response.isPhotoShowEnabled) {
-            enablePhotoShow(response.isWebsiteUnknown);
-          } else {
-            disablePhotoShow(isInitializing);
-          }
-        } else {
+        if (response.isWebsiteUnknown && !response.photoShowConfigs.worksEverywhere !== false) {
           shutDownPhotoShow(isInitializing);
+        } else if (response.isInDeveloperMode && response.photoShowConfigs.developerModeSuspension) {
+          shutDownPhotoShow(isInitializing, true);
+        } else if (response.isPhotoShowEnabled) {
+          enablePhotoShow(response.isWebsiteUnknown);
+        } else {
+          disablePhotoShow(isInitializing);
         }
-
         // Update config items.
         updateConfigItems(response.photoShowConfigs);
       }
@@ -151,11 +153,11 @@ function updateStateAndConfigs(isInitializing) {
 $(document)
   .on('click.photoShow', '#stateToggleBtn', () => {
     // Website switch action.
-    if (curTabUrl && !$('#stateToggle').hasClass('shut-down')) {
+    if (curTab && !$('#stateToggle').hasClass('shut-down')) {
       chrome.runtime.sendMessage({
         cmd: 'SET_PHOTOSHOW_STATE',
         args: {
-          tabUrl: curTabUrl,
+          tabUrl: curTab.url,
           isPhotoShowEnabled: $('#stateToggle').hasClass('disabled')
         }
       });
@@ -237,6 +239,7 @@ $('#updateDate').text(chrome.i18n.getMessage('extensionUpdateDate'));
   'loadingStatusDisplay',
   'animationToggle',
   'contextMenuToggle',
+  'developerModeToggle',
   'worksEverywhere'
 ].forEach(item => {
   $(`#${item}Section dt h3`).text(chrome.i18n.getMessage(`${item}Header`));
@@ -312,7 +315,7 @@ function initContactLinks() {
           body: chrome.i18n.getMessage('feedbackMailBody', [
             navigator.userAgent,
             chrome.runtime.getManifest().version,
-            curTabUrl
+            curTab.url
           ])
         }
       },
@@ -392,7 +395,7 @@ chrome.tabs.query(
   },
   tabs => {
     if (!chrome.runtime.lastError && tabs && tabs.length) {
-      curTabUrl = tabs[0].url;
+      curTab = tabs[0];
 
       initContactLinks();
 

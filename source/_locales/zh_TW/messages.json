@@ -26,6 +26,7 @@
  *                                            // Updates: Add viewer location related items;
  *                                            // Updates: Remove 'imageLoadingTip' and 'imageLoadingFailTip';
  *                                            // Updates: Update view mode names and loading status items.
+ * @version 4.12.0.0 | 2021-11-07 | Vincent   // Updates: Add 'developer mode' related items.
  */
 
 {
@@ -89,6 +90,10 @@
   "photoShowShutdownMsg": {
     "message": "已關閉浮圖秀對未知網站的支持。",
     "description": "禁止浮圖秀支持未知網站時的消息。"
+  },
+  "photoShowSuspendedMsg": {
+    "message": "浮圖秀已在開發模式下暫時停用。",
+    "description": "浮圖秀在開發模式下暫停時的消息。"
   },
   "photoShowUnavailableMsg": {
     "message": "浮圖秀不支持當前網站。",
@@ -248,6 +253,16 @@
   },
   "contextMenuToggleDesc": {
     "message": "啟用右鍵菜單項",
+    "description": "設置項描述。"
+  },
+
+  // “開發模式”區：
+  "developerModeToggleHeader": {
+    "message": "開發模式",
+    "description": "區塊標題。"
+  },
+  "developerModeToggleDesc": {
+    "message": "在開發模式下（瀏覽器開發者工具窗口打開時）暫停浮圖秀",
     "description": "設置項描述。"
   },
 

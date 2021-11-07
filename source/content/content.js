@@ -140,6 +140,8 @@
  *                                            // Bug Fix: Deconflict key events for activation mode hot key actions;
  *                                            // Bug Fix: A frame-dom-mutation event error;
  *                                            // Updates: Optimize mask hosting element detecting algorithm.
+ * @version 4.12.0.0 | 2021-11-07 | Vincent   // Updates: Allow user to suspend PhotoShow when in developer mode, in response to user feedback;
+ *                                            // Bug Fix: Hotkey deconfliction blocks developer inspector hot key (Ctrl+Shift+C).
  */
 
 // TODO: Extract common tool methods to external modules.
@@ -365,6 +367,7 @@
 
   const photoShow = {
     isEnabled: false, // PhotoShow availability flag.
+    isInDeveloperMode: false, // Developer mode flag for current page.
     websiteConfig: {}, // Configuration for current website.
     recentViewModes: ['a', 'p'], // Last two view modes that were used recently.
     config: {
@@ -382,7 +385,7 @@
         })(this, config);
 
         // Reset hotkey deconflict agent.
-        if (photoShow.isEnabled) {
+        if (photoShow.isRunning) {
           photoShow.toggleHotkeyDeconflictAgent(false);
           photoShow.toggleHotkeyDeconflictAgent(true);
         }
@@ -431,6 +434,7 @@
       },
       loadingStatusDisplay: true, // Loading status display.
       enableAnimation: true, // Transition animation.
+      developerModeSuspension: true, // Developer mode suspension.
       hotkeys: {
         // Hotkey toggles.
         closeViewer: {
@@ -507,10 +511,10 @@
 
       return imgSrc;
     },
-    toggleXhrHook: function () {
+    toggleXhrHook: function (isEnabled) {
       if (this.websiteConfig.onXhrLoad) {
         tools.executeScript(
-          this.isEnabled
+          isEnabled
             ? `
               if (!window.photoShowOriXhrOpen) {
                 window.photoShowOriXhrOpen = window.XMLHttpRequest.prototype.open;
@@ -530,21 +534,21 @@
         );
       }
     },
-    toggleHotkeyDeconflictAgent: function (isEnabled = this.isEnabled) {
+    toggleHotkeyDeconflictAgent: function (isEnabled) {
       if (isEnabled) {
         tools.executeScript(`
           if (!window.photoShowHotkeyDeconflictHook) {
             window.photoShowHotkeyDeconflictHook = e => {
               const eventKey = e.key?.toUpperCase(),
-              imgViewer = document.getElementById('photoShowViewer'),
-              isViewerActive = imgViewer?.dataset.active != undefined,
-              hasImgShown = imgViewer?.dataset.imgShown != undefined,
-              hasMask = imgViewer?.dataset.hasMask != undefined,
-              isActiveElementAnInput = /^text(?:area)?$/.test(document.activeElement.type) || document.activeElement.isContentEditable;
+                imgViewer = document.getElementById('photoShowViewer'),
+                isViewerActive = imgViewer?.dataset.active != undefined,
+                hasImgShown = imgViewer?.dataset.imgShown != undefined,
+                hasMask = imgViewer?.dataset.hasMask != undefined,
+                isActiveElementAnInput = /^text(?:area)?$/.test(document.activeElement.type) || document.activeElement.isContentEditable;
 
               if (isViewerActive) {
                 if(eventKey === 'TAB' && ${this.config.hotkeys.openImageInNewTab.isEnabled} ||
-                  eventKey === 'C' && ${this.config.hotkeys.copyImageAddress.isEnabled} ||
+                  eventKey === 'C' && ${this.config.hotkeys.copyImageAddress.isEnabled} && !(e.ctrlKey && e.shiftKey) ||
                   eventKey === 'S' && ${this.config.hotkeys.saveImage.isEnabled} ||
                   eventKey === '${this.config.activationMode?.toUpperCase()}') {
                   isActiveElementAnInput || e.preventDefault();
@@ -589,24 +593,22 @@
           cmd: 'GET_PHOTOSHOW_STATE_AND_CONFIGS'
         },
         response => {
-          this.websiteConfig = response.websiteConfig || {};
-          this.config.update(response.photoShowConfigs);
-
-          const newEnableState = !!(
+          this.isEnabled = !!(
             response.isPhotoShowEnabled &&
             !response.isWebsiteUnknown | (response.photoShowConfigs.worksEverywhere !== false)
           );
+          this.isInDeveloperMode = response.isInDeveloperMode || false;
+          this.websiteConfig = response.websiteConfig || {};
+          this.config.update(response.photoShowConfigs);
 
-          if (this.isEnabled != newEnableState) {
-            this.isEnabled = newEnableState;
-            photoShowViewer.toggle();
-          }
+          photoShowViewer.toggle();
         }
       );
     }
   };
 
   const photoShowViewer = {
+    isRunning: false, // Running state flag.
     mouseClientPos: {
       // Mouse position (relative to viewport top-left).
       x: -1,
@@ -1067,7 +1069,7 @@
       }
     },
     displayViewer: function (srcTarget) {
-      if (!this.curTrigger) {
+      if (this.isRunning && !this.curTrigger) {
         // Get src of the high-definition image.
         const triggersParsingResult = this.parseTriggers(srcTarget);
         this.preservedImgSrc = this.imgSrc = triggersParsingResult.src;
@@ -1229,141 +1231,165 @@
       }
     },
     toggle: function () {
-      if (photoShow.isEnabled) {
-        this.viewerBox.appendTo(document.documentElement);
+      const prevIsRunning = this.isRunning;
 
-        photoShow.websiteConfig.noReferrer && this.viewerImg.prop('referrerPolicy', 'no-referrer');
+      this.isRunning =
+        photoShow.isEnabled && !(photoShow.isInDeveloperMode && photoShow.config.developerModeSuspension);
 
-        this.imgSrc = this.preservedImgSrc = '';
+      if (prevIsRunning !== this.isRunning) {
+        if (this.isRunning) {
+          this.viewerBox.appendTo(document.documentElement);
 
-        // Trigger actions.
-        // Handle events in capture phases.
-        // This ensures proper behaviors when it comes to triggers in iframes or on some certain websites (e.g. Google Map).
-        this._bindEvent('document', 'mouseover', this.mouseOverAction);
-        this._bindEvent('document', 'mousemove', function (e) {
-          this.mouseOriClientPos.x = this.mouseClientPos.x = e.clientX;
-          this.mouseOriClientPos.y = this.mouseClientPos.y = e.clientY;
+          photoShow.websiteConfig.noReferrer && this.viewerImg.prop('referrerPolicy', 'no-referrer');
 
-          if (e.target.ownerDocument.defaultView != window.top) {
-            var frameRect = tools.getBoundingClientRectToTopWin(e.target.ownerDocument.defaultView.frameElement);
-            this.mouseClientPos.x += frameRect.left;
-            this.mouseClientPos.y += frameRect.top;
-            this.mouseOriClientPos.x += frameRect.left;
-            this.mouseOriClientPos.y += frameRect.top;
-          }
+          this.imgSrc = this.preservedImgSrc = '';
 
-          this.hasMask && this.moveAction();
-        });
-        this._bindEvent('document', 'mouseleave', function (e) {
-          var target = $(e.currentTarget);
-          if (this.curTrigger) {
-            this.curTrigger.contains(e.currentTarget) || // This may occur when leaving current element's children.
-              $(e.relatedTarget).closest(this.curTrigger).length || // This may occur when the viewer has already displayed in the updating procedure.
-              this.mouseLeaveAction();
-          }
+          // Trigger actions.
+          // Handle events in capture phases.
+          // This ensures proper behaviors when it comes to triggers in iframes or on some certain websites (e.g. Google Map).
+          this._bindEvent('document', 'mouseover', this.mouseOverAction);
+          this._bindEvent('document', 'mousemove', function (e) {
+            this.mouseOriClientPos.x = this.mouseClientPos.x = e.clientX;
+            this.mouseOriClientPos.y = this.mouseClientPos.y = e.clientY;
 
-          if (target.is('[photoshow-trigger-blocked]') || target.find('[photoshow-trigger-blocked]')) {
-            $('[photoshow-trigger-blocked]').removeAttr('photoshow-trigger-blocked');
-          }
+            if (e.target.ownerDocument.defaultView != window.top) {
+              var frameRect = tools.getBoundingClientRectToTopWin(e.target.ownerDocument.defaultView.frameElement);
+              this.mouseClientPos.x += frameRect.left;
+              this.mouseClientPos.y += frameRect.top;
+              this.mouseOriClientPos.x += frameRect.left;
+              this.mouseOriClientPos.y += frameRect.top;
+            }
 
-          if (target.is('html') && e.currentTarget.ownerDocument.defaultView == window.top) {
-            Object.assign(this, {
-              mouseClientPos: {
-                x: -1,
-                y: -1
-              },
-              mouseOriClientPos: {
-                x: -1,
-                y: -1
-              }
-            });
-          }
-        });
-        this._bindEvent('document', 'keydown', this.keydownAction);
-        this._bindEvent('document', 'keyup', this.keyupAction);
-        this._bindEvent('document', 'focusin focusout', function () {
-          this.isActiveElementAnInput = $(document.activeElement).is(
-            'textarea,input:not([type="button"],[type="checkbox"],[type="color"],[type="file"],[type="image"],[type="radio"],[type="range"],[type="reset"],[type="submit"]),[contenteditable]'
+            this.hasMask && this.moveAction();
+          });
+          this._bindEvent('document', 'mouseleave', function (e) {
+            var target = $(e.currentTarget);
+            if (this.curTrigger) {
+              this.curTrigger.contains(e.currentTarget) || // This may occur when leaving current element's children.
+                $(e.relatedTarget).closest(this.curTrigger).length || // This may occur when the viewer has already displayed in the updating procedure.
+                this.mouseLeaveAction();
+            }
+
+            if (target.is('[photoshow-trigger-blocked]') || target.find('[photoshow-trigger-blocked]')) {
+              $('[photoshow-trigger-blocked]').removeAttr('photoshow-trigger-blocked');
+            }
+
+            if (target.is('html') && e.currentTarget.ownerDocument.defaultView == window.top) {
+              Object.assign(this, {
+                mouseClientPos: {
+                  x: -1,
+                  y: -1
+                },
+                mouseOriClientPos: {
+                  x: -1,
+                  y: -1
+                }
+              });
+            }
+          });
+          this._bindEvent('document', 'keydown', this.keydownAction);
+          this._bindEvent('document', 'keyup', this.keyupAction);
+          this._bindEvent('document', 'focusin focusout', function () {
+            this.isActiveElementAnInput = $(document.activeElement).is(
+              'textarea,input:not([type="button"],[type="checkbox"],[type="color"],[type="file"],[type="image"],[type="radio"],[type="range"],[type="reset"],[type="submit"]),[contenteditable]'
+            );
+          });
+          this._bindEvent('document', 'frameDomMutate', function (mutations) {
+            return this.domMutateAction(mutations);
+          });
+          this._bindEvent('document', 'animationend', function (e) {
+            if (/photoshow-viewer-(.+)-ani/.test(e.animationName)) {
+              this.viewerBox.removeClass(RegExp.$1);
+            } else if (e.animationName === 'photoshow-img-loading-fail-ani') {
+              $(e.target).removeClass('photoshow-img-loading-fail');
+            }
+          });
+
+          // Window actions.
+          this._bindEvent(
+            'window',
+            'scroll wheel',
+            (() => {
+              let updateTimer;
+
+              return () => {
+                clearTimeout(updateTimer);
+                updateTimer = setTimeout(() => this.update(), 20);
+              };
+            })()
           );
-        });
-        this._bindEvent('document', 'frameDomMutate', function (mutations) {
-          return this.domMutateAction(mutations);
-        });
-        this._bindEvent('document', 'animationend', function (e) {
-          if (/photoshow-viewer-(.+)-ani/.test(e.animationName)) {
-            this.viewerBox.removeClass(RegExp.$1);
-          } else if (e.animationName === 'photoshow-img-loading-fail-ani') {
-            $(e.target).removeClass('photoshow-img-loading-fail');
+          this._bindEvent(
+            'window',
+            'resize',
+            (() => {
+              let updateTimer;
+
+              return () => {
+                clearTimeout(updateTimer);
+                updateTimer = setTimeout(() => this.update(), 100);
+              };
+            })()
+          );
+          this._bindEvent('window', 'blur', this.winBlurAction);
+
+          // Add amend styles.
+          photoShow.websiteConfig = {
+            ...photoShow.websiteConfig,
+            amendStyles: {
+              ...(photoShow.websiteConfig.amendStyles || {}),
+              pointerNone: ['*:before,*:after']
+                .concat((photoShow.websiteConfig.amendStyles && photoShow.websiteConfig.amendStyles.pointerNone) || [])
+                .join(',')
+            }
+          };
+
+          for (let styleName in photoShow.websiteConfig.amendStyles) {
+            tools.addStyle(styleName, photoShow.websiteConfig.amendStyles[styleName]);
           }
-        });
 
-        // Window actions.
-        this._bindEvent(
-          'window',
-          'scroll wheel resize',
-          (() => {
-            let updateTimer;
+          // Start observing the document.
+          this.domObserver = new MutationObserver(mutations => this.domMutateAction(mutations));
+          this.domObserver.observe(document, {
+            childList: true,
+            subtree: true,
+            attributeFilter: ['src', 'srcset', 'style'],
+            attributeOldValue: true
+          });
+        } else {
+          // Reset states.
+          this.mouseLeaveAction();
+          this.mouseOriClientPos = { x: -1, y: -1 };
+          this.mouseClientPos = { x: -1, y: -1 };
 
-            return () => {
-              clearTimeout(updateTimer);
-              updateTimer = setTimeout(() => this.update(), 20);
-            };
-          })()
-        );
-        this._bindEvent('window', 'blur', this.winBlurAction);
+          // Destruction.
+          this.viewerBox.remove();
 
-        // Add amend styles.
-        photoShow.websiteConfig = {
-          ...photoShow.websiteConfig,
-          amendStyles: {
-            ...(photoShow.websiteConfig.amendStyles || {}),
-            pointerNone: ['*:before,*:after']
-              .concat((photoShow.websiteConfig.amendStyles && photoShow.websiteConfig.amendStyles.pointerNone) || [])
-              .join(',')
+          // Unbind event handlers.
+          this._unbindAllEvents();
+
+          // Remove contents generated by PhotoShow.
+          $('[photoshow-hd-src]').removeAttr('photoshow-hd-src');
+          $('[photoshow-trigger-blocked]').removeAttr('photoshow-trigger-blocked');
+          $('[id^="photoShowStyles_"]').remove();
+          $('[photoshow-cache-id]').remove();
+
+          // Stop observing the document.
+          if (this.domObserver) {
+            this.domMutateAction(this.domObserver.takeRecords());
+            this.domObserver.disconnect();
+            this.domObserver = null;
           }
-        };
-
-        for (let styleName in photoShow.websiteConfig.amendStyles) {
-          tools.addStyle(styleName, photoShow.websiteConfig.amendStyles[styleName]);
         }
 
-        // Start observing the document.
-        this.domObserver = new MutationObserver(mutations => this.domMutateAction(mutations));
-        this.domObserver.observe(document, {
-          childList: true,
-          subtree: true,
-          attributeFilter: ['src', 'srcset', 'style'],
-          attributeOldValue: true
-        });
-      } else {
-        // Destruction.
-        this.viewerBox.remove();
+        // Handle xhr hook.
+        photoShow.toggleXhrHook(this.isRunning);
 
-        // Unbind event handlers.
-        this._unbindAllEvents();
+        // Handle hotkey conflict agent.
+        photoShow.toggleHotkeyDeconflictAgent(this.isRunning);
 
-        // Remove contents generated by PhotoShow.
-        $('[photoshow-hd-src]').removeAttr('photoshow-hd-src');
-        $('[photoshow-trigger-blocked]').removeAttr('photoshow-trigger-blocked');
-        $('[id^="photoShowStyles_"]').remove();
-        $('[photoshow-cache-id]').remove();
-
-        // Stop observing the document.
-        if (this.domObserver) {
-          this.domMutateAction(this.domObserver.takeRecords());
-          this.domObserver.disconnect();
-          this.domObserver = null;
-        }
+        // Construction/Destruction callbacks.
+        photoShow.websiteConfig.onToggle && eval(`(${photoShow.websiteConfig.onToggle})`)(this.isRunning);
       }
-
-      // Handle xhr hook.
-      photoShow.toggleXhrHook();
-
-      // Handle hotkey conflict agent.
-      photoShow.toggleHotkeyDeconflictAgent();
-
-      // Construction/Destruction callbacks.
-      photoShow.websiteConfig.onToggle && eval(`(${photoShow.websiteConfig.onToggle})`)(photoShow.isEnabled);
     },
     mouseOverAction: function (e) {
       clearTimeout(this.viewerDisplayTimer);
@@ -1836,6 +1862,12 @@
               detail: request.args
             })
           );
+
+          break;
+
+        case 'TOGGLE_DEVELOPER_MODE':
+          photoShow.isInDeveloperMode = request.args.isInDeveloperMode;
+          photoShowViewer.toggle();
 
           break;
 

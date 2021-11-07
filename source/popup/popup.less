@@ -30,6 +30,7 @@
  *                                            // Updates: Optimize whole page styles.
  * @version 4.9.1.0 | 2021-08-23 | Vincent    // Bug Fix: Firefox page scrollbar flickering issue when toggling works-everywhere feature.
  * @version 4.10.0.0 | 2021-09-18 | Vincent   // Updates: Optimize config items styles and icons.
+ * @version 4.12.0.0 | 2021-11-07 | Vincent   // Updates: Add 'developer mode' related styles.
  */
 
 // Color definitions
@@ -116,44 +117,48 @@
     content: '\e90d';
   }
 
-  &-keyboard:before {
+  &-developer-mode:before {
     content: '\e90e';
   }
 
-  &-share:before {
+  &-keyboard:before {
     content: '\e90f';
   }
 
-  &-facebook:before {
+  &-share:before {
     content: '\e910';
   }
 
-  &-twitter:before {
+  &-facebook:before {
     content: '\e911';
   }
 
-  &-weibo:before {
+  &-twitter:before {
     content: '\e912';
   }
 
-  &-qzone:before {
+  &-weibo:before {
     content: '\e913';
   }
 
-  &-reddit:before {
+  &-qzone:before {
     content: '\e914';
   }
 
-  &-tumblr:before {
+  &-reddit:before {
     content: '\e915';
   }
 
-  &-mail:before {
+  &-tumblr:before {
     content: '\e916';
   }
 
-  &-github:before {
+  &-mail:before {
     content: '\e917';
+  }
+
+  &-github:before {
+    content: '\e918';
   }
 }
 
@@ -389,8 +394,8 @@ h3 {
 
 // Description
 dl.desc {
-  & + & {
-    margin-top: 15px;
+  &:not(:last-child) {
+    margin-bottom: 15px;
   }
 
   dt {

@@ -4,7 +4,7 @@
 
 # PhotoShow
 
-**PhotoShow** is a browser extension helping you view high-definition images by hovering mouse on image thumbnails, greatly improving your productivity.
+**PhotoShow** is a browser extension helping you view high-definition images by hovering mouse on image thumbnails, greatly improving your productivity and online-life experience.
 <br />
 <br />
 
@@ -22,7 +22,7 @@
 
 ## Install PhotoShow
 
-You may search and install the certain version of **PhotoShow** for your browsers from their extensions (add-ons) web stores:
+You may search and install the certain version of **PhotoShow** for your browsers from their extensions (add-ons) web stores (click the icons below):
 
 <p align="center">
   <a href="https://chrome.google.com/webstore/detail/photoshow/mgpdnhlllbpncjpgokgfogidhoegebod/" title="Google Chrome"><img src="resources/Browser_Chrome.png" alt="Google Chrome" /></a>&emsp;
@@ -34,12 +34,12 @@ You may search and install the certain version of **PhotoShow** for your browser
 
 ## How to Use it
 
-It's pretty easy - for websites that are supported by **PhotoShow** (Listed [here](#websites-that-are-supported)), hover your mouse on an image thumbnail, if **PhotoShow** can parse its URL, a viewer with a high-definition image will show alongside.
+It's pretty easy - for websites that are supported by **PhotoShow** (Listed [here](#websites-that-are-supported)), hover your mouse on an image thumbnail, if **PhotoShow** can parse its URL, a viewer with a high-definition image will show alongside. For websites unknown to PhotoShow, by default, if an image is displayed in a smaller-than-intrinsic size on page, PhotoShow will display the original image.
 
 <p align="center"><img src="resources/SPEC_1.png" align="center" alt="PhotoShow - View HD images" /></p>
 <br />
 
-While viewing HD images with **PhotoShow**, you could also perform the following actions:
+While viewing HD images with **PhotoShow**, you could also -
 
 1.  **ROTATE IMAGES:** This is especially useful for viewing photos that are posted without their orientations correctly adjusted.
 
@@ -50,12 +50,12 @@ While viewing HD images with **PhotoShow**, you could also perform the following
 
 2.  **SWITCH VIEW MODE:** There are four view modes -
 
+    - **Auto:** The viewer automatically adapts its size to the available space on one side of the source thumbnail, as is the default view mode.
     - **Mini:** The viewer displays within 1/8 in area of the available space on one side of the source thumbnail.
     - **Light:** The viewer displays within 1/4 in area of the available space on one side of the source thumbnail.
-    - **Auto:** The viewer automatically adapts its size to the available space on one side of the source thumbnail, as is the default view mode.
-    - **Panoramic:** The viewer takes as large space as needed and the image displays in its original size.
+    - **Panoramic:** The viewer takes as large space as needed on one side of the source thumbnail and the image displays in its original size.
 
-    If you think that the image viewer covers too much content of the original page, the first two modes (**Mini** or **Light**) might soothe you.
+    If you think that the image viewer covers too much content of the original page, the **Mini** or **Light** mode might soothe you.
 
     When the image is partially displayed in the image viewer (may happen in **Auto** or **Panoramic** mode), a mask indicating the visible area will be displayed over the source thumbnail. You may scroll the image in the viewer with your mouse or via hotkeys (specified in **PhotoShow**'s popup window) and the visible area over the thumbnail will move synchronously. This is designed for inspecting image detail or browsing long pictures (such as articles delivered by images). However, please keep in mind that the hotkeys' directions are consistent with the directions that the image scrolls in the viewer rather than the moving directions of the visible area indicator - yes, they can be different if image rotations are applied.
 
@@ -63,13 +63,13 @@ While viewing HD images with **PhotoShow**, you could also perform the following
 <br />
 
 3.  **DOWNLOAD IMAGES:**
-    For those who wanna pick up all the fantastic pictures in the world to their own galleries, just press hotkey `S` and your browser will start to download the HD image for the thumbnail under your mouse.
+    For those who wanna collect all the fantastic pictures in the world to their own galleries, just press hotkey `S` and your browser will start to download the HD image for the thumbnail under your mouse.
 
 <p align="center"><img src="resources/SPEC_4_EN.png" align="center" alt="PhotoShow - Download images" /></p>
 <br />
 
 4.  **CONTEXT MENU:**
-    Still feel dissatisfied with the small viewer overlay? Well, right-click on a thumbnail and **PhotoShow** offers a context menu item for opening the HD image in a new tab. You may start to download it or copy its address via context menu items here as well.
+    Still feel dissatisfied with the small viewer overlay? Well, right-click on a thumbnail and **PhotoShow** offers a context menu item for opening the HD image in a new tab. You may start to download it or copy its address via context menu items here as well. (These actions can also be triggered via hotkeys.)
 
 <p align="center"><img src="resources/SPEC_5_EN.png" align="center" alt="PhotoShow - Context menu" /></p>
 <br />
@@ -77,28 +77,30 @@ While viewing HD images with **PhotoShow**, you could also perform the following
 **More Settings:**
 More settings are provided in the popup window, click the **PhotoShow** icon in your browser's toolbar and here you can -
 
-- **Turn on/off PhotoShow for particular websites**: Switch the toggle button and **PhotoShow** will be enabled/disabled for websites under current hostname.
+- **Turn on/off PhotoShow for particular websites**: Switch the toggle button and **PhotoShow** will be enabled/disabled for websites of current hostname.
 - **Toggle support for unknown websites**: PhotoShow offers basic support for its unknown websites by default - displaying original images when their intrinsic sizes are larger than they're displayed. You can toggle this behaviour here.
-- **Set activation mode**: Displaying an HD image every time you stop your mouse at a thumbnail on a page might be disturbing. With this configuration, you can choose to bind a "modifier key" for triggering the image viewer displaying - press it when you wanna see the HD images.
+- **Set activation mode**: Displaying an HD image every time you hang your mouse over a thumbnail on a page might be disturbing. With this setting, you can choose to bind an "auxiliary key" for triggering the image viewer displaying - press it when you wanna see the HD images.
 - **Toggle activation exemption**: Allow to disable the HD image viewer when image thumbnails are larger than 25% of the viewport.
-- **Toggle image size display**: If you care about the original size of the HD image, use this toggle to show or hide the image size information displaying in the bottom-right corner of the image viewer.
+- **Toggle view mode**: Choose the default view mode you love!
+- **Set viewer location**: Specify on which directions (relative to the source thumbnail) the HD image viewer is allowed to popup. PhotoShow will intelligently choose the best location among the ticked ones in which the HD images can get their largest display.
+- **Toggle image size display**: If you are curious about the original size of the HD image, use this to toggle the image size tag displayed in the bottom-right corner of the image viewer.
 - **Toggle shadow display**: If you just can't stand the dark shade between the image viewer and its source thumbnail, "KAPOW"!
-- **Toggle loading states display**: Allow to disable image loading states popup.
+- **Toggle loading states display**: Allow to disable image loading states indicator (a spinner or cross icon displayed over the thumbnails).
 - **Toggle animation display**: Allow to disable all the transition animation for the HD image viewer.
 - **Toggle context menu**: Allow to disable PhotoShow context menu items.
-- **Check the shortcuts**: If you happen to forget the hotkeys or their actions, here's the right place to go.
-- **Make everything better**: Feel free to give your feedback should you have any advice or brilliant ideas. It would, of course, be appreciated if you could share **PhotoShow** with your friends!
+- **Toggle developer mode**: If you happen to be implenmenting some great ideas on your pages, you probably don't want the injected content or hotkey system from PhotoShow to distract you from your creativity, then here you go.
+- **Check and toggle the shortcuts**: If you happen to forget the hotkeys or their actions, here's the right place to go. Of course you may also disable some of them as you wish.
+- **Make everything better**: Feel free to give your feedback should you have any advice or brilliant ideas. It would, of course, be appreciated if you could share **PhotoShow** with anyone you love!
 
-By the way, all these settings will be automatically synced with your other browser account data were it permitted, as is a browser behavior. (Please refer to [Privacy Policy & Terms of Use & License](#privacy-policy--terms-of-use--license).)
+By the way, all these settings will be automatically synced with your other browser account data should it be permitted, as is a browser behavior. PhotoShow itself doesn't upload or store any of these data. (Please refer to [Privacy Policy & Terms of Use & License](#privacy-policy--terms-of-use--license).)
 
 <p align="center"><img src="resources/SPEC_6_EN.png" align="center" alt="PhotoShow - Settings" /></p>
 <br />
 <br />
 
-## Websites That Are Supported
+## Supported Websites
 
-**PhotoShow** is continuously increasing the amount of the websites it supports. This is also one of the most important reasons why finally it chooses to join the big open-source family after so many years it was deployed for the first time. (Please refer to see [How to Contribute](#how-to-contribute).)
-It is also in the plan that **PhotoShow** is going to "support all the websites". (For more information, please refer to [What is ongoing](#what-is-ongoing).)
+**PhotoShow** is continuously enlarging the list of websites it supports. This is also one of the most important reasons why eventually it chose to embrace the open-source community after so many years it was created. (Please refer to see [How to Contribute](#how-to-contribute).)
 
 Hereby is a list of part of the websites (hostnames) that **PhotoShow** currently supports:
 
@@ -122,14 +124,14 @@ Hereby is a list of part of the websites (hostnames) that **PhotoShow** currentl
 
     Acfun, Bandcamp, bilibili, Discogs, douyin.com, Encyclopaedia Metallum, Fandango, Flixster, haokan.baidu.com, ixigua.com, kuaishou.com, Pornhub, Rotten Tomatoes, TikTok, YOUKU, YouTube
 
-If you can't find your favourite websites in the above list, it is always welcomed to [contact the author](#contact) to get more support.
+If you can't find your favourite websites in the above list, it is always welcome to [contact the author](#contact) to get more support.
 <br />
 <br />
 
 ## What is ongoing
 
-**PhotoShow** keeps optimising its functionality while enlarging its websites support list. This is why you might have already noticed that it is updated frequently.
-These days, a "big" plan is taking place as **PhotoShow** is going to be refactored for better developing experience for the contributors and introducing some new features as well. Here is a coarse **ONGOING LIST** from the project and functional perspectives where you may find something worth looking forward to.
+**PhotoShow** keeps optimising its functionality while enlarging its websites support list. This is why you might have already noticed that it's being updated frequently.
+These days, a "big" plan is taking place as **PhotoShow** is going to be refactored for better development experience for the contributors and introducing some new features as well. Here is a rough **ONGOING LIST** from the project and functional perspectives where you may find something worth looking forward to.
 
 - [ ] Refactor.
 - [x] Support all websites, displaying original images (if their intrinsic sizes are larger than they are displayed) for those not in the websites support list.
@@ -138,7 +140,8 @@ These days, a "big" plan is taking place as **PhotoShow** is going to be refacto
 - [ ] Support customising hotkeys.
 - [ ] Preload images (ideally, only for the thumbnails near the mouse cursor).
 - [ ] Optimise image loading speed by automatically picking proper image sources according to their final displaying dimensions.
-- [ ] Mind-blowing time - Intelligently generate HD image URL parsing rules for unknown websites? AI?
+- [ ] Support zooming with mouse wheel.
+- [ ] Support fullscreen mode and allow the viewer to be nailed.
 
   This also explains why the `master` branch contains no code and the current version of the **PhotoShow** project is under the `archive` branch.
   <br />
@@ -146,9 +149,9 @@ These days, a "big" plan is taking place as **PhotoShow** is going to be refacto
 
 ## How to Contribute
 
-It is gratefully welcomed to help to make **PhotoShow** better! However, as it is in refactoring nowadays, updates for functionalities are not encouraged temporarily. You may still contribute parsing rules for new websites or maybe some great ideas.
+It is gratefully welcome to help to make **PhotoShow** better! However, as it is in refactoring nowadays, updates for functionalities are not encouraged temporarily. You may still contribute parsing rules for new websites or maybe some great ideas.
 
-Another task where help is badly needed is that the UI of **PhotoShow** needs to be translated into more languages (also including optimising existing language packages) so as to help more people in the world. The `i18n` files have already been well prepared with every item explained in detail. Are you willing to offer help?
+Another task where **help is badly needed** is that the UI of **PhotoShow** needs to be translated into more languages (also including optimising existing language packages) so as to help more people in the world. The `i18n` files have already been well prepared with every item explained in detail. Are you willing to help?
 
 Thank you all in advance!
 <br />
@@ -158,11 +161,11 @@ Thank you all in advance!
 
 Don't worry, it's pretty short and clear.
 
-**PhotoShow** only works in the local browser environment, all the permissions it asks when being installed are only for image preview and download.
+**PhotoShow** only works in the local browser environment, all the permissions it asks when being installed are only for image preview, download and other related features.
 
-All the developers and contributors **DO NOT** collect any of your personal data and are not responsible for any loss, personal information leak, disputes and/or any consequences caused by your illegal download, use of resources (including but not limited to images) of any websites. Installing and using **PhotoShow** is deemed as your acceptance of the above terms.
+All the developers and contributors **DO NOT** collect any of your personal data and are not responsible for any loss, harm, personal information leak, disputes and/or any consequences caused by your download, use of resources (including but not limited to images) of any websites. Installing and using **PhotoShow** is deemed as your acceptance of the above terms.
 
-We reserve the right to change this Privacy Policy at any time without notifying you respectively. Any amended Privacy Policy will be posted on relevant websites. This Privacy Policy was last updated on January 24th, 2020 and replaces any other versions previously applicable from this date.
+We reserve the right to change this Privacy Policy at any time without notifying you respectively. Any amended Privacy Policy will be posted on relevant websites. This Privacy Policy was last updated on November 7th, 2021 and replaces any other versions previously applicable from this date.
 
 **PhotoShow** is delivered under the [MIT License](../LICENSE). The current version also includes [jQuery](https://jquery.com/) under the terms of [jQuery License](https://jquery.org/license/).
 <br />

@@ -5,6 +5,8 @@
  * @version 4.11.0.0 | 2021-10-21 | Vincent   // Initial version.
  * @version 4.11.1.0 | 2021-10-27 | Vincent   // Bug Fix: Remove Babel loader as the helper functions can not be addressed across modules;
  *                                            // Updates: Pack readme file to Firefox output for code review.
+ * @version 4.12.0.0 | 2021-11-07 | Vincent   // Updates: Add entry 'devtools';
+ *                                            // Updates: Emit code-review package for firefox.
  */
 
 // TODO: Split common tool methods for PhotoShow to external modules and remove the terser plugin settings.
@@ -14,6 +16,7 @@ const path = require('path'),
   stripJsonComments = require('strip-json-comments'),
   CopyPlugin = require('copy-webpack-plugin'),
   CssMinimizerPlugin = require('css-minimizer-webpack-plugin'),
+  HtmlWebpackPlugin = require('html-webpack-plugin'),
   JsonMinimizerPlugin = require('json-minimizer-webpack-plugin'),
   MiniCssExtractPlugin = require('mini-css-extract-plugin'),
   TerserPlugin = require('terser-webpack-plugin'),
@@ -27,10 +30,11 @@ const jsonTransformers = {
       Object.entries(entry).forEach(([key, value]) => {
         // Update extension-update-date.
         if (key === 'extensionUpdateDate') {
-          value.message += new Date().toLocaleDateString(
-            locale.replace('_', '-'),
-            { year: 'numeric', month: 'long', day: 'numeric' }
-          );
+          value.message += new Date().toLocaleDateString(locale.replace('_', '-'), {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+          });
         }
 
         // Remove all descriptions.
@@ -66,19 +70,13 @@ module.exports = env => ({
   entry: {
     background: 'background.js',
     content: ['content/content.js', 'content/content.less'],
-    frameContent: [
-      'frameContent/frameContent.js',
-      'frameContent/frameContent.less'
-    ],
+    devtools: 'devtools.js',
+    frameContent: ['frameContent/frameContent.js', 'frameContent/frameContent.less'],
     popup: ['popup/popup.html', 'popup/popup.js', 'popup/popup.less']
   },
   output: {
-    path: path.resolve(
-      __dirname,
-      `${env.prod ? 'dist' : 'dev'}/${env.vendor || 'chrome'}`
-    ),
-    filename: pathData =>
-      pathData.chunk.name === 'background' ? '[name].js' : '[name]/[name].js',
+    path: path.resolve(__dirname, `${env.prod ? 'dist' : 'dev'}/${env.vendor || 'chrome'}`),
+    filename: pathData => (pathData.chunk.name === 'background' ? '[name].js' : '[name]/[name].js'),
     clean: true
   },
   module: {
@@ -155,6 +153,12 @@ module.exports = env => ({
     new MiniCssExtractPlugin({
       filename: '[name]/[name].css'
     }),
+    new HtmlWebpackPlugin({
+      chunks: ['devtools'],
+      filename: 'devtools/devtools.html',
+      meta: '',
+      title: ''
+    }),
     new CopyPlugin({
       patterns: [
         { from: 'resources', to: 'resources' },
@@ -162,9 +166,7 @@ module.exports = env => ({
           from: '**/*.json',
           transform: {
             transformer: (content, path) => {
-              const parsedContent = JSON.parse(
-                  stripJsonComments(content.toString())
-                ),
+              const parsedContent = JSON.parse(stripJsonComments(content.toString())),
                 fileName = /(\w+)\.json$/.test(path) ? RegExp.$1 : '';
 
               jsonTransformers[fileName](env, parsedContent, path);
@@ -180,24 +182,40 @@ module.exports = env => ({
             minimized: true
           }
         }
-      ].concat(
-        env.prod && env.vendor === 'firefox'
-          ? {
-              from: '../readme.md'
-            }
-          : []
-      )
+      ]
     })
   ].concat(
     env.prod
       ? new ZipPlugin({
-          filename: 'PhotoShow.zip'
+          filename: 'PhotoShow.zip',
+          exclude: /review\//
         })
+      : [],
+    env.prod && env.vendor === 'firefox'
+      ? [
+          new CopyPlugin({
+            patterns: ['LICENSE', 'source', 'package.json', 'webpack.config.js']
+              .map(item => ({
+                from: `../${item}`,
+                to: `review${item === 'source' ? '/source' : ''}`
+              }))
+              .concat({
+                from: '../AMO-Readme.md',
+                to: 'review/readme.md'
+              })
+          }),
+          new ZipPlugin({
+            filename: 'PhotoShowSourceForReview.zip',
+            include: /review\//,
+            pathMapper: assetPath => assetPath.replace(/^review\//, '')
+          })
+        ]
       : []
   ),
   optimization: {
     minimizer: [
       new TerserPlugin({
+        exclude: /review\//,
         terserOptions: {
           mangle: {
             reserved: ['tools']
@@ -205,7 +223,9 @@ module.exports = env => ({
         }
       }),
       new CssMinimizerPlugin(),
-      new JsonMinimizerPlugin()
+      new JsonMinimizerPlugin({
+        exclude: /review\//
+      })
     ]
   }
 });

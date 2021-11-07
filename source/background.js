@@ -186,6 +186,7 @@
  *                                            // Updates: Support music.163.com, in response to user feedback (GitHub issue #31);
  *                                            // Updates: Better support for weibo.
  * @version 4.11.1.0 | 2021-10-27 | Vincent   // Updates: Better support for Pinterest in user-unlogged-in state.
+ * @version 4.12.0.0 | 2021-11-07 | Vincent   // Updates: Allow user to suspend PhotoShow when in developer mode, in response to user feedback.
  */
 
 // TODO: Extract websiteConfig to independent files and import them (after porting to webpack).
@@ -2761,7 +2762,8 @@ let WEBSITE_INFO = {},
   DISABLED_WEBSITES = [],
   XHR_DOWNLOAD_REQUIRED_HOSTNAMES = [],
   XHR_DOWNLOAD_ITMES = {},
-  PHOTOSHOW_CONFIGS = {};
+  PHOTOSHOW_CONFIGS = {},
+  ALL_TABS_IN_DEVELOPER_MODE = new Set();
 
 const tools = {
   getUrlHostname: function (sourceUrl) {
@@ -2906,17 +2908,17 @@ var photoShow = {
     if (urlHostname) {
       chrome.browserAction.enable(tabId);
 
-      if (!WEBSITE_INFO[urlHostname]?.isWebsiteUnknown || PHOTOSHOW_CONFIGS.worksEverywhere !== false) {
-        if (WEBSITE_INFO[urlHostname]?.isPhotoShowEnabled) {
-          photoShow.enable(tabId, WEBSITE_INFO[urlHostname].isWebsiteUnknown);
-        } else {
-          photoShow.disable(tabId);
-        }
-      } else {
+      if (WEBSITE_INFO[urlHostname]?.isWebsiteUnknown && !PHOTOSHOW_CONFIGS.worksEverywhere !== false) {
         photoShow.shutDown(tabId);
+      } else if (ALL_TABS_IN_DEVELOPER_MODE.has(tabId) && PHOTOSHOW_CONFIGS.developerModeSuspension !== false) {
+        photoShow.shutDown(tabId, 'SUSPENDED');
+      } else if (WEBSITE_INFO[urlHostname]?.isPhotoShowEnabled) {
+        photoShow.enable(tabId, WEBSITE_INFO[urlHostname].isWebsiteUnknown);
+      } else {
+        photoShow.disable(tabId);
       }
     } else {
-      photoShow.shutDown(tabId, true);
+      photoShow.shutDown(tabId, 'UNAVAILABLE');
     }
   },
   enable: function (tabId, isWebsiteUnknown) {
@@ -2939,16 +2941,34 @@ var photoShow = {
       title: chrome.i18n.getMessage('photoShowDisabledMsg')
     });
   },
-  shutDown: function (tabId, isFully) {
+  shutDown: function (tabId, reason) {
     chrome.browserAction.setIcon({
       tabId: tabId,
       path: 'resources/icon32_unavailable.png'
     });
-    chrome.browserAction.setTitle({
-      tabId: tabId,
-      title: chrome.i18n.getMessage(`photoShow${isFully ? 'Unavailable' : 'Shutdown'}Msg`)
-    });
-    isFully && chrome.browserAction.disable(tabId);
+
+    switch (reason) {
+      case 'SUSPENDED':
+        chrome.browserAction.setTitle({
+          tabId: tabId,
+          title: chrome.i18n.getMessage('photoShowSuspendedMsg')
+        });
+        break;
+
+      case 'UNAVAILABLE':
+        chrome.browserAction.setTitle({
+          tabId: tabId,
+          title: chrome.i18n.getMessage('photoShowUnavailableMsg')
+        });
+        chrome.browserAction.disable(tabId);
+        break;
+
+      default:
+        chrome.browserAction.setTitle({
+          tabId: tabId,
+          title: chrome.i18n.getMessage('photoShowShutdownMsg')
+        });
+    }
 
     photoShowContextMenus.remove();
   },
@@ -3066,13 +3086,14 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   var needAsyncResponse;
 
   switch (request.cmd) {
-    case 'GET_PHOTOSHOW_STATE_AND_CONFIGS': // Args: tabUrl (optional)
+    case 'GET_PHOTOSHOW_STATE_AND_CONFIGS': // Args: tabId (optional), tabUrl (optional)
       const senderSiteState = photoShow.checkWebsiteState(request.args?.tabUrl || sender.url),
         { isPhotoShowEnabled } = sender.frameId ? photoShow.checkWebsiteState(sender.tab.url) : senderSiteState;
 
       sendResponse({
         ...senderSiteState,
         isPhotoShowEnabled,
+        isInDeveloperMode: ALL_TABS_IN_DEVELOPER_MODE.has(request.args?.tabId || sender.tab.id),
         photoShowConfigs: PHOTOSHOW_CONFIGS
       });
 
@@ -3169,6 +3190,41 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   return needAsyncResponse;
 });
 
+// Response to long-lived connections.
+chrome.runtime.onConnect.addListener(function (port) {
+  if (/^DEVTOOLS_PAGE_(\d+)$/.test(port.name)) {
+    const tabId = parseInt(RegExp.$1);
+
+    ALL_TABS_IN_DEVELOPER_MODE.add(tabId);
+
+    chrome.tabs.sendMessage(tabId, {
+      cmd: 'TOGGLE_DEVELOPER_MODE',
+      args: {
+        isInDeveloperMode: true
+      }
+    });
+
+    chrome.tabs.get(tabId, tab => {
+      photoShow.setWebsiteState(tab.id, tab.url);
+    });
+
+    port.onDisconnect.addListener(() => {
+      ALL_TABS_IN_DEVELOPER_MODE.delete(tabId);
+
+      chrome.tabs.sendMessage(tabId, {
+        cmd: 'TOGGLE_DEVELOPER_MODE',
+        args: {
+          isInDeveloperMode: false
+        }
+      });
+
+      chrome.tabs.get(tabId, tab => {
+        photoShow.setWebsiteState(tab.id, tab.url);
+      });
+    });
+  }
+});
+
 // Response to storage changes.
 chrome.storage.onChanged.addListener(changes => {
   if (changes.disabledWebsites) {
@@ -3189,9 +3245,9 @@ chrome.storage.onChanged.addListener(changes => {
     },
     tabs => {
       if (!chrome.runtime.lastError) {
-        for (let i = 0; i < tabs.length; ++i) {
-          photoShow.setWebsiteState(tabs[i].id, tabs[i].url);
-        }
+        tabs.forEach(tab => {
+          photoShow.setWebsiteState(tab.id, tab.url);
+        });
       }
     }
   );
@@ -3241,21 +3297,6 @@ chrome.storage.sync.get(['disabledWebsites', 'photoShowConfigs', 'statistics'], 
     DISABLED_WEBSITES = response.disabledWebsites || [];
     PHOTOSHOW_CONFIGS = response.photoShowConfigs || {};
     statistics.init(response.statistics);
-
-    // TODO: Update config items, remove some time later.
-    if (PHOTOSHOW_CONFIGS.loadingStatesDisplay !== undefined) {
-      PHOTOSHOW_CONFIGS.loadingStatusDisplay = PHOTOSHOW_CONFIGS.loadingStatesDisplay;
-      delete PHOTOSHOW_CONFIGS.loadingStatesDisplay;
-    }
-
-    if (PHOTOSHOW_CONFIGS.viewMode) {
-      PHOTOSHOW_CONFIGS.viewMode = PHOTOSHOW_CONFIGS.viewMode.toLowerCase();
-    }
-
-    chrome.storage.sync.set({
-      photoShowConfigs: PHOTOSHOW_CONFIGS
-    });
-    ////////////////////
   }
 });
 
@@ -3266,9 +3307,9 @@ chrome.runtime.onInstalled.addListener(function () {
     },
     tabs => {
       if (!chrome.runtime.lastError) {
-        for (let i = 0; i < tabs.length; ++i) {
-          photoShow.setWebsiteState(tabs[i].id, tabs[i].url);
-        }
+        tabs.forEach(tab => {
+          photoShow.setWebsiteState(tab.id, tab.url);
+        });
       }
     }
   );

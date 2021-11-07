@@ -27,6 +27,7 @@
  * @version 4.10.0.0 | 2021-09-18 | Vincent   // Updates: Add config items for viewer location settings;
  *                                            // Updates: Optimize config items naming;
  *                                            // Updates: Upgrade jQuery to 3.6.0.
+ * @version 4.12.0.0 | 2021-11-07 | Vincent   // Updates: Add config items for 'developer mode' settings.
 -->
 
 <html>
@@ -139,6 +140,15 @@
         </dt>
         <dd>
           <label><input type="checkbox" checked /><span id="contextMenuToggleDesc"></span></label>
+        </dd>
+      </dl>
+      <dl class="desc checkboxes" config-item="developerModeSuspension" id="developerModeToggleSection">
+        <dt>
+          <em class="icon icon-developer-mode"></em>
+          <h3></h3>
+        </dt>
+        <dd>
+          <label><input type="checkbox" checked /><span id="developerModeToggleDesc"></span></label>
         </dd>
       </dl>
       <dl class="desc hotkeys-spec" config-item="hotkeys" id="hotkeysSection">
