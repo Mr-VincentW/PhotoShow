@@ -29,6 +29,7 @@
  *                                            // Updates: Remove 'imageLoadingTip' and 'imageLoadingFailTip';
  *                                            // Updates: Update view mode names and loading status items.
  * @version 4.12.0.0 | 2021-11-07 | Vincent   // Updates: Add 'developer mode' related items.
+ * @version 4.14.0.0 | 2021-12-14 | Vincent   // Updates: Add 'activation delay' related items.
  */
 
 {
@@ -145,6 +146,20 @@
   },
   "activationExemptionDesc": {
     "message": "当缩略图尺寸超过窗口面积的25%时，不激活图片预览",
+    "description": "设置项描述。"
+  },
+
+  // “激活延迟”区：
+  "activationDelayHeader": {
+    "message": "激活延迟",
+    "description": "区块标题。"
+  },
+  "activationDelayDesc_before": {
+    "message": "当鼠标悬停在缩略图上时，延迟",
+    "description": "设置项描述。"
+  },
+  "activationDelayDesc_after": {
+    "message": "毫秒激活图片预览",
     "description": "设置项描述。"
   },
 

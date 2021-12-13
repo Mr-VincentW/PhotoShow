@@ -81,6 +81,7 @@ More settings are provided in the popup window, click the **PhotoShow** icon in 
 - **Toggle support for unknown websites**: PhotoShow offers basic support for its unknown websites by default - displaying original images when their intrinsic sizes are larger than they're displayed. You can toggle this behaviour here.
 - **Set activation mode**: Displaying an HD image every time you hang your mouse over a thumbnail on a page might be disturbing. With this setting, you can choose to bind an "auxiliary key" for triggering the image viewer displaying - press it when you wanna see the HD images.
 - **Toggle activation exemption**: Allow to disable the HD image viewer when image thumbnails are larger than 25% of the viewport.
+- **Set activation delay**: Allow to set how long will it be before the HD image viewer displays when mouse hovering on thumbnails.
 - **Toggle view mode**: Choose the default view mode you love!
 - **Set viewer location**: Specify on which directions (relative to the source thumbnail) the HD image viewer is allowed to popup. PhotoShow will intelligently choose the best location among the ticked ones in which the HD images can get their largest display.
 - **Toggle image size display**: If you are curious about the original size of the HD image, use this to toggle the image size tag displayed in the bottom-right corner of the image viewer.
@@ -106,11 +107,11 @@ Hereby is a list of part of the websites (hostnames) that **PhotoShow** currentl
 
 1.  **DESIGN / PHOTOGRAPH / GRAPHICS:**
 
-    123rf, 500px, ArtStation, Behance, DeviantArt, Dribbble, Flickr, iStock, Pexels, Pinterest, pixiv, POCO, WikiArt, Unsplash, zhisheji
+    123rf, 500px, ArtStation, Behance, DeviantArt, Dribbble, Figma, Flickr, iStock, Pexels, Pinterest, pixiv, POCO, WikiArt, Unsplash, zhisheji
 
 2.  **SHOPPING / TRADING / SERVICES:**
 
-    1-day, Alibaba, AliExpress, Alimama, Amazon, Andino, Apple, Best Buy, Briscoes, Ctrip, Countdown, coupang, DHgate, dianping.com, eBay, Etsy, Google Play, instacart, JD, Kmart, mafengwo.cn, maoyan.com, meituan.com, Myprotein, Newegg, noel leeming, NZSALE, PBTech, suning, Taobao, Target, TheMarket, thewarehouse, Tmall, Torpedo7, Trade Me, TreatMe, Walmart, warehouse stationery, wsy.com, Yelp
+    1-day, Alibaba, AliExpress, Alimama, Amazon, Andino, Apple, Best Buy, Briscoes, Ctrip, Countdown, coupang, DHgate, dianping.com, eBay, Etsy, Google Play, instacart, JD, Kmart, mafengwo.cn, maoyan.com, meituan.com, Myprotein, Newegg, noel leeming, NZSALE, PBTech, suning, Taobao, Target, TheMarket, thewarehouse, Tmall, Torpedo7, Trade Me, TreatMe, vvic.com, Walmart, warehouse stationery, wsy.com, Yelp
 
 3.  **SEARCHING / KNOWLEDGE / EXPERTISE:**
 
@@ -118,11 +119,11 @@ Hereby is a list of part of the websites (hostnames) that **PhotoShow** currentl
 
 4.  **NEWS / SOCIAL NETWORKING:**
 
-    115.com, adnmb2.com, Duitang, Facebook, gamer.com.tw, IMDb, Imgur, Instagram, Jandan, LOFTER, music.163.com, nga.cn, Qzone, Reddit, TapTap, toutiao.com, Tumblr, TweetDeck, Twipu, Twitter, Sina weibo, wattpad, WeChat webpages
+    115.com, adnmb2.com, Duitang, e621.net, Facebook, gamer.com.tw, IMDb, Imgur, Instagram, Jandan, LOFTER, music.163.com, nga.cn, Qzone, Reddit, TapTap, toutiao.com, Tumblr, TweetDeck, Twipu, Twitter, Sina weibo, wattpad, WeChat webpages
 
 5.  **VIDEOS / MUSIC:**
 
-    Acfun, Bandcamp, bilibili, Discogs, douyin.com, Encyclopaedia Metallum, Fandango, Flixster, haokan.baidu.com, ixigua.com, kuaishou.com, Pornhub, Rotten Tomatoes, TikTok, YOUKU, YouTube
+    Acfun, Bandcamp, bilibili, Discogs, douyin.com, douyu.com, Encyclopaedia Metallum, Fandango, Flixster, haokan.baidu.com, ixigua.com, kuaishou.com, Pornhub, Rotten Tomatoes, TikTok, YOUKU, YouTube
 
 If you can't find your favourite websites in the above list, it is always welcome to [contact the author](#contact) to get more support.
 <br />

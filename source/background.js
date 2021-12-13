@@ -187,6 +187,9 @@
  *                                            // Updates: Better support for weibo.
  * @version 4.11.1.0 | 2021-10-27 | Vincent   // Updates: Better support for Pinterest in user-unlogged-in state.
  * @version 4.12.0.0 | 2021-11-07 | Vincent   // Updates: Allow user to suspend PhotoShow when in developer mode, in response to user feedback.
+ * @version 4.14.0.0 | 2021-12-14 | Vincent   // Updates: Support adnmb3.com, e621.net, and figma.com, in response to user feedback;
+ *                                            // Updates: Support douyu.com and vvic.com, in response to user feedback (GitHub issue #34, #35);
+ *                                            // Bug Fix: Wrong default value for config item 'worksEverywhere'.
  */
 
 // TODO: Extract websiteConfig to independent files and import them (after porting to webpack).
@@ -426,7 +429,8 @@ const websiteConfig = {
       }
     ]
   },
-  'adnmb2\\.com': {
+  'adnmb\\d+\\.com': {
+    // Can be adnmb2.com or adnmb3.com
     srcMatching: {
       srcRegExp: '(nmbimg\\.fastmirror\\.org/)thumb(/.+@IMG@)',
       processor: '$1image$2'
@@ -1127,6 +1131,23 @@ const websiteConfig = {
       processor: 'p3$1noop$2'
     }
   },
+  '(?:.+\\.)?douyu\\.com': {
+    amendStyles: {
+      pointerAuto: '.DyListCover-wrap.is-hover .DyImg',
+      pointerNone: '.DyImg ~ *,douyu-img ~ *,.DyListCover-wrap.is-hover'
+    },
+    srcMatching: [
+      {
+        srcRegExp: '(apic\\.douyucdn\\.cn/.+_)\\w+(@IMG@).*',
+        processor: '$1big$2'
+      },
+      {
+        selectors: 'img,[style*=background],video[poster],douyu-img,douyu-img .img',
+        srcRegExp: '(.+\\.douyucdn\\.cn/.+@IMG@).*',
+        processor: '$1'
+      }
+    ]
+  },
   'dribbble\\.com': {
     amendStyles: {
       pointerNone: '.dribbble-over,.dribbble-video'
@@ -1217,6 +1238,20 @@ const websiteConfig = {
     srcMatching: {
       srcRegExp: '(cover\\.read\\.duokan\\.com/.+@IMG@)!.*',
       processor: '$1'
+    }
+  },
+  'e621\\.net': {
+    srcMatching: {
+      srcRegExp: '(//static\\d*\\.e621\\.net/data/)(?:crop|preview|sample)/(.+)(@IMG@)',
+      processor: (trigger, src, srcRegExpObj) =>
+        srcRegExpObj.test(src)
+          ? (/\.webm$/.test(trigger.closest('[data-file-url]').data('fileUrl'))
+              ? trigger.closest('[data-large-file-url]').data('largeFileUrl')
+              : trigger.closest('[data-file-url]').data('fileUrl')) ||
+            tools
+              .detectImage(`${RegExp.$1}${RegExp.$2}.png`, `${RegExp.$1}${RegExp.$2}${RegExp.$3}`)
+              .then(imgInfo => imgInfo.src)
+          : ''
     }
   },
   '(?:.+\\.)?ebay(?:desc)?(?:\\.(?:com|[a-z]{2}))+': {
@@ -1437,6 +1472,11 @@ const websiteConfig = {
         processor: '$&'
       }
     ]
+  },
+  '(?:www\\.)?figma\\.com': {
+    amendStyles: {
+      pointerNone: 'none' // Figma.com makes use of pseudo elements in an unusual way (as menu item labels), needing to remove the default blocking of them.
+    }
   },
   '(?:www\\.)?flickr\\.com': {
     amendStyles: {
@@ -2333,7 +2373,7 @@ const websiteConfig = {
       }
     ]
   },
-  '(?:.+\\.)?(tmall|taobao|etao|fliggy|alitrip|1688|alibaba|aliexpress|liangxinyao|alipay|alicdn|alimama|wsy)\\.(?:com|[a-z]{2})':
+  '(?:.+\\.)?(tmall|taobao|etao|fliggy|alitrip|1688|alibaba|aliexpress|liangxinyao|alipay|alicdn|alimama|vvic|wsy)\\.(?:com|[a-z]{2})':
     {
       amendStyles: {
         pointerNone:
@@ -2366,8 +2406,8 @@ const websiteConfig = {
             srcRegExpObj.test(trigger.parent().find('img').attr('src')) ? RegExp.$1 : ''
         },
         {
-          // This is for www.wsy.com that links a lot of images under ali's hostnames.
-          srcRegExp: '(imgcdn\\.wsy\\.com/.+?@IMG@).*',
+          // This is for www.vvic.com and www.wsy.com that link a lot of images under ali's hostnames.
+          srcRegExp: '(.+?@IMG@).*',
           processor: '$1'
         }
       ]
@@ -2881,12 +2921,16 @@ var photoShow = {
           );
 
           for (const matchingRule of WEBSITE_INFO[urlHostname].websiteConfig.srcMatching) {
-            matchingRule.srcRegExp &&
-              (matchingRule.srcRegExp = matchingRule.srcRegExp.replace(
+            if (matchingRule.srcRegExp) {
+              matchingRule.srcRegExp = matchingRule.srcRegExp.replace(
                 /@IMG@/g,
                 '\\.(?:jpe?g|gifv?|pn[gj]|bmp|webp|svg)'
-              ));
-            matchingRule.processor && (matchingRule.processor = '' + matchingRule.processor);
+              );
+            }
+
+            if (matchingRule.processor) {
+              matchingRule.processor = '' + matchingRule.processor;
+            }
           }
 
           WEBSITE_INFO[urlHostname].websiteConfig.onToggle &&
@@ -2908,7 +2952,7 @@ var photoShow = {
     if (urlHostname) {
       chrome.browserAction.enable(tabId);
 
-      if (WEBSITE_INFO[urlHostname]?.isWebsiteUnknown && !PHOTOSHOW_CONFIGS.worksEverywhere !== false) {
+      if (WEBSITE_INFO[urlHostname]?.isWebsiteUnknown && PHOTOSHOW_CONFIGS.worksEverywhere === false) {
         photoShow.shutDown(tabId);
       } else if (ALL_TABS_IN_DEVELOPER_MODE.has(tabId) && PHOTOSHOW_CONFIGS.developerModeSuspension !== false) {
         photoShow.shutDown(tabId, 'SUSPENDED');

@@ -83,6 +83,7 @@
 - **随处可用**：浮图秀对其未知的网站默认提供基本支持——当图片的原始尺寸大于其显示尺寸时，展示原始图片；您可以在此启用/关闭该行为。
 - **激活模式**：每次鼠标停在页面中某个缩略图上时都弹出高分辨率大图可能有点烦，通过此设置项您可以为触发图片预览浮层添加一个辅助按键——仅在您需要时按下此键来查看大图。
 - **激活豁免**：当缩略图尺寸大于视窗面积的 25% 时，允许禁用大图弹窗。
+- **激活延迟**：允许指定当鼠标在缩略图上悬停多久后才激活展示高分辨率大图。
 - **视图模式**：指定默认的视图模式。
 - **浮窗定位**：指定高分辨率大图预览窗基于源缩略图的弹出方位，浮图秀将在勾选的允许位置间自动选择可将图片最大化展示的方位。
 - **尺寸显示**：如果您需要关注高清图片的原始尺寸，此设置允许您在图片预览浮层右下角显示相关信息。
@@ -108,7 +109,7 @@
 
 1.  **设计 / 摄影 / 图库 类：**
 
-    123rf、500px、ArtStation、Behance、DeviantArt、Dribbble、Flickr、iStock、Pexels、Pinterest、pixiv、Unsplash、WikiArt
+    123rf、500px、ArtStation、Behance、DeviantArt、Dribbble、Figma、Flickr、iStock、Pexels、Pinterest、pixiv、Unsplash、WikiArt
 
     花瓣网、昵图网、汇图网、POCO、站酷、站酷海洛、致设计
 
@@ -116,7 +117,7 @@
 
     1-day、Alibaba、AliExpress、Amazon、Andino、Apple、Best Buy、Briscoes、Countdown、coupang、DHgate、eBay、Etsy、Google Play、instacart、Kmart、Myprotein、Newegg、noel leeming、NZSALE、PBTech、Target、TheMarket、thewarehouse、Torpedo7、Trade Me、TreatMe、Walmart、warehouse stationery、Yelp
 
-    携程、当当、大众点评、多看、京东、一号店、马蜂窝、猫眼电影、美团、小米、小米有品、苏宁易购、天猫、淘宝、一淘、1688、阿里妈妈、阿里健康大药房、飞猪、途牛、网商园
+    携程、当当、大众点评、多看、京东、一号店、马蜂窝、猫眼电影、美团、小米、小米有品、苏宁易购、天猫、淘宝、一淘、1688、阿里妈妈、阿里健康大药房、飞猪、途牛、搜款网、网商园
 
 3.  **搜索 / 知识 / 专业 类：**
 
@@ -126,7 +127,7 @@
 
 4.  **新闻 / 社交 / 社区 类：**
 
-    Facebook、IMDb、Imgur、Instagram、Reddit、TapTap、Tumblr、TweetDeck、Twipu、Twitter、wattpad
+    e621.net、Facebook、IMDb、Imgur、Instagram、Reddit、TapTap、Tumblr、TweetDeck、Twipu、Twitter、wattpad
 
     115 网盘、A 岛匿名版、巴哈姆特、百度贴吧、豆瓣、堆糖、煎蛋、乐乎、网易云音乐、NGA 玩家社区、QQ 空间、今日头条、微博、微信公众号
 
@@ -134,7 +135,7 @@
 
     Acfun、Bandcamp、Discogs、Encyclopaedia Metallum、Fandango、Flixster、Pornhub、Rotten Tomatoes、TikTok、YouTube
 
-    bilibili、抖音、好看视频、快手、西瓜视频、优酷、土豆
+    bilibili、抖音、斗鱼、好看视频、快手、西瓜视频、优酷、土豆
 
 如果上述列表中不包含您所钟爱的网站，欢迎[向作者反馈](#%E8%81%94%E7%B3%BB%E4%BD%9C%E8%80%85)以获取更多支持。
 <br />

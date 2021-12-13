@@ -22,6 +22,7 @@
  * @version 4.10.0.0 | 2021-09-18 | Vincent   // Updates: Optimize user interaction on certain websites by changing events binding method.
  * @version 4.11.0.0 | 2021-10-21 | Vincent   // Bug Fix: A dom mutation event error.
  * @version 4.12.0.0 | 2021-11-07 | Vincent   // Updates: Allow user to suspend PhotoShow when in developer mode, in response to user feedback.
+ * @version 4.14.0.0 | 2021-12-14 | Vincent   // Updates: Allow unblocking pseudo elements for some special websites, in response to user feedback.
  */
 
 (($, isInFrame) => {
@@ -124,10 +125,8 @@
               ...photoShow.websiteConfig,
               amendStyles: {
                 ...(photoShow.websiteConfig.amendStyles || {}),
-                pointerNone: ['*:before,*:after']
-                  .concat(
-                    (photoShow.websiteConfig.amendStyles && photoShow.websiteConfig.amendStyles.pointerNone) || []
-                  )
+                pointerNone: (photoShow.websiteConfig.amendStyles?.pointerNone === 'none' ? [] : ['*:before,*:after'])
+                  .concat(photoShow.websiteConfig.amendStyles?.pointerNone || [])
                   .join(',')
               }
             };

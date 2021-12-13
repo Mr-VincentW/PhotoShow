@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2012-2021 Vincent W., MIT-licensed.
- * @fileOverview PhotoShow content script for main frame.
+ * @fileOverview PhotoShow webpack configurations.
  * @author Vincent | vincentwang863@gmail.com
  * @version 4.11.0.0 | 2021-10-21 | Vincent   // Initial version.
  * @version 4.11.1.0 | 2021-10-27 | Vincent   // Bug Fix: Remove Babel loader as the helper functions can not be addressed across modules;

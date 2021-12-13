@@ -42,6 +42,9 @@
  *                                            // Updates: Optimize config items naming.
  * @version 4.11.0.0 | 2021-10-21 | Vincent   // Bug Fix: Toggle button can still be triggered when PhotoShow is in shut-down state.
  * @version 4.12.0.0 | 2021-11-07 | Vincent   // Updates: Add config items for 'developer mode' settings.
+ * @version 4.14.0.0 | 2021-12-14 | Vincent   // Bug Fix: Wrong default value for config item 'worksEverywhere' and 'developerModeSuspension';
+ *                                            // Updates: Add config items for 'activation delay' settings;
+ *                                            // Updates: Disable view modes switching/toggling hotkeys by default.
  */
 
 // TODO: Support customising hotkeys.
@@ -134,9 +137,9 @@ function updateStateAndConfigs(isInitializing) {
         }
       },
       response => {
-        if (response.isWebsiteUnknown && !response.photoShowConfigs.worksEverywhere !== false) {
+        if (response.isWebsiteUnknown && response.photoShowConfigs.worksEverywhere === false) {
           shutDownPhotoShow(isInitializing);
-        } else if (response.isInDeveloperMode && response.photoShowConfigs.developerModeSuspension) {
+        } else if (response.isInDeveloperMode && response.photoShowConfigs.developerModeSuspension !== false) {
           shutDownPhotoShow(isInitializing, true);
         } else if (response.isPhotoShowEnabled) {
           enablePhotoShow(response.isWebsiteUnknown);
@@ -164,13 +167,33 @@ $(document)
     }
   })
   .on('keydown.photoShow keyup.photoShow', e => {
-    // Hotkey actions.
-    e.key == 'Escape' || e.preventDefault(); // Do not block popup page closing.
-
-    chrome.runtime.sendMessage({
-      cmd: 'DISPATCH_EVENT',
-      args: (({ type, key, which, shiftKey, ctrlKey, altKey }) => ({ type, key, which, shiftKey, ctrlKey, altKey }))(e)
-    });
+    // View mode hotkey actions.
+    if (/^[amlp]$/i.test(e.key)) {
+      chrome.runtime.sendMessage({
+        cmd: 'DISPATCH_EVENT',
+        args: (({ type, key, which, shiftKey, ctrlKey, altKey }) => ({ type, key, which, shiftKey, ctrlKey, altKey }))(
+          e
+        )
+      });
+    }
+  })
+  .on('keydown.photoShow', 'input[type="number"]', e => {
+    if (
+      !(
+        /^(?:\d|Alt|Arrow\w+|Backspace|CapsLock|Control|Delete|End|Enter|Escape|F\d+|Home|Meta|NumLock|Shift|Tab)$/.test(
+          e.key
+        ) ||
+        (/^[acvx]$/.test(e.key) && e.ctrlKey)
+      )
+    ) {
+      e.preventDefault();
+    }
+  })
+  .on('input.photoShow', 'input[type="number"]', e => {
+    if (Number(e.target.value) > Number(e.target.max)) {
+      e.preventDefault();
+      e.target.value = e.target.max;
+    }
   })
   .on('change.photoShow', '[config-item] input', e => {
     // Config items actions.
@@ -180,6 +203,12 @@ $(document)
     if (isMultiple) {
       const selectedOptions = curOption.closest('[config-item]').find(':checkbox:checked');
       selectedOptions.prop('disabled', selectedOptions.length <= 1);
+    }
+
+    if (e.target.type === 'number') {
+      e.target.value = e.target.value
+        ? Math.max(e.target.min, Math.min(e.target.max, e.target.value))
+        : e.target.dataset.defaultValue;
     }
 
     chrome.runtime.sendMessage({
@@ -199,6 +228,8 @@ $(document)
               .toArray()
           : curOption.is(':checkbox')
           ? curOption.is(':checked')
+          : curOption.is('[type="number"]')
+          ? Number(curOption.val())
           : curOption.val()
       }
     });
@@ -232,6 +263,7 @@ $('#updateDate').text(chrome.i18n.getMessage('extensionUpdateDate'));
 [
   'activationMode',
   'activationExemption',
+  'activationDelay',
   'viewMode',
   'viewerLocation',
   'imageSizeDisplay',
@@ -246,6 +278,8 @@ $('#updateDate').text(chrome.i18n.getMessage('extensionUpdateDate'));
   $(`#${item}Desc`).text(chrome.i18n.getMessage(`${item}Desc`));
 });
 $('#activationModeOption_None').text(chrome.i18n.getMessage('activationModeOption_None'));
+$('#activationDelayDesc_before').text(chrome.i18n.getMessage('activationDelayDesc_before'));
+$('#activationDelayDesc_after').text(chrome.i18n.getMessage('activationDelayDesc_after'));
 
 $('#viewModeSection dd').append(
   ['auto', 'mini', 'lite', 'panoramic']
@@ -289,9 +323,9 @@ $('#hotkeysSection dd').append(
       keyName =>
         `<tr class="checkboxes" config-item="${keyName}" title="${chrome.i18n.getMessage(
           'hotkeyToggleTitle'
-        )}"><td config-item="isEnabled"><input type="checkbox" checked/></td>${chrome.i18n.getMessage(
-          `hotkey_${keyName}`
-        )}</tr>`
+        )}"><td config-item="isEnabled"><input type="checkbox"${
+          /^(?:switch|toggle)ViewMode$/.test(keyName) ? '' : ' checked'
+        }/></td>${chrome.i18n.getMessage(`hotkey_${keyName}`)}</tr>`
     )
     .join('')}</table>`
 );

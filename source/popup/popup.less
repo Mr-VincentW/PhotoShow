@@ -31,6 +31,7 @@
  * @version 4.9.1.0 | 2021-08-23 | Vincent    // Bug Fix: Firefox page scrollbar flickering issue when toggling works-everywhere feature.
  * @version 4.10.0.0 | 2021-09-18 | Vincent   // Updates: Optimize config items styles and icons.
  * @version 4.12.0.0 | 2021-11-07 | Vincent   // Updates: Add 'developer mode' related styles.
+ * @version 4.14.0.0 | 2021-12-14 | Vincent   // Updates: Add 'activation delay' related styles.
  */
 
 // Color definitions
@@ -89,76 +90,80 @@
     content: '\e906';
   }
 
-  &-view-mode:before {
+  &-activation-delay:before {
     content: '\e907';
   }
 
-  &-viewer-location:before {
+  &-view-mode:before {
     content: '\e908';
   }
 
-  &-image-size-display:before {
+  &-viewer-location:before {
     content: '\e909';
   }
 
-  &-shadow-display:before {
+  &-image-size-display:before {
     content: '\e90a';
   }
 
-  &-loading:before {
+  &-shadow-display:before {
     content: '\e90b';
   }
 
-  &-animation:before {
+  &-loading:before {
     content: '\e90c';
   }
 
-  &-context-menu:before {
+  &-animation:before {
     content: '\e90d';
   }
 
-  &-developer-mode:before {
+  &-context-menu:before {
     content: '\e90e';
   }
 
-  &-keyboard:before {
+  &-developer-mode:before {
     content: '\e90f';
   }
 
-  &-share:before {
+  &-keyboard:before {
     content: '\e910';
   }
 
-  &-facebook:before {
+  &-share:before {
     content: '\e911';
   }
 
-  &-twitter:before {
+  &-facebook:before {
     content: '\e912';
   }
 
-  &-weibo:before {
+  &-twitter:before {
     content: '\e913';
   }
 
-  &-qzone:before {
+  &-weibo:before {
     content: '\e914';
   }
 
-  &-reddit:before {
+  &-qzone:before {
     content: '\e915';
   }
 
-  &-tumblr:before {
+  &-reddit:before {
     content: '\e916';
   }
 
-  &-mail:before {
+  &-tumblr:before {
     content: '\e917';
   }
 
-  &-github:before {
+  &-mail:before {
     content: '\e918';
+  }
+
+  &-github:before {
+    content: '\e919';
   }
 }
 
@@ -182,6 +187,7 @@ input {
   padding: 0;
   font-style: normal;
   list-style: none;
+  outline-color: @PHOTOSHOW_BLUE;
 }
 
 html {
@@ -417,6 +423,18 @@ dl.desc {
   dd {
     color: #666;
     padding: 0 24px;
+  }
+
+  input[type='number'] {
+    margin: 0 0.25em;
+    width: 32px;
+    text-align: center;
+    -moz-appearance: textfield;
+  }
+
+  input[type='number']::-webkit-inner-spin-button,
+  input[type='number']::-webkit-outer-spin-button {
+    -webkit-appearance: none;
   }
 
   &.radios,

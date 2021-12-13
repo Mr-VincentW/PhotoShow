@@ -28,6 +28,8 @@
  *                                            // Updates: Optimize config items naming;
  *                                            // Updates: Upgrade jQuery to 3.6.0.
  * @version 4.12.0.0 | 2021-11-07 | Vincent   // Updates: Add config items for 'developer mode' settings.
+ * @version 4.14.0.0 | 2021-12-14 | Vincent   // Updates: Add config items for 'activation delay' settings;
+ *                                            // Updates: Disable 'activationExemption' by default.
 -->
 
 <html>
@@ -64,11 +66,10 @@
         </dt>
         <dd>
           <span id="activationModeDesc"></span><span>+</span>
-          <label
-            ><input type="radio" name="activationModeRadio" checked value="" /><span
-              id="activationModeOption_None"
-            ></span
-          ></label>
+          <label>
+            <input type="radio" name="activationModeRadio" checked value="" />
+            <span id="activationModeOption_None"></span>
+          </label>
           <label><input type="radio" name="activationModeRadio" value="shift" /><span>Shift</span></label>
           <label><input type="radio" name="activationModeRadio" value="ctrl" /><span>Ctrl</span></label>
           <label><input type="radio" name="activationModeRadio" value="alt" /><span>Alt</span></label>
@@ -80,7 +81,20 @@
           <h3></h3>
         </dt>
         <dd>
-          <label><input type="checkbox" checked /><span id="activationExemptionDesc"></span></label>
+          <label><input type="checkbox" /><span id="activationExemptionDesc"></span></label>
+        </dd>
+      </dl>
+      <dl class="desc" config-item="activationDelay" id="activationDelaySection">
+        <dt>
+          <em class="icon icon-activation-delay"></em>
+          <h3></h3>
+        </dt>
+        <dd>
+          <label>
+            <span id="activationDelayDesc_before"></span>
+            <input type="number" min="0" max="1000" value="200" data-default-value="200" />
+            <span id="activationDelayDesc_after"></span>
+          </label>
         </dd>
       </dl>
       <dl class="desc radios" config-item="viewMode" id="viewModeSection">

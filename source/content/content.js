@@ -142,6 +142,12 @@
  *                                            // Updates: Optimize mask hosting element detecting algorithm.
  * @version 4.12.0.0 | 2021-11-07 | Vincent   // Updates: Allow user to suspend PhotoShow when in developer mode, in response to user feedback;
  *                                            // Bug Fix: Hotkey deconfliction blocks developer inspector hot key (Ctrl+Shift+C).
+ * @version 4.14.0.0 | 2021-12-14 | Vincent   // Updates: Support custom image elements (web components);
+ *                                            // Updates: Allow user to set activation delay time, in response to user feedback;
+ *                                            // Updates: Disable view modes switching/toggling hotkeys by default;
+ *                                            // Updates: Add general image src matching rules for Alibaba Cloud images;
+ *                                            // Updates: Remove the 'title' attribute from image triggers temporarily when the image viewer is displaying;
+ *                                            // Updates: Allow unblocking pseudo elements for some special websites, in response to user feedback.
  */
 
 // TODO: Extract common tool methods to external modules.
@@ -208,7 +214,9 @@
         clearTimeout(imgLoadTimer);
         imgLoadTimer = setTimeout(() => img.onerror(), 20 * 1000);
 
-        photoShow.websiteConfig.noReferrer && (img.referrerPolicy = 'no-referrer');
+        if (photoShow.websiteConfig.noReferrer) {
+          img.referrerPolicy = 'no-referrer';
+        }
 
         img.src = preferredSrc;
       });
@@ -258,8 +266,9 @@
 
       target = $(target);
 
-      if (target.is('img')) {
-        src = (target[0].srcset || target[0].src || '')
+      if (target.is('[src],[srcset]')) {
+        // Do not only match 'img' as the target might be a web component with a custom tag name.
+        src = (target.attr('srcset') || target.attr('src') || '')
           .split(/,\s*(?=(?:\w+:)?\/\/)/)
           .sort(
             (src1, src2) =>
@@ -391,8 +400,9 @@
         }
       },
       isWebsiteUnknown: true,
+      activationDelay: 200,
       activationMode: '', // Activation mode ('', 'shift', 'ctrl', 'alt').
-      activationExemption: true, // Activation exemption.
+      activationExemption: false, // Activation exemption.
       _viewMode: VIEW_MODES['a'], // View mode.
       get viewMode() {
         return this._viewMode.name;
@@ -453,10 +463,10 @@
           isEnabled: true
         },
         switchViewMode: {
-          isEnabled: true
+          isEnabled: false
         },
         toggleViewMode: {
-          isEnabled: true
+          isEnabled: false
         },
         openImageInNewTab: {
           isEnabled: true
@@ -479,8 +489,16 @@
         !(imgSrc =
           target.attr('photoshow-hd-src') || target.closest('[data-photoshow-hd-src]').data('photoshow-hd-src'))
       ) {
+        const generalMatchingRules = [
+          {
+            // Alibaba Cloud images.
+            srcRegExp: '(.+?\\?.*)&?x-oss-process=[^&]+(.*)',
+            processor: '$1$2'
+          }
+        ];
+
         // The default empty srcMatching rule ensures all images are parsed.
-        for (srcMatchingRule of (this.websiteConfig.srcMatching || []).concat({})) {
+        for (srcMatchingRule of (this.websiteConfig.srcMatching || []).concat(generalMatchingRules, {})) {
           if (
             target.is(srcMatchingRule.selectors || 'img,[style*=background],image,a[href],video[poster]') &&
             target.css('pointerEvents') != 'none'
@@ -502,7 +520,9 @@
           }
 
           if (imgSrc) {
-            typeof imgSrc === 'string' && (imgSrc = new URL(imgSrc, location.origin).href);
+            if (typeof imgSrc === 'string') {
+              imgSrc = new URL(imgSrc, location.origin).href;
+            }
 
             break;
           }
@@ -737,7 +757,9 @@
         };
       }
 
-      this.imgRotation.isVertical && (oriImgSize = tools.swapDimensions(oriImgSize));
+      if (this.imgRotation.isVertical) {
+        oriImgSize = tools.swapDimensions(oriImgSize);
+      }
 
       var winSize = {
         width: Math.min(
@@ -1095,6 +1117,13 @@
         ) {
           this.curTrigger = this.maskHost = triggersParsingResult.element;
 
+          const curTrigger = $(this.curTrigger);
+
+          if (curTrigger.attr('title')) {
+            curTrigger.attr('data-photoshow-img-title-backup', curTrigger.attr('title'));
+            curTrigger.removeAttr('title');
+          }
+
           // Get mask host.
           $(triggersParsingResult.element)
             .parents()
@@ -1164,7 +1193,7 @@
                   this.imgSrc = imgInfo.src; // Assign the actual image src to the photoShowViewer.imgSrc, in case it may be a Promise object.
 
                   // Cache the actual src of the high-definition image.
-                  $(this.curTrigger)
+                  curTrigger
                     .attr('photoshow-hd-src', this.imgSrc)
                     .closest('[data-photoshow-hd-src]')
                     .removeAttr('data-photoshow-hd-src')
@@ -1337,8 +1366,8 @@
             ...photoShow.websiteConfig,
             amendStyles: {
               ...(photoShow.websiteConfig.amendStyles || {}),
-              pointerNone: ['*:before,*:after']
-                .concat((photoShow.websiteConfig.amendStyles && photoShow.websiteConfig.amendStyles.pointerNone) || [])
+              pointerNone: (photoShow.websiteConfig.amendStyles?.pointerNone === 'none' ? [] : ['*:before,*:after'])
+                .concat(photoShow.websiteConfig.amendStyles?.pointerNone || [])
                 .join(',')
             }
           };
@@ -1410,10 +1439,13 @@
           this.viewerDisplayTimer = setTimeout(() => {
             this.mouseLeaveAction();
             this.displayViewer(e.target);
-          }, 200);
+          }, photoShow.config.activationDelay ?? 200);
         }
       } else {
-        this.viewerDisplayTimer = setTimeout(() => this.displayViewer(e.target), 200);
+        this.viewerDisplayTimer = setTimeout(
+          () => this.displayViewer(e.target),
+          photoShow.config.activationDelay ?? 200
+        );
       }
     },
     mouseLeaveAction: function (keepTriggerBlocked) {
@@ -1446,6 +1478,12 @@
       $(this.maskHost).removeClass('photoshow-img-loading photoshow-img-loading-fail');
 
       keepTriggerBlocked || $('[photoshow-trigger-blocked]').removeAttr('photoshow-trigger-blocked');
+
+      if ($(this.curTrigger).is('[data-photoshow-img-title-backup]')) {
+        $(this.curTrigger)
+          .attr('title', this.curTrigger.dataset.photoshowImgTitleBackup)
+          .removeAttr('data-photoshow-img-title-backup');
+      }
 
       Object.assign(this, {
         imgSrc: '',
@@ -1791,7 +1829,9 @@
                   $(node).is('[id^="photoShowStyles_"]')
                 );
 
-                removedPhotoShowStyleNodes.length && target.append(removedPhotoShowStyleNodes);
+                if (removedPhotoShowStyleNodes.length && this.isRunning) {
+                  target.append(removedPhotoShowStyleNodes);
+                }
 
                 // CAUTION: DO NOT check whether the curTrigger is in document with jQuery closest() method which will cause serious performance problem.
                 this.curTrigger && !this.curTrigger.ownerDocument.contains(this.curTrigger) && this.mouseLeaveAction();

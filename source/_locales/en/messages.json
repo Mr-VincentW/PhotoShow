@@ -28,6 +28,7 @@
  *                                            // Updates: Remove 'imageLoadingTip' and 'imageLoadingFailTip';
  *                                            // Updates: Update view mode names and loading status items.
  * @version 4.12.0.0 | 2021-11-07 | Vincent   // Updates: Add 'developer mode' related items.
+ * @version 4.14.0.0 | 2021-12-14 | Vincent   // Updates: Add 'activation delay' related items.
  */
 
 {
@@ -144,6 +145,20 @@
   },
   "activationExemptionDesc": {
     "message": "DO NOT activate when thumbnails are larger than 25% of the viewport",
+    "description": "Setting item description."
+  },
+
+  // Section ACTIVATION DELAY:
+  "activationDelayHeader": {
+    "message": "ACTIVATION DELAY",
+    "description": "Section title."
+  },
+  "activationDelayDesc_before": {
+    "message": "When mouse hovering on thumbnails, delay activation by",
+    "description": "Setting item description."
+  },
+  "activationDelayDesc_after": {
+    "message": "ms",
     "description": "Setting item description."
   },
 
