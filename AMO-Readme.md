@@ -4,7 +4,7 @@
 
 1.  Install the latest version of **[Node.js](https://nodejs.org/)** and **npm** as well;
 2.  In your terminal, run `npm install` under **PhotoShowSourceForReview** directory to initialize the building environment;
-3.  In your terminal, run `npm run build-firefox`;
+3.  In your terminal, run `npm run build-firefox-code-review`;
 4.  Find the **PhotoShow.zip** file under **dist/firefox** directory.
 
 ## System requirements

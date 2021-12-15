@@ -7,6 +7,7 @@
  *                                            // Updates: Pack readme file to Firefox output for code review.
  * @version 4.12.0.0 | 2021-11-07 | Vincent   // Updates: Add entry 'devtools';
  *                                            // Updates: Emit code-review package for firefox.
+ * @version 4.14.0.1 | 2021-12-16 | Vincent   // Bug Fix: Missing 'AMO-Readme.md' file blocks Firefox code review process.
  */
 
 // TODO: Split common tool methods for PhotoShow to external modules and remove the terser plugin settings.
@@ -22,19 +23,23 @@ const path = require('path'),
   TerserPlugin = require('terser-webpack-plugin'),
   ZipPlugin = require('zip-webpack-plugin');
 
-const jsonTransformers = {
-  messages: (_, data, path) => {
-    const locale = /_locales[/\\](\w+)/.test(path) ? RegExp.$1 : 'en';
+function getLocaleCurrentDate(path) {
+  const locale = /_locales[/\\](\w+)/.test(path) ? RegExp.$1 : 'en';
 
+  return new Date().toLocaleDateString(locale.replace('_', '-'), {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric'
+  });
+}
+
+const jsonTransformers = {
+  messages: (env, data, path) => {
     (function (entry) {
       Object.entries(entry).forEach(([key, value]) => {
         // Update extension-update-date.
-        if (key === 'extensionUpdateDate') {
-          value.message += new Date().toLocaleDateString(locale.replace('_', '-'), {
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric'
-          });
+        if (key === 'extensionUpdateDate' && env.vendor !== 'firefox-code-review') {
+          value.message += getLocaleCurrentDate(path);
         }
 
         // Remove all descriptions.
@@ -52,7 +57,7 @@ const jsonTransformers = {
       delete data.update_url;
     }
 
-    if (env.vendor === 'firefox') {
+    if (/firefox/.test(env.vendor)) {
       delete data.minimum_chrome_version;
     } else {
       delete data.browser_specific_settings;
@@ -75,7 +80,7 @@ module.exports = env => ({
     popup: ['popup/popup.html', 'popup/popup.js', 'popup/popup.less']
   },
   output: {
-    path: path.resolve(__dirname, `${env.prod ? 'dist' : 'dev'}/${env.vendor || 'chrome'}`),
+    path: path.resolve(__dirname, `${env.prod ? 'dist' : 'dev'}/${env.vendor?.split(/\W/)[0] || 'chrome'}`),
     filename: pathData => (pathData.chunk.name === 'background' ? '[name].js' : '[name]/[name].js'),
     clean: true
   },
@@ -112,7 +117,7 @@ module.exports = env => ({
           },
           'less-loader'
         ].concat(
-          env.vendor === 'firefox'
+          /firefox/.test(env.vendor)
             ? {
                 loader: 'string-replace-loader',
                 options: {
@@ -126,26 +131,25 @@ module.exports = env => ({
       {
         test: /\.js$/,
         exclude: /node_modules/,
-        use:
-          env.vendor === 'firefox'
-            ? [
-                {
-                  loader: 'string-replace-loader',
-                  options: {
-                    multiple: [
-                      {
-                        search: /\bchrome\./g,
-                        replace: 'browser.'
-                      },
-                      {
-                        search: ", 'extraHeaders'",
-                        replace: ''
-                      }
-                    ]
-                  }
+        use: /firefox/.test(env.vendor)
+          ? [
+              {
+                loader: 'string-replace-loader',
+                options: {
+                  multiple: [
+                    {
+                      search: /\bchrome\./g,
+                      replace: 'browser.'
+                    },
+                    {
+                      search: ", 'extraHeaders'",
+                      replace: ''
+                    }
+                  ]
                 }
-              ]
-            : []
+              }
+            ]
+          : []
       }
     ]
   },
@@ -199,10 +203,27 @@ module.exports = env => ({
                 from: `../${item}`,
                 to: `review${item === 'source' ? '/source' : ''}`
               }))
-              .concat({
-                from: '../AMO-Readme.md',
-                to: 'review/readme.md'
-              })
+              .concat(
+                {
+                  from: '../source/_locales/**/*.json',
+                  to: 'review/source/[file]',
+                  transform: {
+                    // Explicitly set the 'extensionUpdateDate' field in the source file so as to guarantee
+                    // exactly identical building result for the code review process.
+                    transformer: (content, path) =>
+                      content
+                        .toString()
+                        .replace(
+                          /("extensionUpdateDate"\s*:\s*\{\s*"message"\s*:\s*"[^"]+)(?=")/,
+                          `$1${getLocaleCurrentDate(path)}`
+                        )
+                  }
+                },
+                {
+                  from: '../AMO-Readme.md',
+                  to: 'review/readme.md'
+                }
+              )
           }),
           new ZipPlugin({
             filename: 'PhotoShowSourceForReview.zip',

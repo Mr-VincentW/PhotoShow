@@ -26,14 +26,15 @@
     "zip-webpack-plugin": "^4.0.1"
   },
   "scripts": {
-    "dev": "webpack",
-    "dev-firefox": "webpack --env vendor=firefox",
-    "dev-edge": "webpack --env vendor=edge",
-    "start": "webpack --watch",
     "build": "webpack --env prod",
-    "build-firefox": "webpack --env prod --env vendor=firefox",
+    "build-all": "run-p build build-edge build-firefox",
     "build-edge": "webpack --env prod --env vendor=edge",
-    "build-all": "run-p build build-firefox build-edge"
+    "build-firefox": "webpack --env prod --env vendor=firefox",
+    "build-firefox-code-review": "webpack --env prod --env vendor=firefox-code-review",
+    "dev": "webpack",
+    "dev-edge": "webpack --env vendor=edge",
+    "dev-firefox": "webpack --env vendor=firefox",
+    "start": "webpack --watch"
   },
   "repository": {
     "type": "git",
