@@ -32,6 +32,7 @@
  * @version 4.10.0.0 | 2021-09-18 | Vincent   // Updates: Optimize config items styles and icons.
  * @version 4.12.0.0 | 2021-11-07 | Vincent   // Updates: Add 'developer mode' related styles.
  * @version 4.14.0.0 | 2021-12-14 | Vincent   // Updates: Add 'activation delay' related styles.
+ * @version 4.15.0.0 | 2022-03-27 | Vincent   // Updates: Support file naming.
  */
 
 // Color definitions
@@ -130,40 +131,44 @@
     content: '\e910';
   }
 
-  &-share:before {
+  &-file-naming:before {
     content: '\e911';
   }
 
-  &-facebook:before {
+  &-share:before {
     content: '\e912';
   }
 
-  &-twitter:before {
+  &-facebook:before {
     content: '\e913';
   }
 
-  &-weibo:before {
+  &-twitter:before {
     content: '\e914';
   }
 
-  &-qzone:before {
+  &-weibo:before {
     content: '\e915';
   }
 
-  &-reddit:before {
+  &-qzone:before {
     content: '\e916';
   }
 
-  &-tumblr:before {
+  &-reddit:before {
     content: '\e917';
   }
 
-  &-mail:before {
+  &-tumblr:before {
     content: '\e918';
   }
 
-  &-github:before {
+  &-mail:before {
     content: '\e919';
+  }
+
+  &-github:before {
+    content: '\e91a';
   }
 }
 
@@ -173,6 +178,7 @@ body,
 h1,
 h2,
 h3,
+h4,
 p,
 em,
 i,
@@ -215,6 +221,14 @@ h2,
 h3 {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI Light', 'Microsoft Yahei Light', '\5b8b\4f53', sans-serif;
   display: inline;
+}
+
+input,
+textarea {
+  &::placeholder {
+    color: #999;
+    font-style: italic;
+  }
 }
 
 // Header
@@ -426,6 +440,7 @@ dl.desc {
   }
 
   input[type='number'] {
+    padding: 2px;
     margin: 0 0.25em;
     width: 32px;
     text-align: center;
@@ -435,6 +450,25 @@ dl.desc {
   input[type='number']::-webkit-inner-spin-button,
   input[type='number']::-webkit-outer-spin-button {
     -webkit-appearance: none;
+  }
+
+  input[type='text'] {
+    padding: 2px;
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 8px;
+    margin-top: 8px;
+
+    & > * {
+      display: contents;
+    }
+
+    h4 {
+      display: inline;
+    }
   }
 
   &.radios,
@@ -522,6 +556,25 @@ dl.desc {
           }
         }
       }
+    }
+  }
+
+  .file-naming-example {
+    word-break: break-all;
+  }
+
+  .file-naming-patterns {
+    display: grid;
+    grid-template-columns: repeat(3, auto 1fr);
+    color: #999;
+
+    li:nth-child(odd) {
+      font-weight: bold;
+      margin-right: 4px;
+    }
+
+    li.long-pattern {
+      grid-column: 2 / span 5;
     }
   }
 

@@ -45,9 +45,11 @@
  * @version 4.14.0.0 | 2021-12-14 | Vincent   // Bug Fix: Wrong default value for config item 'worksEverywhere' and 'developerModeSuspension';
  *                                            // Updates: Add config items for 'activation delay' settings;
  *                                            // Updates: Disable view modes switching/toggling hotkeys by default.
+ * @version 4.15.0.0 | 2022-03-27 | Vincent   // Updates: Support file naming.
  */
 
 // TODO: Support customising hotkeys.
+// TODO: Optimize default config values - remove corresponding config items when their default values matched.
 
 var curTab;
 
@@ -56,7 +58,8 @@ const UI_LANGUAGE = chrome.i18n.getUILanguage(),
     ? `https://addons.mozilla.org/${UI_LANGUAGE}/firefox/addon/photoshow/`
     : /\bEdg\b/.test(navigator.userAgent)
     ? `https://microsoftedge.microsoft.com/addons/detail/afdelcfalkgcfelngdclbaijgeaklbjk?hl=${UI_LANGUAGE}`
-    : `https://chrome.google.com/webstore/detail/photoshow/mgpdnhlllbpncjpgokgfogidhoegebod?hl=${UI_LANGUAGE}`;
+    : `https://chrome.google.com/webstore/detail/photoshow/mgpdnhlllbpncjpgokgfogidhoegebod?hl=${UI_LANGUAGE}`,
+  DEFAULT_DOWNLOADING_FILENAME = chrome.i18n.getMessage('fileNamingDefaultFilename');
 
 function enablePhotoShow(isWebsiteUnknown) {
   $('#stateMsg').text(chrome.i18n.getMessage(`photoShowEnabledMsg${isWebsiteUnknown ? '_basic' : ''}`));
@@ -211,6 +214,10 @@ $(document)
         : e.target.dataset.defaultValue;
     }
 
+    if (e.target.type === 'text') {
+      e.target.value = e.target.value || e.target.dataset.defaultValue;
+    }
+
     chrome.runtime.sendMessage({
       cmd: 'SET_PHOTOSHOW_CONFIGS',
       args: {
@@ -330,8 +337,59 @@ $('#hotkeysSection dd').append(
     .join('')}</table>`
 );
 
+// File naming.
+$('#fileNamingSection dt h3').text(chrome.i18n.getMessage('fileNamingHeader'));
+$('#fileNamingFilenameTitle').text(chrome.i18n.getMessage('fileNamingFilenameTitle'));
+$('#fileNamingFilename')
+  .attr({
+    placeholder: DEFAULT_DOWNLOADING_FILENAME,
+    'data-default-value': DEFAULT_DOWNLOADING_FILENAME
+  })
+  .val(DEFAULT_DOWNLOADING_FILENAME);
+$('#fileNamingExampleTitle').text(chrome.i18n.getMessage('fileNamingExampleTitle'));
+$('#fileNamingExample').text(getFilenameExample($('#fileNamingFilename').val()));
+$('#fileNamingPatternsTitle').text(chrome.i18n.getMessage('fileNamingPatternsTitle'));
+$('#fileNamingPatterns').append(
+  ['year', 'Month', 'date', 'hour', 'minute', 'second', 'Hostname', 'OriginalFilename'].map(
+    cell =>
+      `<li>&lt;${cell[0]}&gt;</li><li${
+        ['Hostname', 'OriginalFilename'].includes(cell) ? ' class="long-pattern"' : ''
+      }>${chrome.i18n.getMessage(`fileNamingPatternDesc_${cell}`)}</li>`
+  )
+);
+
+$('#fileNamingFilename')
+  .on('input', e => {
+    $('#fileNamingExample').text(getFilenameExample(e.target.value));
+  })
+  .on('change', e => {
+    e.target.value = e.target.value
+      .replace(/^[/\\\s]+|[\s.]+$|<(?:[^dHhMmOsy]|[^>]{2,})>|[:*?"|]|(?<!<[^>]+)>|<(?![^<]+>)/g, '')
+      .replace(/<(\w)+>/g, '<$1>')
+      .replace(/[/\\]+/g, '/')
+      .replace(/\/$/, '/<O>');
+
+    $('#fileNamingExample').text(getFilenameExample(e.target.value));
+  });
+
+function getFilenameExample(filename) {
+  const filenamePatterns = {
+    ...(/(?<y>\d+)-(?<M>\d+)-(?<d>\d+)T(?<h>\d+):(?<m>\d+):(?<s>\d+)/.exec(new Date().toISOString())?.groups || {}),
+    H: 'hostname',
+    O: chrome.i18n.getMessage('fileNamingExampleFilename')
+  };
+
+  return `${
+    (filename || DEFAULT_DOWNLOADING_FILENAME).replaceAll(
+      /<([dHhMmOsy])>/g,
+      (_, pattern) => filenamePatterns[pattern] || ''
+    ) || DEFAULT_DOWNLOADING_FILENAME
+  }.jpg`;
+}
+
 $('#shareSection dt h3').text(chrome.i18n.getMessage('shareHeader'));
 
+// Contact.
 function initContactLinks() {
   var shareInfo = {
       iconTitles: chrome.i18n.getMessage('shareIconTitles').split(','),

@@ -148,14 +148,15 @@
  *                                            // Updates: Add general image src matching rules for Alibaba Cloud images;
  *                                            // Updates: Remove the 'title' attribute from image triggers temporarily when the image viewer is displaying;
  *                                            // Updates: Allow unblocking pseudo elements for some special websites, in response to user feedback.
+ * @version 4.15.0.0 | 2022-03-27 | Vincent   // Bug Fix: DOM mutation observation issue due to the missing attribute 'href'.
  */
 
 // TODO: Extract common tool methods to external modules.
 // TODO: Optimise image loading speed by picking proper image sources according to their final displaying dimensions.
 // TODO: Exclude background images with a repeating pattern.
-// TODO: Render viewer in absolute position so that it can scroll with the viewport.
 // TODO: Might need to replace all the usecases of e.which to e.key.
 // TODO: Might need to check the hotkey de-conflict feature for iframes.
+// TODO: Replace dom-cache with in-memory cache.
 
 ($ => {
   $.ajaxSetup({
@@ -1381,7 +1382,7 @@
           this.domObserver.observe(document, {
             childList: true,
             subtree: true,
-            attributeFilter: ['src', 'srcset', 'style'],
+            attributeFilter: ['href', 'src', 'srcset', 'style'],
             attributeOldValue: true
           });
         } else {
@@ -1841,6 +1842,7 @@
 
             case 'attributes':
               if (
+                target.is('[photoshow-hd-src],[data-photoshow-hd-src]') ||
                 (~mutation.attributeName.indexOf('src') && target.is('img,source')) ||
                 (mutation.attributeName == 'style' &&
                   tools.getBackgroundImgSrc(mutation.oldValue) &&

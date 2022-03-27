@@ -22,6 +22,7 @@
  *                                            // Updates: Update view mode names and loading status items.
  * @version 4.12.0.0 | 2021-11-07 | Vincent   // Updates: Add 'developer mode' related items.
  * @version 4.14.0.0 | 2021-12-14 | Vincent   // Updates: Add 'activation delay' related items.
+ * @version 4.15.0.0 | 2022-03-27 | Vincent   // Updates: Add 'file naming' related items.
  */
 
 {
@@ -38,10 +39,6 @@
 
   ////////////////////////////////////////////////////////////////////////////////
   // Information displayed in image viewer, context menu or global messages.
-  "imageSavingNamePrefix": {
-    "message": "PhotoShowImage",
-    "description": "The file name prefix of the image that is saved by PhotoShow."
-  },
   "contextMenuTitle_open": {
     "message": "Open HD image in new tab (Tab)",
     "description": "Context menu item."
@@ -323,6 +320,64 @@
   "hotkey_toggleViewMode": {
     "message": "<td>V</td><td>Toggle to the previously used view mode</td>",
     "description": "Hotkey name and its operation description."
+  },
+
+  // Section FILE NAMING:
+  "fileNamingHeader": {
+    "message": "FILE NAMING",
+    "description": "Section title."
+  },
+  "fileNamingFilenameTitle": {
+    "message": "Filename:",
+    "description": "Title of the filename input box."
+  },
+  "fileNamingExampleTitle": {
+    "message": "Example:",
+    "description": "Title of the filename example."
+  },
+  "fileNamingExampleFilename": {
+    "message": "Original_File_Name",
+    "description": "Example filename."
+  },
+  "fileNamingDefaultFilename": {
+    "message": "PhotoShowDownloads/<y>-<M>-<d>/<O>",
+    "description": "Default filename."
+  },
+  "fileNamingPatternsTitle": {
+    "message": "Patterns:",
+    "description": "Title of the filename patterns."
+  },
+  "fileNamingPatternDesc_year": {
+    "message": "Year",
+    "description": "Description of the filename patterns."
+  },
+  "fileNamingPatternDesc_month": {
+    "message": "Month",
+    "description": "Description of the filename patterns."
+  },
+  "fileNamingPatternDesc_date": {
+    "message": "Date",
+    "description": "Description of the filename patterns."
+  },
+  "fileNamingPatternDesc_hour": {
+    "message": "Hour",
+    "description": "Description of the filename patterns."
+  },
+  "fileNamingPatternDesc_minute": {
+    "message": "Minute",
+    "description": "Description of the filename patterns."
+  },
+  "fileNamingPatternDesc_second": {
+    "message": "Second",
+    "description": "Description of the filename patterns."
+  },
+  "fileNamingPatternDesc_hostname": {
+    "message": "Website Hostname",
+    "description": "Description of the filename patterns."
+  },
+  "fileNamingPatternDesc_originalFilename": {
+    "message": "Original Filename",
+    "description": "Description of the filename patterns."
   },
 
   // Section CONTACT:

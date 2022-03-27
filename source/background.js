@@ -107,7 +107,7 @@
  * @version 4.2.2.0 | 2020-04-06 | Vincent    // Updates: Better support for Facebook.
  * @version 4.3.0.0 | 2020-04-10 | Vincent    // Updates: Add support for 'gifv' images used by Tumblr;
  *                                            // Updates: Support wekan.tv;
- *                                            // Bug Fix: Fix the problem that images might be downloaded with wrong file name suffixes.
+ *                                            // Bug Fix: Fix the problem that images might be downloaded with wrong filename extension.
  * @version 4.4.0.0 | 2020-04-18 | Vincent    // Updates: Add 'xhrDownload' field to the website-info-structure, for better image downloading support;
  *                                            // Updates: Support downloading images from websites that requires 'referer' HTTP header;
  *                                            // Updates: Better support for bilibili, Facebook, GitHub, imgur, and pixiv;
@@ -190,6 +190,10 @@
  * @version 4.14.0.0 | 2021-12-14 | Vincent   // Updates: Support adnmb3.com, e621.net, and figma.com, in response to user feedback;
  *                                            // Updates: Support douyu.com and vvic.com, in response to user feedback (GitHub issue #34, #35);
  *                                            // Bug Fix: Wrong default value for config item 'worksEverywhere'.
+ * @version 4.15.0.0 | 2022-03-27 | Vincent   // Updates: Support file naming;
+ *                                            // Updates: Better support for YouTube;
+ *                                            // Bug Fix: Supporting issue for Flickr due to its website updates, in response to user feedback.
+ *
  */
 
 // TODO: Extract websiteConfig to independent files and import them (after porting to webpack).
@@ -207,6 +211,7 @@
 // TODO: Some abstraction is needed for onXhrLoad, like providing a url filter, unifying try...catch, removing 'data-photoshow-hd-src' when PhotoShow is toggled off, etc.
 // TODO: After 'data-photoshow-hd-src' is removed by toggling off PhotoShow, it won't work when PhotoShow's toggled on again. Need other ways to cache data.
 // TODO: Prefix 'img,[style*=background]' by default as selectors for all matching rules.
+// TODO: Handle invalid download filename.
 
 // Website info structure:
 // {
@@ -1489,8 +1494,8 @@ const websiteConfig = {
         srcRegExp: '//.+\\.static\\.?flickr\\.com/(?:\\d+/)+(\\d+)_.+@IMG@',
         processor: (trigger, src, srcRegExpObj) => {
           var apiKey =
-              $('[photoshow-flickr-apikey]').val() ||
-              (/"site_key"\s*:\s*"(\w+)"/.test($('script:contains("site_key")').text()) ? RegExp.$1 : ''),
+              window.photoShowFlickrApiKey ||
+              (/site_key\s*=\s*"(\w+)"/.test($('script:contains("site_key")').text()) ? RegExp.$1 : ''),
             photoId = srcRegExpObj.test(
               decodeURIComponent(src) ||
                 tools.getBackgroundImgSrc(trigger) ||
@@ -1501,8 +1506,7 @@ const websiteConfig = {
 
           return apiKey && photoId
             ? new Promise(resolve => {
-                $('[photoshow-flickr-apikey]').length ||
-                  $('<input type="hidden" photoshow-flickr-apikey />').val(apiKey).appendTo(document.body);
+                window.photoShowFlickrApiKey = apiKey;
 
                 chrome.runtime.sendMessage(
                   {
@@ -1554,12 +1558,12 @@ const websiteConfig = {
       },
       {
         selectors: 'img,.ytp-cued-thumbnail-overlay-image',
-        srcRegExp: '(//i\\d*\\.ytimg\\.com/vi/.+/).+(@IMG@)',
+        srcRegExp: '(//i\\d*\\.ytimg\\.com/vi.*?/.+/).+(@IMG@)',
         processor: (trigger, src, srcRegExpObj) =>
           srcRegExpObj.test(src)
             ? tools
                 .detectImage(
-                  `${RegExp.$1}hq720${RegExp.$2}`,
+                  `${RegExp.$1}maxresdefault${RegExp.$2}`,
                   `${RegExp.$1}hqdefault${RegExp.$2}`,
                   img => img.width == 120 && img.height == 90
                 )
@@ -2722,13 +2726,14 @@ const websiteConfig = {
     },
     srcMatching: [
       {
-        selectors: 'img,.ytp-cued-thumbnail-overlay-image',
-        srcRegExp: '(//i\\d*\\.ytimg\\.com/vi/.+/).+(@IMG@)',
+        selectors:
+          'img,[style*=background-image],.ytp-cued-thumbnail-overlay-image,.ytp-videowall-still-info,.ytp-ce-covering-overlay',
+        srcRegExp: '(//i\\d*\\.ytimg\\.com/vi.*?/.+/).+(@IMG@)',
         processor: (trigger, src, srcRegExpObj) =>
-          srcRegExpObj.test(src)
+          srcRegExpObj.test(src || tools.getLargestImgSrc(trigger.siblings('[class*="-image"]')))
             ? tools
                 .detectImage(
-                  `${RegExp.$1}hq720${RegExp.$2}`,
+                  `${RegExp.$1}maxresdefault${RegExp.$2}`,
                   `${RegExp.$1}hqdefault${RegExp.$2}`,
                   img => img.width == 120 && img.height == 90
                 )
@@ -2801,7 +2806,7 @@ const websiteConfig = {
 let WEBSITE_INFO = {},
   DISABLED_WEBSITES = [],
   XHR_DOWNLOAD_REQUIRED_HOSTNAMES = [],
-  XHR_DOWNLOAD_ITMES = {},
+  DOWNLOAD_ITMES = {},
   PHOTOSHOW_CONFIGS = {},
   ALL_TABS_IN_DEVELOPER_MODE = new Set();
 
@@ -2809,19 +2814,6 @@ const tools = {
   getUrlHostname: function (sourceUrl) {
     const url = sourceUrl && new URL(sourceUrl);
     return (url && /^http/.test(url.protocol) && url.hostname) || '';
-  },
-  getDateStr: function () {
-    const padNum = num => (num > 9 ? '' : '0') + num,
-      now = new Date();
-
-    return `${now.getFullYear()}${padNum(now.getMonth() + 1)}${padNum(now.getDate())}${padNum(now.getHours())}${padNum(
-      now.getMinutes()
-    )}${padNum(now.getSeconds())}`;
-  },
-  getImgFileName: function (src, hostname) {
-    return `${chrome.i18n.getMessage('imageSavingNamePrefix')}_${hostname}_${this.getDateStr()}.${
-      /\b(jpe?g|gif|png|bmp|webp|svg)\b/.test(src) ? RegExp.$1 : 'jpg'
-    }`; // Explicitly ignore 'pnj' type.
   },
   downloadImg: function (imgSrc, tabUrl) {
     if (imgSrc) {
@@ -2842,15 +2834,16 @@ const tools = {
             chrome.downloads.download(
               {
                 url: blobUrl,
-                filename: this.getImgFileName(imgSrc, tabUrl.hostname),
                 conflictAction: 'uniquify'
               },
               downloadItemId => {
                 if (chrome.runtime.lastError || !downloadItemId) {
                   URL.revokeObjectURL(blobUrl);
                 } else {
-                  XHR_DOWNLOAD_ITMES[downloadItemId] = {
-                    blobUrl: blobUrl
+                  DOWNLOAD_ITMES[downloadItemId] = {
+                    blobUrl: blobUrl,
+                    src: imgSrc,
+                    hostname: tabUrl.hostname
                   };
                 }
               }
@@ -2862,11 +2855,19 @@ const tools = {
 
         xhr.send();
       } else {
-        chrome.downloads.download({
-          url: imgSrc,
-          filename: this.getImgFileName(imgSrc, tabUrl.hostname),
-          conflictAction: 'uniquify'
-        });
+        chrome.downloads.download(
+          {
+            url: imgSrc,
+            conflictAction: 'uniquify'
+          },
+          downloadItemId => {
+            if (!chrome.runtime.lastError && downloadItemId) {
+              DOWNLOAD_ITMES[downloadItemId] = {
+                hostname: tabUrl.hostname
+              };
+            }
+          }
+        );
       }
 
       statistics.update('imageDownloaded');
@@ -3325,13 +3326,40 @@ chrome.webRequest.onBeforeSendHeaders.addListener(
   ['requestHeaders', 'blocking', 'extraHeaders']
 );
 
-// Response to download items change.
+// Response to downloading actions.
 chrome.downloads.onChanged.addListener(downloadInfo => {
-  const matchedDownloadItem = XHR_DOWNLOAD_ITMES[downloadInfo.id];
+  const matchedDownloadItem = DOWNLOAD_ITMES[downloadInfo.id];
 
   if (matchedDownloadItem && downloadInfo.state?.current != 'in_progress') {
-    URL.revokeObjectURL(matchedDownloadItem.blobUrl);
-    delete XHR_DOWNLOAD_ITMES[downloadInfo.id];
+    if (matchedDownloadItem.blobUrl) {
+      URL.revokeObjectURL(matchedDownloadItem.blobUrl);
+    }
+
+    delete DOWNLOAD_ITMES[downloadInfo.id];
+  }
+});
+
+chrome.downloads.onDeterminingFilename.addListener(({ byExtensionId, filename, id, startTime, url }, suggest) => {
+  const matchedDownloadItem = DOWNLOAD_ITMES[id];
+
+  if (byExtensionId === chrome.runtime.id) {
+    const filenamePatterns = {
+        ...(/(?<y>\d+)-(?<M>\d+)-(?<d>\d+)T(?<h>\d+):(?<m>\d+):(?<s>\d+)/.exec(startTime)?.groups || {}),
+        H: matchedDownloadItem?.hostname || tools.getUrlHostname(url),
+        O: /([^/]+?)(?=\.(?:jpe?g|gif|pn[gj]|bmp|webp|svg)\b)/.test(matchedDownloadItem?.src)
+          ? RegExp.$1
+          : filename.split('.')[0]
+      },
+      extFilename = /(\..+$)/.test(filename) ? RegExp.$1 : '.jpg';
+
+    suggest({
+      filename: `${
+        (PHOTOSHOW_CONFIGS.fileNaming || chrome.i18n.getMessage('fileNamingDefaultFilename')).replaceAll(
+          /<([dHhMmOsy])>/g,
+          (_, pattern) => filenamePatterns[pattern] || ''
+        ) || filenamePatterns.O
+      }${extFilename}`
+    });
   }
 });
 

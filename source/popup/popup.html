@@ -30,6 +30,7 @@
  * @version 4.12.0.0 | 2021-11-07 | Vincent   // Updates: Add config items for 'developer mode' settings.
  * @version 4.14.0.0 | 2021-12-14 | Vincent   // Updates: Add config items for 'activation delay' settings;
  *                                            // Updates: Disable 'activationExemption' by default.
+ * @version 4.15.0.0 | 2022-03-27 | Vincent   // Updates: Support file naming.
 -->
 
 <html>
@@ -92,7 +93,7 @@
         <dd>
           <label>
             <span id="activationDelayDesc_before"></span>
-            <input type="number" min="0" max="1000" value="200" data-default-value="200" />
+            <input type="number" min="0" max="5000" data-default-value="200" placeholder="200" value="200" />
             <span id="activationDelayDesc_after"></span>
           </label>
         </dd>
@@ -171,6 +172,28 @@
           <h3></h3>
         </dt>
         <dd></dd>
+      </dl>
+      <dl class="desc fileNaming-spec" config-item="fileNaming" id="fileNamingSection">
+        <dt>
+          <em class="icon icon-file-naming"></em>
+          <h3></h3>
+        </dt>
+        <dd>
+          <div class="grid">
+            <label>
+              <h4 id="fileNamingFilenameTitle"></h4>
+              <input type="text" maxlength="200" id="fileNamingFilename" />
+            </label>
+            <p>
+              <h4 id="fileNamingExampleTitle"></h4>
+              <span class="file-naming-example" id="fileNamingExample"></span>
+            </p>
+            <div>
+              <h4 id="fileNamingPatternsTitle"></h4>
+              <ul class="file-naming-patterns" id="fileNamingPatterns"></ul>
+            </div>
+          </div>
+        </dd>
       </dl>
       <dl class="desc share" id="shareSection">
         <dt>

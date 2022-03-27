@@ -28,6 +28,7 @@
  *                                            // Updates: Update view mode names and loading status items.
  * @version 4.12.0.0 | 2021-11-07 | Vincent   // Updates: Add 'developer mode' related items.
  * @version 4.14.0.0 | 2021-12-14 | Vincent   // Updates: Add 'activation delay' related items.
+ * @version 4.15.0.0 | 2022-03-27 | Vincent   // Updates: Add 'file naming' related items.
  */
 
 {
@@ -44,10 +45,6 @@
 
   ////////////////////////////////////////////////////////////////////////////////
   // 圖片預覽窗口、右鍵菜單及全局消息中的信息。
-  "imageSavingNamePrefix": {
-    "message": "浮圖秀圖片",
-    "description": "浮圖秀所保存圖片的文件名前綴。"
-  },
   "contextMenuTitle_open": {
     "message": "在新標籤頁中查看高清圖片 (Tab)",
     "description": "右鍵菜單項。"
@@ -329,6 +326,64 @@
   "hotkey_toggleViewMode": {
     "message": "<td>V</td><td>切換到上一次使用的視圖模式</td>",
     "description": "熱鍵名稱及相應操作描述。"
+  },
+
+  // “文件命名”區：
+  "fileNamingHeader": {
+    "message": "文件命名",
+    "description": "區塊標題。"
+  },
+  "fileNamingFilenameTitle": {
+    "message": "文件名：",
+    "description": "文件名輸入框標題。"
+  },
+  "fileNamingExampleTitle": {
+    "message": "示　例：",
+    "description": "示例文件名標題。"
+  },
+  "fileNamingExampleFilename": {
+    "message": "原文件名",
+    "description": "示例文件名。"
+  },
+  "fileNamingDefaultFilename": {
+    "message": "浮圖秀下載/<y>-<M>-<d>/<O>",
+    "description": "默認文件名。"
+  },
+  "fileNamingPatternsTitle": {
+    "message": "替換符：",
+    "description": "文件名替換符標題。"
+  },
+  "fileNamingPatternDesc_year": {
+    "message": "年",
+    "description": "文件名替換符描述。"
+  },
+  "fileNamingPatternDesc_month": {
+    "message": "月",
+    "description": "文件名替換符描述。"
+  },
+  "fileNamingPatternDesc_date": {
+    "message": "日",
+    "description": "文件名替換符描述。"
+  },
+  "fileNamingPatternDesc_hour": {
+    "message": "時",
+    "description": "文件名替換符描述。"
+  },
+  "fileNamingPatternDesc_minute": {
+    "message": "分",
+    "description": "文件名替換符描述。"
+  },
+  "fileNamingPatternDesc_second": {
+    "message": "秒",
+    "description": "文件名替換符描述。"
+  },
+  "fileNamingPatternDesc_hostname": {
+    "message": "網站域名",
+    "description": "文件名替換符描述。"
+  },
+  "fileNamingPatternDesc_originalFilename": {
+    "message": "原文件名",
+    "description": "文件名替換符描述。"
   },
 
   // “聯繫方式” 區：

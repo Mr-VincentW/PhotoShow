@@ -91,6 +91,7 @@ More settings are provided in the popup window, click the **PhotoShow** icon in 
 - **Toggle context menu**: Allow to disable PhotoShow context menu items.
 - **Toggle developer mode**: If you happen to be implenmenting some great ideas on your pages, you probably don't want the injected content or hotkey system from PhotoShow to distract you from your creativity, then here you go.
 - **Check and toggle the shortcuts**: If you happen to forget the hotkeys or their actions, here's the right place to go. Of course you may also disable some of them as you wish.
+- **File Naming**: Here you may customise the image filenames for downloading.
 - **Make everything better**: Feel free to give your feedback should you have any advice or brilliant ideas. It would, of course, be appreciated if you could share **PhotoShow** with anyone you love!
 
 By the way, all these settings will be automatically synced with your other browser account data should it be permitted, as is a browser behavior. PhotoShow itself doesn't upload or store any of these data. (Please refer to [Privacy Policy & Terms of Use & License](#privacy-policy--terms-of-use--license).)
