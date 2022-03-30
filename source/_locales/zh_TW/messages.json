@@ -29,6 +29,8 @@
  * @version 4.12.0.0 | 2021-11-07 | Vincent   // Updates: Add 'developer mode' related items.
  * @version 4.14.0.0 | 2021-12-14 | Vincent   // Updates: Add 'activation delay' related items.
  * @version 4.15.0.0 | 2022-03-27 | Vincent   // Updates: Add 'file naming' related items.
+ * @version 4.15.1.0 | 2022-03-30 | Vincent   // Updates: Add 'fileNamingAlwaysAskDesc';
+ *                                            // Updates: Remove 'fileNamingDefaultFilename'.
  */
 
 {
@@ -337,6 +339,10 @@
     "message": "文件名：",
     "description": "文件名輸入框標題。"
   },
+  "fileNamingFilenamePlaceholder": {
+    "message": "例： 浮圖秀下載/<y>-<M>-<d>/<O>",
+    "description": "文件名輸入框提示。"
+  },
   "fileNamingExampleTitle": {
     "message": "示　例：",
     "description": "示例文件名標題。"
@@ -344,10 +350,6 @@
   "fileNamingExampleFilename": {
     "message": "原文件名",
     "description": "示例文件名。"
-  },
-  "fileNamingDefaultFilename": {
-    "message": "浮圖秀下載/<y>-<M>-<d>/<O>",
-    "description": "默認文件名。"
   },
   "fileNamingPatternsTitle": {
     "message": "替換符：",
@@ -384,6 +386,10 @@
   "fileNamingPatternDesc_originalFilename": {
     "message": "原文件名",
     "description": "文件名替換符描述。"
+  },
+  "fileNamingAlwaysAskDesc": {
+    "message": "每次下載前詢問",
+    "description": "下載前總是詢問文件名設置項描述。"
   },
 
   // “聯繫方式” 區：

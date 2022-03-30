@@ -30,6 +30,8 @@
  * @version 4.12.0.0 | 2021-11-07 | Vincent   // Updates: Add 'developer mode' related items.
  * @version 4.14.0.0 | 2021-12-14 | Vincent   // Updates: Add 'activation delay' related items.
  * @version 4.15.0.0 | 2022-03-27 | Vincent   // Updates: Add 'file naming' related items.
+ * @version 4.15.1.0 | 2022-03-30 | Vincent   // Updates: Add 'fileNamingAlwaysAskDesc';
+ *                                            // Updates: Remove 'fileNamingDefaultFilename'.
  */
 
 {
@@ -338,6 +340,10 @@
     "message": "Filename:",
     "description": "Title of the filename input box."
   },
+  "fileNamingFilenamePlaceholder": {
+    "message": "e.g. PhotoShowDownloads/<y>-<M>-<d>/<O>",
+    "description": "Placeholder of the filename input box."
+  },
   "fileNamingExampleTitle": {
     "message": "Example:",
     "description": "Title of the filename example."
@@ -345,10 +351,6 @@
   "fileNamingExampleFilename": {
     "message": "Original_File_Name",
     "description": "Example filename."
-  },
-  "fileNamingDefaultFilename": {
-    "message": "PhotoShowDownloads/<y>-<M>-<d>/<O>",
-    "description": "Default filename."
   },
   "fileNamingPatternsTitle": {
     "message": "Patterns:",
@@ -385,6 +387,10 @@
   "fileNamingPatternDesc_originalFilename": {
     "message": "Original Filename",
     "description": "Description of the filename patterns."
+  },
+  "fileNamingAlwaysAskDesc": {
+    "message": "Always ask before downloading",
+    "description": "Description of the always-ask-filename toggle."
   },
 
   // Section CONTACT:

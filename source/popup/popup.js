@@ -46,6 +46,8 @@
  *                                            // Updates: Add config items for 'activation delay' settings;
  *                                            // Updates: Disable view modes switching/toggling hotkeys by default.
  * @version 4.15.0.0 | 2022-03-27 | Vincent   // Updates: Support file naming.
+ * @version 4.15.1.0 | 2022-03-30 | Vincent   // Updates: Add config items for file-naming-always-ask settings;
+ *                                            // Updates: Remove default filename.
  */
 
 // TODO: Support customising hotkeys.
@@ -58,8 +60,7 @@ const UI_LANGUAGE = chrome.i18n.getUILanguage(),
     ? `https://addons.mozilla.org/${UI_LANGUAGE}/firefox/addon/photoshow/`
     : /\bEdg\b/.test(navigator.userAgent)
     ? `https://microsoftedge.microsoft.com/addons/detail/afdelcfalkgcfelngdclbaijgeaklbjk?hl=${UI_LANGUAGE}`
-    : `https://chrome.google.com/webstore/detail/photoshow/mgpdnhlllbpncjpgokgfogidhoegebod?hl=${UI_LANGUAGE}`,
-  DEFAULT_DOWNLOADING_FILENAME = chrome.i18n.getMessage('fileNamingDefaultFilename');
+    : `https://chrome.google.com/webstore/detail/photoshow/mgpdnhlllbpncjpgokgfogidhoegebod?hl=${UI_LANGUAGE}`;
 
 function enablePhotoShow(isWebsiteUnknown) {
   $('#stateMsg').text(chrome.i18n.getMessage(`photoShowEnabledMsg${isWebsiteUnknown ? '_basic' : ''}`));
@@ -149,8 +150,12 @@ function updateStateAndConfigs(isInitializing) {
         } else {
           disablePhotoShow(isInitializing);
         }
+
         // Update config items.
         updateConfigItems(response.photoShowConfigs);
+
+        // TODO: Remove this after refactoring with either React or VueJS.
+        $('#fileNamingExample').text(getFilenameExample($('#fileNamingFilename').val()));
       }
     );
 }
@@ -211,11 +216,11 @@ $(document)
     if (e.target.type === 'number') {
       e.target.value = e.target.value
         ? Math.max(e.target.min, Math.min(e.target.max, e.target.value))
-        : e.target.dataset.defaultValue;
+        : e.target.dataset.defaultValue || '';
     }
 
     if (e.target.type === 'text') {
-      e.target.value = e.target.value || e.target.dataset.defaultValue;
+      e.target.value = e.target.value || e.target.dataset.defaultValue || '';
     }
 
     chrome.runtime.sendMessage({
@@ -279,7 +284,8 @@ $('#updateDate').text(chrome.i18n.getMessage('extensionUpdateDate'));
   'animationToggle',
   'contextMenuToggle',
   'developerModeToggle',
-  'worksEverywhere'
+  'worksEverywhere',
+  'fileNamingAlwaysAsk'
 ].forEach(item => {
   $(`#${item}Section dt h3`).text(chrome.i18n.getMessage(`${item}Header`));
   $(`#${item}Desc`).text(chrome.i18n.getMessage(`${item}Desc`));
@@ -340,12 +346,7 @@ $('#hotkeysSection dd').append(
 // File naming.
 $('#fileNamingSection dt h3').text(chrome.i18n.getMessage('fileNamingHeader'));
 $('#fileNamingFilenameTitle').text(chrome.i18n.getMessage('fileNamingFilenameTitle'));
-$('#fileNamingFilename')
-  .attr({
-    placeholder: DEFAULT_DOWNLOADING_FILENAME,
-    'data-default-value': DEFAULT_DOWNLOADING_FILENAME
-  })
-  .val(DEFAULT_DOWNLOADING_FILENAME);
+$('#fileNamingFilename').attr('placeholder', chrome.i18n.getMessage('fileNamingFilenamePlaceholder'));
 $('#fileNamingExampleTitle').text(chrome.i18n.getMessage('fileNamingExampleTitle'));
 $('#fileNamingExample').text(getFilenameExample($('#fileNamingFilename').val()));
 $('#fileNamingPatternsTitle').text(chrome.i18n.getMessage('fileNamingPatternsTitle'));
@@ -363,11 +364,12 @@ $('#fileNamingFilename')
     $('#fileNamingExample').text(getFilenameExample(e.target.value));
   })
   .on('change', e => {
-    e.target.value = e.target.value
-      .replace(/^[/\\\s]+|[\s.]+$|<(?:[^dHhMmOsy]|[^>]{2,})>|[:*?"|]|(?<!<[^>]+)>|<(?![^<]+>)/g, '')
-      .replace(/<(\w)+>/g, '<$1>')
-      .replace(/[/\\]+/g, '/')
-      .replace(/\/$/, '/<O>');
+    e.target.value =
+      e.target.value
+        ?.replace(/^[/\\\s]+|[\s.]+$|<(?:[^dHhMmOsy]|[^>]{2,})>|[:*?"|]|(?<!<[^>]+)>|<(?![^<]+>)/g, '')
+        .replace(/<(\w)+>/g, '<$1>')
+        .replace(/[/\\]+/g, '/')
+        .replace(/\/$/, '/<O>') || '';
 
     $('#fileNamingExample').text(getFilenameExample(e.target.value));
   });
@@ -379,12 +381,7 @@ function getFilenameExample(filename) {
     O: chrome.i18n.getMessage('fileNamingExampleFilename')
   };
 
-  return `${
-    (filename || DEFAULT_DOWNLOADING_FILENAME).replaceAll(
-      /<([dHhMmOsy])>/g,
-      (_, pattern) => filenamePatterns[pattern] || ''
-    ) || DEFAULT_DOWNLOADING_FILENAME
-  }.jpg`;
+  return `${(filename || '<O>').replaceAll(/<([dHhMmOsy])>/g, (_, pattern) => filenamePatterns[pattern] || '')}.jpg`;
 }
 
 $('#shareSection dt h3').text(chrome.i18n.getMessage('shareHeader'));

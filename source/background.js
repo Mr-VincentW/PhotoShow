@@ -193,6 +193,9 @@
  * @version 4.15.0.0 | 2022-03-27 | Vincent   // Updates: Support file naming;
  *                                            // Updates: Better support for YouTube;
  *                                            // Bug Fix: Supporting issue for Flickr due to its website updates, in response to user feedback.
+ * @version 4.15.1.0 | 2022-03-30 | Vincent   // Updates: Support save-as-dialog for file downloading;
+ *                                            // Updates: Remove default filename;
+ *                                            // Bug Fix: Download file naming compatibility issue for Firefox.
  *
  */
 
@@ -2815,10 +2818,36 @@ const tools = {
     const url = sourceUrl && new URL(sourceUrl);
     return (url && /^http/.test(url.protocol) && url.hostname) || '';
   },
+  getDownloadFilename: function (hostname, imgSrc, originalFilename, downloadTime) {
+    const filename =
+        originalFilename ||
+        (/([^/]+?(?:\.(?:jpe?g|gif|pn[gj]|bmp|webp|svg)\b)?(?=(?:\?|$)))/.test(imgSrc) ? RegExp.$1 : ''),
+      filenamePatterns = {
+        ...(/(?<y>\d+)-(?<M>\d+)-(?<d>\d+)T(?<h>\d+):(?<m>\d+):(?<s>\d+)/.exec(downloadTime || new Date().toISOString())
+          ?.groups || {}),
+        H: hostname || this.getUrlHostname(imgSrc),
+        O: filename.split('.')[0]
+      },
+      extFilename = /(\..+$)/.test(filename) ? RegExp.$1 : '.jpg';
+
+    return `${
+      (PHOTOSHOW_CONFIGS.fileNaming?.pattern || '<O>').replaceAll(
+        /<([dHhMmOsy])>/g,
+        (_, pattern) => filenamePatterns[pattern] || ''
+      ) || filenamePatterns.O
+    }${extFilename}`;
+  },
   downloadImg: function (imgSrc, tabUrl) {
     if (imgSrc) {
       tabUrl = new URL(tabUrl);
       imgSrc = imgSrc.replace(/\b(gif)v\b/, 'gif'); // Replace 'gifv' suffix used by Tumblr with 'gif' as otherwise it causes downloading problems in Firefox.
+
+      // For Firefox when not using original filename.
+      const filename =
+          !chrome.downloads.onDeterminingFilename && !/<O>/.test(PHOTOSHOW_CONFIGS.fileNaming?.pattern || '<O>')
+            ? this.getDownloadFilename(tabUrl.hostname, imgSrc)
+            : undefined,
+        alwaysAsk = PHOTOSHOW_CONFIGS.fileNaming?.alwaysAsk || false;
 
       if (XHR_DOWNLOAD_REQUIRED_HOSTNAMES.includes(new URL(imgSrc).hostname)) {
         let xhr = new XMLHttpRequest();
@@ -2833,8 +2862,10 @@ const tools = {
 
             chrome.downloads.download(
               {
+                filename,
                 url: blobUrl,
-                conflictAction: 'uniquify'
+                conflictAction: 'uniquify',
+                saveAs: alwaysAsk
               },
               downloadItemId => {
                 if (chrome.runtime.lastError || !downloadItemId) {
@@ -2857,8 +2888,10 @@ const tools = {
       } else {
         chrome.downloads.download(
           {
+            filename,
             url: imgSrc,
-            conflictAction: 'uniquify'
+            conflictAction: 'uniquify',
+            saveAs: alwaysAsk
           },
           downloadItemId => {
             if (!chrome.runtime.lastError && downloadItemId) {
@@ -3339,26 +3372,16 @@ chrome.downloads.onChanged.addListener(downloadInfo => {
   }
 });
 
-chrome.downloads.onDeterminingFilename.addListener(({ byExtensionId, filename, id, startTime, url }, suggest) => {
-  const matchedDownloadItem = DOWNLOAD_ITMES[id];
-
+// Note: Firefox doesn't support downloads.onDeterminingFilename method.
+chrome.downloads.onDeterminingFilename?.addListener(({ byExtensionId, filename, id, startTime, url }, suggest) => {
   if (byExtensionId === chrome.runtime.id) {
-    const filenamePatterns = {
-        ...(/(?<y>\d+)-(?<M>\d+)-(?<d>\d+)T(?<h>\d+):(?<m>\d+):(?<s>\d+)/.exec(startTime)?.groups || {}),
-        H: matchedDownloadItem?.hostname || tools.getUrlHostname(url),
-        O: /([^/]+?)(?=\.(?:jpe?g|gif|pn[gj]|bmp|webp|svg)\b)/.test(matchedDownloadItem?.src)
-          ? RegExp.$1
-          : filename.split('.')[0]
-      },
-      extFilename = /(\..+$)/.test(filename) ? RegExp.$1 : '.jpg';
-
     suggest({
-      filename: `${
-        (PHOTOSHOW_CONFIGS.fileNaming || chrome.i18n.getMessage('fileNamingDefaultFilename')).replaceAll(
-          /<([dHhMmOsy])>/g,
-          (_, pattern) => filenamePatterns[pattern] || ''
-        ) || filenamePatterns.O
-      }${extFilename}`
+      filename: tools.getDownloadFilename(
+        DOWNLOAD_ITMES[id]?.hostname || tools.getUrlHostname(url),
+        url,
+        filename,
+        startTime
+      )
     });
   }
 });
@@ -3369,6 +3392,22 @@ chrome.storage.sync.get(['disabledWebsites', 'photoShowConfigs', 'statistics'], 
     DISABLED_WEBSITES = response.disabledWebsites || [];
     PHOTOSHOW_CONFIGS = response.photoShowConfigs || {};
     statistics.init(response.statistics);
+
+    ////////// TODO: Remove this snippet afterwards. //////////
+    if (typeof PHOTOSHOW_CONFIGS.fileNaming === 'string') {
+      if (/^(?:PhotoShowDownloads|浮图秀下载|浮圖秀下載)\/<y>-<M>-<d>\/<O>$/.test(PHOTOSHOW_CONFIGS.fileNaming)) {
+        delete PHOTOSHOW_CONFIGS.fileNaming;
+      } else {
+        PHOTOSHOW_CONFIGS.fileNaming = {
+          pattern: PHOTOSHOW_CONFIGS.fileNaming
+        };
+      }
+
+      chrome.storage.sync.set({
+        photoShowConfigs: PHOTOSHOW_CONFIGS
+      });
+    }
+    //////////
   }
 });
 

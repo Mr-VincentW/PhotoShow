@@ -27,10 +27,11 @@
  * @version 4.10.0.0 | 2021-09-18 | Vincent   // Updates: Add config items for viewer location settings;
  *                                            // Updates: Optimize config items naming;
  *                                            // Updates: Upgrade jQuery to 3.6.0.
- * @version 4.12.0.0 | 2021-11-07 | Vincent   // Updates: Add config items for 'developer mode' settings.
- * @version 4.14.0.0 | 2021-12-14 | Vincent   // Updates: Add config items for 'activation delay' settings;
+ * @version 4.12.0.0 | 2021-11-07 | Vincent   // Updates: Add config items for developer-mode settings.
+ * @version 4.14.0.0 | 2021-12-14 | Vincent   // Updates: Add config items for activation-delay settings;
  *                                            // Updates: Disable 'activationExemption' by default.
  * @version 4.15.0.0 | 2022-03-27 | Vincent   // Updates: Support file naming.
+ * @version 4.15.1.0 | 2022-03-30 | Vincent   // Updates: Add config items for file-naming-always-ask settings.
 -->
 
 <html>
@@ -173,26 +174,31 @@
         </dt>
         <dd></dd>
       </dl>
-      <dl class="desc fileNaming-spec" config-item="fileNaming" id="fileNamingSection">
+      <dl class="desc" config-item="fileNaming" id="fileNamingSection">
         <dt>
           <em class="icon icon-file-naming"></em>
           <h3></h3>
         </dt>
-        <dd>
+        <dd config-item="pattern">
           <div class="grid">
             <label>
               <h4 id="fileNamingFilenameTitle"></h4>
               <input type="text" maxlength="200" id="fileNamingFilename" />
             </label>
-            <p>
+            <div>
               <h4 id="fileNamingExampleTitle"></h4>
               <span class="file-naming-example" id="fileNamingExample"></span>
-            </p>
+            </div>
             <div>
               <h4 id="fileNamingPatternsTitle"></h4>
               <ul class="file-naming-patterns" id="fileNamingPatterns"></ul>
             </div>
           </div>
+        </dd>
+      </dl>
+      <dl class="desc checkboxes" config-item="fileNaming">
+        <dd class="desc checkboxes" config-item="alwaysAsk">
+          <label><input type="checkbox" /><span id="fileNamingAlwaysAskDesc"></span></label>
         </dd>
       </dl>
       <dl class="desc share" id="shareSection">
