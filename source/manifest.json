@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2012-2021 Vincent W., MIT-licensed.
+ * Copyright (c) 2012-2022 Vincent W., MIT-licensed.
  * @fileOverview PhotoShow manifest.
  * @author Vincent | vincentwang863@gmail.com
  * @version 1.0.0.0 | 2012-11-29 | Vincent    // Initial version.
@@ -36,8 +36,8 @@
   "manifest_version": 2,
   "name": "__MSG_extensionName__",
   "description": "__MSG_extensionDesc__",
-  "version": "4.15.1",
-  "version_name": "4.15.1",
+  "version": "4.16.0",
+  "version_name": "4.16.0",
   "author": "Vincent W.",
   "default_locale": "en",
   "minimum_chrome_version": "69", // Required for Array.flatMap() method.

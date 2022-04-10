@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2012-2021 Vincent W., MIT-licensed.
+ * Copyright (c) 2012-2022 Vincent W., MIT-licensed.
  * @fileOverview PhotoShow content script for nested iframes.
  * @author Vincent | vincentwang863@gmail.com
  * @version 3.8.5.0 | 2019-07-10 | Vincent    // Initial version.

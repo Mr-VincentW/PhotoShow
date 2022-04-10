@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2012-2021 Vincent W., MIT-licensed.
+ * Copyright (c) 2012-2022 Vincent W., MIT-licensed.
  * @fileOverview PhotoShow content script for main frame.
  * @author Vincent | vincentwang863@gmail.com
  * @version 1.0.0.0 | 2012-12-01 | Vincent    // Initial version.
@@ -149,6 +149,8 @@
  *                                            // Updates: Remove the 'title' attribute from image triggers temporarily when the image viewer is displaying;
  *                                            // Updates: Allow unblocking pseudo elements for some special websites, in response to user feedback.
  * @version 4.15.0.0 | 2022-03-27 | Vincent   // Bug Fix: DOM mutation observation issue due to the missing attribute 'href'.
+ * @version 4.16.0.0 | 2022-04-10 | Vincent   // Bug Fix: Image viewer might persist after mouse leaving browser window;
+ *                                            // Bug Fix: An error happened when handling the keyboard events.
  */
 
 // TODO: Extract common tool methods to external modules.
@@ -1298,6 +1300,8 @@
               this.curTrigger.contains(e.currentTarget) || // This may occur when leaving current element's children.
                 $(e.relatedTarget).closest(this.curTrigger).length || // This may occur when the viewer has already displayed in the updating procedure.
                 this.mouseLeaveAction();
+
+              this.curTrigger = null;
             }
 
             if (target.is('[photoshow-trigger-blocked]') || target.find('[photoshow-trigger-blocked]')) {
@@ -1652,7 +1656,7 @@
         this.moveAction(!!scrollMode);
       };
 
-      const eventKey = e.key.toUpperCase();
+      const eventKey = e.key?.toUpperCase();
 
       switch (eventKey) {
         case 'TAB':
@@ -1795,9 +1799,7 @@
     keyupAction: function (e) {
       this.maskAcceleration = 0;
 
-      const eventKey = e.key.toUpperCase();
-
-      switch (eventKey) {
+      switch (e.key?.toUpperCase()) {
         case 'SHIFT':
         case 'CONTROL':
         case 'ALT':

@@ -122,13 +122,13 @@
 
 3.  **搜索 / 知识 / 专业 类：**
 
-    ACP Journals、Bing、Google、Google books、Google Map、GitHub、JAMA Network、NEJM、Wiki
+    ACP Journals、Bing、Google、Google books、Google Map、GitHub、JAMA Network、NEJM、Wiki、yiigle.com
 
     全历史、百度、百度百科、百度地图、搜图神器、知乎
 
 4.  **新闻 / 社交 / 社区 类：**
 
-    e621.net、Facebook、IMDb、Imgur、Instagram、Reddit、TapTap、Tumblr、TweetDeck、Twipu、Twitter、wattpad
+    e621.net、Facebook、IMDb、Imgur、Instagram、Reddit、TapTap、Tumblr、TweetDeck、Twipu、Twitter、wattpad、yande.re
 
     115 网盘、A 岛匿名版、巴哈姆特、百度贴吧、豆瓣、堆糖、煎蛋、乐乎、网易云音乐、NGA 玩家社区、QQ 空间、今日头条、微博、微信公众号
 

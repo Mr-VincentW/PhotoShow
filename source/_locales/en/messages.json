@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2012-2021 Vincent W., MIT-licensed.
+ * Copyright (c) 2012-2022 Vincent W., MIT-licensed.
  * @fileOverview PhotoShow localization messages (English).
  * @author Vincent | vincentwang863@gmail.com
  * @version 1.0.0.0 | 2012-11-30 | Vincent    // Initial version.
@@ -32,6 +32,7 @@
  * @version 4.15.0.0 | 2022-03-27 | Vincent   // Updates: Add 'file naming' related items.
  * @version 4.15.1.0 | 2022-03-30 | Vincent   // Updates: Add 'fileNamingAlwaysAskDesc';
  *                                            // Updates: Remove 'fileNamingDefaultFilename'.
+ * @version 4.16.0.0 | 2022-04-10 | Vincent   // Updates: Add 'fileNamingExamplePlaceholder'.
  */
 
 {
@@ -351,6 +352,10 @@
   "fileNamingExampleFilename": {
     "message": "Original_File_Name",
     "description": "Example filename."
+  },
+  "fileNamingExamplePlaceholder": {
+    "message": "(File Naming Disabled)",
+    "description": "Example filename placeholder."
   },
   "fileNamingPatternsTitle": {
     "message": "Patterns:",

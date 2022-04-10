@@ -116,11 +116,11 @@ Hereby is a list of part of the websites (hostnames) that **PhotoShow** currentl
 
 3.  **SEARCHING / KNOWLEDGE / EXPERTISE:**
 
-    ACP Journals, allhistory.com, Baidu, Baidu Baike, Baidu Map, Bing, Google, Google books, Google Map, GitHub, JAMA Network, NEJM, soutushenqi.com, Wiki
+    ACP Journals, allhistory.com, Baidu, Baidu Baike, Baidu Map, Bing, Google, Google books, Google Map, GitHub, JAMA Network, NEJM, soutushenqi.com, Wiki, yiigle.com
 
 4.  **NEWS / SOCIAL NETWORKING:**
 
-    115.com, adnmb2.com, Duitang, e621.net, Facebook, gamer.com.tw, IMDb, Imgur, Instagram, Jandan, LOFTER, music.163.com, nga.cn, Qzone, Reddit, TapTap, toutiao.com, Tumblr, TweetDeck, Twipu, Twitter, Sina weibo, wattpad, WeChat webpages
+    115.com, adnmb2.com, Duitang, e621.net, Facebook, gamer.com.tw, IMDb, Imgur, Instagram, Jandan, LOFTER, music.163.com, nga.cn, Qzone, Reddit, TapTap, toutiao.com, Tumblr, TweetDeck, Twipu, Twitter, Sina weibo, wattpad, WeChat webpages, yande.re
 
 5.  **VIDEOS / MUSIC:**
 

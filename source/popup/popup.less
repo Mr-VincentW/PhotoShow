@@ -1,5 +1,5 @@
 ﻿/**
- * Copyright (c) 2012-2021 Vincent W., MIT-licensed.
+ * Copyright (c) 2012-2022 Vincent W., MIT-licensed.
  * @fileOverview PhotoShow popup page style.
  * @author Vincent | vincentwang863@gmail.com
  * @version 1.0.0.0 | 2012-12-07 | Vincent    // Initial version.
@@ -33,6 +33,7 @@
  * @version 4.12.0.0 | 2021-11-07 | Vincent   // Updates: Add 'developer mode' related styles.
  * @version 4.14.0.0 | 2021-12-14 | Vincent   // Updates: Add 'activation delay' related styles.
  * @version 4.15.0.0 | 2022-03-27 | Vincent   // Updates: Support file naming.
+ * @version 4.16.0.0 | 2022-04-10 | Vincent   // Updates: Reshape the config items structure.
  */
 
 // Color definitions
@@ -207,7 +208,6 @@ body {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Microsoft Yahei', '\5b8b\4f53', sans-serif;
   line-height: 1.5;
   color: #333;
-  user-select: none;
   min-width: 540px;
   max-width: 600px;
 
@@ -437,6 +437,56 @@ dl.desc {
   dd {
     color: #666;
     padding: 0 24px;
+
+    &.radios,
+    &.checkboxes {
+      label {
+        display: inline-flex;
+        align-items: baseline;
+
+        &:not(:first-of-type) {
+          margin-left: 20px;
+        }
+
+        &:lang(zh) {
+          align-items: center;
+        }
+
+        input {
+          + span {
+            padding-left: 4px;
+          }
+
+          &:not(:disabled) {
+            &,
+            & + span {
+              transition: color 0.4s;
+              cursor: pointer;
+
+              &:hover {
+                transition: color 0.1s;
+                color: @PHOTOSHOW_BLUE;
+              }
+            }
+          }
+
+          &:disabled + span {
+            cursor: not-allowed;
+            color: #999;
+          }
+        }
+      }
+    }
+
+    [placeholder]:empty:after {
+      content: attr(placeholder);
+      font-style: italic;
+      color: #999;
+    }
+  }
+
+  input:disabled {
+    cursor: not-allowed;
   }
 
   input[type='number'] {
@@ -471,56 +521,10 @@ dl.desc {
     }
   }
 
-  &.radios,
-  &.checkboxes {
-    dd {
-      label {
-        display: inline-flex;
-        align-items: baseline;
-
-        &:not(:first-of-type) {
-          margin-left: 20px;
-        }
-
-        &:lang(zh) {
-          align-items: center;
-        }
-
-        input {
-          + span {
-            padding-left: 4px;
-          }
-
-          &:not([disabled]) {
-            &,
-            & + span {
-              transition: color 0.4s;
-              cursor: pointer;
-
-              &:hover {
-                transition: color 0.1s;
-                color: @PHOTOSHOW_BLUE;
-              }
-            }
-          }
-
-          &[disabled] {
-            &,
-            & + span {
-              cursor: not-allowed;
-            }
-          }
-        }
-      }
-    }
-  }
-
-  &.radios {
-    &.activation-mode {
-      dd {
-        #activationModeDesc + span {
-          padding: 0 30px;
-        }
+  &.activation-mode {
+    dd.radios {
+      #activationModeDesc + span {
+        padding: 0 30px;
       }
     }
   }
@@ -559,22 +563,29 @@ dl.desc {
     }
   }
 
-  .file-naming-example {
-    word-break: break-all;
-  }
-
-  .file-naming-patterns {
-    display: grid;
-    grid-template-columns: repeat(3, auto 1fr);
-    color: #999;
-
-    li:nth-child(odd) {
-      font-weight: bold;
-      margin-right: 4px;
+  &.file-naming {
+    dd:last-child {
+      margin-top: 16px;
     }
 
-    li.long-pattern {
-      grid-column: 2 / span 5;
+    .file-naming-example {
+      word-break: break-all;
+    }
+
+    .file-naming-patterns {
+      display: grid;
+      grid-template-columns: repeat(3, auto 1fr);
+      color: #999;
+
+      li:nth-child(odd) {
+        font-weight: bold;
+        margin-right: 4px;
+        user-select: all;
+      }
+
+      li.long-pattern {
+        grid-column: 2 / span 5;
+      }
     }
   }
 

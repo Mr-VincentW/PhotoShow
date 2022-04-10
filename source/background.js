@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2012-2021 Vincent W., MIT-licensed.
+ * Copyright (c) 2012-2022 Vincent W., MIT-licensed.
  * @fileOverview PhotoShow background js.
  * @author Vincent | vincentwang863@gmail.com
  * @version 1.0.0.0 | 2012-11-30 | Vincent    // Initial version.
@@ -196,6 +196,9 @@
  * @version 4.15.1.0 | 2022-03-30 | Vincent   // Updates: Support save-as-dialog for file downloading;
  *                                            // Updates: Remove default filename;
  *                                            // Bug Fix: Download file naming compatibility issue for Firefox.
+ * @version 4.16.0.0 | 2022-04-10 | Vincent   // Updates: Better support for bilibili, Google;
+ *                                            // Updates: Support yande.re, yiigle.com, in response to user feedback;
+ *                                            // Updates: Allow user to turn off file-naming.
  *
  */
 
@@ -741,10 +744,12 @@ const websiteConfig = {
         processor: '$1$2'
       },
       {
-        selectors: '.cardBangumibox .modal-box,.song-shadow',
+        selectors: '.cardBangumibox .modal-box,.song-shadow,.pic-box,.bili-dyn-card-video__cover',
         srcRegExp: '(//.+\\.hdslb\\.com/.+?@IMG@)[^?]*(\\?.*)?',
         processor: (trigger, src, srcRegExpObj) =>
-          srcRegExpObj.test(trigger.find('img').attr('src')) ? RegExp.$1 + RegExp.$2 : ''
+          srcRegExpObj.test(tools.getLargestImgSrc(trigger.find('img,[style*=background]')))
+            ? RegExp.$1 + RegExp.$2
+            : ''
       },
       {
         srcRegExp: '(//patchwiki\\.biligame\\.com/.+/)\\d+(px-.+@IMG@)',
@@ -1604,7 +1609,7 @@ const websiteConfig = {
   'www\\.google(?:\\.(?:com|[a-z]{2}))+': {
     amendStyles: {
       pointerNone:
-        '.fWhgmd,.ZUQgzb,.hNLpDc-HiaYvf-DWDkFd-HiaYvf-haAclf~label,.a4izxd-tUdTXb-xJzy8c-haAclf-UDotu,.gallery-image-highlight,.HgKUEe,.d6JfQc'
+        '.fWhgmd,.ZUQgzb,.hNLpDc-HiaYvf-DWDkFd-HiaYvf-haAclf~label,.a4izxd-tUdTXb-xJzy8c-haAclf-UDotu,.gallery-image-highlight,.HgKUEe,.d6JfQc,.LLO8yd'
     },
     srcMatching: [
       {
@@ -2666,6 +2671,45 @@ const websiteConfig = {
         srcRegExpObj.test(src || trigger.attr('href')) ? RegExp.$1 + RegExp.$2 : ''
     }
   },
+  'yande\\.re': {
+    srcMatching: [
+      {
+        srcRegExp: '//(?:assets|files)\\.yande\\.re/.+/(\\w+)(?:/.*)?(@IMG@)',
+        processor: (trigger, src, srcRegExpObj) =>
+          srcRegExpObj.test(src)
+            ? tools
+                .detectImage(
+                  `//files.yande.re/image/${RegExp.$1}/yande.re${RegExp.$2}`,
+                  `//files.yande.re/jpeg/${RegExp.$1}/yande.re${RegExp.$2}`
+                )
+                .then(imgInfo => imgInfo.src)
+            : ''
+      },
+      {
+        selectors: '.avatar',
+        srcRegExp: '//(?:assets|files)\\.yande\\.re/.+/(\\w+)(?:/.*)?(@IMG@)',
+        processor: (trigger, src, srcRegExpObj) =>
+          trigger.parent().is('a')
+            ? new Promise((resolve, reject) => {
+                $.ajax(trigger.parent().attr('href'), {
+                  dataType: 'html',
+                  success: response => {
+                    return srcRegExpObj.test($('#image', response).attr('src'))
+                      ? tools
+                          .detectImage(
+                            `//files.yande.re/image/${RegExp.$1}/yande.re${RegExp.$2}`,
+                            `//files.yande.re/jpeg/${RegExp.$1}/yande.re${RegExp.$2}`
+                          )
+                          .then(imgInfo => resolve(imgInfo.src))
+                      : Promise.reject();
+                  },
+                  error: reject
+                });
+              })
+            : ''
+      }
+    ]
+  },
   '(?:.+\\.)?yelp(?:\\.(?:com|[a-z]{2}))+': {
     amendStyles: {
       pointerNone: '.collection-card_photo-box .collection-card_text-overlay'
@@ -2686,6 +2730,14 @@ const websiteConfig = {
         srcRegExp: '//s\\d+-media\\d+\\.fl\\.yelpcdn\\.com/assets/.+@IMG@'
       }
     ]
+  },
+  '(?:.+\\.)?yiigle\\.com': {
+    srcMatching: {
+      selectors: '.graphic',
+      srcRegExp: '(/img(?:content|source).jspx\\?.+?)c?(@IMG@).*',
+      processor: (trigger, src, srcRegExpObj) =>
+        srcRegExpObj.test(trigger.parent().find('img').attr('src')) ? `${RegExp.$1}${RegExp.$2}` : ''
+    }
   },
   '(?:.+\\.)?(?:youku|tudou)\\.com': {
     amendStyles: {
@@ -2821,14 +2873,18 @@ const tools = {
   getDownloadFilename: function (hostname, imgSrc, originalFilename, downloadTime) {
     const filename =
         originalFilename ||
-        (/([^/]+?(?:\.(?:jpe?g|gif|pn[gj]|bmp|webp|svg)\b)?(?=(?:\?|$)))/.test(imgSrc) ? RegExp.$1 : ''),
+        (/([^/]+?(?:\.(?:jpe?g|gif|pn[gj]|bmp|webp|svg))?(?=(?:\?|$)))/i.test(imgSrc) ? RegExp.$1 : ''),
       filenamePatterns = {
         ...(/(?<y>\d+)-(?<M>\d+)-(?<d>\d+)T(?<h>\d+):(?<m>\d+):(?<s>\d+)/.exec(downloadTime || new Date().toISOString())
           ?.groups || {}),
         H: hostname || this.getUrlHostname(imgSrc),
         O: filename.split('.')[0]
       },
-      extFilename = /(\..+$)/.test(filename) ? RegExp.$1 : '.jpg';
+      extFilename = /(\.(?:jpe?g|gif|png|bmp|webp|svg)$)/i.test(filename)
+        ? RegExp.$1.toLowerCase()
+        : /(\.(?:jpe?g|gif|png|bmp|webp|svg))(?=(?:\?|$))/i.test(imgSrc)
+        ? RegExp.$1.toLowerCase()
+        : '.jpg';
 
     return `${
       (PHOTOSHOW_CONFIGS.fileNaming?.pattern || '<O>').replaceAll(
@@ -3315,6 +3371,10 @@ chrome.storage.onChanged.addListener(changes => {
 
   if (changes.photoShowConfigs) {
     PHOTOSHOW_CONFIGS = changes.photoShowConfigs.newValue;
+
+    if (PHOTOSHOW_CONFIGS.fileNaming?.pattern !== changes.photoShowConfigs.oldValue?.fileNaming?.pattern) {
+      setPhotoShowDeterminingFilenameHandler(!!PHOTOSHOW_CONFIGS.fileNaming?.pattern);
+    }
   }
 
   chrome.tabs.query(
@@ -3372,19 +3432,29 @@ chrome.downloads.onChanged.addListener(downloadInfo => {
   }
 });
 
-// Note: Firefox doesn't support downloads.onDeterminingFilename method.
-chrome.downloads.onDeterminingFilename?.addListener(({ byExtensionId, filename, id, startTime, url }, suggest) => {
-  if (byExtensionId === chrome.runtime.id) {
-    suggest({
-      filename: tools.getDownloadFilename(
-        DOWNLOAD_ITMES[id]?.hostname || tools.getUrlHostname(url),
-        url,
-        filename,
-        startTime
-      )
-    });
-  }
-});
+const setPhotoShowDeterminingFilenameHandler = (() => {
+  const photoShowOnDeterminingFilename = ({ byExtensionId, filename, id, startTime, url }, suggest) => {
+    if (byExtensionId === chrome.runtime.id) {
+      suggest({
+        filename: tools.getDownloadFilename(
+          DOWNLOAD_ITMES[id]?.hostname || tools.getUrlHostname(url),
+          url,
+          filename,
+          startTime
+        )
+      });
+    }
+  };
+
+  return isEnabled => {
+    // Note: Firefox doesn't support downloads.onDeterminingFilename method.
+    if (isEnabled) {
+      chrome.downloads.onDeterminingFilename?.addListener(photoShowOnDeterminingFilename);
+    } else {
+      chrome.downloads.onDeterminingFilename?.removeListener(photoShowOnDeterminingFilename);
+    }
+  };
+})();
 
 // Initialization.
 chrome.storage.sync.get(['disabledWebsites', 'photoShowConfigs', 'statistics'], response => {
@@ -3408,6 +3478,8 @@ chrome.storage.sync.get(['disabledWebsites', 'photoShowConfigs', 'statistics'], 
       });
     }
     //////////
+
+    setPhotoShowDeterminingFilenameHandler(!!PHOTOSHOW_CONFIGS.fileNaming?.pattern);
   }
 });
 

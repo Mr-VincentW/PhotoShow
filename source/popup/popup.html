@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <!--
- * Copyright (c) 2012-2021 Vincent W., MIT-licensed.
+ * Copyright (c) 2012-2022 Vincent W., MIT-licensed.
  * @fileOverview PhotoShow popup page.
  * @author Vincent | vincentwang863@gmail.com
  * @version 1.0.0.0 | 2012-12-07 | Vincent    // Initial version.
@@ -32,6 +32,7 @@
  *                                            // Updates: Disable 'activationExemption' by default.
  * @version 4.15.0.0 | 2022-03-27 | Vincent   // Updates: Support file naming.
  * @version 4.15.1.0 | 2022-03-30 | Vincent   // Updates: Add config items for file-naming-always-ask settings.
+ * @version 4.16.0.0 | 2022-04-10 | Vincent   // Updates: Reshape the config items structure.
 -->
 
 <html>
@@ -52,21 +53,21 @@
       <span id="stateToggleBtn" class="state-toggle-btn"></span>
     </div>
     <div class="settings" id="settings">
-      <dl class="desc checkboxes works-everywhere" config-item="worksEverywhere" id="worksEverywhereSection">
+      <dl class="desc works-everywhere" config-item="worksEverywhere" id="worksEverywhereSection">
         <dt>
           <em class="icon icon-works-everywhere"></em>
           <h3></h3>
         </dt>
-        <dd>
+        <dd class="checkboxes">
           <label><input type="checkbox" checked /><span id="worksEverywhereDesc"></span></label>
         </dd>
       </dl>
-      <dl class="desc radios activation-mode" config-item="activationMode" id="activationModeSection">
+      <dl class="desc activation-mode" config-item="activationMode" id="activationModeSection">
         <dt>
           <em class="icon icon-activation"></em>
           <h3></h3>
         </dt>
-        <dd>
+        <dd class="radios">
           <span id="activationModeDesc"></span><span>+</span>
           <label>
             <input type="radio" name="activationModeRadio" checked value="" />
@@ -77,12 +78,12 @@
           <label><input type="radio" name="activationModeRadio" value="alt" /><span>Alt</span></label>
         </dd>
       </dl>
-      <dl class="desc checkboxes" config-item="activationExemption" id="activationExemptionSection">
+      <dl class="desc" config-item="activationExemption" id="activationExemptionSection">
         <dt>
           <em class="icon icon-activation-exemption"></em>
           <h3></h3>
         </dt>
-        <dd>
+        <dd class="checkboxes">
           <label><input type="checkbox" /><span id="activationExemptionDesc"></span></label>
         </dd>
       </dl>
@@ -99,71 +100,71 @@
           </label>
         </dd>
       </dl>
-      <dl class="desc radios" config-item="viewMode" id="viewModeSection">
+      <dl class="desc" config-item="viewMode" id="viewModeSection">
         <dt>
           <em class="icon icon-view-mode"></em>
           <h3></h3>
         </dt>
-        <dd></dd>
+        <dd class="radios"></dd>
       </dl>
-      <dl class="desc checkboxes" config-item="viewerLocation" id="viewerLocationSection">
+      <dl class="desc" config-item="viewerLocation" id="viewerLocationSection">
         <dt>
           <em class="icon icon-viewer-location"></em>
           <h3></h3>
         </dt>
-        <dd></dd>
+        <dd class="checkboxes"></dd>
       </dl>
-      <dl class="desc checkboxes" config-item="imageSizeDisplay" id="imageSizeDisplaySection">
+      <dl class="desc" config-item="imageSizeDisplay" id="imageSizeDisplaySection">
         <dt>
           <em class="icon icon-image-size-display"></em>
           <h3></h3>
         </dt>
-        <dd>
+        <dd class="checkboxes">
           <label><input type="checkbox" checked /><span id="imageSizeDisplayDesc"></span></label>
         </dd>
       </dl>
-      <dl class="desc checkboxes" config-item="shadowDisplay" id="shadowDisplaySection">
+      <dl class="desc" config-item="shadowDisplay" id="shadowDisplaySection">
         <dt>
           <em class="icon icon-shadow-display"></em>
           <h3></h3>
         </dt>
-        <dd>
+        <dd class="checkboxes">
           <label><input type="checkbox" checked /><span id="shadowDisplayDesc"></span></label>
         </dd>
       </dl>
-      <dl class="desc checkboxes" config-item="loadingStatusDisplay" id="loadingStatusDisplaySection">
+      <dl class="desc" config-item="loadingStatusDisplay" id="loadingStatusDisplaySection">
         <dt>
           <em class="icon icon-loading"></em>
           <h3></h3>
         </dt>
-        <dd>
+        <dd class="checkboxes">
           <label><input type="checkbox" checked /><span id="loadingStatusDisplayDesc"></span></label>
         </dd>
       </dl>
-      <dl class="desc checkboxes" config-item="enableAnimation" id="animationToggleSection">
+      <dl class="desc" config-item="enableAnimation" id="animationToggleSection">
         <dt>
           <em class="icon icon-animation"></em>
           <h3></h3>
         </dt>
-        <dd>
+        <dd class="checkboxes">
           <label><input type="checkbox" checked /><span id="animationToggleDesc"></span></label>
         </dd>
       </dl>
-      <dl class="desc checkboxes" config-item="contextMenu" id="contextMenuToggleSection">
+      <dl class="desc" config-item="contextMenu" id="contextMenuToggleSection">
         <dt>
           <em class="icon icon-context-menu"></em>
           <h3></h3>
         </dt>
-        <dd>
+        <dd class="checkboxes">
           <label><input type="checkbox" checked /><span id="contextMenuToggleDesc"></span></label>
         </dd>
       </dl>
-      <dl class="desc checkboxes" config-item="developerModeSuspension" id="developerModeToggleSection">
+      <dl class="desc" config-item="developerModeSuspension" id="developerModeToggleSection">
         <dt>
           <em class="icon icon-developer-mode"></em>
           <h3></h3>
         </dt>
-        <dd>
+        <dd class="checkboxes">
           <label><input type="checkbox" checked /><span id="developerModeToggleDesc"></span></label>
         </dd>
       </dl>
@@ -174,7 +175,7 @@
         </dt>
         <dd></dd>
       </dl>
-      <dl class="desc" config-item="fileNaming" id="fileNamingSection">
+      <dl class="desc file-naming" config-item="fileNaming" id="fileNamingSection">
         <dt>
           <em class="icon icon-file-naming"></em>
           <h3></h3>
@@ -195,9 +196,7 @@
             </div>
           </div>
         </dd>
-      </dl>
-      <dl class="desc checkboxes" config-item="fileNaming">
-        <dd class="desc checkboxes" config-item="alwaysAsk">
+        <dd class="checkboxes" config-item="alwaysAsk">
           <label><input type="checkbox" /><span id="fileNamingAlwaysAskDesc"></span></label>
         </dd>
       </dl>

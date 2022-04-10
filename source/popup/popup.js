@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2012-2021 Vincent W., MIT-licensed.
+ * Copyright (c) 2012-2022 Vincent W., MIT-licensed.
  * @fileOverview PhotoShow popup page script.
  * @author Vincent | vincentwang863@gmail.com
  * @version 1.0.0.0 | 2012-12-07 | Vincent    // Initial version.
@@ -48,6 +48,7 @@
  * @version 4.15.0.0 | 2022-03-27 | Vincent   // Updates: Support file naming.
  * @version 4.15.1.0 | 2022-03-30 | Vincent   // Updates: Add config items for file-naming-always-ask settings;
  *                                            // Updates: Remove default filename.
+ * @version 4.16.0.0 | 2022-04-10 | Vincent   // Updates: Allow user to turn off file-naming.
  */
 
 // TODO: Support customising hotkeys.
@@ -348,7 +349,7 @@ $('#fileNamingSection dt h3').text(chrome.i18n.getMessage('fileNamingHeader'));
 $('#fileNamingFilenameTitle').text(chrome.i18n.getMessage('fileNamingFilenameTitle'));
 $('#fileNamingFilename').attr('placeholder', chrome.i18n.getMessage('fileNamingFilenamePlaceholder'));
 $('#fileNamingExampleTitle').text(chrome.i18n.getMessage('fileNamingExampleTitle'));
-$('#fileNamingExample').text(getFilenameExample($('#fileNamingFilename').val()));
+$('#fileNamingExample').attr('placeholder', chrome.i18n.getMessage('fileNamingExamplePlaceholder'));
 $('#fileNamingPatternsTitle').text(chrome.i18n.getMessage('fileNamingPatternsTitle'));
 $('#fileNamingPatterns').append(
   ['year', 'Month', 'date', 'hour', 'minute', 'second', 'Hostname', 'OriginalFilename'].map(
@@ -381,7 +382,9 @@ function getFilenameExample(filename) {
     O: chrome.i18n.getMessage('fileNamingExampleFilename')
   };
 
-  return `${(filename || '<O>').replaceAll(/<([dHhMmOsy])>/g, (_, pattern) => filenamePatterns[pattern] || '')}.jpg`;
+  return filename
+    ? `${filename.replaceAll(/<([dHhMmOsy])>/g, (_, pattern) => filenamePatterns[pattern] || '')}.jpg`
+    : '';
 }
 
 $('#shareSection dt h3').text(chrome.i18n.getMessage('shareHeader'));
