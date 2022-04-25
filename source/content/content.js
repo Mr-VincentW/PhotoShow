@@ -151,6 +151,8 @@
  * @version 4.15.0.0 | 2022-03-27 | Vincent   // Bug Fix: DOM mutation observation issue due to the missing attribute 'href'.
  * @version 4.16.0.0 | 2022-04-10 | Vincent   // Bug Fix: Image viewer might persist after mouse leaving browser window;
  *                                            // Bug Fix: An error happened when handling the keyboard events.
+ * @version 4.16.1.0 | 2022-04-25 | Vincent   // Bug Fix: Long base64-encoded image src causes src matching stuck;
+ *                                            // Bug Fix: Image viewer doesn't close properly in some certain cases due to wrong event targets referring, reported by users (GitHub issue #46).
  */
 
 // TODO: Extract common tool methods to external modules.
@@ -511,14 +513,14 @@
 
             if (/^(?:function|\(?[\w,\s]*\)?\s*=>)/.test(srcMatchingRule.processor)) {
               imgSrc = eval(`(${srcMatchingRule.processor})`).call(element, target, targetSrc, srcRegExpObj) || '';
-            } else if (srcRegExpObj) {
+            } else if (srcRegExpObj && !/^data:image\//.test(targetSrc)) {
               if (srcRegExpObj.test(targetSrc)) {
                 imgSrc = srcMatchingRule.processor
                   ? targetSrc.replace(srcRegExpObj, srcMatchingRule.processor)
                   : targetSrc;
               }
             } else {
-              imgSrc = srcMatchingRule.processor || targetSrc;
+              imgSrc = targetSrc;
             }
           }
 
@@ -1295,20 +1297,26 @@
             this.hasMask && this.moveAction();
           });
           this._bindEvent('document', 'mouseleave', function (e) {
-            var target = $(e.currentTarget);
-            if (this.curTrigger) {
-              this.curTrigger.contains(e.currentTarget) || // This may occur when leaving current element's children.
-                $(e.relatedTarget).closest(this.curTrigger).length || // This may occur when the viewer has already displayed in the updating procedure.
-                this.mouseLeaveAction();
+            var target = $(e.target);
 
-              this.curTrigger = null;
+            if (this.curTrigger) {
+              if (
+                !(
+                  (this.curTrigger.contains(e.target) && this.curTrigger !== e.target) || // This may occur when leaving current element's children.
+                  // This may occur when the viewer has already been displayed in the updating procedure.
+                  $(e.relatedTarget).closest(this.curTrigger).length
+                )
+              ) {
+                this.mouseLeaveAction();
+                this.curTrigger = null;
+              }
             }
 
             if (target.is('[photoshow-trigger-blocked]') || target.find('[photoshow-trigger-blocked]')) {
               $('[photoshow-trigger-blocked]').removeAttr('photoshow-trigger-blocked');
             }
 
-            if (target.is('html') && e.currentTarget.ownerDocument.defaultView == window.top) {
+            if (target.is('html') && e.target.ownerDocument.defaultView == window.top) {
               Object.assign(this, {
                 mouseClientPos: {
                   x: -1,

@@ -199,6 +199,9 @@
  * @version 4.16.0.0 | 2022-04-10 | Vincent   // Updates: Better support for bilibili, Google;
  *                                            // Updates: Support yande.re, yiigle.com, in response to user feedback;
  *                                            // Updates: Allow user to turn off file-naming.
+ * @version 4.16.1.0 | 2022-04-25 | Vincent   // Updates: Better support for bilibili, in response to user feedback;
+ *                                            // Updates: Support cangku, in response to user feedback (GitHub issue #43);
+ *                                            // Updates: Support Konachan, in response to user feedback (GitHub issue #45).
  *
  */
 
@@ -259,7 +262,7 @@
 // 'processor' is used to generate the src of the 'large' image. If it is:
 // · A function: It will be called to generate the src of the high-definition image, usually being used to process those non-image triggers;
 //   Note: the processor function may return either a string (src of the high-definition image) or a Promise object which is going to 'resolve' an src string.
-// · A String: It will be used alongside 'srcRegExp' (if there were) as arguments in src replacement;
+// · A String: It will be used alongside 'srcRegExp' (if present) as arguments in src replacement;
 // · Omitted: the original src or the src of the largest image in the srcset list (if applicable) will be used.
 
 const websiteConfig = {
@@ -733,7 +736,7 @@ const websiteConfig = {
   '.+\\.bili(?:bili|game)\\.com': {
     amendStyles: {
       pointerNone:
-        '.biref-img img~*,.bili-avatar img~*,.groom-module .card-mark,.spread-module .pic img~*,.spread-module .pic .common-lazy-img~*,.cover-ctn .cover-back,.hot-list-content .hover-mask,.play-mask,.recommend-box .info,.hover-cover-box *,.cover *:not(img),.image-area *:not(img),.face-pendants,.pendant,.user-decorator,.bilibili-player-ending-panel-box-recommend-cover,.van-framepreview,.fake-danmu,.fake-danmu-mask,.preview-bg,.pl__mask,.video-card-reco .info,.card-pic a *:not(img),.rib-info,.video-mask',
+        '.biref-img img~*,.bili-avatar img~*,.groom-module .card-mark,.spread-module .pic img~*,.spread-module .pic .common-lazy-img~*,.cover-ctn .cover-back,.hot-list-content .hover-mask,.play-mask,.recommend-box .info,.hover-cover-box *,.image-area *:not(img),.face-pendants,.pendant,.user-decorator,.bilibili-player-ending-panel-box-recommend-cover,.van-framepreview,.fake-danmu,.fake-danmu-mask,.preview-bg,.pl__mask,.video-card-reco .info,.card-pic a *:not(img),.rib-info,.video-mask',
       pointerAuto: '.hover-cover-box .cover-ctnr,.image-area .see-later,.cover .i-watchlater'
     },
     srcMatching: [
@@ -832,6 +835,17 @@ const websiteConfig = {
       srcRegExp: '(.+/productimages/.+@IMG@).*',
       processor: (trigger, src, srcRegExpObj) =>
         srcRegExpObj.test(src || trigger.find('img').attr('src')) ? RegExp.$1 : ''
+    }
+  },
+  'cangku\\.icu': {
+    amendStyles: {
+      pointerNone: '.post-card-content .cover'
+    },
+    srcMatching: {
+      selectors: '.post-card-content',
+      srcRegExp: '.*(https?://.+@IMG@).*',
+      processor: (trigger, src, srcRegExpObj) =>
+        srcRegExpObj.test(trigger.find('.cover').data('src')) ? RegExp.$1 : ''
     }
   },
   '(?:.+\\.)?(?:(?:catch(?:oftheday)?|treatme)\\.co\\.nz|(?:catch|cudo|deals|groceryrun|luxuryescapes|mumgo|scoopon)\\.com(?:\\.au)?)':
@@ -1052,7 +1066,7 @@ const websiteConfig = {
         processor: '$1'
       },
       {
-        processor: 'img,.block-link',
+        selectors: 'img,.block-link',
         srcRegExp: 'qcloud\\.dpfile\\.com/.+@IMG@',
         processor: (trigger, src, srcRegExpObj) =>
           trigger.data('big') || /\/photos\/\d+/.test(trigger.closest('a').attr('href'))
@@ -2671,23 +2685,11 @@ const websiteConfig = {
         srcRegExpObj.test(src || trigger.attr('href')) ? RegExp.$1 + RegExp.$2 : ''
     }
   },
-  'yande\\.re': {
+  'konachan\\.(?:com|net)|yande\\.re': {
     srcMatching: [
       {
-        srcRegExp: '//(?:assets|files)\\.yande\\.re/.+/(\\w+)(?:/.*)?(@IMG@)',
-        processor: (trigger, src, srcRegExpObj) =>
-          srcRegExpObj.test(src)
-            ? tools
-                .detectImage(
-                  `//files.yande.re/image/${RegExp.$1}/yande.re${RegExp.$2}`,
-                  `//files.yande.re/jpeg/${RegExp.$1}/yande.re${RegExp.$2}`
-                )
-                .then(imgInfo => imgInfo.src)
-            : ''
-      },
-      {
         selectors: '.avatar',
-        srcRegExp: '//(?:assets|files)\\.yande\\.re/.+/(\\w+)(?:/.*)?(@IMG@)',
+        srcRegExp: '//(?:.+\\.)?(konachan\\.(?:com|net)|yande\\.re)/.+/(\\w+)(?:/.*)?(@IMG@)',
         processor: (trigger, src, srcRegExpObj) =>
           trigger.parent().is('a')
             ? new Promise((resolve, reject) => {
@@ -2697,8 +2699,8 @@ const websiteConfig = {
                     return srcRegExpObj.test($('#image', response).attr('src'))
                       ? tools
                           .detectImage(
-                            `//files.yande.re/image/${RegExp.$1}/yande.re${RegExp.$2}`,
-                            `//files.yande.re/jpeg/${RegExp.$1}/yande.re${RegExp.$2}`
+                            `//${RegExp.$1}/image/${RegExp.$2}/${RegExp.$1}${RegExp.$3}`,
+                            `//${RegExp.$1}/jpeg/${RegExp.$2}/${RegExp.$1}${RegExp.$3}`
                           )
                           .then(imgInfo => resolve(imgInfo.src))
                       : Promise.reject();
@@ -2706,6 +2708,18 @@ const websiteConfig = {
                   error: reject
                 });
               })
+            : ''
+      },
+      {
+        srcRegExp: '//(?:.+\\.)?(konachan\\.(?:com|net)|yande\\.re)/.+/(\\w+)(?:/.*)?(@IMG@)',
+        processor: (trigger, src, srcRegExpObj) =>
+          srcRegExpObj.test(src)
+            ? tools
+                .detectImage(
+                  `//${RegExp.$1}/image/${RegExp.$2}/${RegExp.$1}${RegExp.$3}`,
+                  `//${RegExp.$1}/jpeg/${RegExp.$2}/${RegExp.$1}${RegExp.$3}`
+                )
+                .then(imgInfo => imgInfo.src)
             : ''
       }
     ]

@@ -120,7 +120,7 @@ Hereby is a list of part of the websites (hostnames) that **PhotoShow** currentl
 
 4.  **NEWS / SOCIAL NETWORKING:**
 
-    115.com, adnmb2.com, Duitang, e621.net, Facebook, gamer.com.tw, IMDb, Imgur, Instagram, Jandan, LOFTER, music.163.com, nga.cn, Qzone, Reddit, TapTap, toutiao.com, Tumblr, TweetDeck, Twipu, Twitter, Sina weibo, wattpad, WeChat webpages, yande.re
+    115.com, adnmb2.com, cangku.icu, Duitang, e621.net, Facebook, gamer.com.tw, IMDb, Imgur, Instagram, Jandan, Konachan, LOFTER, music.163.com, nga.cn, Qzone, Reddit, TapTap, toutiao.com, Tumblr, TweetDeck, Twipu, Twitter, Sina weibo, wattpad, WeChat webpages, yande.re
 
 5.  **VIDEOS / MUSIC:**
 
