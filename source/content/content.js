@@ -153,6 +153,9 @@
  *                                            // Bug Fix: An error happened when handling the keyboard events.
  * @version 4.16.1.0 | 2022-04-25 | Vincent   // Bug Fix: Long base64-encoded image src causes src matching stuck;
  *                                            // Bug Fix: Image viewer doesn't close properly in some certain cases due to wrong event targets referring, reported by users (GitHub issue #46).
+ * @version 4.16.2.0 | 2022-04-30 | Vincent   // Updates: Support jfif format.
+ * @version 4.17.0.0 | 2022-05-28 | Vincent   // Updates: Add 'ignoreHDSrcCaching' feature;
+ *                                            // Bug Fix: View mode switching failure in some certain cases.
  */
 
 // TODO: Extract common tool methods to external modules.
@@ -292,7 +295,7 @@
 
       !src &&
         target.is('a') &&
-        /\.(?:jpe?g|gifv?|pn[gj]|bmp|webp|svg)\b/.test(target.attr('href')) &&
+        /\.(?:jpe?g|jfif|gifv?|pn[gj]|bmp|webp|svg)\b/.test(target.attr('href')) &&
         (src = target.attr('href')); // Get link address if it doesn't have a background image.
 
       return src ? new URL(src, location.origin).href : '';
@@ -416,7 +419,12 @@
         if (this._viewMode.name != modeName) {
           photoShowViewer.viewModeSwitchTip && photoShowViewer.viewModeSwitchTip.text(modeName[0]);
           this._viewMode = VIEW_MODES[modeName[0]];
-          photoShowViewer.hasImgShown && photoShowViewer.update();
+
+          if (photoShowViewer.hasImgShown) {
+            photoShowViewer.mouseOverAction({
+              target: photoShowViewer.curTrigger
+            });
+          }
         } else {
           photoShowViewer.isViewerChanged = false;
         }
@@ -491,8 +499,9 @@
 
       if (
         element &&
-        !(imgSrc =
-          target.attr('photoshow-hd-src') || target.closest('[data-photoshow-hd-src]').data('photoshow-hd-src'))
+        (this.websiteConfig.ignoreHDSrcCaching ||
+          !(imgSrc =
+            target.attr('photoshow-hd-src') || target.closest('[data-photoshow-hd-src]').data('photoshow-hd-src')))
       ) {
         const generalMatchingRules = [
           {
@@ -1852,7 +1861,6 @@
 
             case 'attributes':
               if (
-                target.is('[photoshow-hd-src],[data-photoshow-hd-src]') ||
                 (~mutation.attributeName.indexOf('src') && target.is('img,source')) ||
                 (mutation.attributeName == 'style' &&
                   tools.getBackgroundImgSrc(mutation.oldValue) &&
@@ -1860,9 +1868,9 @@
               ) {
                 const srcCacheHost = target.closest('[photoshow-hd-src],[data-photoshow-hd-src]');
 
-                this.hasImgViewerShown &&
-                  srcCacheHost.attr('photoshow-hd-src') == this.imgSrc &&
+                if (this.hasImgViewerShown && srcCacheHost.attr('photoshow-hd-src') == this.imgSrc) {
                   this.refreshImgViewer();
+                }
 
                 srcCacheHost
                   .removeAttr('photoshow-hd-src')

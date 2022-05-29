@@ -49,6 +49,7 @@
  * @version 4.15.1.0 | 2022-03-30 | Vincent   // Updates: Add config items for file-naming-always-ask settings;
  *                                            // Updates: Remove default filename.
  * @version 4.16.0.0 | 2022-04-10 | Vincent   // Updates: Allow user to turn off file-naming.
+ * @version 4.17.0.0 | 2022-05-28 | Vincent   // Bug Fix: Incorrect time zone issue in file naming (GitHub issue #51).
  */
 
 // TODO: Support customising hotkeys.
@@ -376,11 +377,14 @@ $('#fileNamingFilename')
   });
 
 function getFilenameExample(filename) {
-  const filenamePatterns = {
-    ...(/(?<y>\d+)-(?<M>\d+)-(?<d>\d+)T(?<h>\d+):(?<m>\d+):(?<s>\d+)/.exec(new Date().toISOString())?.groups || {}),
-    H: 'hostname',
-    O: chrome.i18n.getMessage('fileNamingExampleFilename')
-  };
+  const now = new Date(),
+    filenamePatterns = {
+      ...(/(?<y>\d+)-(?<M>\d+)-(?<d>\d+)T(?<h>\d+):(?<m>\d+):(?<s>\d+)/.exec(
+        new Date(now - now.getTimezoneOffset() * 60 * 1000).toISOString()
+      )?.groups || {}),
+      H: 'hostname',
+      O: chrome.i18n.getMessage('fileNamingExampleFilename')
+    };
 
   return filename
     ? `${filename.replaceAll(/<([dHhMmOsy])>/g, (_, pattern) => filenamePatterns[pattern] || '')}.jpg`

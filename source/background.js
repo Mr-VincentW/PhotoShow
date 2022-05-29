@@ -202,6 +202,13 @@
  * @version 4.16.1.0 | 2022-04-25 | Vincent   // Updates: Better support for bilibili, in response to user feedback;
  *                                            // Updates: Support cangku, in response to user feedback (GitHub issue #43);
  *                                            // Updates: Support Konachan, in response to user feedback (GitHub issue #45).
+ * @version 4.16.2.0 | 2022-04-30 | Vincent   // Updates: Resupport huaban for its new version;
+ *                                            // Updates: Support jfif format.
+ * @version 4.17.0.0 | 2022-05-28 | Vincent   // Updates: Add 'ignoreHDSrcCaching' feature;
+ *                                            // Updates: Better support for bilibili, IMDb, and YouTube;
+ *                                            // Updates: Support zhipin.com, in response to user feedback;
+ *                                            // Bug Fix: Side effects on music.163.com (GitHub issue #50);
+ *                                            // Bug Fix: Incorrect time zone issue in file naming (GitHub issue #51).
  *
  */
 
@@ -221,6 +228,7 @@
 // TODO: After 'data-photoshow-hd-src' is removed by toggling off PhotoShow, it won't work when PhotoShow's toggled on again. Need other ways to cache data.
 // TODO: Prefix 'img,[style*=background]' by default as selectors for all matching rules.
 // TODO: Handle invalid download filename.
+// TODO: Figure out a better way to do ignoreHDSrcCaching. (This rule should be applied at rule level instead of website level.)
 
 // Website info structure:
 // {
@@ -237,6 +245,7 @@
 //                                     // Arguments: srcRegExpObj{RegExp}    // An RegExp object constructed by srcRegExp.
 //                                     // Return Value: {String}             // Src of the high-definition image; return '' if not applicable.
 //   },
+//   ignoreHDSrcCaching: {Boolean},    // (Optional) Specify if the 'photoshow-hd-src' cached on triggers should be ignored when detecting new HD image srcs. Default: false.
 //   xhrDownload: {String|Array},      // (Optional) If downloading images under certain hostnames on this website needs the 'referer' header of the HTTP(S) request set, list the hostnames here.
 //   noReferrer: {Boolean},            // (Optional) Set the 'referrerPolicy' field of the img element to 'no-referrer' when displaying the HD image, if this parameter is specified as true.
 //   onToggle: {Function},             // (Optional) Callback when PhotoShow is toggled on/off on the hosting page.
@@ -736,7 +745,7 @@ const websiteConfig = {
   '.+\\.bili(?:bili|game)\\.com': {
     amendStyles: {
       pointerNone:
-        '.biref-img img~*,.bili-avatar img~*,.groom-module .card-mark,.spread-module .pic img~*,.spread-module .pic .common-lazy-img~*,.cover-ctn .cover-back,.hot-list-content .hover-mask,.play-mask,.recommend-box .info,.hover-cover-box *,.image-area *:not(img),.face-pendants,.pendant,.user-decorator,.bilibili-player-ending-panel-box-recommend-cover,.van-framepreview,.fake-danmu,.fake-danmu-mask,.preview-bg,.pl__mask,.video-card-reco .info,.card-pic a *:not(img),.rib-info,.video-mask',
+        '.biref-img img~*,.bili-avatar img~*,.groom-module .card-mark,.spread-module .pic img~*,.spread-module .pic .common-lazy-img~*,.cover-ctn .cover-back,.hot-list-content .hover-mask,.play-mask,.recommend-box .info,.hover-cover-box *,.image-area *:not(img),.face-pendants,.pendant,.user-decorator,.bilibili-player-ending-panel-box-recommend-cover,.van-framepreview,.fake-danmu,.fake-danmu-mask,.preview-bg,.pl__mask,.video-card-reco .info,.card-pic a *:not(img),.rib-info,.video-mask,.cover-mask',
       pointerAuto: '.hover-cover-box .cover-ctnr,.image-area .see-later,.cover .i-watchlater'
     },
     srcMatching: [
@@ -1733,21 +1742,33 @@ const websiteConfig = {
     }
   },
   'huaban\\.com': {
+    // TODO: Remove amendStyles and the second matching rule when the new version of huaban has been consolidated. (26/04/2022)
+    //       Reserve pointerNone configs from '.UZ2n6I_I'.
     amendStyles: {
       pointerNone:
-        '.pin a.img .cover,.pin-view .board-piece .board-pins .cell .cover,.Board .link .over,.Board .link .shadows'
+        '.pin a.img .cover,.pin-view .board-piece .board-pins .cell .cover,.Board .link .over,.Board .link .shadows,.UZ2n6I_I'
     },
-    srcMatching: {
-      srcRegExp: '(.*\\.(huabanimg|b\\d+\\.upaiyun)\\.com/\\w+-\\w{6})_/?(?:fw|sq)/?\\d+.*',
-      processor: '$1'
-    }
+    srcMatching: [
+      {
+        srcRegExp: '(hbimg\\.huaban\\.com/[-a-z0-9]+).*',
+        processor: '$1'
+      },
+      {
+        srcRegExp: '(hbfile\\.huaban\\.com/.+)!/.*',
+        processor: '$1'
+      },
+      {
+        srcRegExp: '(.*\\.(huabanimg|b\\d+\\.upaiyun)\\.com/\\w+-\\w{6})_/?(?:fw|sq)/?\\d+.*',
+        processor: '$1'
+      }
+    ]
   },
   '(.+\\.)?imdb\\.com': {
     amendStyles: {
-      pointerNone: '.image_overlay'
+      pointerNone: '.image_overlay,.ipc-lockup-overlay__screen'
     },
     srcMatching: {
-      selectors: 'img,.ipc-poster,.ipc-slate,.ipc-avatar',
+      selectors: 'img,.ipc-poster,.ipc-slate,.ipc-avatar,.ipc-photo',
       srcRegExp: '(//.*\\.media-amazon\\.com/images/.*?)\\._.+(@IMG@)',
       processor: (trigger, src, srcRegExpObj) =>
         srcRegExpObj.test(src || tools.getLargestImgSrc(trigger.find('img'))) ? RegExp.$1 + RegExp.$2 : ''
@@ -1978,10 +1999,11 @@ const websiteConfig = {
   },
   'music\\.163\\.com': {
     amendStyles: {
-      pointerNone: '.msk:not(a),.mask,.ply:not(a),.m-product .cover .spec'
+      pointerAuto: '.u-cover .bottom a',
+      pointerNone: '.msk:not(a),.mask,.m-product .cover .spec,.u-cover .bottom'
     },
     srcMatching: {
-      selectors: 'img,a.msk',
+      selectors: 'img,a.msk,.u-cover',
       srcRegExp: '(//.+\\.music\\.126\\.net/.+@IMG@).*',
       processor: (trigger, src, srcRegExpObj) =>
         srcRegExpObj.test(trigger.parent().find('img').attr('src') || src) ? RegExp.$1 : ''
@@ -2796,10 +2818,14 @@ const websiteConfig = {
     srcMatching: [
       {
         selectors:
-          'img,[style*=background-image],.ytp-cued-thumbnail-overlay-image,.ytp-videowall-still-info,.ytp-ce-covering-overlay',
+          'img,[style*=background-image],.ytp-cued-thumbnail-overlay-image,.ytp-videowall-still-info,.ytp-ce-covering-overlay,#player-container',
         srcRegExp: '(//i\\d*\\.ytimg\\.com/vi.*?/.+/).+(@IMG@)',
         processor: (trigger, src, srcRegExpObj) =>
-          srcRegExpObj.test(src || tools.getLargestImgSrc(trigger.siblings('[class*="-image"]')))
+          srcRegExpObj.test(
+            src ||
+              tools.getLargestImgSrc(trigger.siblings('[class*="-image"]')) ||
+              tools.getLargestImgSrc(trigger.siblings('#thumbnail-container').find('img.yt-img-shadow'))
+          )
             ? tools
                 .detectImage(
                   `${RegExp.$1}maxresdefault${RegExp.$2}`,
@@ -2820,7 +2846,8 @@ const websiteConfig = {
         srcRegExp: '(lh\\d+\\.googleusercontent\\.com/[^=]+=).*',
         processor: '$1w0' // TODO: Google images, duplicated, need to be removed.
       }
-    ]
+    ],
+    ignoreHDSrcCaching: true
   },
   '(?:(?:.+\\.)?zcool\\.com\\.cn|www\\.hellorf\\.com)': {
     amendStyles: {
@@ -2844,6 +2871,12 @@ const websiteConfig = {
         processor: '$1'
       }
     ]
+  },
+  '(?:.+\\.)?zhipin\\.com': {
+    srcMatching: {
+      srcRegExp: '(img\\.bosszhipin\\.com/.+?)(?:_s)?(@IMG@).*',
+      processor: '$1$2'
+    }
   },
   'www\\.zhisheji\\.com': {
     amendStyles: {
@@ -2885,12 +2918,14 @@ const tools = {
     return (url && /^http/.test(url.protocol) && url.hostname) || '';
   },
   getDownloadFilename: function (hostname, imgSrc, originalFilename, downloadTime) {
-    const filename =
+    const timestamp = new Date(downloadTime || Date.now()),
+      filename =
         originalFilename ||
-        (/([^/]+?(?:\.(?:jpe?g|gif|pn[gj]|bmp|webp|svg))?(?=(?:\?|$)))/i.test(imgSrc) ? RegExp.$1 : ''),
+        (/([^/]+?(?:\.(?:jpe?g|jfif|gif|pn[gj]|bmp|webp|svg))?(?=(?:\?|$)))/i.test(imgSrc) ? RegExp.$1 : ''),
       filenamePatterns = {
-        ...(/(?<y>\d+)-(?<M>\d+)-(?<d>\d+)T(?<h>\d+):(?<m>\d+):(?<s>\d+)/.exec(downloadTime || new Date().toISOString())
-          ?.groups || {}),
+        ...(/(?<y>\d+)-(?<M>\d+)-(?<d>\d+)T(?<h>\d+):(?<m>\d+):(?<s>\d+)/.exec(
+          new Date(timestamp - timestamp.getTimezoneOffset() * 60 * 1000).toISOString()
+        )?.groups || {}),
         H: hostname || this.getUrlHostname(imgSrc),
         O: filename.split('.')[0]
       },
@@ -3476,22 +3511,6 @@ chrome.storage.sync.get(['disabledWebsites', 'photoShowConfigs', 'statistics'], 
     DISABLED_WEBSITES = response.disabledWebsites || [];
     PHOTOSHOW_CONFIGS = response.photoShowConfigs || {};
     statistics.init(response.statistics);
-
-    ////////// TODO: Remove this snippet afterwards. //////////
-    if (typeof PHOTOSHOW_CONFIGS.fileNaming === 'string') {
-      if (/^(?:PhotoShowDownloads|浮图秀下载|浮圖秀下載)\/<y>-<M>-<d>\/<O>$/.test(PHOTOSHOW_CONFIGS.fileNaming)) {
-        delete PHOTOSHOW_CONFIGS.fileNaming;
-      } else {
-        PHOTOSHOW_CONFIGS.fileNaming = {
-          pattern: PHOTOSHOW_CONFIGS.fileNaming
-        };
-      }
-
-      chrome.storage.sync.set({
-        photoShowConfigs: PHOTOSHOW_CONFIGS
-      });
-    }
-    //////////
 
     setPhotoShowDeterminingFilenameHandler(!!PHOTOSHOW_CONFIGS.fileNaming?.pattern);
   }
