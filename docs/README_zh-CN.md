@@ -110,13 +110,13 @@
 
 1.  **设计 / 摄影 / 图库 类：**
 
-    123rf、500px、ArtStation、Behance、DeviantArt、Dribbble、Figma、Flickr、iStock、Pexels、Pinterest、pixiv、Unsplash、WikiArt
+    123rf、500px、ArtStation、Behance、DeviantArt、Dribbble、Figma、Flickr、iStock、Pexels、Pinterest、pixiv、Unsplash、VCG.COM、WikiArt
 
-    花瓣网、昵图网、汇图网、POCO、站酷、站酷海洛、致设计
+    花瓣网、美叶、昵图网、汇图网、POCO、站酷、站酷海洛、致设计
 
 2.  **购物 / 出行 / 服务 类：**
 
-    1-day、Alibaba、AliExpress、Amazon、Andino、Apple、Best Buy、Briscoes、Countdown、coupang、DHgate、eBay、Etsy、Google Play、instacart、Kmart、Myprotein、Newegg、noel leeming、NZSALE、PBTech、Target、TheMarket、thewarehouse、Torpedo7、Trade Me、TreatMe、Walmart、warehouse stationery、Yelp
+    1-day、Alibaba、AliExpress、Amazon、Andino、Apple、Best Buy、Briscoes、Countdown、coupang、DHgate、eBay、Etsy、Google Play、Google Store、instacart、Kmart、Myprotein、Newegg、noel leeming、NZSALE、PBTech、Target、TheMarket、thewarehouse、Torpedo7、Trade Me、TreatMe、Walmart、warehouse stationery、Yelp
 
     携程、当当、大众点评、多看、京东、一号店、马蜂窝、猫眼电影、美团、小米、小米有品、苏宁易购、天猫、淘宝、一淘、1688、阿里妈妈、阿里健康大药房、飞猪、途牛、搜款网、网商园
 

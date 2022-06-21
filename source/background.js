@@ -209,7 +209,8 @@
  *                                            // Updates: Support zhipin.com, in response to user feedback;
  *                                            // Bug Fix: Side effects on music.163.com (GitHub issue #50);
  *                                            // Bug Fix: Incorrect time zone issue in file naming (GitHub issue #51).
- *
+ * @version 4.17.1.0 | 2022-06-21 | Vincent   // Updates: Support store.google.com, meiye.art, vcg.com, in response to user feedback;
+ *                                            // Bug Fix: Supporting issue for Instagram due to its website updates, in response to user feedback.
  */
 
 // TODO: Extract websiteConfig to independent files and import them (after porting to webpack).
@@ -229,6 +230,7 @@
 // TODO: Prefix 'img,[style*=background]' by default as selectors for all matching rules.
 // TODO: Handle invalid download filename.
 // TODO: Figure out a better way to do ignoreHDSrcCaching. (This rule should be applied at rule level instead of website level.)
+// TODO: Twitter, 'use orig/4096x4096' to replace 'large'.
 
 // Website info structure:
 // {
@@ -1616,13 +1618,13 @@ const websiteConfig = {
       }
     ]
   },
-  'play\\.google\\.com': {
+  '(?:play|store)\\.google\\.com': {
     amendStyles: {
       pointerNone: '.rg_anbg,.rg_ilmbg'
     },
     srcMatching: {
       selectors: 'img,[style*=background],.wXUyZd,.TdqJUe',
-      srcRegExp: '(//(.*\\.googleusercontent|books\\.google)\\.com/[^=]+)=.*',
+      srcRegExp: '(//(.*\\.googleusercontent|books\\.google)\\.com/[^=]+)(?:=.+)?',
       processor: (trigger, src, srcRegExpObj) =>
         srcRegExpObj.test(src || trigger.parent().find('img[src]').attr('src'))
           ? `${RegExp.$1}=w${~RegExp.$2.indexOf('books') ? '10000' : '0'}`
@@ -1812,7 +1814,7 @@ const websiteConfig = {
   },
   'www\\.instagram\\.com': {
     amendStyles: {
-      pointerNone: '.qn-0x,._9AhH0,._7Tu5q'
+      pointerNone: '.qn-0x,._9AhH0,._7Tu5q,._aagw,._aapc'
     },
     srcMatching: [
       {
@@ -1965,6 +1967,12 @@ const websiteConfig = {
     },
     srcMatching: {
       srcRegExp: '(.+\\.mafengwo\\.net/.+?@IMG@).*',
+      processor: '$1'
+    }
+  },
+  'www\\.meiye\\.art': {
+    srcMatching: {
+      srcRegExp: '(image\\.meiye\\.art/[^?]+).*',
       processor: '$1'
     }
   },
@@ -2596,6 +2604,21 @@ const websiteConfig = {
         srcRegExp: '\\w+\\.twimg\\.com/.+@IMG@'
       }
     ]
+  },
+  'www\\.vcg\\.com': {
+    amendStyles: {
+      pointerNone: '.imgWaper .mask,.placeholder-box,.galleryItem .toolbar',
+      pointerAuto: '.galleryItem .toolitem'
+    },
+    srcMatching: {
+      srcRegExp: '(//.+\\.cfp\\.cn/.+/vcg/)\\d+(/.+?@IMG@)',
+      processor: (_, src, srcRegExpObj) =>
+        srcRegExpObj.test(src)
+          ? tools
+              .detectImage(`//${RegExp.$1}nowater800${RegExp.$2}`, `//${RegExp.$1}800${RegExp.$2}`)
+              .then(imgInfo => imgInfo.src)
+          : ''
+    }
   },
   'wallhaven\\.cc': {
     srcMatching: [
