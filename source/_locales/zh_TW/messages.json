@@ -36,81 +36,81 @@
 
 {
   ////////////////////////////////////////////////////////////////////////////////
-  // 通用信息。
+  // 通用資訊。
   "extensionName": {
     "message": "浮圖秀",
-    "description": "擴展名稱，翻譯成目標語言時，理想情況下最好能保持發音接近該中文名稱並保持語義一致。"
+    "description": "擴充功能名稱，翻譯成目標語言時，理想情況下最好能保持發音接近該中文名稱並保持語義一致。"
   },
   "extensionDesc": {
-    "message": "看大圖無需再點，鼠標輕移，見你想見！ ——獻給所有你鍾愛的網站及屏幕前的你。",
-    "description": "擴展描述，顯示在瀏覽器擴展管理頁、應用市場等地方；最大長度為 132 個字符。"
+    "message": "看大圖無需再點，滑鼠輕移，見你想見！——獻給所有你鍾愛的網站及螢幕前的你。",
+    "description": "擴充功能描述，顯示在瀏覽器擴充功能管理頁、應用市場等地方；最大長度為 132 個字元。"
   },
 
   ////////////////////////////////////////////////////////////////////////////////
-  // 圖片預覽窗口、右鍵菜單及全局消息中的信息。
+  // 圖片預覽視窗、右鍵選單及全域性訊息中的資訊。
   "contextMenuTitle_open": {
-    "message": "在新標籤頁中查看高清圖片 (Tab)",
-    "description": "右鍵菜單項。"
+    "message": "在新分頁中檢視高畫質圖片 (Tab)",
+    "description": "右鍵選單項。"
   },
   "contextMenuTitle_save": {
-    "message": "保存高清圖片 (S)",
-    "description": "右鍵菜單項。"
+    "message": "儲存高畫質圖片 (S)",
+    "description": "右鍵選單項。"
   },
   "contextMenuTitle_copy": {
-    "message": "複製高清圖片地址 (C)",
-    "description": "右鍵菜單項。"
+    "message": "複製高畫質圖片網址 (C)",
+    "description": "右鍵選單項。"
   },
   "globalMsg_imgWillOpenInNewTab": {
-    "message": "高清圖片即將在新標籤中打開。",
-    "description": "全局消息。"
+    "message": "高畫質圖片即將在新分頁中開啟。",
+    "description": "全域性訊息。"
   },
   "globalMsg_imgWillStartDownloading": {
-    "message": "高清圖片即將開始下載。",
-    "description": "全局消息。"
+    "message": "高畫質圖片即將開始下載。",
+    "description": "全域性訊息。"
   },
   "globalMsg_imgSrcCopied": {
-    "message": "高清圖片地址已復制。",
-    "description": "全局消息。"
+    "message": "高畫質圖片網址已複製。",
+    "description": "全域性訊息。"
   },
 
   ////////////////////////////////////////////////////////////////////////////////
-  // 彈出窗口中的設置相關信息。
+  // 彈出視窗中的設定相關資訊。
   // 頂欄區：
   "photoShowEnabledMsg": {
     "message": "浮圖秀已對當前網站啟用。",
-    "description": "浮圖秀對當前網站啟用時的消息。"
+    "description": "浮圖秀對當前網站啟用時的訊息。"
   },
   "photoShowEnabledMsg_basic": {
-    "message": "浮圖秀對當前網站僅提供基本支持。",
-    "description": "浮圖秀對未知網站啟用時的消息。"
+    "message": "浮圖秀對當前網站僅提供基本支援。",
+    "description": "浮圖秀對未知網站啟用時的訊息。"
   },
   "photoShowDisabledMsg": {
     "message": "浮圖秀已對當前網站關閉。",
-    "description": "浮圖秀對當前網站關閉時的消息。"
+    "description": "浮圖秀對當前網站關閉時的訊息。"
   },
   "photoShowShutdownMsg": {
-    "message": "已關閉浮圖秀對未知網站的支持。",
-    "description": "禁止浮圖秀支持未知網站時的消息。"
+    "message": "已關閉浮圖秀對未知網站的支援。",
+    "description": "禁止浮圖秀支援未知網站時的訊息。"
   },
   "photoShowSuspendedMsg": {
     "message": "浮圖秀已在開發模式下暫時停用。",
-    "description": "浮圖秀在開發模式下暫停時的消息。"
+    "description": "浮圖秀在開發模式下暫停時的訊息。"
   },
   "photoShowUnavailableMsg": {
-    "message": "浮圖秀不支持當前網站。",
-    "description": "浮圖秀無法在特定網站工作時的消息。"
+    "message": "浮圖秀不支援當前網站。",
+    "description": "浮圖秀無法在特定網站工作時的訊息。"
   },
   "extensionUpdateDate": {
     "message": "更新：",
     "description": "當前所安裝浮圖秀版本的更新時間。"
   },
   "stateToggleOnTitle": {
-    "message": "點擊對當前網站關閉浮圖秀",
-    "description": "浮圖秀啟閉按鈕的鼠標懸停提示（開啟狀態下）。"
+    "message": "點選對當前網站關閉浮圖秀",
+    "description": "浮圖秀啟閉按鈕的滑鼠懸停提示（開啟狀態下）。"
   },
   "stateToggleOffTitle": {
-    "message": "點擊對當前網站啟用浮圖秀",
-    "description": "浮圖秀啟閉按鈕的鼠標懸停提示（關閉狀態下）。"
+    "message": "點選對當前網站啟用浮圖秀",
+    "description": "浮圖秀啟閉按鈕的滑鼠懸停提示（關閉狀態下）。"
   },
 
   // “隨處可用”區:
@@ -119,51 +119,51 @@
     "description": "模式名。"
   },
   "worksEverywhereDesc": {
-    "message": "對未知網站提供基本支持，當圖片原始尺寸大於頁面顯示尺寸時，展示原圖",
-    "description": "設置項描述。"
+    "message": "對未知網站提供基本支援，當圖片原始尺寸大於頁面顯示尺寸時，展示原圖",
+    "description": "設定項描述。"
   },
 
-  // “激活模式”區：
+  // “啟用模式”區：
   "activationModeHeader": {
-    "message": "激活模式",
+    "message": "啟用模式",
     "description": "區塊標題。"
   },
   "activationModeDesc": {
-    "message": "鼠標懸停",
-    "description": "觸發圖片預覽窗口顯示的操作描述。"
+    "message": "滑鼠懸停",
+    "description": "觸發圖片預覽視窗顯示的操作描述。"
   },
   "activationModeOption_None": {
     "message": "無",
-    "description": "選項“無需額外操作（僅鼠標移過即可）”的描述。"
+    "description": "選項“無需額外操作（僅滑鼠移過即可）”的描述。"
   },
 
-  // “激活豁免”區：
+  // “啟用豁免”區：
   "activationExemptionHeader": {
-    "message": "激活豁免",
+    "message": "啟用豁免",
     "description": "區塊標題。"
   },
   "activationExemptionDesc": {
-    "message": "當縮略圖尺寸超過窗口面積的25%時，不激活圖片預覽",
-    "description": "設置項描述。"
+    "message": "當縮圖尺寸超過視窗面積的25%時，不啟用圖片預覽",
+    "description": "設定項描述。"
   },
 
-  // “激活延遲”區：
+  // “啟用延遲”區：
   "activationDelayHeader": {
-    "message": "激活延遲",
+    "message": "啟用延遲",
     "description": "區塊標題。"
   },
   "activationDelayDesc_before": {
-    "message": "當鼠標懸停在縮略圖上時，延遲",
-    "description": "設置項描述。"
+    "message": "當滑鼠懸停在縮圖上時，延遲",
+    "description": "設定項描述。"
   },
   "activationDelayDesc_after": {
-    "message": "毫秒激活圖片預覽",
-    "description": "設置項描述。"
+    "message": "毫秒啟用圖片預覽",
+    "description": "設定項描述。"
   },
 
-  // “視圖模式”區：
+  // “檢視模式”區：
   "viewModeHeader": {
-    "message": "視圖模式",
+    "message": "檢視模式",
     "description": "區塊標題。"
   },
   "viewModeOption_auto": {
@@ -171,32 +171,32 @@
     "description": "模式名。"
   },
   "viewModeOptionTitle_auto": {
-    "message": "圖片預覽窗口自適應源縮略圖旁側空間",
-    "description": "相應模式的鼠標懸停提示。"
+    "message": "圖片預覽視窗自適應源縮圖旁側空間",
+    "description": "相應模式的滑鼠懸停提示。"
   },
   "viewModeOption_mini": {
     "message": "迷你",
     "description": "模式名。"
   },
   "viewModeOptionTitle_mini": {
-    "message": "圖片預覽窗口以不超過源縮略圖旁側空間 1/8 的面積顯示",
-    "description": "相應模式的鼠標懸停提示。"
+    "message": "圖片預覽視窗以不超過源縮圖旁側空間 1/8 的面積顯示",
+    "description": "相應模式的滑鼠懸停提示。"
   },
   "viewModeOption_lite": {
     "message": "輕量",
     "description": "模式名。"
   },
   "viewModeOptionTitle_lite": {
-    "message": "圖片預覽窗口以不超過源縮略圖旁側空間 1/4 的面積顯示",
-    "description": "相應模式的鼠標懸停提示。"
+    "message": "圖片預覽視窗以不超過源縮圖旁側空間 1/4 的面積顯示",
+    "description": "相應模式的滑鼠懸停提示。"
   },
   "viewModeOption_panoramic": {
     "message": "全景",
     "description": "模式名。"
   },
   "viewModeOptionTitle_panoramic": {
-    "message": "圖片預覽窗口根據需要盡可能大地呈現，圖片以其原始尺寸顯示",
-    "description": "相應模式的鼠標懸停提示。"
+    "message": "圖片預覽視窗根據需要儘可能大地呈現，圖片以其原始尺寸顯示",
+    "description": "相應模式的滑鼠懸停提示。"
   },
 
   // “浮窗定位”區：
@@ -205,11 +205,11 @@
     "description": "區塊標題。"
   },
   "viewerLocationOption_top": {
-    "message": "上部",
+    "message": "上方",
     "description": "定位位置。"
   },
   "viewerLocationOption_bottom": {
-    "message": "下部",
+    "message": "下方",
     "description": "定位位置。"
   },
   "viewerLocationOption_left": {
@@ -227,8 +227,8 @@
     "description": "區塊標題。"
   },
   "imageSizeDisplayDesc": {
-    "message": "在圖片預覽窗口內顯示高清圖片尺寸",
-    "description": "設置項描述。"
+    "message": "在圖片預覽視窗內顯示高畫質圖片尺寸",
+    "description": "設定項描述。"
   },
 
   // “陰影顯示”區：
@@ -237,18 +237,18 @@
     "description": "區塊標題。"
   },
   "shadowDisplayDesc": {
-    "message": "在圖片預覽窗口和源縮略圖之間顯示陰影",
-    "description": "設置項描述。"
+    "message": "在圖片預覽視窗和源縮圖之間顯示陰影",
+    "description": "設定項描述。"
   },
 
-  // “加載狀態”區：
+  // “載入狀態”區：
   "loadingStatusDisplayHeader": {
-    "message": "加載狀態",
+    "message": "載入狀態",
     "description": "區塊標題。"
   },
   "loadingStatusDisplayDesc": {
-    "message": "指示圖片加載狀態",
-    "description": "設置項描述。"
+    "message": "指示圖片載入狀態",
+    "description": "設定項描述。"
   },
 
   // “過渡動畫”區：
@@ -258,17 +258,17 @@
   },
   "animationToggleDesc": {
     "message": "啟用過渡動畫",
-    "description": "設置項描述。"
+    "description": "設定項描述。"
   },
 
-  // “右鍵菜單”區：
+  // “右鍵選單”區：
   "contextMenuToggleHeader": {
-    "message": "右鍵菜單",
+    "message": "右鍵選單",
     "description": "區塊標題。"
   },
   "contextMenuToggleDesc": {
-    "message": "啟用右鍵菜單項",
-    "description": "設置項描述。"
+    "message": "啟用右鍵選單項",
+    "description": "設定項描述。"
   },
 
   // “開發模式”區：
@@ -277,166 +277,166 @@
     "description": "區塊標題。"
   },
   "developerModeToggleDesc": {
-    "message": "在開發模式下（瀏覽器開發者工具窗口打開時）暫停浮圖秀",
-    "description": "設置項描述。"
+    "message": "在開發模式下（瀏覽器開發者工具視窗開啟時）暫停浮圖秀",
+    "description": "設定項描述。"
   },
 
-  // “熱鍵操作”區：
+  // “快捷鍵操作”區：
   "hotkeysHeader": {
-    "message": "熱鍵操作",
+    "message": "快捷鍵操作",
     "description": "區塊標題。"
   },
   "hotkeyToggleTitle": {
-    "message": "點擊啟用/禁用該熱鍵（組）",
-    "description": "熱鍵開關鼠標懸停提示。"
+    "message": "點選啟用/禁用該快捷鍵（組）",
+    "description": "快捷鍵開關滑鼠懸停提示。"
   },
   "hotkey_closeViewer": {
-    "message": "<td>Esc</td><td>關閉圖片預覽窗口</td>",
-    "description": "熱鍵名稱及相應操作描述。"
+    "message": "<td>Esc</td><td>關閉圖片預覽視窗</td>",
+    "description": "快捷鍵名稱及相應操作描述。"
   },
   "hotkey_rotateImage": {
     "message": "<td>Shift + Ctrl + ← / →</td><td>逆時針 / 順時針 旋轉圖片</td>",
-    "description": "熱鍵名稱及相應操作描述。"
+    "description": "快捷鍵名稱及相應操作描述。"
   },
   "hotkey_scrollImage": {
     "message": "<td>↑ / → / ↓ / ←</td><td>向 上 / 右 / 下 / 左 捲動圖片</td>",
-    "description": "熱鍵名稱及相應操作描述。"
+    "description": "快捷鍵名稱及相應操作描述。"
   },
   "hotkey_scrollImageByPage": {
     "message": "<td>PgUp / PgDn</td><td>按圖片可視高度向 上 / 下 捲動圖片</td>",
-    "description": "熱鍵名稱及相應操作描述。"
+    "description": "快捷鍵名稱及相應操作描述。"
   },
   "hotkey_scrollImageToEnds": {
     "message": "<td>Home / End</td><td>捲動到圖片 頂端 / 底部</td>",
-    "description": "熱鍵名稱及相應操作描述。"
+    "description": "快捷鍵名稱及相應操作描述。"
   },
   "hotkey_openImageInNewTab": {
-    "message": "<td>Tab</td><td>在新標籤頁中查看高清圖片</td>",
-    "description": "熱鍵名稱及相應操作描述。"
+    "message": "<td>Tab</td><td>在新分頁頁中檢視高畫質圖片</td>",
+    "description": "快捷鍵名稱及相應操作描述。"
   },
   "hotkey_saveImage": {
-    "message": "<td>S</td><td>保存高清圖片</td>",
-    "description": "熱鍵名稱及相應操作描述。"
+    "message": "<td>S</td><td>儲存高畫質圖片</td>",
+    "description": "快捷鍵名稱及相應操作描述。"
   },
   "hotkey_copyImageAddress": {
-    "message": "<td>C</td><td>複製高清圖片地址</td>",
-    "description": "熱鍵名稱及相應操作描述。"
+    "message": "<td>C</td><td>複製高畫質圖片網址</td>",
+    "description": "快捷鍵名稱及相應操作描述。"
   },
   "hotkey_switchViewMode": {
-    "message": "<td>M / L / A / P</td><td>切換視圖模式</td>",
-    "description": "熱鍵名稱及相應操作描述。"
+    "message": "<td>M / L / A / P</td><td>切換檢視模式</td>",
+    "description": "快捷鍵名稱及相應操作描述。"
   },
   "hotkey_toggleViewMode": {
-    "message": "<td>V</td><td>切換到上一次使用的視圖模式</td>",
-    "description": "熱鍵名稱及相應操作描述。"
+    "message": "<td>V</td><td>切換到上一次使用的檢視模式</td>",
+    "description": "快捷鍵名稱及相應操作描述。"
   },
 
-  // “文件命名”區：
+  // “檔案命名”區：
   "fileNamingHeader": {
-    "message": "文件命名",
+    "message": "檔案命名",
     "description": "區塊標題。"
   },
   "fileNamingFilenameTitle": {
-    "message": "文件名：",
-    "description": "文件名輸入框標題。"
+    "message": "檔名：",
+    "description": "檔名輸入框標題。"
   },
   "fileNamingFilenamePlaceholder": {
     "message": "例： 浮圖秀下載/<y>-<M>-<d>/<O>",
-    "description": "文件名輸入框提示。"
+    "description": "檔名輸入框提示。"
   },
   "fileNamingExampleTitle": {
     "message": "示　例：",
-    "description": "示例文件名標題。"
+    "description": "示例檔名標題。"
   },
   "fileNamingExampleFilename": {
-    "message": "原文件名",
-    "description": "示例文件名。"
+    "message": "原檔名",
+    "description": "示例檔名。"
   },
   "fileNamingExamplePlaceholder": {
-    "message": "（文件命名未啟用）",
-    "description": "未啟用文件命名時的提示。"
+    "message": "（檔案命名未啟用）",
+    "description": "未啟用檔案命名時的提示。"
   },
   "fileNamingPatternsTitle": {
     "message": "替換符：",
-    "description": "文件名替換符標題。"
+    "description": "檔名替換符標題。"
   },
   "fileNamingPatternDesc_year": {
     "message": "年",
-    "description": "文件名替換符描述。"
+    "description": "檔名替換符描述。"
   },
   "fileNamingPatternDesc_month": {
     "message": "月",
-    "description": "文件名替換符描述。"
+    "description": "檔名替換符描述。"
   },
   "fileNamingPatternDesc_date": {
     "message": "日",
-    "description": "文件名替換符描述。"
+    "description": "檔名替換符描述。"
   },
   "fileNamingPatternDesc_hour": {
     "message": "時",
-    "description": "文件名替換符描述。"
+    "description": "檔名替換符描述。"
   },
   "fileNamingPatternDesc_minute": {
     "message": "分",
-    "description": "文件名替換符描述。"
+    "description": "檔名替換符描述。"
   },
   "fileNamingPatternDesc_second": {
     "message": "秒",
-    "description": "文件名替換符描述。"
+    "description": "檔名替換符描述。"
   },
   "fileNamingPatternDesc_hostname": {
     "message": "網站域名",
-    "description": "文件名替換符描述。"
+    "description": "檔名替換符描述。"
   },
   "fileNamingPatternDesc_originalFilename": {
-    "message": "原文件名",
-    "description": "文件名替換符描述。"
+    "message": "原檔名",
+    "description": "檔名替換符描述。"
   },
   "fileNamingAlwaysAskDesc": {
     "message": "每次下載前詢問",
-    "description": "下載前總是詢問文件名設置項描述。"
+    "description": "下載前總是詢問檔名設定項描述。"
   },
 
-  // “聯繫方式” 區：
+  // “聯絡方式” 區：
   "shareHeader": {
-    "message": "聯繫方式",
+    "message": "聯絡方式",
     "description": "區塊標題。"
   },
   "shareIconTitles": {
-    "message": "聯繫作者,GitHub,Facebook,推特,微博,QQ 空間,Reddit,湯博樂",
-    "description": "全部聯繫方式圖標的鼠標懸停提示（以半角逗號間隔）。"
+    "message": "聯絡作者,GitHub,Facebook,推特,微博,QQ 空間,Reddit,湯博樂",
+    "description": "全部聯絡方式圖示的滑鼠懸停提示（以半形逗號間隔）。"
   },
   "shareText": {
-    "message": "我剛發現一款極棒的瀏覽器插件，用來查看頁面中的圖片有奇效！快來一試！",
-    "description": "用於用戶分享的預定義帖子內容。"
+    "message": "我剛發現一款極棒的瀏覽器外掛，用來檢視頁面中的圖片有奇效！快來一試！",
+    "description": "用於使用者分享的預定義帖子內容。"
   },
   "feedbackMailSubject": {
-    "message": "浮圖秀用戶反饋",
-    "description": "用戶反饋郵件的標題。"
+    "message": "浮圖秀使用者反饋",
+    "description": "使用者反饋郵件的標題。"
   },
   "feedbackMailBody": {
     "message": "<!DOCTYPE html><html><body><b style=\"line-height:1.5;padding:0.25em;color:#333\" contenteditable=\"false\">$problemTitle$</b><p style=\"color:#999;line-height:1.5\">$problemDescGuide$</p><br /><br /><br /><br /><br /><table style=\"border-top:solid 1px #6cbcef;border-bottom:solid 1px #6cbcef;line-height:1.5;color:#333\"><tr contenteditable=\"false\"><td style=\"text-align:right;vertical-align:top;font-weight:bold;padding:0.25em;white-space:nowrap;color:#6CBCEF\">$browserTitle$</td><td style=\"padding:0.25em\">$browser$</td></tr><tr contenteditable=\"false\"><td style=\"text-align:right;vertical-align:top;font-weight:bold;padding:0.25em;white-space:nowrap;color:#6CBCEF\">$photoShowVersionTitle$</td><td style=\"padding:0.25em\">$photoShowVersion$</td></tr><tr><td style=\"text-align:right;vertical-align:top;font-weight:bold;padding:0.25em;white-space:nowrap;color:#6CBCEF\" contenteditable=\"false\">$relatedPageTitle$</td><td style=\"padding:0.25em\">$relatedPage$</td></tr></table></body></html>",
-    "description": "用戶反饋郵件的正文。（本條消息內容無需翻譯但下列 PLACEHOLDERS 的內容需要。）",
+    "description": "使用者反饋郵件的正文。（本條訊息內容無需翻譯但下列 PLACEHOLDERS 的內容需要。）",
     "placeholders": {
       "problemTitle": {
         "content": "我遇到的問題：",
-        "description": "引導用戶描述所遇到問題的引導語。"
+        "description": "引導使用者描述所遇到問題的引導語。"
       },
       "problemDescGuide": {
         "content": "（請在此描述您遇到的問題或提出建議。）",
         "description": "指示描述問題的區域。"
       },
       "browserTitle": {
-        "content": "瀏覽器信息：",
-        "description": "附加信息標題 —— 瀏覽器版本、操作系統等基本用戶環境信息。"
+        "content": "瀏覽器資訊：",
+        "description": "附加資訊標題 —— 瀏覽器版本、作業系統等基本使用者環境資訊。"
       },
       "photoShowVersionTitle": {
         "content": "浮圖秀版本：",
-        "description": "附加信息標題 —— 浮圖秀版本。"
+        "description": "附加資訊標題 —— 浮圖秀版本。"
       },
       "relatedPageTitle": {
         "content": "相關頁面：",
-        "description": "附加信息標題 —— 用戶當前瀏覽頁面的地址，對於追踪問題可能有幫助，允許用戶在發送反饋前刪除。"
+        "description": "附加資訊標題 —— 使用者當前瀏覽頁面的網址，對於追蹤問題可能有幫助，允許使用者在傳送反饋前刪除。"
       },
       "browser": {
         "content": "$1"
