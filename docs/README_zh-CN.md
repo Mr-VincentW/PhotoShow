@@ -128,9 +128,9 @@
 
 4.  **新闻 / 社交 / 社区 类：**
 
-    e621.net、Facebook、IMDb、Imgur、Instagram、Konachan、Reddit、TapTap、Tumblr、TweetDeck、Twipu、Twitter、wattpad、yande.re
+    e621.net、Facebook、IMDb、Imgur、Instagram、JavBus、Konachan、Reddit、TapTap、Tumblr、TweetDeck、Twipu、Twitter、wattpad、XDA、yande.re
 
-    115 网盘、A 岛匿名版、巴哈姆特、百度贴吧、绅士仓库、豆瓣、堆糖、煎蛋、乐乎、网易云音乐、NGA 玩家社区、QQ 空间、今日头条、微博、微信公众号
+    115 网盘、A 岛匿名版、巴哈姆特、百度贴吧、绅士仓库、豆瓣、堆糖、煎蛋、乐乎、萌娘百科、网易云音乐、NGA 玩家社区、QQ 空间、今日头条、微博、微信公众号
 
 5.  **视频、音乐 类：**
 

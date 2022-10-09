@@ -156,6 +156,7 @@
  * @version 4.16.2.0 | 2022-04-30 | Vincent   // Updates: Support jfif format.
  * @version 4.17.0.0 | 2022-05-28 | Vincent   // Updates: Add 'ignoreHDSrcCaching' feature;
  *                                            // Bug Fix: View mode switching failure in some certain cases.
+ * @version 4.18.0.0 | 2022-10-09 | Vincent   // Updates: Adjust image viewer when the trigger image size changes (GitHub issue #63).
  */
 
 // TODO: Extract common tool methods to external modules.
@@ -274,7 +275,12 @@
 
       target = $(target);
 
-      if (target.is('[src],[srcset]')) {
+      if (target.is('image')) {
+        // SVG image elements.
+        src = target.attr('href') || target.attr('xlink:href');
+      } else if (target.is('video')) {
+        src = target.attr('poster');
+      } else if (target.is('[src],[srcset]')) {
         // Do not only match 'img' as the target might be a web component with a custom tag name.
         src = (target.attr('srcset') || target.attr('src') || '')
           .split(/,\s*(?=(?:\w+:)?\/\/)/)
@@ -284,11 +290,6 @@
               (srcSetRegex.test(src1) ? parseFloat(RegExp.$1) : 0)
           )[0]
           .split(/,?\s+/)[0];
-      } else if (target.is('image')) {
-        // SVG image elements.
-        src = target.attr('href') || target.attr('xlink:href');
-      } else if (target.is('video')) {
-        src = target.attr('poster');
       } else {
         src = this.getBackgroundImgSrc(target);
       }
@@ -680,6 +681,7 @@
       angleSin: 0, // Rotation angle sine value.
       angleCos: 1 // Rotation angle cosine value.
     },
+    triggerSize: null, // Initial size of the trigger.
     imgOriginalSize: null, // Original size of the high-definition image.
     hasMask: false, // Image mask display flag.
     maskAcceleration: 0, // Acceleration of image mask moving.
@@ -1201,7 +1203,9 @@
                 if (
                   this.imgSrc &&
                   this.imgSrc == imgInfo.oriSrc &&
-                  ((imgInfo.width * imgInfo.height || 0) >= this.maskHostRect.area * 1.2 || /\.gif\b/.test(imgInfo.src))
+                  ((imgInfo.width * imgInfo.height || 0) >= this.maskHostRect.area * 1.2 ||
+                    /\.gif\b/.test(imgInfo.src) ||
+                    curTrigger.is('a'))
                 ) {
                   // Note: Both the photoShowViewer.imgSrc and the imgInfo.oriSrc may be either a string or a Promise object.
                   this.imgSrc = imgInfo.src; // Assign the actual image src to the photoShowViewer.imgSrc, in case it may be a Promise object.
@@ -1216,6 +1220,11 @@
                   this.viewerBox.addClass('img-shown');
                   this.viewerImg.attr('src', this.imgSrc);
 
+                  const triggerRect = this.curTrigger.getBoundingClientRect();
+                  this.triggerSize = {
+                    width: triggerRect.width,
+                    height: triggerRect.height
+                  };
                   this.imgOriginalSize = {
                     width: imgInfo.width,
                     height: imgInfo.height
@@ -1353,6 +1362,13 @@
               this.viewerBox.removeClass(RegExp.$1);
             } else if (e.animationName === 'photoshow-img-loading-fail-ani') {
               $(e.target).removeClass('photoshow-img-loading-fail');
+            }
+          });
+          this._bindEvent('document', 'transitionend', function () {
+            if (this.hasImgViewerShown) {
+              this.checkTriggerResizing();
+            } else {
+              this.update();
             }
           });
 
@@ -1512,6 +1528,7 @@
         curTrigger: null,
         hasImgViewerShown: false,
         hasImgShown: false,
+        triggerSize: null,
         imgOriginalSize: null,
         prevViewerDisplayFeatures: null,
         isViewerChanged: true,
@@ -1884,6 +1901,18 @@
           }
         }
       });
+    },
+    checkTriggerResizing: function () {
+      if (this.curTrigger && this.triggerSize) {
+        const triggerRect = this.curTrigger.getBoundingClientRect();
+
+        if (Math.abs(triggerRect.width * triggerRect.height - this.triggerSize.width * this.triggerSize.height) > 1) {
+          const curTrigger = this.curTrigger;
+          this.curTrigger = null;
+
+          this.displayViewer(curTrigger);
+        }
+      }
     }
   };
 

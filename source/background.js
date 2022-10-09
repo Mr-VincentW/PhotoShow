@@ -211,6 +211,9 @@
  *                                            // Bug Fix: Incorrect time zone issue in file naming (GitHub issue #51).
  * @version 4.17.1.0 | 2022-06-21 | Vincent   // Updates: Support store.google.com, meiye.art, vcg.com, in response to user feedback;
  *                                            // Bug Fix: Supporting issue for Instagram due to its website updates, in response to user feedback.
+ * @version 4.18.0.0 | 2022-10-09 | Vincent   // Updates: Better support for behance (GitHub issue #64), douban, GitHub (GitHub issue #56), Instagram, and YouTube;
+ *                                            // Updates: Support xda-developers (GitHub issue #66), javbus (GitHub issue #67), moegirl (GitHub issue #68);
+ *                                            // Updates: Fix support for tieba.baidu.com (GitHub issue #69).
  */
 
 // TODO: Extract websiteConfig to independent files and import them (after porting to webpack).
@@ -672,7 +675,7 @@ const websiteConfig = {
   },
   'tieba\\.baidu\\.com': {
     amendStyles: {
-      pointerNone: '.threadlist_pic_highlight,.feed_highlight,.liveshow_slide_container .play_mask'
+      pointerNone: '.threadlist_pic_highlight,.feed_highlight,.liveshow_slide_container .play_mask,.active_mask'
     },
     srcMatching: [
       {
@@ -680,8 +683,45 @@ const websiteConfig = {
         processor: trigger => trigger.attr('original')
       },
       {
-        srcRegExp: '(.+\\.baidu\\.com/forum/).+?(/\\w+@IMG@)',
-        processor: '$1pic/item$2'
+        srcRegExp: '(//.+\\.baidu\\.com/forum/).+?/sign=\\w+/(\\w+)(@IMG@)',
+        processor: (trigger, src, srcRegExpObj) => {
+          if (srcRegExpObj.test(src)) {
+            const tid = trigger.closest('[data-tid]').data('tid') || new URLSearchParams(location.search).get('tid');
+
+            return tid
+              ? new Promise((resolve, reject) => {
+                  $.ajax('//tieba.baidu.com/photo/p', {
+                    dataType: 'json',
+                    data: {
+                      tid,
+                      pic_id: RegExp.$2,
+                      alt: 'json'
+                    },
+                    success: response => {
+                      if (response?.data?.img) {
+                        resolve(response.data.img.original?.waterurl || response.data.img.medium?.waterurl || '');
+                      } else {
+                        reject();
+                      }
+                    },
+                    error: reject
+                  });
+                })
+              : tools
+                  .detectImage(
+                    `${RegExp.$1}pic/item/${RegExp.$2}${RegExp.$3}`,
+                    src,
+                    img => img.width == 238 && img.height == 238
+                  )
+                  .then(imgInfo => imgInfo.src);
+          } else {
+            return '';
+          }
+        }
+      },
+      {
+        selectors: 'img+.threadlist_btn_play',
+        processor: trigger => trigger.prev('img').attr('src')
       },
       {
         srcRegExp: '((?:.+\\.)?(?:bdstatic|himg\\.(?:baidu|bdimg))\\.com/.+)/portrait/(.+)',
@@ -706,25 +746,30 @@ const websiteConfig = {
     }
   },
   'www\\.behance\\.net': {
+    amendStyles: {
+      pointerAuto: '.ImageElement-blockPointerEvents-Rkg'
+    },
     srcMatching: [
       {
         selectors: 'img,.js-project-cover,[class^="Cover-wrapper-"]',
-        srcRegExp: '(//mir-s\\d+-cdn-cf\\.behance\\.net/projects/)(?:\\w+_)?\\d+(/.+@IMG@)',
+        srcRegExp: '(//.+\\.behance\\.net/projects/)(?:\\w+_)?\\d+(/.+@IMG@)',
         processor: (trigger, src, srcRegExpObj) =>
-          srcRegExpObj.test(
-            src ||
-              trigger.find('img[class^="ProjectCoverNeue-image-"],img[class^="AppreciationCover-image-"]').attr('src')
-          )
+          srcRegExpObj.test(src || trigger.find('img[class*="Cover"]').attr('src'))
             ? `${RegExp.$1}original${RegExp.$2}`
             : ''
       },
       {
-        srcRegExp: '(//mir-s\\d+-cdn-cf\\.behance\\.net/(?:user|team)/)\\d+(/.+@IMG@)',
+        srcRegExp: '(//.+\\.behance\\.net/project_modules/)(?:\\w+_)?\\d+(/.+@IMG@)',
+        processor: '$1fs$2'
+      },
+      {
+        srcRegExp: '(//.+\\.behance\\.net/(?:user|team)/)\\d+(/.+@IMG@)',
         processor: '$1276$2'
       },
       {
         selectors: 'a[class^="Card-link-"]',
-        processor: trigger => trigger.parent().find('img[class^="Card-image-"]').attr('src') || ''
+        processor: trigger =>
+          trigger.parent().find('img[class^="Card-image-"],img[class^="LivestreamVideoCover-"]').attr('src') || ''
       }
     ]
   },
@@ -1142,7 +1187,7 @@ const websiteConfig = {
         selectors: 'img,.programme-list .cover,.programme-cover,.songlist .cover,.related-pic-video',
         srcRegExp: '//img\\d+\\.doubanio\\.com/(?:view|img)/.*(?:medium|large|raw|retina)/.+@IMG@',
         processor: (trigger, src, srcRegExpObj) =>
-          srcRegExpObj.test(src || trigger.find('img').attr('src')) ? RegExp['$&'] : ''
+          srcRegExpObj.test(src || trigger.find('img').attr('src')) ? src : ''
       },
       {
         selectors: 'img,.celebrities-list .avatar,.songlist .cover',
@@ -1156,6 +1201,24 @@ const websiteConfig = {
       {
         srcRegExp: '(img\\d+\\.doubanio\\.com/pview/\\w+_poster/)(?:small|median|large)(/public/.+@IMG@)',
         processor: '$1raw$2'
+      },
+      {
+        selectors: 'a img',
+        srcRegExp: 'img\\d+\\.doubanio\\.com/img/site/.+',
+        processor: (trigger, src, srcRegExpObj) =>
+          srcRegExpObj.test(src)
+            ? new Promise((resolve, reject) => {
+                chrome.runtime.sendMessage(
+                  {
+                    cmd: 'CROSS_ORIGIN_GET',
+                    args: {
+                      url: trigger.closest('a').attr('href')
+                    }
+                  },
+                  response => resolve($('.user-pic img', response).attr('src') || '')
+                );
+              })
+            : ''
       }
     ]
   },
@@ -1576,7 +1639,26 @@ const websiteConfig = {
       }
     ]
   },
-  '(.+\\.)?gamer\\.com\\.tw': {
+  '(?:.+\\.)?xda-developers\\.com': {
+    amendStyles: {
+      pointerNone: '.thumb_icon,.file-content'
+    },
+    srcMatching: [
+      {
+        srcRegExp: '(/files/.+)-\\d+x\\d+(?:_\\w+)?(@IMG@)',
+        processor: '$1$2'
+      },
+      {
+        selectors: '.file-preview>img',
+        processor: trigger => trigger.parent().attr('href')
+      },
+      {
+        srcRegExp: '(/data/avatars/)\\w(/.+)',
+        processor: '$1o$2'
+      }
+    ]
+  },
+  '(?:.+\\.)?gamer\\.com\\.tw': {
     amendStyles: {
       pointerNone: '.spectator'
     },
@@ -1605,12 +1687,12 @@ const websiteConfig = {
       } // TODO: YouTube image, duplicated, need to be removed.
     ]
   },
-  '(.+\\.)?github\\.(?:com|blog)': {
+  '(?:.+\\.)?github\\.(?:com|blog)': {
     srcMatching: [
       {
         selectors: '.js-navigation-open',
-        srcRegExp: '(?://github\\.com/)?(.+/)(?:blob|raw)/(.+@IMG@).*',
-        processor: '//raw.githubusercontent.com$1$2'
+        srcRegExp: '//github\\.com/(.+/)(?:blob|raw)/(.+@IMG@).*',
+        processor: '//raw.githubusercontent.com/$1$2'
       },
       {
         srcRegExp: '((?:avatars\\d*|marketplace-screenshots)\\.githubusercontent\\.com/[^?]+).*',
@@ -1765,7 +1847,7 @@ const websiteConfig = {
       }
     ]
   },
-  '(.+\\.)?imdb\\.com': {
+  '(?:.+\\.)?imdb\\.com': {
     amendStyles: {
       pointerNone: '.image_overlay,.ipc-lockup-overlay__screen'
     },
@@ -1814,11 +1896,11 @@ const websiteConfig = {
   },
   'www\\.instagram\\.com': {
     amendStyles: {
-      pointerNone: '.qn-0x,._9AhH0,._7Tu5q,._aagw,._aapc'
+      pointerNone: '.qn-0x,._9AhH0,._7Tu5q,._aagw,._aapc,._ac2d'
     },
     srcMatching: [
       {
-        selectors: '[aria-label="Control"][role="button"',
+        selectors: '[aria-label="Control"][role="button"]',
         processor: trigger => tools.getLargestImgSrc(trigger.parent().find('video')) || ''
       },
       {
@@ -1856,7 +1938,7 @@ const websiteConfig = {
       }
     ]
   },
-  '(.+\\.)?ixigua\\.com': {
+  '(?:.+\\.)?ixigua\\.com': {
     amendStyles: {
       pointerAuto: '.HorizontalFeedCard__coverWrapper__garbage__icon',
       pointerNone:
@@ -1906,6 +1988,18 @@ const websiteConfig = {
         processor: (trigger, src, srcRegExpObj) =>
           srcRegExpObj.test(src) || srcRegExpObj.test(trigger.parent().find('img').attr('src')) ? RegExp.$1 : ''
       } // TODO: Ali image, duplicated, need to be removed.
+    ]
+  },
+  '(?:.+\\.)?javbus\\.(?:com|org)': {
+    srcMatching: [
+      {
+        srcRegExp: '/thumb/(\\w+)(@IMG@)',
+        processor: '/cover/$1_b$2'
+      },
+      {
+        srcRegExp: '/sample/(\\w+?)(_\\w+)?(@IMG@)',
+        processor: '/bigsample/$1_b$2$3'
+      }
     ]
   },
   '(?:.+\\.)?(jd|yhd|tuniu)\\.(?:com|hk)': {
@@ -2004,6 +2098,18 @@ const websiteConfig = {
       srcRegExp: '(.+\\.mi-store(?:\\.(?:com|[a-z]{2}))+/.+/products/)thumbs(/.+@IMG@)',
       processor: '$1images$2'
     }
+  },
+  '(?:.+\\.)?moegirl\\.org\\.cn': {
+    srcMatching: [
+      {
+        srcRegExp: '(img\\.moegirl\\.org\\.cn/\\w+/)thumb/(.+?@IMG@).*',
+        processor: '$1$2'
+      },
+      {
+        srcRegExp: 'commons\\.moegirl\\.org\\.cn/extensions/Avatar/avatar\\.php.*',
+        processor: '$&&res=original&nocache'
+      }
+    ]
   },
   'music\\.163\\.com': {
     amendStyles: {
@@ -2841,13 +2947,13 @@ const websiteConfig = {
     srcMatching: [
       {
         selectors:
-          'img,[style*=background-image],.ytp-cued-thumbnail-overlay-image,.ytp-videowall-still-info,.ytp-ce-covering-overlay,#player-container',
+          'img,[style*=background-image],.ytp-cued-thumbnail-overlay-image,.ytp-videowall-still-info,.ytp-ce-covering-overlay,#player-container,.ytd-playlist-thumbnail',
         srcRegExp: '(//i\\d*\\.ytimg\\.com/vi.*?/.+/).+(@IMG@)',
         processor: (trigger, src, srcRegExpObj) =>
           srcRegExpObj.test(
             src ||
               tools.getLargestImgSrc(trigger.siblings('[class*="-image"]')) ||
-              tools.getLargestImgSrc(trigger.siblings('#thumbnail-container').find('img.yt-img-shadow'))
+              tools.getLargestImgSrc(trigger.closest('a').find('img.yt-img-shadow'))
           )
             ? tools
                 .detectImage(
