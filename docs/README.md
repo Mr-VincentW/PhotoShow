@@ -116,7 +116,7 @@ Hereby is a list of part of the websites (hostnames) that **PhotoShow** currentl
 
 3.  **SEARCHING / KNOWLEDGE / EXPERTISE:**
 
-    ACP Journals, allhistory.com, Baidu, Baidu Baike, Baidu Map, Bing, Google, Google books, Google Map, GitHub, JAMA Network, JavBus, NEJM, soutushenqi.com, Wiki, yiigle.com
+    ACP Journals, allhistory.com, Baidu, Baidu Baike, Baidu Map, Bing, Google, Google books, Google Map, GitHub, JAMA Network, JavBus, NEJM, soutushenqi.com, Wiki, Yandex, yiigle.com
 
 4.  **NEWS / SOCIAL NETWORKING:**
 

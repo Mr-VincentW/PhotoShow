@@ -214,6 +214,8 @@
  * @version 4.18.0.0 | 2022-10-09 | Vincent   // Updates: Better support for behance (GitHub issue #64), douban, GitHub (GitHub issue #56), Instagram, and YouTube;
  *                                            // Updates: Support xda-developers (GitHub issue #66), javbus (GitHub issue #67), moegirl (GitHub issue #68);
  *                                            // Updates: Fix support for tieba.baidu.com (GitHub issue #69).
+ * @version 4.19.0.0 | 2022-11-06 | Vincent   // Updates: Better support for cangku (GitHub issue #71), and Flickr, in response to user feedback;
+ *                                            // Updates: Support Yandex, in response to user feedback.
  */
 
 // TODO: Extract websiteConfig to independent files and import them (after porting to webpack).
@@ -893,7 +895,7 @@ const websiteConfig = {
         srcRegExpObj.test(src || trigger.find('img').attr('src')) ? RegExp.$1 : ''
     }
   },
-  'cangku\\.icu': {
+  'cangku\\.\\w+': {
     amendStyles: {
       pointerNone: '.post-card-content .cover'
     },
@@ -1586,7 +1588,7 @@ const websiteConfig = {
     srcMatching: [
       {
         selectors:
-          'img,[style*=background],.photo-list-description-view,.photo-list-gallery-photo-view .photo-container',
+          'img,[style*=background],.photo-list-description-view,.photo-list-gallery-photo-view .photo-container,.photo-list-photo-container,.photo-list-gallery-container .tile-container',
         srcRegExp: '//.+\\.static\\.?flickr\\.com/(?:\\d+/)+(\\d+)_.+@IMG@',
         processor: (trigger, src, srcRegExpObj) => {
           var apiKey =
@@ -1594,8 +1596,8 @@ const websiteConfig = {
               (/site_key\s*=\s*"(\w+)"/.test($('script:contains("site_key")').text()) ? RegExp.$1 : ''),
             photoId = srcRegExpObj.test(
               decodeURIComponent(src) ||
-                tools.getBackgroundImgSrc(trigger) ||
-                tools.getBackgroundImgSrc(trigger.find('.photo'))
+                tools.getLargestImgSrc(trigger) ||
+                tools.getLargestImgSrc(trigger.find('.photo,.tile-cover,img'))
             )
               ? RegExp.$1
               : '';
@@ -2874,6 +2876,68 @@ const websiteConfig = {
             : ''
       }
     ]
+  },
+  '(?:.+\\.)?yandex\\.com': {
+    amendStyles: {
+      pointerNone: '.thumb-image__shadow,.thumb-image__preview'
+    },
+    srcMatching: [
+      {
+        selectors: 'a[href*="img_url="]',
+        processor: trigger => (/\bimg_url=([^&]+)/.test(trigger.attr('href')) ? decodeURIComponent(RegExp.$1) : '')
+      },
+      {
+        selectors: '.serp-item__thumb,.MMThumbImage-Image',
+        processor: (trigger, src, srcRegExpObj) => {
+          const dataHost =
+            trigger.get(0).closest('.serp-item[data-bem]') ||
+            document.querySelector(`.serp-item[data-bem*="${src.split('//')[1]}"]`);
+
+          if (dataHost) {
+            const data = JSON.parse(dataHost.dataset.bem || 'null'),
+              preferredHdSrc = (data['serp-item']?.dups || [])[0]?.url,
+              fallbackHdSrc = data['serp-item']?.img_href;
+
+            return preferredHdSrc || fallbackHdSrc
+              ? tools
+                  .detectImage((data['serp-item']?.dups || [])[0]?.url, data['serp-item']?.img_href)
+                  .then(imgInfo => imgInfo.src)
+              : '';
+          } else {
+            return '';
+          }
+        }
+      },
+      {
+        selectors: '.RelatedImages-Thumb',
+        srcRegExp: '\\?.*?id=\\w+-(\\w+)-images-thumbs',
+        processor: (trigger, src, srcRegExpObj) =>
+          srcRegExpObj.test(src) ? JSON.parse(document.body.dataset.photoshowHdSrcs || '{}')[RegExp.$1] || '' : ''
+      }
+    ],
+    onToggle: isOn => {
+      if (!isOn) {
+        document.body.removeAttribute('data-photoshow-hd-srcs');
+      }
+    },
+    onXhrLoad: (url, response) => {
+      if (/\/rim\?/.test(url)) {
+        try {
+          document.body.dataset.photoshowHdSrcs = JSON.stringify(
+            JSON.parse(response)?.rld?.reduce(
+              (acc, { mid, s }) =>
+                /^\w+-(\w+)-images-thumbs$/.test(mid)
+                  ? {
+                      ...acc,
+                      [RegExp.$1]: s.sort(({ ih: h1, w: w1 }, { ih: h2, iw: w2 }) => h2 * w2 - h1 * w1)[0].iu
+                    }
+                  : acc,
+              JSON.parse(document.body.dataset.photoshowHdSrcs || '{}')
+            )
+          );
+        } catch (error) {}
+      }
+    }
   },
   '(?:.+\\.)?yelp(?:\\.(?:com|[a-z]{2}))+': {
     amendStyles: {

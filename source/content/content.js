@@ -157,6 +157,8 @@
  * @version 4.17.0.0 | 2022-05-28 | Vincent   // Updates: Add 'ignoreHDSrcCaching' feature;
  *                                            // Bug Fix: View mode switching failure in some certain cases.
  * @version 4.18.0.0 | 2022-10-09 | Vincent   // Updates: Adjust image viewer when the trigger image size changes (GitHub issue #63).
+ * @version 4.19.0.0 | 2022-11-06 | Vincent   // Bug Fix: Can not copy selected text when background images exist (GitHub issue #73);
+ *                                            // Bug Fix: Trigger images resizing causes image viewer flashing.
  */
 
 // TODO: Extract common tool methods to external modules.
@@ -227,7 +229,7 @@
           img.referrerPolicy = 'no-referrer';
         }
 
-        img.src = preferredSrc;
+        img.src = preferredSrc || defaultSrc;
       });
     },
     loadImage: function (oriSrc) {
@@ -582,11 +584,11 @@
                 isActiveElementAnInput = /^text(?:area)?$/.test(document.activeElement.type) || document.activeElement.isContentEditable;
 
               if (isViewerActive) {
-                if(eventKey === 'TAB' && ${this.config.hotkeys.openImageInNewTab.isEnabled} ||
+                if((eventKey === 'TAB' && ${this.config.hotkeys.openImageInNewTab.isEnabled} ||
                   eventKey === 'C' && ${this.config.hotkeys.copyImageAddress.isEnabled} && !(e.ctrlKey && e.shiftKey) ||
                   eventKey === 'S' && ${this.config.hotkeys.saveImage.isEnabled} ||
-                  eventKey === '${this.config.activationMode?.toUpperCase()}') {
-                  isActiveElementAnInput || e.preventDefault();
+                  eventKey === '${this.config.activationMode?.toUpperCase()}') && ((!isActiveElementAnInput&& !window.getSelection().toString()) || hasImgShown)) {
+                  e.preventDefault();
                 }
 
                 if (hasImgShown) {
@@ -1084,7 +1086,11 @@
       this.hasImgViewerShown = true;
     },
     refreshImgViewer: function () {
-      if (this.isPreferedViewerLocationAvailable()) {
+      if (
+        this.isPreferedViewerLocationAvailable() &&
+        (!photoShow.config.activationExemption ||
+          this.maskHostRect.area <= (window.innerWidth * window.innerHeight) / 4)
+      ) {
         var displayingStyles = this.getDisplayingStyles();
 
         this.showViewer(displayingStyles);
@@ -1712,9 +1718,12 @@
           break;
 
         case 'C':
-          photoShow.config.hotkeys.copyImageAddress.isEnabled &&
-            (!this.isActiveElementAnInput || this.hasImgShown) &&
+          if (
+            photoShow.config.hotkeys.copyImageAddress.isEnabled &&
+            ((!this.isActiveElementAnInput && !window.getSelection().toString()) || this.hasImgShown)
+          ) {
             this.copyAction();
+          }
 
           break;
 
@@ -1907,10 +1916,7 @@
         const triggerRect = this.curTrigger.getBoundingClientRect();
 
         if (Math.abs(triggerRect.width * triggerRect.height - this.triggerSize.width * this.triggerSize.height) > 1) {
-          const curTrigger = this.curTrigger;
-          this.curTrigger = null;
-
-          this.displayViewer(curTrigger);
+          this.refreshImgViewer();
         }
       }
     }
