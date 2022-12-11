@@ -216,6 +216,7 @@
  *                                            // Updates: Fix support for tieba.baidu.com (GitHub issue #69).
  * @version 4.19.0.0 | 2022-11-06 | Vincent   // Updates: Better support for cangku (GitHub issue #71), and Flickr, in response to user feedback;
  *                                            // Updates: Support Yandex, in response to user feedback.
+ * @version 4.19.1.0 | 2022-12-11 | Vincent   // Updates: Support image downloading and opening-in-new-tab for websites that have a strict-origin referrer policy (GitHub #77).
  */
 
 // TODO: Extract websiteConfig to independent files and import them (after porting to webpack).
@@ -2810,7 +2811,8 @@ const websiteConfig = {
                 .then(imgInfo => imgInfo.src)
             : ''
       }
-    ]
+    ],
+    xhrDownload: ['wx1.sinaimg.cn', 'wx2.sinaimg.cn', 'wx3.sinaimg.cn', 'wx4.sinaimg.cn']
   },
   'mp\\.weixin\\.qq\\.com': {
     srcMatching: [
@@ -3100,7 +3102,8 @@ const websiteConfig = {
 
 let WEBSITE_INFO = {},
   DISABLED_WEBSITES = [],
-  XHR_DOWNLOAD_REQUIRED_HOSTNAMES = [],
+  REFERER_REQUIRED_REQUEST_HOSTNAMES = [],
+  TAB_ID_REFERER_MAPPTING = {},
   DOWNLOAD_ITMES = {},
   PHOTOSHOW_CONFIGS = {},
   ALL_TABS_IN_DEVELOPER_MODE = new Set();
@@ -3147,7 +3150,7 @@ const tools = {
             : undefined,
         alwaysAsk = PHOTOSHOW_CONFIGS.fileNaming?.alwaysAsk || false;
 
-      if (XHR_DOWNLOAD_REQUIRED_HOSTNAMES.includes(new URL(imgSrc).hostname)) {
+      if (REFERER_REQUIRED_REQUEST_HOSTNAMES.includes(new URL(imgSrc).hostname)) {
         let xhr = new XMLHttpRequest();
 
         xhr.open('GET', imgSrc, true);
@@ -3204,13 +3207,26 @@ const tools = {
       statistics.update('imageDownloaded');
     }
   },
-  openImgInNewTab: function (imgSrc, curTabIndex) {
-    imgSrc &&
-      chrome.tabs.create({
-        url: imgSrc,
-        index: curTabIndex + 1,
-        active: false
-      });
+  openImgInNewTab: function (imgSrc, curTab) {
+    if (imgSrc) {
+      try {
+        const referer = new URL(curTab.url)?.origin;
+
+        chrome.tabs.create(
+          {
+            url: imgSrc,
+            index: curTab.index + 1,
+            openerTabId: curTab.id,
+            active: false
+          },
+          tab => {
+            if (tab) {
+              TAB_ID_REFERER_MAPPTING[tab.id] = referer;
+            }
+          }
+        );
+      } catch (error) {}
+    }
   }
 };
 
@@ -3382,8 +3398,7 @@ var photoShowContextMenus = {
         title: chrome.i18n.getMessage('contextMenuTitle_open'),
         contexts: ['all'],
         onclick: (contextMenuInfo, tab) =>
-          chrome.runtime.lastError ||
-          photoShow.getPreservedImgSrc(tab.id, imgSrc => tools.openImgInNewTab(imgSrc, tab.index))
+          chrome.runtime.lastError || photoShow.getPreservedImgSrc(tab.id, imgSrc => tools.openImgInNewTab(imgSrc, tab))
       });
 
       chrome.contextMenus.create({
@@ -3457,6 +3472,10 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
   }
 });
 
+chrome.tabs.onRemoved.addListener(tabId => {
+  delete TAB_ID_REFERER_MAPPTING[tabId];
+});
+
 // Response to messages.
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   var needAsyncResponse;
@@ -3516,7 +3535,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
       break;
 
     case 'OPEN_IMG_IN_NEW_TAB': // Args: imgSrc
-      tools.openImgInNewTab(request.args.imgSrc, sender.tab.index);
+      tools.openImgInNewTab(request.args.imgSrc, sender.tab);
 
       break;
 
@@ -3633,8 +3652,8 @@ chrome.storage.onChanged.addListener(changes => {
   );
 });
 
-// Deal with xhr-downloading requests.
-XHR_DOWNLOAD_REQUIRED_HOSTNAMES = Object.values(websiteConfig)
+// Referer needs to be set for request to these hostnames.
+REFERER_REQUIRED_REQUEST_HOSTNAMES = Object.values(websiteConfig)
   .filter(config => config.hasOwnProperty('xhrDownload'))
   .flatMap(config => config.xhrDownload);
 
@@ -3643,11 +3662,26 @@ XHR_DOWNLOAD_REQUIRED_HOSTNAMES = Object.values(websiteConfig)
 // it will be removed during compilation.
 chrome.webRequest.onBeforeSendHeaders.addListener(
   details => {
-    for (let header of details.requestHeaders) {
-      if (header.name == 'photoshow-added-referer') {
-        header.name = 'referer';
+    switch (details.type) {
+      case 'xmlhttprequest':
+        for (let header of details.requestHeaders) {
+          if (header.name == 'photoshow-added-referer') {
+            header.name = 'referer';
+            break;
+          }
+        }
         break;
-      }
+
+      case 'main_frame':
+        if (TAB_ID_REFERER_MAPPTING[details.tabId]) {
+          details.requestHeaders.push({
+            name: 'referer',
+            value: TAB_ID_REFERER_MAPPTING[details.tabId]
+          });
+        }
+        break;
+
+      default:
     }
 
     return {
@@ -3655,8 +3689,8 @@ chrome.webRequest.onBeforeSendHeaders.addListener(
     };
   },
   {
-    urls: XHR_DOWNLOAD_REQUIRED_HOSTNAMES.map(hostname => `*://${hostname}/*`),
-    types: ['xmlhttprequest']
+    urls: REFERER_REQUIRED_REQUEST_HOSTNAMES.map(hostname => `*://${hostname}/*`),
+    types: ['xmlhttprequest', 'main_frame']
   },
   ['requestHeaders', 'blocking', 'extraHeaders']
 );
