@@ -217,6 +217,8 @@
  * @version 4.19.0.0 | 2022-11-06 | Vincent   // Updates: Better support for cangku (GitHub issue #71), and Flickr, in response to user feedback;
  *                                            // Updates: Support Yandex, in response to user feedback.
  * @version 4.19.1.0 | 2022-12-11 | Vincent   // Updates: Support image downloading and opening-in-new-tab for websites that have a strict-origin referrer policy (GitHub #77).
+ * @version 4.19.2.0 | 2022-12-18 | Vincent   // Updates: Support RazorSQL (GitHub #79);
+ *                                            // Bug Fix: Cached HD image srcs are removed unexpectedly on Google Images.
  */
 
 // TODO: Extract websiteConfig to independent files and import them (after porting to webpack).
@@ -1762,7 +1764,7 @@ const websiteConfig = {
       {
         selectors: 'img',
         processor: trigger =>
-          window.photoShowHdSrcCache[trigger.closest('[data-id]').data('tbnid')] ||
+          window.photoShowHdSrcCache[trigger.closest('[data-tbnid]').data('tbnid')] ||
           trigger.closest('[data-photoshow-hd-src]').data('photoshow-hd-src') ||
           ''
       },
@@ -1816,11 +1818,11 @@ const websiteConfig = {
     onXhrLoad: (url, response) => {
       if (/\bbatchexecute\b/.test(url)) {
         [...`${response}`.matchAll(/\\"([-\w]{14})\\",\[.*?\],\[\\"(https?:\/\/.+?)\\"(?:,\d+)+\]/g)].forEach(
-          ([match, id, hdSrc], i) => {
+          ([_, id, hdSrc]) => {
             try {
               // Using 'data-photoshow-hd-src' instead of directly writing 'photoshow-hd-src' attribute on triggers is because in this stage the image triggers may not exist.
               document
-                .querySelector(`[data-id="${id}"]`)
+                .querySelector(`[data-tbnid="${id}"]`)
                 ?.setAttribute('data-photoshow-hd-src', JSON.parse(`"${hdSrc.replace(/\\\\(?=u[a-f\d]+)/gi, '\\')}"`));
             } catch (error) {}
           }
@@ -2396,6 +2398,11 @@ const websiteConfig = {
         processor: '$1'
       }
     ]
+  },
+  '(?:.+\\.)?razorsql\\.com': {
+    srcMatching: {
+      processor: trigger => (/^images\/.*/.test(trigger.closest('a').attr('href')) ? RegExp.$_ : '')
+    }
   },
   'www\\.reddit\\.com': {
     srcMatching: [

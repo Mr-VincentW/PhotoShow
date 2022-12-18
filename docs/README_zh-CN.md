@@ -122,7 +122,7 @@
 
 3.  **搜索 / 知识 / 专业 类：**
 
-    ACP Journals、Bing、Google、Google books、Google Map、GitHub、JAMA Network、NEJM、Wiki、Yandex、yiigle.com
+    ACP Journals、Bing、Google、Google books、Google Map、GitHub、JAMA Network、NEJM、RazorSQL、Wiki、Yandex、yiigle.com
 
     全历史、百度、百度百科、百度地图、搜图神器、知乎
 

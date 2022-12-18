@@ -159,6 +159,7 @@
  * @version 4.18.0.0 | 2022-10-09 | Vincent   // Updates: Adjust image viewer when the trigger image size changes (GitHub issue #63).
  * @version 4.19.0.0 | 2022-11-06 | Vincent   // Bug Fix: Can not copy selected text when background images exist (GitHub issue #73);
  *                                            // Bug Fix: Trigger images resizing causes image viewer flashing.
+ * @version 4.19.2.0 | 2022-12-18 | Vincent   // Bug Fix: Cached HD image srcs are removed unexpectedly on Google Images.
  */
 
 // TODO: Extract common tool methods to external modules.
@@ -1887,10 +1888,11 @@
 
             case 'attributes':
               if (
-                (~mutation.attributeName.indexOf('src') && target.is('img,source')) ||
-                (mutation.attributeName == 'style' &&
-                  tools.getBackgroundImgSrc(mutation.oldValue) &&
-                  tools.getBackgroundImgSrc(target) != tools.getBackgroundImgSrc(mutation.oldValue))
+                mutation.oldValue &&
+                ((~mutation.attributeName.indexOf('src') && target.is('img,source')) ||
+                  (mutation.attributeName == 'style' &&
+                    tools.getBackgroundImgSrc(mutation.oldValue) &&
+                    tools.getBackgroundImgSrc(target) != tools.getBackgroundImgSrc(mutation.oldValue)))
               ) {
                 const srcCacheHost = target.closest('[photoshow-hd-src],[data-photoshow-hd-src]');
 

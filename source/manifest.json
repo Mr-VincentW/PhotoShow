@@ -36,8 +36,8 @@
   "manifest_version": 2,
   "name": "__MSG_extensionName__",
   "description": "__MSG_extensionDesc__",
-  "version": "4.19.1",
-  "version_name": "4.19.1",
+  "version": "4.19.2",
+  "version_name": "4.19.2",
   "author": "Vincent W.",
   "default_locale": "en",
   "minimum_chrome_version": "69", // Required for Array.flatMap() method.
