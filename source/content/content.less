@@ -39,6 +39,7 @@
  * @version 4.10.0.0 | 2021-09-18 | Vincent   // Updates: Update image loading status related styles;
  *                                            // Updates: Add frosted-glass effect to image viewer.
  * @version 4.11.0.0 | 2021-10-21 | Vincent   // Updates: Split image loader related styles for sharing with frame content styling.
+ * @version 4.20.0.0 | 2023-02-05 | Vincent   // Updates: Allow enabling/disabling image anti-aliasing (GitHub issue #90).
  */
 
 @import url('../common/imageLoader.less');
@@ -315,6 +316,11 @@
       left: 50%;
       transform: translate(-50%, -50%);
       border-radius: 1px;
+    }
+
+    .photoshow-img-no-antialiasing {
+      image-rendering: -webkit-optimize-contrast;
+      image-rendering: crisp-edges;
     }
 
     .photoshow-view-mode-switch-tip {

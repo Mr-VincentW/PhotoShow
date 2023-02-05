@@ -90,6 +90,7 @@
 - **阴影显示**：如果您受不了图片预览浮层与源缩略图之间的阴影，干掉它！
 - **加载状态**：允许关闭图片加载状态的提示动画（展示于源缩略图之上的加载动画或错误图标）。
 - **过渡动画**：允许禁用图片预览窗的各种过渡动画效果。
+- **图像平滑**：允许启用/禁用图像抗锯齿处理。
 - **右键菜单**：允许禁用右键菜单项。
 - **开发模式**：在浏览器处于开发模式（开发者工具窗口打开）时，允许暂时停用浮图秀以减少其对页面开发的干扰。
 - **热键操作**：若您碰巧忘记了那些热键或其操作定义，来这儿就对了。当然，您也可以在此禁用某些不需要的热键。
@@ -128,13 +129,13 @@
 
 4.  **新闻 / 社交 / 社区 类：**
 
-    e621.net、Facebook、IMDb、Imgur、Instagram、JavBus、Konachan、Reddit、TapTap、Tumblr、TweetDeck、Twipu、Twitter、wattpad、XDA、yande.re
+    e621.net、Facebook、IMDb、Imgur、Instagram、JavBus、Konachan、Reddit、TapTap、Tumblr、TweetDeck、Twipu、Twitter、wattpad、web-zones.ru、XDA、yande.re
 
     115 网盘、A 岛匿名版、巴哈姆特、百度贴吧、绅士仓库、豆瓣、堆糖、煎蛋、乐乎、萌娘百科、网易云音乐、NGA 玩家社区、QQ 空间、今日头条、微博、微信公众号
 
 5.  **视频、音乐 类：**
 
-    Acfun、Bandcamp、Discogs、Encyclopaedia Metallum、Fandango、Flixster、Pornhub、Rotten Tomatoes、TikTok、YouTube
+    Acfun、Bandcamp、Discogs、Dizilah、Encyclopaedia Metallum、Fandango、Flixster、Pornhub、Rotten Tomatoes、TikTok、YouTube
 
     bilibili、抖音、斗鱼、好看视频、快手、西瓜视频、优酷、土豆
 

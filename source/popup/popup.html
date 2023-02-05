@@ -33,6 +33,7 @@
  * @version 4.15.0.0 | 2022-03-27 | Vincent   // Updates: Support file naming.
  * @version 4.15.1.0 | 2022-03-30 | Vincent   // Updates: Add config items for file-naming-always-ask settings.
  * @version 4.16.0.0 | 2022-04-10 | Vincent   // Updates: Reshape the config items structure.
+ * @version 4.20.0.0 | 2023-02-05 | Vincent   // Updates: Allow enabling/disabling image anti-aliasing (GitHub issue #90).
 -->
 
 <html>
@@ -148,6 +149,15 @@
         </dt>
         <dd class="checkboxes">
           <label><input type="checkbox" checked /><span id="animationToggleDesc"></span></label>
+        </dd>
+      </dl>
+      <dl class="desc" config-item="enableAntialiasing" id="antialiasingToggleSection">
+        <dt>
+          <em class="icon icon-antialiasing"></em>
+          <h3></h3>
+        </dt>
+        <dd class="checkboxes">
+          <label><input type="checkbox" checked /><span id="antialiasingToggleDesc"></span></label>
         </dd>
       </dl>
       <dl class="desc" config-item="contextMenu" id="contextMenuToggleSection">

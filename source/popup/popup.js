@@ -50,6 +50,7 @@
  *                                            // Updates: Remove default filename.
  * @version 4.16.0.0 | 2022-04-10 | Vincent   // Updates: Allow user to turn off file-naming.
  * @version 4.17.0.0 | 2022-05-28 | Vincent   // Bug Fix: Incorrect time zone issue in file naming (GitHub issue #51).
+ * @version 4.20.0.0 | 2023-02-05 | Vincent   // Updates: Allow enabling/disabling image anti-aliasing (GitHub issue #90).
  */
 
 // TODO: Support customising hotkeys.
@@ -284,6 +285,7 @@ $('#updateDate').text(chrome.i18n.getMessage('extensionUpdateDate'));
   'shadowDisplay',
   'loadingStatusDisplay',
   'animationToggle',
+  'antialiasingToggle',
   'contextMenuToggle',
   'developerModeToggle',
   'worksEverywhere',

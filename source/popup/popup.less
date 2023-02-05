@@ -34,6 +34,7 @@
  * @version 4.14.0.0 | 2021-12-14 | Vincent   // Updates: Add 'activation delay' related styles.
  * @version 4.15.0.0 | 2022-03-27 | Vincent   // Updates: Support file naming.
  * @version 4.16.0.0 | 2022-04-10 | Vincent   // Updates: Reshape the config items structure.
+ * @version 4.20.0.0 | 2023-02-05 | Vincent   // Updates: Allow enabling/disabling image anti-aliasing (GitHub issue #90).
  */
 
 // Color definitions
@@ -120,56 +121,60 @@
     content: '\e90d';
   }
 
-  &-context-menu:before {
+  &-antialiasing:before {
     content: '\e90e';
   }
 
-  &-developer-mode:before {
+  &-context-menu:before {
     content: '\e90f';
   }
 
-  &-keyboard:before {
+  &-developer-mode:before {
     content: '\e910';
   }
 
-  &-file-naming:before {
+  &-keyboard:before {
     content: '\e911';
   }
 
-  &-share:before {
+  &-file-naming:before {
     content: '\e912';
   }
 
-  &-facebook:before {
+  &-share:before {
     content: '\e913';
   }
 
-  &-twitter:before {
+  &-facebook:before {
     content: '\e914';
   }
 
-  &-weibo:before {
+  &-twitter:before {
     content: '\e915';
   }
 
-  &-qzone:before {
+  &-weibo:before {
     content: '\e916';
   }
 
-  &-reddit:before {
+  &-qzone:before {
     content: '\e917';
   }
 
-  &-tumblr:before {
+  &-reddit:before {
     content: '\e918';
   }
 
-  &-mail:before {
+  &-tumblr:before {
     content: '\e919';
   }
 
-  &-github:before {
+  &-mail:before {
     content: '\e91a';
+  }
+
+  &-github:before {
+    content: '\e91b';
   }
 }
 

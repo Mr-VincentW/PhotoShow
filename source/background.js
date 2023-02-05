@@ -216,9 +216,11 @@
  *                                            // Updates: Fix support for tieba.baidu.com (GitHub issue #69).
  * @version 4.19.0.0 | 2022-11-06 | Vincent   // Updates: Better support for cangku (GitHub issue #71), and Flickr, in response to user feedback;
  *                                            // Updates: Support Yandex, in response to user feedback.
- * @version 4.19.1.0 | 2022-12-11 | Vincent   // Updates: Support image downloading and opening-in-new-tab for websites that have a strict-origin referrer policy (GitHub #77).
- * @version 4.19.2.0 | 2022-12-18 | Vincent   // Updates: Support RazorSQL (GitHub #79);
+ * @version 4.19.1.0 | 2022-12-11 | Vincent   // Updates: Support image downloading and opening-in-new-tab for websites that have a strict-origin referrer policy (GitHub issue #77).
+ * @version 4.19.2.0 | 2022-12-18 | Vincent   // Updates: Support RazorSQL (GitHub issue #79);
  *                                            // Bug Fix: Cached HD image srcs are removed unexpectedly on Google Images.
+ * @version 4.20.0.0 | 2023-02-05 | Vincent   // Updates: Support Dizilah (GitHub issue #87), web-zones.ru (GitHub issue #89);
+ *                                            // Updates: Better support for bilibili, facebook (GitHub issue #91), javbus (GitHub issue #82), Yandex, YouTube (GitHub issue #85, issue #86).
  */
 
 // TODO: Extract websiteConfig to independent files and import them (after porting to webpack).
@@ -797,7 +799,7 @@ const websiteConfig = {
   '.+\\.bili(?:bili|game)\\.com': {
     amendStyles: {
       pointerNone:
-        '.biref-img img~*,.bili-avatar img~*,.groom-module .card-mark,.spread-module .pic img~*,.spread-module .pic .common-lazy-img~*,.cover-ctn .cover-back,.hot-list-content .hover-mask,.play-mask,.recommend-box .info,.hover-cover-box *,.image-area *:not(img),.face-pendants,.pendant,.user-decorator,.bilibili-player-ending-panel-box-recommend-cover,.van-framepreview,.fake-danmu,.fake-danmu-mask,.preview-bg,.pl__mask,.video-card-reco .info,.card-pic a *:not(img),.rib-info,.video-mask,.cover-mask',
+        '.biref-img img~*,.bili-avatar img~*,.groom-module .card-mark,.spread-module .pic img~*,.spread-module .pic .common-lazy-img~*,.cover-ctn .cover-back,.hot-list-content .hover-mask,.play-mask,.recommend-box .info,.hover-cover-box *,.image-area *:not(img),.face-pendants,.pendant,.user-decorator,.bilibili-player-ending-panel-box-recommend-cover,.van-framepreview,.fake-danmu,.fake-danmu-mask,.preview-bg,.pl__mask,.video-card-reco .info,.card-pic a *:not(img),.rib-info,.video-mask,.cover-mask,.season-cover>:not(picture),[class*="-ratio-item-container"] .season-cover',
       pointerAuto: '.hover-cover-box .cover-ctnr,.image-area .see-later,.cover .i-watchlater'
     },
     srcMatching: [
@@ -808,7 +810,8 @@ const websiteConfig = {
         processor: '$1$2'
       },
       {
-        selectors: '.cardBangumibox .modal-box,.song-shadow,.pic-box,.bili-dyn-card-video__cover',
+        selectors:
+          '.cardBangumibox .modal-box,.song-shadow,.pic-box,.bili-dyn-card-video__cover,[class*="-ratio-item-container"]',
         srcRegExp: '(//.+\\.hdslb\\.com/.+?@IMG@)[^?]*(\\?.*)?',
         processor: (trigger, src, srcRegExpObj) =>
           srcRegExpObj.test(tools.getLargestImgSrc(trigger.find('img,[style*=background]')))
@@ -1186,6 +1189,36 @@ const websiteConfig = {
       }
     ]
   },
+  '(?:.+\\.)?dizilah\\.com': {
+    srcMatching: [
+      {
+        selectors: 'a[data-src] img',
+        processor: trigger => trigger.parent().data('src')
+      },
+      {
+        srcRegExp: '(/\\d+/)[^/]+/(.+?jpe?g).+@IMG@',
+        processor: '$1$2'
+      },
+      {
+        selectors: '[itemprop="actor"]',
+        srcRegExp: '(.+?/\\d+/)[^/]+/(.+?)-thumb(@IMG@)',
+        processor: (trigger, src, srcRegExpObj) =>
+          srcRegExpObj.test(trigger.find('img').attr('src'))
+            ? tools.detectImage(`${RegExp.$1}${RegExp.$2}${RegExp.$3}`, RegExp.$_).then(imgInfo => imgInfo.src)
+            : src
+      },
+      {
+        selectors: 'img,[itemprop="actor"],a.absolute',
+        srcRegExp: '(.+?/\\d+/)[^/]+/(.+?)(?:-(?:episode|mini|thumb|medium)|_{3}medium.*?)(@IMG@)',
+        processor: (trigger, src, srcRegExpObj) =>
+          srcRegExpObj.test(src || trigger.find('img').attr('src') || trigger.parent().find('img').attr('src'))
+            ? tools
+                .detectImage(`${RegExp.$1}${RegExp.$2}.jpeg`, `${RegExp.$1}${RegExp.$2}${RegExp.$3}`)
+                .then(imgInfo => imgInfo.src)
+            : src
+      }
+    ]
+  },
   '(?:.+\\.)?douban\\.(?:com|fm)': {
     srcMatching: [
       {
@@ -1398,8 +1431,10 @@ const websiteConfig = {
   },
   '\\w+\\.facebook\\.com': {
     amendStyles: {
-      pointerNone: '._52d9,.uiMediaThumb+._53d,._3251,._7m4,#fbProfileCover .coverBorder,img+.pmk7jnqg,image~circle',
-      pointerAuto: '.uiMediaThumb+._53d a'
+      pointerNone:
+        '._52d9,.uiMediaThumb+._53d,._3251,._7m4,#fbProfileCover .coverBorder,img+.pmk7jnqg,image~circle,:not(img).x10l6tqk.x13vifvy.xds687c.x1ey2m1c.x17qophe',
+      pointerAuto:
+        '.uiMediaThumb+._53d a,.x10l6tqk.x13vifvy.xds687c.x1ey2m1c.x17qophe a,.x10l6tqk.x13vifvy.xds687c.x1ey2m1c.x17qophe img'
     },
     srcMatching: [
       {
@@ -1995,15 +2030,35 @@ const websiteConfig = {
       } // TODO: Ali image, duplicated, need to be removed.
     ]
   },
-  '(?:.+\\.)?javbus\\.(?:com|org)': {
+  '(?:.+\\.)?(?:jav(?:bus|see)|seejav)\\..+': {
     srcMatching: [
       {
-        srcRegExp: '/thumb/(\\w+)(@IMG@)',
+        selectors: 'a[href$=".jpg"] img',
+        processor: trigger => trigger.closest('a').attr('href')
+      },
+      {
+        srcRegExp: '//.+/data/attachment/forum/.+/(\\w+@IMG@)',
+        processor: '//forum.javcdn.cc/i.imgur.com/$1'
+      },
+      {
+        srcRegExp: '(uc\\.javbus\\d*\\.com/.+avatar_)(?:small|middle)(@IMG@)',
+        processor: '$1big$2'
+      },
+      {
+        srcRegExp: '/thumbs?/(\\w+)(@IMG@)',
         processor: '/cover/$1_b$2'
       },
       {
         srcRegExp: '/sample/(\\w+?)(_\\w+)?(@IMG@)',
         processor: '/bigsample/$1_b$2$3'
+      },
+      {
+        srcRegExp: '(pics\\.dmm\\.co\\.jp/digital/video/.+?)ps(@IMG@)',
+        processor: '$1pl$2'
+      },
+      {
+        srcRegExp: '(pics\\.dmm\\.co\\.jp/digital/video/.+?)(-\\d+@IMG@)',
+        processor: '$1jp$2'
       }
     ]
   },
@@ -2790,6 +2845,15 @@ const websiteConfig = {
       }
     ]
   },
+  '(?:.+\\.)?web-zones\\.ru': {
+    amendStyles: {
+      pointerAuto: '.file-preview:after'
+    },
+    srcMatching: {
+      selectors: 'a.js-lbImage',
+      processor: trigger => trigger.attr('href')
+    }
+  },
   '(?:.+\\.)?weibo\\.com': {
     amendStyles: {
       pointerNone: '.picture-cover,.hoverMask,.wbs-pic .img_info,.avator img+i'
@@ -2896,7 +2960,7 @@ const websiteConfig = {
         processor: trigger => (/\bimg_url=([^&]+)/.test(trigger.attr('href')) ? decodeURIComponent(RegExp.$1) : '')
       },
       {
-        selectors: '.serp-item__thumb,.MMThumbImage-Image',
+        selectors: '.serp-item__thumb,.MMThumbImage-Image,.SimpleImage-Image',
         processor: (trigger, src, srcRegExpObj) => {
           const dataHost =
             trigger.get(0).closest('.serp-item[data-bem]') ||
@@ -3014,8 +3078,9 @@ const websiteConfig = {
   },
   'www\\.youtube\\.com': {
     amendStyles: {
-      pointerNone: 'yt-img-shadow~[id$="overlay"],yt-img-shadow~[id$="overlays"]',
-      pointerAuto: 'yt-img-shadow~[id$="overlay"] [role="button"],yt-img-shadow~[id$="overlays"] [role="button"]'
+      pointerNone:
+        'a.ytd-thumbnail>:not(yt-image),a.ytd-playlist-thumbnail>:not(#playlist-thumbnails),#label-container,[page-subtype="home"] .ytd-rich-grid-media yt-image',
+      pointerAuto: '[role="button"],[hovered] #label-container'
     },
     srcMatching: [
       {
@@ -3026,7 +3091,7 @@ const websiteConfig = {
           srcRegExpObj.test(
             src ||
               tools.getLargestImgSrc(trigger.siblings('[class*="-image"]')) ||
-              tools.getLargestImgSrc(trigger.closest('a').find('img.yt-img-shadow'))
+              tools.getLargestImgSrc(trigger.closest('a').find('.ytd-thumbnail img'))
           )
             ? tools
                 .detectImage(
@@ -3408,6 +3473,7 @@ var photoShowContextMenus = {
           chrome.runtime.lastError || photoShow.getPreservedImgSrc(tab.id, imgSrc => tools.openImgInNewTab(imgSrc, tab))
       });
 
+      // TODO: Need to display a download message when the download process cannot be triggered immediately.
       chrome.contextMenus.create({
         id: 'photoShowContextMenu_save',
         title: chrome.i18n.getMessage('contextMenuTitle_save'),

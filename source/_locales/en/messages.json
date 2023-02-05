@@ -33,6 +33,7 @@
  * @version 4.15.1.0 | 2022-03-30 | Vincent   // Updates: Add 'fileNamingAlwaysAskDesc';
  *                                            // Updates: Remove 'fileNamingDefaultFilename'.
  * @version 4.16.0.0 | 2022-04-10 | Vincent   // Updates: Add 'fileNamingExamplePlaceholder'.
+ * @version 4.20.0.0 | 2023-02-05 | Vincent   // Updates: Add 'image anti-aliasing' related items.
  */
 
 {
@@ -259,6 +260,16 @@
   },
   "animationToggleDesc": {
     "message": "Enable transition animation",
+    "description": "Setting item description."
+  },
+
+  // Section ANTI-ALIASING TOGGLE:
+  "antialiasingToggleHeader": {
+    "message": "IMAGE ANTI-ALIASING",
+    "description": "Section title."
+  },
+  "antialiasingToggleDesc": {
+    "message": "Enable image anti-aliasing",
     "description": "Setting item description."
   },
 

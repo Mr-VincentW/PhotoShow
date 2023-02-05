@@ -32,6 +32,7 @@
  * @version 4.15.1.0 | 2022-03-30 | Vincent   // Updates: Add 'fileNamingAlwaysAskDesc';
  *                                            // Updates: Remove 'fileNamingDefaultFilename'.
  * @version 4.16.0.0 | 2022-04-10 | Vincent   // Updates: Add 'fileNamingExamplePlaceholder'.
+ * @version 4.20.0.0 | 2023-02-05 | Vincent   // Updates: Add 'image anti-aliasing' related items.
  */
 
 {
@@ -258,6 +259,16 @@
   },
   "animationToggleDesc": {
     "message": "啟用過渡動畫",
+    "description": "設置項描述。"
+  },
+
+  // “圖像平滑”區：
+  "antialiasingToggleHeader": {
+    "message": "圖像平滑",
+    "description": "區塊標題。"
+  },
+  "antialiasingToggleDesc": {
+    "message": "啟用圖像平滑（抗鋸齒）處理",
     "description": "設置項描述。"
   },
 

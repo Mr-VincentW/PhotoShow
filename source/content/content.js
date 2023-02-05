@@ -160,6 +160,9 @@
  * @version 4.19.0.0 | 2022-11-06 | Vincent   // Bug Fix: Can not copy selected text when background images exist (GitHub issue #73);
  *                                            // Bug Fix: Trigger images resizing causes image viewer flashing.
  * @version 4.19.2.0 | 2022-12-18 | Vincent   // Bug Fix: Cached HD image srcs are removed unexpectedly on Google Images.
+ * @version 4.20.0.0 | 2023-02-05 | Vincent   // Bug Fix: Not working on hyper links end with image extension names in uppsercase (GitHub issue #83);
+ *                                            // Updates: Allow enabling/disabling image anti-aliasing (GitHub issue #90);
+ *                                            // Updates: Delay displaying image download messages (GitHub issue #88).
  */
 
 // TODO: Extract common tool methods to external modules.
@@ -299,7 +302,7 @@
 
       !src &&
         target.is('a') &&
-        /\.(?:jpe?g|jfif|gifv?|pn[gj]|bmp|webp|svg)\b/.test(target.attr('href')) &&
+        /\.(?:jpe?g|jfif|gifv?|pn[gj]|bmp|webp|svg)\b/i.test(target.attr('href')) &&
         (src = target.attr('href')); // Get link address if it doesn't have a background image.
 
       return src ? new URL(src, location.origin).href : '';
@@ -461,6 +464,16 @@
       },
       loadingStatusDisplay: true, // Loading status display.
       enableAnimation: true, // Transition animation.
+      _enableAntialiasing: true, // Image anti-aliasing.
+      get enableAntialiasing() {
+        return this._enableAntialiasing;
+      },
+      set enableAntialiasing(isEnabled) {
+        photoShowViewer.viewerImg[isEnabled ? 'removeClass' : 'addClass'].call(
+          photoShowViewer.viewerImg,
+          'photoshow-img-no-antialiasing'
+        );
+      },
       developerModeSuspension: true, // Developer mode suspension.
       hotkeys: {
         // Hotkey toggles.
@@ -1645,17 +1658,24 @@
         this.parseTriggers(document.elementFromPoint(this.mouseClientPos.x, this.mouseClientPos.y)).src || this.imgSrc;
 
       if (imgSrc) {
-        photoShowGlobalMsg.show(chrome.i18n.getMessage('globalMsg_imgWillStartDownloading'));
+        const messageTimer = setTimeout(() => {
+          photoShowGlobalMsg.show(chrome.i18n.getMessage('globalMsg_imgWillStartDownloading'));
+        }, 1000);
 
-        tools.resolveImgSrc(imgSrc).then(imgSrc => {
-          imgSrc &&
-            chrome.runtime.sendMessage({
-              cmd: 'DOWNLOAD_IMG',
-              args: {
-                imgSrc: imgSrc
-              }
-            });
-        });
+        tools
+          .resolveImgSrc(imgSrc)
+          .then(imgSrc => {
+            imgSrc &&
+              chrome.runtime.sendMessage({
+                cmd: 'DOWNLOAD_IMG',
+                args: {
+                  imgSrc: imgSrc
+                }
+              });
+          })
+          .finally(() => {
+            clearTimeout(messageTimer);
+          });
       }
     },
     keydownAction: function (e) {

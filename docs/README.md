@@ -88,6 +88,7 @@ More settings are provided in the popup window, click the **PhotoShow** icon in 
 - **Toggle shadow display**: If you just can't stand the dark shade between the image viewer and its source thumbnail, "KAPOW"!
 - **Toggle loading states display**: Allow to disable image loading states indicator (a spinner or cross icon displayed over the thumbnails).
 - **Toggle animation display**: Allow to disable all the transition animation for the HD image viewer.
+- **Toggle image anti-aliasing**: Allow to enable/disable image anti-aliasing.
 - **Toggle context menu**: Allow to disable PhotoShow context menu items.
 - **Toggle developer mode**: If you happen to be implenmenting some great ideas on your pages, you probably don't want the injected content or hotkey system from PhotoShow to distract you from your creativity, then here you go.
 - **Check and toggle the shortcuts**: If you happen to forget the hotkeys or their actions, here's the right place to go. Of course you may also disable some of them as you wish.
@@ -118,13 +119,13 @@ Hereby is a list of part of the websites (hostnames) that **PhotoShow** currentl
 
     ACP Journals, allhistory.com, Baidu, Baidu Baike, Baidu Map, Bing, Google, Google books, Google Map, GitHub, JAMA Network, JavBus, NEJM, RazorSQL, soutushenqi.com, Wiki, Yandex, yiigle.com
 
-4.  **NEWS / SOCIAL NETWORKING:**
+4.  **NEWS / SOCIAL NETWORKING / FORUMS:**
 
-    115.com, adnmb2.com, cangku.icu, Duitang, e621.net, Facebook, gamer.com.tw, IMDb, Imgur, Instagram, Jandan, Konachan, LOFTER, music.163.com, nga.cn, Qzone, Reddit, TapTap, toutiao.com, Tumblr, TweetDeck, Twipu, Twitter, Sina weibo, wattpad, WeChat webpages, XDA, yande.re
+    115.com, adnmb2.com, cangku.icu, Duitang, e621.net, Facebook, gamer.com.tw, IMDb, Imgur, Instagram, Jandan, Konachan, LOFTER, music.163.com, nga.cn, Qzone, Reddit, TapTap, toutiao.com, Tumblr, TweetDeck, Twipu, Twitter, Sina weibo, wattpad, WeChat webpages, web-zones.ru, XDA, yande.re
 
 5.  **VIDEOS / MUSIC:**
 
-    Acfun, Bandcamp, bilibili, Discogs, douyin.com, douyu.com, Encyclopaedia Metallum, Fandango, Flixster, haokan.baidu.com, ixigua.com, moegirl, kuaishou.com, Pornhub, Rotten Tomatoes, TikTok, YOUKU, YouTube
+    Acfun, Bandcamp, bilibili, Discogs, Dizilah, douyin.com, douyu.com, Encyclopaedia Metallum, Fandango, Flixster, haokan.baidu.com, ixigua.com, moegirl, kuaishou.com, Pornhub, Rotten Tomatoes, TikTok, YOUKU, YouTube
 
 If you can't find your favourite websites in the above list, it is always welcome to [contact the author](#contact) to get more support.
 <br />
