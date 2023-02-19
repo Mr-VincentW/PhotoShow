@@ -221,6 +221,9 @@
  *                                            // Bug Fix: Cached HD image srcs are removed unexpectedly on Google Images.
  * @version 4.20.0.0 | 2023-02-05 | Vincent   // Updates: Support Dizilah (GitHub issue #87), web-zones.ru (GitHub issue #89);
  *                                            // Updates: Better support for bilibili, facebook (GitHub issue #91), javbus (GitHub issue #82), Yandex, YouTube (GitHub issue #85, issue #86).
+ * @version 4.20.1.0 | 2023-02-19 | Vincent   // Bug Fix: Some absolutely-positioned elements on Facebook are not interactive (GitHub issue #94, #96, #97);
+ *                                            // Updates: Better support for Instagrame (GitHub issue #95), and Kmart;
+ *                                            // Updates: Support iqiyi.com (GitHub issue #72), and njpwworld.com, in response to user feedback.
  */
 
 // TODO: Extract websiteConfig to independent files and import them (after porting to webpack).
@@ -1432,9 +1435,9 @@ const websiteConfig = {
   '\\w+\\.facebook\\.com': {
     amendStyles: {
       pointerNone:
-        '._52d9,.uiMediaThumb+._53d,._3251,._7m4,#fbProfileCover .coverBorder,img+.pmk7jnqg,image~circle,:not(img).x10l6tqk.x13vifvy.xds687c.x1ey2m1c.x17qophe',
+        '._52d9,.uiMediaThumb+._53d,._3251,._7m4,#fbProfileCover .coverBorder,img+.pmk7jnqg,image~circle,:not(img,.x1ypdohk).x10l6tqk.x13vifvy.xds687c.x1ey2m1c.x17qophe',
       pointerAuto:
-        '.uiMediaThumb+._53d a,.x10l6tqk.x13vifvy.xds687c.x1ey2m1c.x17qophe a,.x10l6tqk.x13vifvy.xds687c.x1ey2m1c.x17qophe img'
+        '.uiMediaThumb+._53d a,.x10l6tqk.x13vifvy.xds687c.x1ey2m1c.x17qophe a,.x10l6tqk.x13vifvy.xds687c.x1ey2m1c.x17qophe img,.x10l6tqk.x13vifvy.xds687c.x1ey2m1c.x17qophe .x1ypdohk'
     },
     srcMatching: [
       {
@@ -1936,7 +1939,8 @@ const websiteConfig = {
   },
   'www\\.instagram\\.com': {
     amendStyles: {
-      pointerNone: '.qn-0x,._9AhH0,._7Tu5q,._aagw,._aapc,._ac2d'
+      pointerNone: '.qn-0x,._9AhH0,._7Tu5q,._aagw,._aapc,._ac2d,img+._abch._abcl._abck._abcf._abcg',
+      pointerAuto: 'img+._abch._abcl._abck._abcf._abcg img'
     },
     srcMatching: [
       {
@@ -1977,6 +1981,29 @@ const websiteConfig = {
           })
       }
     ]
+  },
+  '(?:.+\\.)?iqiyi\\.com': {
+    amendStyles: {
+      pointerNone: '.icon-tr,.icon-b,.qy-vc-small_play,.meta-wrap',
+      pointerAuto: '.tab-box:after'
+    },
+    srcMatching: [
+      {
+        srcRegExp: '(img\\d+\\.iqiyipic\\.com/passport/.+?)_\\d+_\\d+(@IMG@).*',
+        processor: '$1_640_640$2'
+      },
+      {
+        selectors: 'img,.iqp-player',
+        srcRegExp: '(.+?)_\\d+_\\d+(@IMG@).*',
+        processor: (trigger, src, srcRegExpObj) =>
+          srcRegExpObj.test(
+            src || tools.getLargestImgSrc(trigger.closest('.video-item-preview').find('.video-item-preview-img img'))
+          )
+            ? tools.detectImage(`${RegExp.$1}_0_0${RegExp.$2}`, src).then(imgInfo => imgInfo.src)
+            : ''
+      }
+    ],
+    ignoreHDSrcCaching: true
   },
   '(?:.+\\.)?ixigua\\.com': {
     amendStyles: {
@@ -2096,8 +2123,8 @@ const websiteConfig = {
   },
   'www\\.kmart\\.(?:com\\.au|co\\.nz)': {
     srcMatching: {
-      srcRegExp: '(/wcsstore/Kmart/images/ncatalog/)\\w+(/.+-)\\w+(@IMG@)',
-      processor: '$1sz$2sz$3'
+      srcRegExp: '(.+@IMG@)\\?.*',
+      processor: '$1'
     }
   },
   '(?:.+\\.)?lofter\\.com': {
@@ -2257,6 +2284,12 @@ const websiteConfig = {
         srcRegExp: 'taskupload\\d+\\.huitu\\.com/.+@IMG@'
       }
     ]
+  },
+  '(?:.+\\.)?njpwworld\\.com': {
+    srcMatching: {
+      srcRegExp: '(/imagecache/\\d+/\\d+/).*',
+      processor: '$10/0/0/0'
+    }
   },
   'www\\.noelleeming\\.co\\.nz': {
     amendStyles: {

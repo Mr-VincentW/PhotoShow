@@ -129,7 +129,7 @@
 
 4.  **新闻 / 社交 / 社区 类：**
 
-    e621.net、Facebook、IMDb、Imgur、Instagram、JavBus、Konachan、Reddit、TapTap、Tumblr、TweetDeck、Twipu、Twitter、wattpad、web-zones.ru、XDA、yande.re
+    e621.net、Facebook、IMDb、Imgur、Instagram、JavBus、Konachan、njpwworld.com、Reddit、TapTap、Tumblr、TweetDeck、Twipu、Twitter、wattpad、web-zones.ru、XDA、yande.re
 
     115 网盘、A 岛匿名版、巴哈姆特、百度贴吧、绅士仓库、豆瓣、堆糖、煎蛋、乐乎、萌娘百科、网易云音乐、NGA 玩家社区、QQ 空间、今日头条、微博、微信公众号
 
@@ -137,7 +137,7 @@
 
     Acfun、Bandcamp、Discogs、Dizilah、Encyclopaedia Metallum、Fandango、Flixster、Pornhub、Rotten Tomatoes、TikTok、YouTube
 
-    bilibili、抖音、斗鱼、好看视频、快手、西瓜视频、优酷、土豆
+    bilibili、抖音、斗鱼、好看视频、爱奇艺、快手、西瓜视频、优酷、土豆
 
 如果上述列表中不包含您所钟爱的网站，欢迎[向作者反馈](#%E8%81%94%E7%B3%BB%E4%BD%9C%E8%80%85)以获取更多支持。
 <br />

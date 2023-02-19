@@ -163,6 +163,7 @@
  * @version 4.20.0.0 | 2023-02-05 | Vincent   // Bug Fix: Not working on hyper links end with image extension names in uppsercase (GitHub issue #83);
  *                                            // Updates: Allow enabling/disabling image anti-aliasing (GitHub issue #90);
  *                                            // Updates: Delay displaying image download messages (GitHub issue #88).
+ * @version 4.20.1.0 | 2023-02-19 | Vincent   // Updates: Avoid triggering on potential sprite images.
  */
 
 // TODO: Extract common tool methods to external modules.
@@ -1425,7 +1426,7 @@
             amendStyles: {
               ...(photoShow.websiteConfig.amendStyles || {}),
               pointerNone: (photoShow.websiteConfig.amendStyles?.pointerNone === 'none' ? [] : ['*:before,*:after'])
-                .concat(photoShow.websiteConfig.amendStyles?.pointerNone || [])
+                .concat(photoShow.websiteConfig.amendStyles?.pointerNone || [], '[style*="background-position"]')
                 .join(',')
             }
           };

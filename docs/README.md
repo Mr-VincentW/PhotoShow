@@ -121,11 +121,11 @@ Hereby is a list of part of the websites (hostnames) that **PhotoShow** currentl
 
 4.  **NEWS / SOCIAL NETWORKING / FORUMS:**
 
-    115.com, adnmb2.com, cangku.icu, Duitang, e621.net, Facebook, gamer.com.tw, IMDb, Imgur, Instagram, Jandan, Konachan, LOFTER, music.163.com, nga.cn, Qzone, Reddit, TapTap, toutiao.com, Tumblr, TweetDeck, Twipu, Twitter, Sina weibo, wattpad, WeChat webpages, web-zones.ru, XDA, yande.re
+    115.com, adnmb2.com, cangku.icu, Duitang, e621.net, Facebook, gamer.com.tw, IMDb, Imgur, Instagram, Jandan, Konachan, LOFTER, music.163.com, nga.cn, njpwworld.com, Qzone, Reddit, TapTap, toutiao.com, Tumblr, TweetDeck, Twipu, Twitter, Sina weibo, wattpad, WeChat webpages, web-zones.ru, XDA, yande.re
 
 5.  **VIDEOS / MUSIC:**
 
-    Acfun, Bandcamp, bilibili, Discogs, Dizilah, douyin.com, douyu.com, Encyclopaedia Metallum, Fandango, Flixster, haokan.baidu.com, ixigua.com, moegirl, kuaishou.com, Pornhub, Rotten Tomatoes, TikTok, YOUKU, YouTube
+    Acfun, Bandcamp, bilibili, Discogs, Dizilah, douyin.com, douyu.com, Encyclopaedia Metallum, Fandango, Flixster, haokan.baidu.com, iqiyi.com, ixigua.com, moegirl, kuaishou.com, Pornhub, Rotten Tomatoes, TikTok, YOUKU, YouTube
 
 If you can't find your favourite websites in the above list, it is always welcome to [contact the author](#contact) to get more support.
 <br />
