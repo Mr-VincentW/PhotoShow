@@ -220,10 +220,14 @@
  * @version 4.19.2.0 | 2022-12-18 | Vincent   // Updates: Support RazorSQL (GitHub issue #79);
  *                                            // Bug Fix: Cached HD image srcs are removed unexpectedly on Google Images.
  * @version 4.20.0.0 | 2023-02-05 | Vincent   // Updates: Support Dizilah (GitHub issue #87), web-zones.ru (GitHub issue #89);
- *                                            // Updates: Better support for bilibili, facebook (GitHub issue #91), javbus (GitHub issue #82), Yandex, YouTube (GitHub issue #85, issue #86).
+ *                                            // Updates: Better support for bilibili, Facebook (GitHub issue #91), javbus (GitHub issue #82), Yandex, YouTube (GitHub issue #85, issue #86).
  * @version 4.20.1.0 | 2023-02-19 | Vincent   // Bug Fix: Some absolutely-positioned elements on Facebook are not interactive (GitHub issue #94, #96, #97);
- *                                            // Updates: Better support for Instagrame (GitHub issue #95), and Kmart;
+ *                                            // Updates: Better support for Instagram (GitHub issue #95), and Kmart;
  *                                            // Updates: Support iqiyi.com (GitHub issue #72), and njpwworld.com, in response to user feedback.
+ * @version 4.21.0.0 | 2023-03-09 | Vincent   // Updates: Add 'xhrCustomHeaders' and 'onPageLoad fields to the website-info-structure;
+ *                                            // Updates: Support Apple app store (GitHub issue #102) and mxdm8.com, in response to user feedback;
+ *                                            // Updates: Better support for baidu, Facebook(GitHub issue #100, #106), and Instagram;
+ *                                            // Updates: Add hotkey for enabling/disabling PhotoShow (GitHub issue #105).
  */
 
 // TODO: Extract websiteConfig to independent files and import them (after porting to webpack).
@@ -244,30 +248,33 @@
 // TODO: Handle invalid download filename.
 // TODO: Figure out a better way to do ignoreHDSrcCaching. (This rule should be applied at rule level instead of website level.)
 // TODO: Twitter, 'use orig/4096x4096' to replace 'large'.
+// TODO: Capture XHRs with the original capability of browser extensions instead of manually hacking, since this might miss some XHRs.
 
 // Website info structure:
 // {
-//   amendStyles: {                    // (Optional) Styles to amend to hosting pages.
-//     pointerNone: {String},          // Selectors that are to be set to 'pointer-events:none'
-//     pointerAuto: {String}           // Selectors that are to be set to 'pointer-events:auto'
+//   amendStyles: {                       // (Optional) Styles to amend to hosting pages.
+//     pointerNone: {String},             // Selectors that are to be set to 'pointer-events:none'
+//     pointerAuto: {String}              // Selectors that are to be set to 'pointer-events:auto'
 //   },
-//   srcMatching: {                    // (Required) Matching configuration.
-//     selectors: {String},            // (Optional) Selectors for elements responsible for mouse-enter action. Default value: '' (equivalent to 'img,[style*=background],image,a[href],video[poster]').
-//     srcRegExp: {String},            // (Optional) Pattern for trigger image src matching in src replacement.
-//     processor: {String|Function}    // (Optional) Replacement string or process function. ('this' -> the selected element. NOTE: Not applicable to arrow functions.)
-//                                     // Arguments: trigger{Object}         // The selected element (jQuery object of 'this').
-//                                     // Arguments: src{String}             // Src of the selected img (or the src of the largest image in its srcset list) or backgroundImage src of the selected element.
-//                                     // Arguments: srcRegExpObj{RegExp}    // An RegExp object constructed by srcRegExp.
-//                                     // Return Value: {String}             // Src of the high-definition image; return '' if not applicable.
+//   srcMatching: {                       // (Required) Matching configuration.
+//     selectors: {String},               // (Optional) Selectors for elements responsible for mouse-enter action. Default value: '' (equivalent to 'img,[style*=background],image,a[href],video[poster]').
+//     srcRegExp: {String},               // (Optional) Pattern for trigger image src matching in src replacement.
+//     processor: {String|Function}       // (Optional) Replacement string or process function. ('this' -> the selected element. NOTE: Not applicable to arrow functions.)
+//                                        // Arguments: trigger{Object}         // The selected element (jQuery object of 'this').
+//                                        // Arguments: src{String}             // Src of the selected img (or the src of the largest image in its srcset list) or backgroundImage src of the selected element.
+//                                        // Arguments: srcRegExpObj{RegExp}    // An RegExp object constructed by srcRegExp.
+//                                        // Return Value: {String}             // Src of the high-definition image; return '' if not applicable.
 //   },
-//   ignoreHDSrcCaching: {Boolean},    // (Optional) Specify if the 'photoshow-hd-src' cached on triggers should be ignored when detecting new HD image srcs. Default: false.
-//   xhrDownload: {String|Array},      // (Optional) If downloading images under certain hostnames on this website needs the 'referer' header of the HTTP(S) request set, list the hostnames here.
-//   noReferrer: {Boolean},            // (Optional) Set the 'referrerPolicy' field of the img element to 'no-referrer' when displaying the HD image, if this parameter is specified as true.
-//   onToggle: {Function},             // (Optional) Callback when PhotoShow is toggled on/off on the hosting page.
-//                                     // Arguments: isOn {Boolean}    // Specify whether PhotoShow is turnned on.
-//   onXhrLoad: {Function}             // (Optional) Callback for any XHR load event triggered on the hosting page.
-//                                     // Arguments: url{String}         // The url of the request.
-//                                     // Arguments: response{String}    // The text content of the response.
+//   ignoreHDSrcCaching: {Boolean},       // (Optional) Specify if the 'photoshow-hd-src' cached on triggers should be ignored when detecting new HD image srcs. Default: false.
+//   xhrDownload: {String|Array},         // (Optional) If downloading images under certain hostnames on this website needs the 'referer' header of the HTTP(S) request set, list the hostnames here.
+//   xhrCustomHeaders: {String|Array},    // (Optional) If xhr requests under certain hostnames on this website needs custom headers set, list the hostnames here.
+//   noReferrer: {Boolean},               // (Optional) Set the 'referrerPolicy' field of the img element to 'no-referrer' when displaying the HD image, if this parameter is specified as true.
+//   onToggle: {Function},                // (Optional) Callback when PhotoShow is toggled on/off on the hosting page.
+//                                        // Arguments: isOn {Boolean}    // Specify whether PhotoShow is turnned on.
+//   onXhrLoad: {Function}                // (Optional) Callback for any XHR load event triggered on the hosting page.
+//                                        // Arguments: url{String}         // The url of the request.
+//                                        // Arguments: response{String}    // The text content of the response.
+//   onPageLoad: {Function}               // (Optional) Callback for page load event of the hosting page.
 // }
 //
 // NOTE:
@@ -280,6 +287,11 @@
 // - xhrDownload:
 // Some websites have strict access restrictions that downloading requests without the 'referer' header correctly set will fail.
 // Specify the hostnames of these image URLs with this parameter so that PhotoShow will use special ways to download these images with the 'referer' header set to the hostname of their source pages.
+//
+// - xhrCustomHeaders:
+// If xhr requests need custom headers to be set, specify the hostnames for these requests here and add custom headers prefixed with "photoshow-added-" to these requests.
+// E.g. If xhrCustomHeaders is specified as 'www.example.com' then a xhr request with a header of 'photoshow-added-user-agent' as its name and 'custom UA' as its value
+//      will get a header of 'user-agent' as its name and 'custom UA' as its value.
 //
 // - srcMatching:
 // 'selectors' is used to select the trigger element which can be any type of elements.
@@ -578,7 +590,7 @@ const websiteConfig = {
   '(?:www|image)\\.baidu\\.com': {
     amendStyles: {
       pointerNone:
-        '.imgbox+.hover,.opr-recommends-merge-mask,.op-short-video-pc-img-new *:not(img),.c-img-border,.s-img-mask',
+        '.imgbox+.hover,.opr-recommends-merge-mask,.op-short-video-pc-img-new *:not(img),.c-img-border,.s-img-mask,.albumsdetail-item-inner-border',
       pointerAuto: '.imgbox+.hover a[href]'
     },
     srcMatching: [
@@ -1034,11 +1046,11 @@ const websiteConfig = {
       {
         selectors: 'a[href*="/gallery/"] img,a[href*="/favourites/"] img',
         processor: trigger => {
-          var { userName, folderType, folderId } = /\/([^/]+)\/(gallery|favourites)\/(\d+)\//.test(
+          var { username, folderType, folderId } = /\/([^/]+)\/(gallery|favourites)\/(\d+)\//.test(
             trigger.closest('a').attr('href')
           )
             ? {
-                userName: RegExp.$1,
+                username: RegExp.$1,
                 folderType: RegExp.$2 == 'favourites' ? 'collection' : RegExp.$2,
                 folderId: RegExp.$3
               }
@@ -1048,7 +1060,7 @@ const websiteConfig = {
             ? new Promise((resolve, reject) => {
                 $.ajax(`/_napi/da-user-profile/api/${folderType}/contents`, {
                   data: {
-                    username: userName,
+                    username,
                     folderid: folderId,
                     offset: 0,
                     limit: 1
@@ -1435,9 +1447,9 @@ const websiteConfig = {
   '\\w+\\.facebook\\.com': {
     amendStyles: {
       pointerNone:
-        '._52d9,.uiMediaThumb+._53d,._3251,._7m4,#fbProfileCover .coverBorder,img+.pmk7jnqg,image~circle,:not(img,.x1ypdohk).x10l6tqk.x13vifvy.xds687c.x1ey2m1c.x17qophe',
+        '._52d9,.uiMediaThumb+._53d,._3251,._7m4,#fbProfileCover .coverBorder,img+.pmk7jnqg,image~circle,img~.x10l6tqk.x13vifvy.xds687c.x1ey2m1c.x17qophe:not(img,.x1ypdohk)',
       pointerAuto:
-        '.uiMediaThumb+._53d a,.x10l6tqk.x13vifvy.xds687c.x1ey2m1c.x17qophe a,.x10l6tqk.x13vifvy.xds687c.x1ey2m1c.x17qophe img,.x10l6tqk.x13vifvy.xds687c.x1ey2m1c.x17qophe .x1ypdohk'
+        '.uiMediaThumb+._53d a,.x10l6tqk.x13vifvy.xds687c.x1ey2m1c.x17qophe a,.x10l6tqk.x13vifvy.xds687c.x1ey2m1c.x17qophe img,.x10l6tqk.x13vifvy.xds687c.x1ey2m1c.x17qophe:not(.x47corl) .x1ypdohk'
     },
     srcMatching: [
       {
@@ -1475,10 +1487,14 @@ const websiteConfig = {
       },
       {
         selectors:
-          'img,[style*=background-image],a[data-video-channel-id],image,.i09qtzwb.n7fi1qx3.pmk7jnqg.j9ispegn.kr520xx4',
+          'img,[style*=background-image],a[data-video-channel-id],image,.i09qtzwb.n7fi1qx3.pmk7jnqg.j9ispegn.kr520xx4,[aria-label*="Tag photo"]',
         processor: (trigger, src, srcRegExpObj) => {
           var bgSrc = tools.getBackgroundImgSrc(trigger);
-          src = (/\.gif$/.test(src) && !/\.gif$/.test(bgSrc) && bgSrc) || src || trigger.find('img').attr('src');
+          src =
+            (/\.gif$/.test(src) && !/\.gif$/.test(bgSrc) && bgSrc) ||
+            src ||
+            trigger.find('img').attr('src') ||
+            trigger.parent().prev('img').attr('src');
 
           var link = trigger.closest('a').attr('href'),
             fbId = /\/photo\b.*?\?.*fbid=([^&]+)/.test(link)
@@ -1939,7 +1955,8 @@ const websiteConfig = {
   },
   'www\\.instagram\\.com': {
     amendStyles: {
-      pointerNone: '.qn-0x,._9AhH0,._7Tu5q,._aagw,._aapc,._ac2d,img+._abch._abcl._abck._abcf._abcg',
+      pointerNone:
+        '.qn-0x,._9AhH0,._7Tu5q,._aagw,._aapc,._ac2d,img+._abch._abcl._abck._abcf._abcg,._aajz,._aajy,._acfj',
       pointerAuto: 'img+._abch._abcl._abck._abcf._abcg img'
     },
     srcMatching: [
@@ -1948,39 +1965,143 @@ const websiteConfig = {
         processor: trigger => tools.getLargestImgSrc(trigger.parent().find('video')) || ''
       },
       {
-        selectors: 'a img',
-        processor: (trigger, src) =>
-          new Promise(resolve => {
-            var url = trigger.closest('a').attr('href');
+        selectors: 'img[alt]',
+        processor: (trigger, src) => {
+          const username =
+            /^(?:(.+?) se profielfoto|Profilový obrázek (.+?)|(.+?)s profilbillede|(.+?)s Profilbild|Εικόνα προφίλ του χρήστη (.+?)|(.+?)'s profile picture|Foto del perfil de (.+?)|Käyttäjän (.+?) profiilikuva|Photo de profil de (.+?)|Foto profil (.+?)|Immagine del profilo di (.+?)|(.+?)のプロフィール写真|(.+?)님의 프로필 사진|Gambar profil (.+?)|Profilbildet til (.+?)|Profielfoto van (.+?)|Zdjęcie profilowe (.+?)|Foto do perfil de (.+?)|Foto de perfil de (.+?)|Фото профиля (.+?)|รูปโปรไฟล์ของ (.+?)|Litrato sa profile ni (.+?)|(.+?)'in profil resmi|(.+?)的头像|(.+?)的大頭貼照|(.+?) এর প্রোফাইল ছবি|(.+?)નું પ્રોફાઇલ ચિત્ર|(.+?) का प्रोफ़ाइल चित्र|Slika profila (.+?)|(.+?) profilképe|(.+?) ಅವರ ಪ್ರೊಫೈಲ್ ಚಿತ್ರ|(.+?) എന്നയാളുടെ പ്രൊഫൈൽ ചിത്രം|(.+?) चे परिचय चित्र|(.+?) को प्रोफाइल तस्वीर|(.+?) ਦੀ ਪ੍ਰੋਫਾਈਲ ਫੋਟੋ|(.+?)ගේ පැතිකඩ පින්තූරය|Profilová fotka používateľa (.+?)|(.+?) இன் சுயவிவரப் படம்|(.+?) ప్రొఫైల్ చిత్రం|Ảnh đại diện của (.+?)|(.+?)的個人資料相片|Снимката на профила на (.+?)|Photo de profil de (.+?)|Fotografia de profil a contului (.+?)|Слика на профилу корисника (.+?)|Основна світлина (.+?))$/
+              .exec(trigger.attr('alt'))
+              ?.slice(1)
+              .filter(Boolean)[0];
 
-            $.ajax(url, {
-              data: {
-                __a: 1
-              },
-              success: response => {
-                if (response?.graphql) {
-                  if (/^\/p\//.test(url)) {
-                    if (response.graphql.shortcode_media) {
-                      src = response.graphql.shortcode_media || src;
+          return username
+            ? tools.cacheImage(username) ||
+                new Promise(resolve => {
+                  const customUserAgent = `${navigator.userAgent} Instagram 272.0.0`;
 
-                      if (response.graphql.shortcode_media.display_resources) {
-                        src = response.graphql.shortcode_media.display_resources.sort(
-                          (resource1, resource2) => resource2.config_width - resource1.config_width
-                        )[0].src;
+                  $.ajax('/api/v1/users/web_profile_info/', {
+                    data: {
+                      username
+                    },
+                    headers: {
+                      'photoshow-added-user-agent': customUserAgent
+                    },
+                    success: response => {
+                      const userId = response?.data?.user?.id,
+                        hdProfilePicUrl = response?.data?.user?.profile_pic_url_hd;
+
+                      if (userId) {
+                        $.ajax(`/api/v1/users/${userId}/info/`, {
+                          headers: {
+                            'photoshow-added-user-agent': customUserAgent
+                          },
+                          success: response => {
+                            resolve(
+                              []
+                                .concat(
+                                  response?.user?.hd_profile_pic_url_info || [],
+                                  response?.user?.hd_profile_pic_versions || []
+                                )
+                                .sort(
+                                  ({ width: width1, height: height1 }, { width: width2, height: height2 }) =>
+                                    (width2 * height2 || 0) - (width1 * height1 || 0)
+                                )[0]?.url ||
+                                hdProfilePicUrl ||
+                                src
+                            );
+                          },
+                          error: () => resolve(hdProfilePicUrl || src)
+                        });
+                      } else {
+                        resolve(hdProfilePicUrl || src);
                       }
-                    }
-                  } else if (response.graphql.user) {
-                    src = response.graphql.user.profile_pic_url_hd || profile_pic_url_hd.user.profile_pic_url || src;
-                  }
-                }
-
-                resolve(src);
-              },
-              error: () => resolve(src)
-            });
-          })
+                    },
+                    error: () => resolve(src)
+                  });
+                }).then(hdSrc => {
+                  return tools.cacheImage(username, hdSrc);
+                })
+            : src;
+        }
       }
-    ]
+    ],
+    xhrCustomHeaders: 'www.instagram.com',
+    onXhrLoad: (url, response) => {
+      // TODO: Need a more reliable way to store these hd srcs instead of using timeout.
+      setTimeout(() => {
+        try {
+          if (/\/api\/v1\/feed\/user\//.test(url)) {
+            JSON.parse(response)?.items.forEach(({ code, carousel_media, image_versions2 }) => {
+              document
+                .querySelector(`a[href="/p/${code}/"] img`)
+                ?.setAttribute(
+                  'photoshow-hd-src',
+                  carousel_media?.at(0)?.image_versions2?.candidates?.at(0)?.url ||
+                    image_versions2?.candidates?.at(0)?.url ||
+                    ''
+                );
+            });
+          } else if (/\/api\/v1\/discover\/web\/explore_grid\//.test(url)) {
+            JSON.parse(response)
+              ?.sectional_items.reduce(
+                (acc, { layout_content }) =>
+                  acc.concat(
+                    []
+                      .concat(layout_content.fill_items || [], layout_content.one_by_two_item?.clips?.items || [])
+                      ?.map(({ media }) => ({
+                        code: media.code,
+                        hdSrc:
+                          media.carousel_media?.at(0)?.image_versions2?.candidates?.at(0)?.url ||
+                          media.image_versions2?.candidates?.at(0)?.url
+                      })) || []
+                  ),
+                []
+              )
+              .forEach(({ code, hdSrc }) => {
+                document.querySelector(`a[href="/p/${code}/"] img`)?.setAttribute('photoshow-hd-src', hdSrc || '');
+              });
+          }
+          // TODO: For feed items, the data is preloaded way earlier than they're rendered.
+          // else if (/\/api\/v1\/feed\/timeline\//.test(url)) {
+          //   JSON.parse(response)?.feed_items.forEach(item => {
+          //     const media = item.explore_story?.media_or_ad || item.media_or_ad || item.items?.at(0);
+          //     [].concat(media?.carousel_media || media || []).forEach(({ image_versions2 }) => {
+          //       if (/^(https:\/\/[^?]+).*$/.test(image_versions2?.candidates?.at(0)?.url)) {
+          //         document
+          //           .querySelector(`img[src^="${RegExp.$1}"],video[poster^="${RegExp.$1}"]`)
+          //           ?.setAttribute('photoshow-hd-src', RegExp.$_ || '');
+          //       }
+          //     });
+          //   });
+          // }
+        } catch (error) {}
+      }, 500);
+    },
+    onPageLoad: () => {
+      if (
+        /^instagram:\/\/user\?username=([^&]+)/.test(
+          document.querySelector('meta[content^="instagram://user?username="]')?.content
+        )
+      ) {
+        fetch(`/api/v1/users/web_profile_info/?username=${RegExp.$1}`, {
+          headers: {
+            'photoshow-added-user-agent': `${navigator.userAgent} Instagram 272.0.0`
+          }
+        })
+          .then(response => response.json())
+          .then(response => {
+            // TODO: Need a more reliable way to store these hd srcs instead of using timeout.
+            setTimeout(() => {
+              response?.data?.user?.edge_owner_to_timeline_media.edges.forEach(
+                ({ node: { shortcode, display_url } }) => {
+                  document
+                    .querySelector(`a[href="/p/${shortcode}/"] img`)
+                    ?.setAttribute('photoshow-hd-src', display_url || '');
+                }
+              );
+            }, 500);
+          });
+      }
+    }
   },
   '(?:.+\\.)?iqiyi\\.com': {
     amendStyles: {
@@ -2208,6 +2329,19 @@ const websiteConfig = {
       srcRegExp: '(//.+\\.music\\.126\\.net/.+@IMG@).*',
       processor: (trigger, src, srcRegExpObj) =>
         srcRegExpObj.test(trigger.parent().find('img').attr('src') || src) ? RegExp.$1 : ''
+    }
+  },
+  '(?:.+\\.)?mxdm8\\.com': {
+    amendStyles: {
+      pointerAuto: '.drop:before'
+    },
+    srcMatching: {
+      selectors: '.module-item-pic a',
+      srcRegExp: '(//lz\\.sinaimg\\.cn/).+(/.+@IMG@)',
+      processor: (trigger, src, srcRegExpObj) =>
+        srcRegExpObj.test(trigger.next('img').attr('src'))
+          ? `${RegExp.$1}original${RegExp.$2}`
+          : trigger.next('img').attr('src') || ''
     }
   },
   '.+\\.myprotein(?:\\.(?:com|[a-z]{2}))+': {
@@ -3207,7 +3341,6 @@ const websiteConfig = {
 
 let WEBSITE_INFO = {},
   DISABLED_WEBSITES = [],
-  REFERER_REQUIRED_REQUEST_HOSTNAMES = [],
   TAB_ID_REFERER_MAPPTING = {},
   DOWNLOAD_ITMES = {},
   PHOTOSHOW_CONFIGS = {},
@@ -3255,7 +3388,7 @@ const tools = {
             : undefined,
         alwaysAsk = PHOTOSHOW_CONFIGS.fileNaming?.alwaysAsk || false;
 
-      if (REFERER_REQUIRED_REQUEST_HOSTNAMES.includes(new URL(imgSrc).hostname)) {
+      if ([].concat(WEBSITE_INFO[tabUrl.hostname]?.xhrDownload || []).includes(new URL(imgSrc).hostname)) {
         let xhr = new XMLHttpRequest();
 
         xhr.open('GET', imgSrc, true);
@@ -3391,6 +3524,9 @@ var photoShow = {
           WEBSITE_INFO[urlHostname].websiteConfig.onXhrLoad &&
             (WEBSITE_INFO[urlHostname].websiteConfig.onXhrLoad =
               '' + WEBSITE_INFO[urlHostname].websiteConfig.onXhrLoad);
+          WEBSITE_INFO[urlHostname].websiteConfig.onPageLoad &&
+            (WEBSITE_INFO[urlHostname].websiteConfig.onPageLoad =
+              '' + WEBSITE_INFO[urlHostname].websiteConfig.onPageLoad);
 
           break;
         }
@@ -3583,6 +3719,24 @@ chrome.tabs.onRemoved.addListener(tabId => {
 });
 
 // Response to messages.
+function setPhotoShowState(tabUrl, isPhotoShowEnabled) {
+  var urlHostname = tools.getUrlHostname(tabUrl);
+
+  if (WEBSITE_INFO[urlHostname]) {
+    var newDisabledWebsitesList = DISABLED_WEBSITES.slice(),
+      urlHostnameIndex = newDisabledWebsitesList.indexOf(urlHostname);
+
+    !!isPhotoShowEnabled ^ !!~urlHostnameIndex ||
+      (~urlHostnameIndex
+        ? newDisabledWebsitesList.splice(urlHostnameIndex, 1)
+        : newDisabledWebsitesList.push(urlHostname));
+
+    chrome.storage.sync.set({
+      disabledWebsites: newDisabledWebsitesList
+    });
+  }
+}
+
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   var needAsyncResponse;
 
@@ -3601,21 +3755,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
       break;
 
     case 'SET_PHOTOSHOW_STATE': // Args: tabUrl, isPhotoShowEnabled
-      var urlHostname = tools.getUrlHostname(request.args.tabUrl);
-
-      if (WEBSITE_INFO[urlHostname]) {
-        var newDisabledWebsitesList = DISABLED_WEBSITES.slice(),
-          urlHostnameIndex = newDisabledWebsitesList.indexOf(urlHostname);
-
-        !!request.args.isPhotoShowEnabled ^ !!~urlHostnameIndex ||
-          (~urlHostnameIndex
-            ? newDisabledWebsitesList.splice(urlHostnameIndex, 1)
-            : newDisabledWebsitesList.push(urlHostname));
-
-        chrome.storage.sync.set({
-          disabledWebsites: newDisabledWebsitesList
-        });
-      }
+      setPhotoShowState(request.args.tabUrl, request.args.isPhotoShowEnabled);
 
       break;
 
@@ -3758,11 +3898,6 @@ chrome.storage.onChanged.addListener(changes => {
   );
 });
 
-// Referer needs to be set for request to these hostnames.
-REFERER_REQUIRED_REQUEST_HOSTNAMES = Object.values(websiteConfig)
-  .filter(config => config.hasOwnProperty('xhrDownload'))
-  .flatMap(config => config.xhrDownload);
-
 // Note:
 // The value 'extraHeaders' of the third argument is not supported (neither needed) by Firefox,
 // it will be removed during compilation.
@@ -3770,12 +3905,24 @@ chrome.webRequest.onBeforeSendHeaders.addListener(
   details => {
     switch (details.type) {
       case 'xmlhttprequest':
-        for (let header of details.requestHeaders) {
-          if (header.name == 'photoshow-added-referer') {
-            header.name = 'referer';
-            break;
-          }
+        const photoshowAddedHeaders = details.requestHeaders.reduce(
+          (acc, { name, value }) =>
+            /^photoshow-added-(.+)/.test(name)
+              ? {
+                  namesPattern: [...(acc.namesPattern || []), RegExp.$1],
+                  headers: [...(acc.headers || []), { name: RegExp.$1, value }]
+                }
+              : acc,
+          {}
+        );
+
+        if (photoshowAddedHeaders.namesPattern) {
+          const addedHeaderNamesPattern = new RegExp(`^(?:${photoshowAddedHeaders.namesPattern.join('|')})$`, 'i');
+
+          details.requestHeaders = details.requestHeaders.filter(({ name }) => !addedHeaderNamesPattern.test(name));
+          details.requestHeaders = details.requestHeaders.concat(photoshowAddedHeaders.headers);
         }
+
         break;
 
       case 'main_frame':
@@ -3795,7 +3942,10 @@ chrome.webRequest.onBeforeSendHeaders.addListener(
     };
   },
   {
-    urls: REFERER_REQUIRED_REQUEST_HOSTNAMES.map(hostname => `*://${hostname}/*`),
+    urls: Object.values(websiteConfig)
+      .filter(config => config.hasOwnProperty('xhrDownload') || config.hasOwnProperty('xhrCustomHeaders'))
+      .flatMap(config => [].concat(config.xhrDownload || [], config.xhrCustomHeaders || []))
+      .map(hostname => `*://${hostname}/*`),
     types: ['xmlhttprequest', 'main_frame']
   },
   ['requestHeaders', 'blocking', 'extraHeaders']
@@ -3837,6 +3987,20 @@ const setPhotoShowDeterminingFilenameHandler = (() => {
     }
   };
 })();
+
+// Response to keyboard shortcuts for commands.
+chrome.commands.onCommand.addListener((command, tab) => {
+  if (tab) {
+    switch (command) {
+      case 'togglePhotoShow':
+        setPhotoShowState(tab.url, !photoShow.checkWebsiteState(tab.url).isPhotoShowEnabled);
+
+        chrome.tabs.sendMessage(tab.id, {
+          cmd: 'TOGGLE_PHOTOSHOW_STATE_BY_COMMAND'
+        });
+    }
+  }
+});
 
 // Initialization.
 chrome.storage.sync.get(['disabledWebsites', 'photoShowConfigs', 'statistics'], response => {

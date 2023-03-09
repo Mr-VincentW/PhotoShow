@@ -1,6 +1,6 @@
 {
   "name": "photoshow",
-  "version": "4.20.1",
+  "version": "4.21.0",
   "description": "A browser extension for viewing high-definition images simply by hovering mouse on thumbnails.",
   "private": true,
   "directories": {

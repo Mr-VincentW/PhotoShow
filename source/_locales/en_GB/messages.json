@@ -27,6 +27,7 @@
  *                                            // Updates: Remove 'fileNamingDefaultFilename'.
  * @version 4.16.0.0 | 2022-04-10 | Vincent   // Updates: Add 'fileNamingExamplePlaceholder'.
  * @version 4.20.0.0 | 2023-02-05 | Vincent   // Updates: Add 'image anti-aliasing' related items.
+ * @version 4.21.0.0 | 2023-03-09 | Vincent   // Updates: Add 'extensionKeyboardShortcutDesc_toggle'.
  */
 
 {
@@ -39,6 +40,10 @@
   "extensionDesc": {
     "message": "View high-definition images by hovering mouse on thumbnails, for all your beloved websites and you.",
     "description": "Description of the extension displaying on the browser extension management page and in the extension store etc., limited to 132 characters."
+  },
+  "extensionKeyboardShortcutDesc_toggle": {
+    "message": "Enable/disable PhotoShow for the current site.",
+    "description": "Extension keyboard shortcut description which appears on chrome://extensions/shortcuts."
   },
 
   ////////////////////////////////////////////////////////////////////////////////

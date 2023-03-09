@@ -113,7 +113,7 @@ Hereby is a list of part of the websites (hostnames) that **PhotoShow** currentl
 
 2.  **SHOPPING / TRADING / SERVICES:**
 
-    1-day, Alibaba, AliExpress, Alimama, Amazon, Andino, Apple, Best Buy, Briscoes, Ctrip, Countdown, coupang, DHgate, dianping.com, eBay, Etsy, Google Play, Google Store, instacart, JD, Kmart, mafengwo.cn, maoyan.com, meituan.com, Myprotein, Newegg, noel leeming, NZSALE, PBTech, suning, Taobao, Target, TheMarket, thewarehouse, Tmall, Torpedo7, Trade Me, TreatMe, vvic.com, Walmart, warehouse stationery, wsy.com, Yelp
+    1-day, Alibaba, AliExpress, Alimama, Amazon, Andino, Apple, Apple App Store, Best Buy, Briscoes, Ctrip, Countdown, coupang, DHgate, dianping.com, eBay, Etsy, Google Play, Google Store, instacart, JD, Kmart, mafengwo.cn, maoyan.com, meituan.com, Myprotein, Newegg, noel leeming, NZSALE, PBTech, suning, Taobao, Target, TheMarket, thewarehouse, Tmall, Torpedo7, Trade Me, TreatMe, vvic.com, Walmart, warehouse stationery, wsy.com, Yelp
 
 3.  **SEARCHING / KNOWLEDGE / EXPERTISE:**
 
@@ -125,7 +125,7 @@ Hereby is a list of part of the websites (hostnames) that **PhotoShow** currentl
 
 5.  **VIDEOS / MUSIC:**
 
-    Acfun, Bandcamp, bilibili, Discogs, Dizilah, douyin.com, douyu.com, Encyclopaedia Metallum, Fandango, Flixster, haokan.baidu.com, iqiyi.com, ixigua.com, moegirl, kuaishou.com, Pornhub, Rotten Tomatoes, TikTok, YOUKU, YouTube
+    Acfun, Bandcamp, bilibili, Discogs, Dizilah, douyin.com, douyu.com, Encyclopaedia Metallum, Fandango, Flixster, haokan.baidu.com, iqiyi.com, ixigua.com, moegirl, mxdm8.com, kuaishou.com, Pornhub, Rotten Tomatoes, TikTok, YOUKU, YouTube
 
 If you can't find your favourite websites in the above list, it is always welcome to [contact the author](#contact) to get more support.
 <br />

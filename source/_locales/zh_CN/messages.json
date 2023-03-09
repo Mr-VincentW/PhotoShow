@@ -35,6 +35,7 @@
  *                                            // Updates: Remove 'fileNamingDefaultFilename'.
  * @version 4.16.0.0 | 2022-04-10 | Vincent   // Updates: Add 'fileNamingExamplePlaceholder'.
  * @version 4.20.0.0 | 2023-02-05 | Vincent   // Updates: Add 'image anti-aliasing' related items.
+ * @version 4.21.0.0 | 2023-03-09 | Vincent   // Updates: Add 'extensionKeyboardShortcutDesc_toggle'.
  */
 
 {
@@ -47,6 +48,10 @@
   "extensionDesc": {
     "message": "看大图无需再点，鼠标轻移，见你想见！——献给所有你钟爱的网站及屏幕前的你。",
     "description": "扩展描述，显示在浏览器扩展管理页、应用市场等地方；最大长度为 132 个字符。"
+  },
+  "extensionKeyboardShortcutDesc_toggle": {
+    "message": "一键启用/停用浮图秀（针对当前网站）",
+    "description": "显示在 chrome://extensions/shortcuts 页面上的扩展快捷键描述。"
   },
 
   ////////////////////////////////////////////////////////////////////////////////

@@ -40,12 +40,14 @@
  *                                            // Updates: Add frosted-glass effect to image viewer.
  * @version 4.11.0.0 | 2021-10-21 | Vincent   // Updates: Split image loader related styles for sharing with frame content styling.
  * @version 4.20.0.0 | 2023-02-05 | Vincent   // Updates: Allow enabling/disabling image anti-aliasing (GitHub issue #90).
+ * @version 4.21.0.0 | 2023-03-09 | Vincent   // Updates: Optimize global message style and add the error message variant.
  */
 
 @import url('../common/imageLoader.less');
 
 // Color definitions
 @PHOTOSHOW_BLUE: #6cbcef;
+@PHOTOSHOW_RED: #db4b37;
 
 // Font icon
 @font-face {
@@ -154,22 +156,22 @@
 @keyframes photoshow-global-msg-ani {
   0% {
     opacity: 0;
-    transform: translateY(-100px);
+    transform: translate3d(-50%, -100px, 0);
   }
 
   20% {
     opacity: 1;
-    transform: translateY(0);
+    transform: translate3d(-50%, 0, 0);
   }
 
-  80% {
+  90% {
     opacity: 1;
-    transform: translateY(0);
+    transform: translate3d(-50%, 0, 0);
   }
 
   100% {
     opacity: 0;
-    transform: translateY(-100px);
+    transform: translate3d(-50%, -100px, 0);
   }
 }
 
@@ -382,13 +384,14 @@
 .photoshow-global-msg-layer {
   position: fixed;
   top: 20px;
-  right: 0;
-  left: 0;
+  left: 50%;
   z-index: 2147483647;
   display: flex;
   flex-flow: row nowrap;
   justify-content: center;
   animation: photoshow-global-msg-ani 2.5s ease 0s forwards;
+  backdrop-filter: blur(4px);
+  transform: translateX(-50%);
 
   .photoshow-global-msg {
     display: flex;
@@ -412,6 +415,10 @@
       color: #fff;
       font-size: 24px;
     }
+  }
+
+  .photoshow-global-msg--error {
+    background: fade(@PHOTOSHOW_RED, 85%);
   }
 }
 

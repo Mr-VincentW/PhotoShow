@@ -164,6 +164,10 @@
  *                                            // Updates: Allow enabling/disabling image anti-aliasing (GitHub issue #90);
  *                                            // Updates: Delay displaying image download messages (GitHub issue #88).
  * @version 4.20.1.0 | 2023-02-19 | Vincent   // Updates: Avoid triggering on potential sprite images.
+ * @version 4.21.0.0 | 2023-03-09 | Vincent   // Bug Fix: All elements with a background-position style is non-interactive (GitHub issue #101, #107);
+ *                                            // Updates: Support parsing image src from HTML picture elements;
+ *                                            // Updates: Add hotkey for enabling/disabling PhotoShow (GitHub issue #105);
+ *                                            // Updates: Optimize hotkey interactions.
  */
 
 // TODO: Extract common tool methods to external modules.
@@ -287,9 +291,19 @@
         src = target.attr('href') || target.attr('xlink:href');
       } else if (target.is('video')) {
         src = target.attr('poster');
-      } else if (target.is('[src],[srcset]')) {
+      } else if (target.is('picture,[src],[srcset]')) {
+        if (target.is('picture img')) {
+          target = target.parent();
+        }
+
         // Do not only match 'img' as the target might be a web component with a custom tag name.
-        src = (target.attr('srcset') || target.attr('src') || '')
+        src = (
+          [...target.get(0)?.querySelectorAll('source[srcset]')].map(source => source.srcset).join(', ') ||
+          target.find('img').attr('src') ||
+          target.attr('srcset') ||
+          target.attr('src') ||
+          ''
+        )
           .split(/,\s*(?=(?:\w+:)?\/\/)/)
           .sort(
             (src1, src2) =>
@@ -297,7 +311,8 @@
               (srcSetRegex.test(src1) ? parseFloat(RegExp.$1) : 0)
           )[0]
           .split(/,?\s+/)[0];
-      } else {
+      } else if (!/\d+(?:r?em|px)\b/.test(target.css('backgroundPosition'))) {
+        // Try to avoid working on CSS sprite background images.
         src = this.getBackgroundImgSrc(target);
       }
 
@@ -379,10 +394,21 @@
     element: $(
       '<div class="photoshow-global-msg-layer"><div class="photoshow-global-msg"><em class="photoshow-icons photoshow-icons-logo"></em><i></i></div></div>'
     ),
-    show: function (msg) {
+    show: function (msg, isError = false) {
       this.hide();
 
       $('i', this.element).text(msg);
+
+      if (isError) {
+        $('.photoshow-global-msg', this.element).addClass('photoshow-global-msg--error');
+      } else {
+        $('.photoshow-global-msg', this.element).removeClass('photoshow-global-msg--error');
+      }
+
+      this.element.on('animationend', () => {
+        this.hide();
+      });
+
       this.element.appendTo(document.documentElement);
     },
     hide: function () {
@@ -532,7 +558,7 @@
         // The default empty srcMatching rule ensures all images are parsed.
         for (srcMatchingRule of (this.websiteConfig.srcMatching || []).concat(generalMatchingRules, {})) {
           if (
-            target.is(srcMatchingRule.selectors || 'img,[style*=background],image,a[href],video[poster]') &&
+            target.is(srcMatchingRule.selectors || 'img,picture,[style*=background],image,a[href],video[poster]') &&
             target.css('pointerEvents') != 'none'
           ) {
             let targetSrc = tools.getLargestImgSrc(element),
@@ -653,10 +679,31 @@
           this.websiteConfig = response.websiteConfig || {};
           this.config.update(response.photoShowConfigs);
 
+          if (this.isStateToggledByCommand) {
+            if (response.isPhotoShowEnabled && !this.isEnabled) {
+              photoShowGlobalMsg.show(chrome.i18n.getMessage('photoShowShutdownMsg'), true);
+            } else if (this.isEnabled) {
+              if (this.isInDeveloperMode && this.config.developerModeSuspension) {
+                photoShowGlobalMsg.show(chrome.i18n.getMessage('photoShowSuspendedMsg'), true);
+              } else {
+                photoShowGlobalMsg.show(chrome.i18n.getMessage('photoShowEnabledMsg'));
+              }
+            } else {
+              photoShowGlobalMsg.show(chrome.i18n.getMessage('photoShowDisabledMsg'), true);
+            }
+
+            this.isStateToggledByCommand = false;
+          }
+
           photoShowViewer.toggle();
+
+          if (this.isEnabled && this.websiteConfig.onPageLoad) {
+            tools.executeScript(`(${this.websiteConfig.onPageLoad})()`);
+          }
         }
       );
-    }
+    },
+    isStateToggledByCommand: false // Indicate if the state toggle is initialized by extension command.
   };
 
   const photoShowViewer = {
@@ -1325,7 +1372,7 @@
             this.mouseOriClientPos.x = this.mouseClientPos.x = e.clientX;
             this.mouseOriClientPos.y = this.mouseClientPos.y = e.clientY;
 
-            if (e.target.ownerDocument.defaultView != window.top) {
+            if (e.target && e.target.ownerDocument.defaultView !== window.top) {
               var frameRect = tools.getBoundingClientRectToTopWin(e.target.ownerDocument.defaultView.frameElement);
               this.mouseClientPos.x += frameRect.left;
               this.mouseClientPos.y += frameRect.top;
@@ -1426,7 +1473,7 @@
             amendStyles: {
               ...(photoShow.websiteConfig.amendStyles || {}),
               pointerNone: (photoShow.websiteConfig.amendStyles?.pointerNone === 'none' ? [] : ['*:before,*:after'])
-                .concat(photoShow.websiteConfig.amendStyles?.pointerNone || [], '[style*="background-position"]')
+                .concat(photoShow.websiteConfig.amendStyles?.pointerNone || [])
                 .join(',')
             }
           };
@@ -1759,7 +1806,10 @@
         default:
       }
 
-      if (this.hasImgViewerShown) {
+      if (
+        this.hasImgViewerShown &&
+        (![e.altKey, e.ctrlKey, e.metaKey, e.shiftKey].filter(Boolean).length || this.isModifierKeyDown)
+      ) {
         switch (eventKey) {
           case 'ESCAPE':
             if (photoShow.config.hotkeys.closeViewer.isEnabled) {
@@ -1910,10 +1960,12 @@
             case 'attributes':
               if (
                 mutation.oldValue &&
-                ((~mutation.attributeName.indexOf('src') && target.is('img,source')) ||
-                  (mutation.attributeName == 'style' &&
+                ((~mutation.attributeName.indexOf('src') &&
+                  target.is('img,source') &&
+                  mutation.oldValue !== target.attr(mutation.attributeName)) ||
+                  (mutation.attributeName === 'style' &&
                     tools.getBackgroundImgSrc(mutation.oldValue) &&
-                    tools.getBackgroundImgSrc(target) != tools.getBackgroundImgSrc(mutation.oldValue)))
+                    tools.getBackgroundImgSrc(target) !== tools.getBackgroundImgSrc(mutation.oldValue)))
               ) {
                 const srcCacheHost = target.closest('[photoshow-hd-src],[data-photoshow-hd-src]');
 
@@ -1986,6 +2038,11 @@
         case 'TOGGLE_DEVELOPER_MODE':
           photoShow.isInDeveloperMode = request.args.isInDeveloperMode;
           photoShowViewer.toggle();
+
+          break;
+
+        case 'TOGGLE_PHOTOSHOW_STATE_BY_COMMAND':
+          photoShow.isStateToggledByCommand = true;
 
           break;
 

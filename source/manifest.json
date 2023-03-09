@@ -36,8 +36,8 @@
   "manifest_version": 2,
   "name": "__MSG_extensionName__",
   "description": "__MSG_extensionDesc__",
-  "version": "4.20.1",
-  "version_name": "4.20.1",
+  "version": "4.21.0",
+  "version_name": "4.21.0",
   "author": "Vincent W.",
   "default_locale": "en",
   "minimum_chrome_version": "69", // Required for Array.flatMap() method.
@@ -86,5 +86,13 @@
       "all_frames": true
     }
   ],
-  "web_accessible_resources": ["resources/photoShowIcons.woff2", "resources/photoShowIcons.woff"]
+  "web_accessible_resources": ["resources/photoShowIcons.woff2", "resources/photoShowIcons.woff"],
+  "commands": {
+    "togglePhotoShow": {
+      "suggested_key": {
+        "default": "Alt+Shift+P"
+      },
+      "description": "__MSG_extensionKeyboardShortcutDesc_toggle__"
+    }
+  }
 }
