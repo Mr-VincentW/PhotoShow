@@ -35,6 +35,8 @@
  * @version 4.16.0.0 | 2022-04-10 | Vincent   // Updates: Add 'fileNamingExamplePlaceholder'.
  * @version 4.20.0.0 | 2023-02-05 | Vincent   // Updates: Add 'image anti-aliasing' related items.
  * @version 4.21.0.0 | 2023-03-09 | Vincent   // Updates: Add 'extensionKeyboardShortcutDesc_toggle'.
+ * @version 4.22.0.0 | 2023-03-23 | Vincent   // Updates: Add 'fileNamingPatternDesc_imageTitleOrDesc';
+ *                                            // Updates: Remove 'fileNamingExampleFilename'.
  */
 
 {
@@ -365,10 +367,6 @@
     "message": "Example:",
     "description": "Title of the filename example."
   },
-  "fileNamingExampleFilename": {
-    "message": "Original_File_Name",
-    "description": "Example filename."
-  },
   "fileNamingExamplePlaceholder": {
     "message": "(File Naming Disabled)",
     "description": "Example filename placeholder."
@@ -402,11 +400,15 @@
     "description": "Description of the filename patterns."
   },
   "fileNamingPatternDesc_hostname": {
-    "message": "Website Hostname",
+    "message": "Website hostname",
+    "description": "Description of the filename patterns."
+  },
+  "fileNamingPatternDesc_imageTitleOrDesc": {
+    "message": "Image title or description",
     "description": "Description of the filename patterns."
   },
   "fileNamingPatternDesc_originalFilename": {
-    "message": "Original Filename",
+    "message": "Original filename",
     "description": "Description of the filename patterns."
   },
   "fileNamingAlwaysAskDesc": {

@@ -36,6 +36,8 @@
  * @version 4.16.0.0 | 2022-04-10 | Vincent   // Updates: Add 'fileNamingExamplePlaceholder'.
  * @version 4.20.0.0 | 2023-02-05 | Vincent   // Updates: Add 'image anti-aliasing' related items.
  * @version 4.21.0.0 | 2023-03-09 | Vincent   // Updates: Add 'extensionKeyboardShortcutDesc_toggle'.
+ * @version 4.22.0.0 | 2023-03-23 | Vincent   // Updates: Add 'fileNamingPatternDesc_imageTitleOrDesc';
+ *                                            // Updates: Remove 'fileNamingExampleFilename'.
  */
 
 {
@@ -366,10 +368,6 @@
     "message": "示　例：",
     "description": "示例文件名标题。"
   },
-  "fileNamingExampleFilename": {
-    "message": "原文件名",
-    "description": "示例文件名。"
-  },
   "fileNamingExamplePlaceholder": {
     "message": "（文件命名未启用）",
     "description": "未启用文件命名时的提示。"
@@ -404,6 +402,10 @@
   },
   "fileNamingPatternDesc_hostname": {
     "message": "网站域名",
+    "description": "文件名替换符描述。"
+  },
+  "fileNamingPatternDesc_imageTitleOrDesc": {
+    "message": "图片标题或描述",
     "description": "文件名替换符描述。"
   },
   "fileNamingPatternDesc_originalFilename": {

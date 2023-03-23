@@ -168,6 +168,7 @@
  *                                            // Updates: Support parsing image src from HTML picture elements;
  *                                            // Updates: Add hotkey for enabling/disabling PhotoShow (GitHub issue #105);
  *                                            // Updates: Optimize hotkey interactions.
+ * @version 4.22.0.0 | 2023-03-23 | Vincent   // Updates: Add image title to download image naming patterns.
  */
 
 // TODO: Extract common tool methods to external modules.
@@ -737,7 +738,10 @@
     prevViewerDisplayFeatures: null, // Displaying features of the image viewer when it displayed last time.
     curTrigger: null, // Element that triggers image preview.
     imgSrc: '', // Src for the high-definition image (can be either a string or a Promise object).
-    preservedImgSrc: '', // Preserved image src for context menu items (can be either a string or a Promise object).
+    preservedImg: {
+      src: '', // Src can be either a string or a Promise object.
+      title: '' // Image title or alt info.
+    }, // Preserved image info for saving, src copying, opening-in-new-tab actions.
     imgRotation: {
       // Properties of viewerImg rotation.
       angle: 0, // Rotation angle.
@@ -1094,11 +1098,13 @@
       return [sourceElement].concat($(sourceElement).parents().get()).reduce(
         (result, element, i, sourceElements) => {
           const src = photoShow.getImgHDSrc(element);
+
           return src
             ? (sourceElements.splice(i),
               {
                 element,
-                src
+                src,
+                title: element.title || element.alt || ''
               })
             : result;
         },
@@ -1178,12 +1184,16 @@
       if (this.isRunning && !this.curTrigger) {
         // Get src of the high-definition image.
         const triggersParsingResult = this.parseTriggers(srcTarget);
-        this.preservedImgSrc = this.imgSrc = triggersParsingResult.src;
+        this.imgSrc = triggersParsingResult.src;
+        this.preservedImg = {
+          src: triggersParsingResult.src,
+          title: triggersParsingResult.title
+        };
 
         chrome.runtime.sendMessage({
           cmd: 'VIEW_IMAGE',
           args: {
-            hasSrc: !!this.preservedImgSrc
+            hasSrc: !!this.imgSrc
           }
         });
 
@@ -1362,7 +1372,8 @@
 
           photoShow.websiteConfig.noReferrer && this.viewerImg.prop('referrerPolicy', 'no-referrer');
 
-          this.imgSrc = this.preservedImgSrc = '';
+          this.imgSrc = '';
+          this.preservedImg = null;
 
           // Trigger actions.
           // Handle events in capture phases.
@@ -1694,7 +1705,7 @@
       }
     },
     copyAction: function () {
-      tools.resolveImgSrc(this.preservedImgSrc).then(imgSrc => {
+      tools.resolveImgSrc(this.preservedImg?.src).then(imgSrc => {
         if (imgSrc) {
           tools.copyText(imgSrc);
           photoShowGlobalMsg.show(chrome.i18n.getMessage('globalMsg_imgSrcCopied'));
@@ -1702,8 +1713,10 @@
       });
     },
     savingAction: function () {
-      const imgSrc =
-        this.parseTriggers(document.elementFromPoint(this.mouseClientPos.x, this.mouseClientPos.y)).src || this.imgSrc;
+      const triggersParsingResult = this.parseTriggers(
+          document.elementFromPoint(this.mouseClientPos.x, this.mouseClientPos.y)
+        ),
+        imgSrc = triggersParsingResult.src || this.imgSrc;
 
       if (imgSrc) {
         const messageTimer = setTimeout(() => {
@@ -1717,7 +1730,8 @@
               chrome.runtime.sendMessage({
                 cmd: 'DOWNLOAD_IMG',
                 args: {
-                  imgSrc: imgSrc
+                  imgSrc: imgSrc,
+                  imgTitle: triggersParsingResult.title
                 }
               });
           })
@@ -2015,9 +2029,14 @@
 
           break;
 
-        case 'GET_PRESERVED_IMG_SRC':
+        case 'GET_PRESERVED_IMG':
           needAsyncResponse = true;
-          tools.resolveImgSrc(photoShowViewer.preservedImgSrc).then(sendResponse);
+          tools.resolveImgSrc(photoShowViewer.preservedImg?.src).then(src => {
+            sendResponse({
+              src,
+              title: photoShowViewer.preservedImg?.title || ''
+            });
+          });
 
           break;
 

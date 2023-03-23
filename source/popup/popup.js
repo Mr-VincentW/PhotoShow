@@ -51,6 +51,7 @@
  * @version 4.16.0.0 | 2022-04-10 | Vincent   // Updates: Allow user to turn off file-naming.
  * @version 4.17.0.0 | 2022-05-28 | Vincent   // Bug Fix: Incorrect time zone issue in file naming (GitHub issue #51).
  * @version 4.20.0.0 | 2023-02-05 | Vincent   // Updates: Allow enabling/disabling image anti-aliasing (GitHub issue #90).
+ * @version 4.22.0.0 | 2023-03-23 | Vincent   // Updates: Add image title to download image naming patterns.
  */
 
 // TODO: Support customising hotkeys.
@@ -355,10 +356,10 @@ $('#fileNamingExampleTitle').text(chrome.i18n.getMessage('fileNamingExampleTitle
 $('#fileNamingExample').attr('placeholder', chrome.i18n.getMessage('fileNamingExamplePlaceholder'));
 $('#fileNamingPatternsTitle').text(chrome.i18n.getMessage('fileNamingPatternsTitle'));
 $('#fileNamingPatterns').append(
-  ['year', 'Month', 'date', 'hour', 'minute', 'second', 'Hostname', 'OriginalFilename'].map(
+  ['year', 'Month', 'date', 'hour', 'minute', 'second', 'Hostname', 'ImageTitleOrDesc', 'OriginalFilename'].map(
     cell =>
       `<li>&lt;${cell[0]}&gt;</li><li${
-        ['Hostname', 'OriginalFilename'].includes(cell) ? ' class="long-pattern"' : ''
+        ['Hostname', 'ImageTitleOrDesc', 'OriginalFilename'].includes(cell) ? ' class="long-pattern"' : ''
       }>${chrome.i18n.getMessage(`fileNamingPatternDesc_${cell}`)}</li>`
   )
 );
@@ -370,7 +371,7 @@ $('#fileNamingFilename')
   .on('change', e => {
     e.target.value =
       e.target.value
-        ?.replace(/^[/\\\s]+|[\s.]+$|<(?:[^dHhMmOsy]|[^>]{2,})>|[:*?"|]|(?<!<[^>]+)>|<(?![^<]+>)/g, '')
+        ?.replace(/^[/\\\s]+|[\s.]+$|<(?:[^dHIhMmOsy]|[^>]{2,})>|[:*?"|]|(?<!<[^>]+)>|<(?![^<]+>)/g, '')
         .replace(/<(\w)+>/g, '<$1>')
         .replace(/[/\\]+/g, '/')
         .replace(/\/$/, '/<O>') || '';
@@ -379,17 +380,21 @@ $('#fileNamingFilename')
   });
 
 function getFilenameExample(filename) {
+  const fileNamingPatternDescToDemoFilename = patternDesc =>
+    patternDesc.replaceAll(/\s\w/g, match => `_${match.trim().toUpperCase()}`);
+
   const now = new Date(),
     filenamePatterns = {
       ...(/(?<y>\d+)-(?<M>\d+)-(?<d>\d+)T(?<h>\d+):(?<m>\d+):(?<s>\d+)/.exec(
         new Date(now - now.getTimezoneOffset() * 60 * 1000).toISOString()
       )?.groups || {}),
-      H: 'hostname',
-      O: chrome.i18n.getMessage('fileNamingExampleFilename')
+      H: fileNamingPatternDescToDemoFilename(chrome.i18n.getMessage('fileNamingPatternDesc_hostname')),
+      I: fileNamingPatternDescToDemoFilename(chrome.i18n.getMessage('fileNamingPatternDesc_imageTitleOrDesc')),
+      O: fileNamingPatternDescToDemoFilename(chrome.i18n.getMessage('fileNamingPatternDesc_originalFilename'))
     };
 
   return filename
-    ? `${filename.replaceAll(/<([dHhMmOsy])>/g, (_, pattern) => filenamePatterns[pattern] || '')}.jpg`
+    ? `${filename.replaceAll(/<([dHIhMmOsy])>/g, (_, pattern) => filenamePatterns[pattern] || '')}.jpg`
     : '';
 }
 

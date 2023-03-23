@@ -228,6 +228,9 @@
  *                                            // Updates: Support Apple app store (GitHub issue #102) and mxdm8.com, in response to user feedback;
  *                                            // Updates: Better support for baidu, Facebook(GitHub issue #100, #106), and Instagram;
  *                                            // Updates: Add hotkey for enabling/disabling PhotoShow (GitHub issue #105).
+ * @version 4.22.0.0 | 2023-03-23 | Vincent   // Updates: Better support for Instagram (GitHub issue #98);
+ *                                            // Updates: Add image title to download image naming patterns;
+ *                                            // Bug Fix: xhrDownload stopped working since last update.
  */
 
 // TODO: Extract websiteConfig to independent files and import them (after porting to webpack).
@@ -1971,7 +1974,12 @@ const websiteConfig = {
             /^(?:(.+?) se profielfoto|Profilový obrázek (.+?)|(.+?)s profilbillede|(.+?)s Profilbild|Εικόνα προφίλ του χρήστη (.+?)|(.+?)'s profile picture|Foto del perfil de (.+?)|Käyttäjän (.+?) profiilikuva|Photo de profil de (.+?)|Foto profil (.+?)|Immagine del profilo di (.+?)|(.+?)のプロフィール写真|(.+?)님의 프로필 사진|Gambar profil (.+?)|Profilbildet til (.+?)|Profielfoto van (.+?)|Zdjęcie profilowe (.+?)|Foto do perfil de (.+?)|Foto de perfil de (.+?)|Фото профиля (.+?)|รูปโปรไฟล์ของ (.+?)|Litrato sa profile ni (.+?)|(.+?)'in profil resmi|(.+?)的头像|(.+?)的大頭貼照|(.+?) এর প্রোফাইল ছবি|(.+?)નું પ્રોફાઇલ ચિત્ર|(.+?) का प्रोफ़ाइल चित्र|Slika profila (.+?)|(.+?) profilképe|(.+?) ಅವರ ಪ್ರೊಫೈಲ್ ಚಿತ್ರ|(.+?) എന്നയാളുടെ പ്രൊഫൈൽ ചിത്രം|(.+?) चे परिचय चित्र|(.+?) को प्रोफाइल तस्वीर|(.+?) ਦੀ ਪ੍ਰੋਫਾਈਲ ਫੋਟੋ|(.+?)ගේ පැතිකඩ පින්තූරය|Profilová fotka používateľa (.+?)|(.+?) இன் சுயவிவரப் படம்|(.+?) ప్రొఫైల్ చిత్రం|Ảnh đại diện của (.+?)|(.+?)的個人資料相片|Снимката на профила на (.+?)|Photo de profil de (.+?)|Fotografia de profil a contului (.+?)|Слика на профилу корисника (.+?)|Основна світлина (.+?))$/
               .exec(trigger.attr('alt'))
               ?.slice(1)
-              .filter(Boolean)[0];
+              .filter(Boolean)[0] ||
+            (/^(?:Profielfoto|Profilová fotka|Profilbillede|Profilbild|Εικόνα προφίλ|Profile photo|Foto del perfil|Profiilikuva|Photo de profil|Foto profil|Immagine del profilo|プロフィール写真|프로필 사진|Profilbilde|Zdjęcie profilowe|Foto do perfil|Фото профиля|รูปโปรไฟล์|Litrato sa profile|Profil fotoğrafı|头像|大頭貼照|প্রোফাইল ফটো|પ્રોફાઇલ ફોટો|प्रोफ़ाइल फ़ोटो|Slika profila|Profilkép|ಪ್ರೊಫೈಲ್‌ ಫೋಟೋ|പ്രൊഫൈൽ ഫോട്ടോ|प्रोफाईल फोटो|प्रोफाइल फोटो|ਪ੍ਰੋਫ਼ਾਈਲ ਫ਼ੋਟੋ|ප්‍රොෆයිල ඡායාරූපය|சுயவிவரப் படம்|ప్రొఫైల్ ఫోటో|Ảnh đại diện|個人資料相片|Снимка на профила|Fotografie de profil|Фотографија на профилу|Основна світлина)$/i.test(
+              trigger.attr('alt')
+            )
+              ? trigger.closest('header').find('h2').text()
+              : undefined);
 
           return username
             ? tools.cacheImage(username) ||
@@ -3351,7 +3359,7 @@ const tools = {
     const url = sourceUrl && new URL(sourceUrl);
     return (url && /^http/.test(url.protocol) && url.hostname) || '';
   },
-  getDownloadFilename: function (hostname, imgSrc, originalFilename, downloadTime) {
+  getDownloadFilename: function (hostname, imgSrc, imgTitle, originalFilename, downloadTime) {
     const timestamp = new Date(downloadTime || Date.now()),
       filename =
         originalFilename ||
@@ -3361,6 +3369,7 @@ const tools = {
           new Date(timestamp - timestamp.getTimezoneOffset() * 60 * 1000).toISOString()
         )?.groups || {}),
         H: hostname || this.getUrlHostname(imgSrc),
+        I: imgTitle.replaceAll(/[<>:"/\\|?*]/g, '_') || filename.split('.')[0],
         O: filename.split('.')[0]
       },
       extFilename = /(\.(?:jpe?g|gif|png|bmp|webp|svg)$)/i.test(filename)
@@ -3371,12 +3380,12 @@ const tools = {
 
     return `${
       (PHOTOSHOW_CONFIGS.fileNaming?.pattern || '<O>').replaceAll(
-        /<([dHhMmOsy])>/g,
+        /<([dHIhMmOsy])>/g,
         (_, pattern) => filenamePatterns[pattern] || ''
       ) || filenamePatterns.O
     }${extFilename}`;
   },
-  downloadImg: function (imgSrc, tabUrl) {
+  downloadImg: function (imgSrc, imgTitle, tabUrl) {
     if (imgSrc) {
       tabUrl = new URL(tabUrl);
       imgSrc = imgSrc.replace(/\b(gif)v\b/, 'gif'); // Replace 'gifv' suffix used by Tumblr with 'gif' as otherwise it causes downloading problems in Firefox.
@@ -3384,11 +3393,13 @@ const tools = {
       // For Firefox when not using original filename.
       const filename =
           !chrome.downloads.onDeterminingFilename && !/<O>/.test(PHOTOSHOW_CONFIGS.fileNaming?.pattern || '<O>')
-            ? this.getDownloadFilename(tabUrl.hostname, imgSrc)
+            ? this.getDownloadFilename(tabUrl.hostname, imgSrc, imgTitle)
             : undefined,
         alwaysAsk = PHOTOSHOW_CONFIGS.fileNaming?.alwaysAsk || false;
 
-      if ([].concat(WEBSITE_INFO[tabUrl.hostname]?.xhrDownload || []).includes(new URL(imgSrc).hostname)) {
+      if (
+        [].concat(WEBSITE_INFO[tabUrl.hostname]?.websiteConfig.xhrDownload || []).includes(new URL(imgSrc).hostname)
+      ) {
         let xhr = new XMLHttpRequest();
 
         xhr.open('GET', imgSrc, true);
@@ -3413,6 +3424,7 @@ const tools = {
                   DOWNLOAD_ITMES[downloadItemId] = {
                     blobUrl: blobUrl,
                     src: imgSrc,
+                    title: imgTitle,
                     hostname: tabUrl.hostname
                   };
                 }
@@ -3435,7 +3447,8 @@ const tools = {
           downloadItemId => {
             if (!chrome.runtime.lastError && downloadItemId) {
               DOWNLOAD_ITMES[downloadItemId] = {
-                hostname: tabUrl.hostname
+                hostname: tabUrl.hostname,
+                title: imgTitle
               };
             }
           }
@@ -3605,11 +3618,11 @@ var photoShow = {
 
     photoShowContextMenus.remove();
   },
-  getPreservedImgSrc: function (tabId, callback) {
+  getPreservedImg: function (tabId, callback) {
     chrome.tabs.sendMessage(
       tabId,
       {
-        cmd: 'GET_PRESERVED_IMG_SRC'
+        cmd: 'GET_PRESERVED_IMG'
       },
       {
         frameId: 0
@@ -3639,7 +3652,7 @@ var photoShowContextMenus = {
         title: chrome.i18n.getMessage('contextMenuTitle_open'),
         contexts: ['all'],
         onclick: (contextMenuInfo, tab) =>
-          chrome.runtime.lastError || photoShow.getPreservedImgSrc(tab.id, imgSrc => tools.openImgInNewTab(imgSrc, tab))
+          chrome.runtime.lastError || photoShow.getPreservedImg(tab.id, ({ src }) => tools.openImgInNewTab(src, tab))
       });
 
       // TODO: Need to display a download message when the download process cannot be triggered immediately.
@@ -3648,7 +3661,8 @@ var photoShowContextMenus = {
         title: chrome.i18n.getMessage('contextMenuTitle_save'),
         contexts: ['all'],
         onclick: (contextMenuInfo, tab) =>
-          chrome.runtime.lastError || photoShow.getPreservedImgSrc(tab.id, imgSrc => tools.downloadImg(imgSrc, tab.url))
+          chrome.runtime.lastError ||
+          photoShow.getPreservedImg(tab.id, ({ src, title }) => tools.downloadImg(src, title, tab.url))
       });
 
       chrome.contextMenus.create({
@@ -3785,8 +3799,8 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 
       break;
 
-    case 'DOWNLOAD_IMG': // Args: imgSrc, tabUrl (optional)
-      tools.downloadImg(request.args.imgSrc, sender.tab ? sender.url : '');
+    case 'DOWNLOAD_IMG': // Args: imgSrc, imgTitle (optional), tabUrl (optional)
+      tools.downloadImg(request.args.imgSrc, request.args.imgTitle, sender.tab ? sender.url : '');
 
       break;
 
@@ -3971,6 +3985,7 @@ const setPhotoShowDeterminingFilenameHandler = (() => {
         filename: tools.getDownloadFilename(
           DOWNLOAD_ITMES[id]?.hostname || tools.getUrlHostname(url),
           url,
+          DOWNLOAD_ITMES[id]?.title || '',
           filename,
           startTime
         )
