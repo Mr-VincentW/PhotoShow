@@ -170,6 +170,7 @@
  *                                            // Updates: Optimize hotkey interactions.
  * @version 4.22.0.0 | 2023-03-23 | Vincent   // Updates: Add image title to download image naming patterns.
  * @version 4.22.1.0 | 2023-03-30 | Vincent   // Updates: Add general matching rules for Shopify images.
+ * @version 4.22.2.0 | 2023-03-30 | Vincent   // Bug Fix: Image rotation stoped working since update 4.21.0.0.
  */
 
 // TODO: Extract common tool methods to external modules.
@@ -1827,10 +1828,7 @@
         default:
       }
 
-      if (
-        this.hasImgViewerShown &&
-        (![e.altKey, e.ctrlKey, e.metaKey, e.shiftKey].filter(Boolean).length || this.isModifierKeyDown)
-      ) {
+      if (this.hasImgViewerShown) {
         switch (eventKey) {
           case 'ESCAPE':
             if (photoShow.config.hotkeys.closeViewer.isEnabled) {
