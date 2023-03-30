@@ -52,6 +52,7 @@
  * @version 4.17.0.0 | 2022-05-28 | Vincent   // Bug Fix: Incorrect time zone issue in file naming (GitHub issue #51).
  * @version 4.20.0.0 | 2023-02-05 | Vincent   // Updates: Allow enabling/disabling image anti-aliasing (GitHub issue #90).
  * @version 4.22.0.0 | 2023-03-23 | Vincent   // Updates: Add image title to download image naming patterns.
+ * @version 4.22.1.0 | 2023-03-30 | Vincent   // Updates: Optimize sample filename.
  */
 
 // TODO: Support customising hotkeys.
@@ -159,7 +160,7 @@ function updateStateAndConfigs(isInitializing) {
         updateConfigItems(response.photoShowConfigs);
 
         // TODO: Remove this after refactoring with either React or VueJS.
-        $('#fileNamingExample').text(getFilenameExample($('#fileNamingFilename').val()));
+        $('#fileNamingExample').text(getSampleFilename($('#fileNamingFilename').val()));
       }
     );
 }
@@ -366,7 +367,7 @@ $('#fileNamingPatterns').append(
 
 $('#fileNamingFilename')
   .on('input', e => {
-    $('#fileNamingExample').text(getFilenameExample(e.target.value));
+    $('#fileNamingExample').text(getSampleFilename(e.target.value));
   })
   .on('change', e => {
     e.target.value =
@@ -376,12 +377,15 @@ $('#fileNamingFilename')
         .replace(/[/\\]+/g, '/')
         .replace(/\/$/, '/<O>') || '';
 
-    $('#fileNamingExample').text(getFilenameExample(e.target.value));
+    $('#fileNamingExample').text(getSampleFilename(e.target.value));
   });
 
-function getFilenameExample(filename) {
+function getSampleFilename(filename) {
   const fileNamingPatternDescToDemoFilename = patternDesc =>
-    patternDesc.replaceAll(/\s\w/g, match => `_${match.trim().toUpperCase()}`);
+    patternDesc
+      .match(/^[^\uff08(]+/)[0]
+      .trim()
+      .replaceAll(/\s\w/g, match => `_${match.trim().toUpperCase()}`);
 
   const now = new Date(),
     filenamePatterns = {

@@ -231,6 +231,10 @@
  * @version 4.22.0.0 | 2023-03-23 | Vincent   // Updates: Better support for Instagram (GitHub issue #98);
  *                                            // Updates: Add image title to download image naming patterns;
  *                                            // Bug Fix: xhrDownload stopped working since last update.
+ * @version 4.22.1.0 | 2023-03-30 | Vincent   // Updates: Better support for IMDb (GitHub issue #113);
+ *                                            // Updates: Remove matching rules for Sportsfuel since general matching rules for Shopify images have been added;
+ *                                            // Bug Fix: Toggle PhotoShow command hotkey doesn't work in Firefox (GitHub issue #116);
+ *                                            // Bug Fix: Image download stopped working for unknown websites (GitHub issue #117).
  */
 
 // TODO: Extract websiteConfig to independent files and import them (after porting to webpack).
@@ -241,7 +245,6 @@
 // TODO: Disable 'panoramic' mode for pure link triggers.
 // TODO: jandan.net uses sina image.
 // TODO: gamer.com.tw uses YouTube image.
-// TODO: rules for all shopify websites.
 // TODO: duckduckgo.com uses Bing image.
 // TODO: Image viewer positioning issue on https://m.xiaomiyoupin.com/w/universal?_rt=weex&pageid=5545&sign=e34c2d8dde5fe25ef83112cbaa154e76&pdl=jianyu&spmref=YouPinPC.$Home$.list.0.86425397
 // TODO: Bulk download.
@@ -1911,7 +1914,7 @@ const websiteConfig = {
   },
   '(?:.+\\.)?imdb\\.com': {
     amendStyles: {
-      pointerNone: '.image_overlay,.ipc-lockup-overlay__screen'
+      pointerNone: '.image_overlay,.ipc-lockup-overlay__screen,.jpDPOS'
     },
     srcMatching: {
       selectors: 'img,.ipc-poster,.ipc-slate,.ipc-avatar,.ipc-photo',
@@ -2688,17 +2691,6 @@ const websiteConfig = {
       } catch (error) {}
     }
   },
-  '(?:.+\\.)?(?:sportsfuel|1-day\\.winecentral)\\.co\\.nz': {
-    srcMatching: [
-      {
-        srcRegExp: '(cdn\\.shopify\\.com/.+)_(?:small|medium|large|grande|\\d+x(?:\\d+)?)(@IMG@)',
-        processor: '$1$2'
-      },
-      {
-        srcRegExp: 'cdn\\.shopify\\.com/.+@IMG@'
-      }
-    ]
-  },
   '(?:.+\\.)?suning\\.com': {
     amendStyles: {
       pointerNone:
@@ -3398,7 +3390,7 @@ const tools = {
         alwaysAsk = PHOTOSHOW_CONFIGS.fileNaming?.alwaysAsk || false;
 
       if (
-        [].concat(WEBSITE_INFO[tabUrl.hostname]?.websiteConfig.xhrDownload || []).includes(new URL(imgSrc).hostname)
+        [].concat(WEBSITE_INFO[tabUrl.hostname]?.websiteConfig?.xhrDownload || []).includes(new URL(imgSrc).hostname)
       ) {
         let xhr = new XMLHttpRequest();
 
@@ -4005,7 +3997,7 @@ const setPhotoShowDeterminingFilenameHandler = (() => {
 
 // Response to keyboard shortcuts for commands.
 chrome.commands.onCommand.addListener((command, tab) => {
-  if (tab) {
+  const execCommand = tab => {
     switch (command) {
       case 'togglePhotoShow':
         setPhotoShowState(tab.url, !photoShow.checkWebsiteState(tab.url).isPhotoShowEnabled);
@@ -4014,6 +4006,24 @@ chrome.commands.onCommand.addListener((command, tab) => {
           cmd: 'TOGGLE_PHOTOSHOW_STATE_BY_COMMAND'
         });
     }
+  };
+
+  // When keyboard shortcuts are set in 'global' mode or run in Firefox,
+  // the 'tab' parameter is omitted.
+  if (tab) {
+    execCommand(tab);
+  } else {
+    chrome.tabs.query(
+      {
+        currentWindow: true,
+        active: true
+      },
+      tabs => {
+        if (!chrome.runtime.lastError && tabs?.at(0)) {
+          execCommand(tabs[0]);
+        }
+      }
+    );
   }
 });
 

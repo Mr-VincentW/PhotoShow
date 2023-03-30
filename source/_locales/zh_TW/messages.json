@@ -36,6 +36,7 @@
  * @version 4.21.0.0 | 2023-03-09 | Vincent   // Updates: Add 'extensionKeyboardShortcutDesc_toggle'.
  * @version 4.22.0.0 | 2023-03-23 | Vincent   // Updates: Add 'fileNamingPatternDesc_imageTitleOrDesc';
  *                                            // Updates: Remove 'fileNamingExampleFilename'.
+ * @version 4.22.1.0 | 2023-03-30 | Vincent   // Updates: Update 'extensionUpdateDate' and 'fileNamingPatternDesc_imageTitleOrDesc'.
  */
 
 {
@@ -109,7 +110,7 @@
     "description": "浮圖秀無法在特定網站工作時的消息。"
   },
   "extensionUpdateDate": {
-    "message": "更新：",
+    "message": "最近更新：",
     "description": "當前所安裝浮圖秀版本的更新時間。"
   },
   "stateToggleOnTitle": {
@@ -403,7 +404,7 @@
     "description": "文件名替換符描述。"
   },
   "fileNamingPatternDesc_imageTitleOrDesc": {
-    "message": "圖片標題或描述",
+    "message": "圖片標題或描述（未提供時，將使用原文件名替代）",
     "description": "文件名替換符描述。"
   },
   "fileNamingPatternDesc_originalFilename": {

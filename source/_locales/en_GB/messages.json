@@ -30,6 +30,7 @@
  * @version 4.21.0.0 | 2023-03-09 | Vincent   // Updates: Add 'extensionKeyboardShortcutDesc_toggle'.
  * @version 4.22.0.0 | 2023-03-23 | Vincent   // Updates: Add 'fileNamingPatternDesc_imageTitleOrDesc';
  *                                            // Updates: Remove 'fileNamingExampleFilename'.
+ * @version 4.22.1.0 | 2023-03-30 | Vincent   // Updates: Update 'extensionUpdateDate' and 'fileNamingPatternDesc_imageTitleOrDesc'.
  */
 
 {
@@ -103,7 +104,7 @@
     "description": "Message displayed when PhotoShow can not work on certain websites."
   },
   "extensionUpdateDate": {
-    "message": "Update: ",
+    "message": "Last updated: ",
     "description": "Update time of current installed version of PhotoShow."
   },
   "stateToggleOnTitle": {
@@ -397,7 +398,7 @@
     "description": "Description of the filename patterns."
   },
   "fileNamingPatternDesc_imageTitleOrDesc": {
-    "message": "Image title or description",
+    "message": "Image title or description (when not available, the original filename will be used)",
     "description": "Description of the filename patterns."
   },
   "fileNamingPatternDesc_originalFilename": {

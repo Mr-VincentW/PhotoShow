@@ -169,6 +169,7 @@
  *                                            // Updates: Add hotkey for enabling/disabling PhotoShow (GitHub issue #105);
  *                                            // Updates: Optimize hotkey interactions.
  * @version 4.22.0.0 | 2023-03-23 | Vincent   // Updates: Add image title to download image naming patterns.
+ * @version 4.22.1.0 | 2023-03-30 | Vincent   // Updates: Add general matching rules for Shopify images.
  */
 
 // TODO: Extract common tool methods to external modules.
@@ -552,6 +553,12 @@
           {
             // Alibaba Cloud images.
             srcRegExp: '(.+?\\?.*)&?x-oss-process=[^&]+(.*)',
+            processor: '$1$2'
+          },
+          {
+            // Shopify images.
+            // TODO: @IMG@
+            srcRegExp: '(cdn\\.shopify\\.com/s/files/.+)_.*(\\.(?:jpe?g|gifv?|pn[gj]|bmp|webp|svg).*)',
             processor: '$1$2'
           }
         ];
