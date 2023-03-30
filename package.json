@@ -21,7 +21,7 @@
     "string-replace-loader": "^3.0.3",
     "strip-json-comments": "^3.1.1",
     "terser-webpack-plugin": "^5.2.4",
-    "webpack": "^5.58.2",
+    "webpack": "^5.76.0",
     "webpack-cli": "^4.9.0",
     "zip-webpack-plugin": "^4.0.1"
   },
