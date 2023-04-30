@@ -235,6 +235,8 @@
  *                                            // Updates: Remove matching rules for Sportsfuel since general matching rules for Shopify images have been added;
  *                                            // Bug Fix: Toggle PhotoShow command hotkey doesn't work in Firefox (GitHub issue #116);
  *                                            // Bug Fix: Image download stopped working for unknown websites (GitHub issue #117).
+ * @version 4.23.0.0 | 2023-04-30 | Vincent   // Updates: Better support for taobao, tieba.baidu.com, Instagram (GitHub issue #120);
+ *                                            // Updates: Support aewtogether.org, allelitewrestling.com, and kanald.com.tr, radyod.com (GitHub issue #118).
  */
 
 // TODO: Extract websiteConfig to independent files and import them (after porting to webpack).
@@ -503,6 +505,14 @@ const websiteConfig = {
       processor: '$1'
     }
   },
+  '(?:.+\\.)?(?:allelitewrestling\\.com|aewtogether\\.org)': {
+    srcMatching: {
+      selectors: 'img,[style*=background],.gallery-item-wrapper',
+      srcRegExp: '(//static\\.wixstatic\\.com/.+?@IMG@).*',
+      processor: (trigger, src, srcRegExpObj) =>
+        srcRegExpObj.test(src || trigger.find('img').attr('src')) ? RegExp.$1 : ''
+    }
+  },
   'www\\.amazon(?:\\.(?:com|[a-z]{2}))+': {
     // co|au|br|ca|cn|de|es|fr|hk|in|it|jp|mx|nl|tr|uk
     amendStyles: {
@@ -703,18 +713,22 @@ const websiteConfig = {
   },
   'tieba\\.baidu\\.com': {
     amendStyles: {
-      pointerNone: '.threadlist_pic_highlight,.feed_highlight,.liveshow_slide_container .play_mask,.active_mask'
+      pointerNone:
+        '.threadlist_pic_highlight,.feed_highlight,.liveshow_slide_container .play_mask,.active_mask,._66em7xh'
     },
     srcMatching: [
-      {
-        selectors: 'img[original]',
-        processor: trigger => trigger.attr('original')
-      },
       {
         srcRegExp: '(//.+\\.baidu\\.com/forum/).+?/sign=\\w+/(\\w+)(@IMG@)',
         processor: (trigger, src, srcRegExpObj) => {
           if (srcRegExpObj.test(src)) {
-            const tid = trigger.closest('[data-tid]').data('tid') || new URLSearchParams(location.search).get('tid');
+            const matches = [RegExp.$1, RegExp.$2, RegExp.$3],
+              tid =
+                trigger.closest('[data-tid]').data('tid') ||
+                trigger.closest('[data-thread-id]').data('thread-id') ||
+                new URLSearchParams(location.search).get('tid') ||
+                (/\/\/tieba\.baidu\.com\/p\/(\d+)/.test(location.href) ? RegExp.$1 : '');
+
+            console.log('TID', tid);
 
             return tid
               ? new Promise((resolve, reject) => {
@@ -722,7 +736,7 @@ const websiteConfig = {
                     dataType: 'json',
                     data: {
                       tid,
-                      pic_id: RegExp.$2,
+                      pic_id: matches[1],
                       alt: 'json'
                     },
                     success: response => {
@@ -737,7 +751,7 @@ const websiteConfig = {
                 })
               : tools
                   .detectImage(
-                    `${RegExp.$1}pic/item/${RegExp.$2}${RegExp.$3}`,
+                    `${matches[0]}pic/item/${matches[1]}${matches[2]}`,
                     src,
                     img => img.width == 238 && img.height == 238
                   )
@@ -758,6 +772,14 @@ const websiteConfig = {
       {
         srcRegExp: '.+\\.bdstatic\\.com/.+\\bsrc=(.+@IMG@)',
         processor: (trigger, src, srcRegExpObj) => decodeURIComponent(srcRegExpObj.test(src) ? RegExp.$1 : '')
+      },
+      {
+        selectors: '.bgImg+video',
+        processor: trigger => trigger.prev('.bgImg').attr('src')
+      },
+      {
+        selectors: 'img[original]',
+        processor: trigger => trigger.attr('original')
       },
       {
         srcRegExp: '.+\\.(?:bdstatic|baidu)\\.com/.+@IMG@'
@@ -1962,8 +1984,8 @@ const websiteConfig = {
   'www\\.instagram\\.com': {
     amendStyles: {
       pointerNone:
-        '.qn-0x,._9AhH0,._7Tu5q,._aagw,._aapc,._ac2d,img+._abch._abcl._abck._abcf._abcg,._aajz,._aajy,._acfj',
-      pointerAuto: 'img+._abch._abcl._abck._abcf._abcg img'
+        '.qn-0x,._9AhH0,._7Tu5q,._aagw,._aapc,._ac2d,img+._abch._abcl._abck._abcf._abcg,._aajz,._aajy,._acfj,img+.x10l6tqk.x13vifvy.x17qophe.x1ey2m1c.xds687c,._ac08',
+      pointerAuto: 'img+._abch._abcl._abck._abcf._abcg img,._ac0h ._aarf'
     },
     srcMatching: [
       {
@@ -2245,6 +2267,18 @@ const websiteConfig = {
             : ''
       }
     ]
+  },
+  '(?:.+\\.)?(?:kanald\\.com\\.tr|radyod\\.com)': {
+    amendStyles: {
+      pointerNone: '.img-wrap :not(img,.bg-image),.list-item-btn',
+      pointerAuto: '.img-wrap .save-or-follow'
+    },
+    srcMatching: {
+      selectors: 'img,.img-wrap,.list-item-img-wrap',
+      srcRegExp: '(//.+?/i/.+?/\\d+/)\\d+x\\d+(/.+)',
+      processor: (trigger, src, srcRegExpObj) =>
+        srcRegExpObj.test(src || trigger.find('img').attr('src')) ? `${RegExp.$1}0x0${RegExp.$2}` : ''
+    }
   },
   'www\\.kmart\\.com': {
     srcMatching: {
@@ -2771,7 +2805,8 @@ const websiteConfig = {
     {
       amendStyles: {
         pointerNone:
-          '.mask,.itemSoldout .product-mask,.ju-itemlist .link-box .detail,.tb-img li span,.offerImg .offerMask,.NervModuleKjIndexCateOfferUi>div:first-child>div:last-child,.imageGallery .imgItem .imgBg,.img-box .img-bg-layer,.img-zhe,.img-mask,.product .shadow,.item .shade,.changhuo_pank,img~div:empty,[style*=background]~div:empty,.lazyload-wrapper~div:empty'
+          '.mask,.itemSoldout .product-mask,.ju-itemlist .link-box .detail,.tb-img li span,.offerImg .offerMask,.NervModuleKjIndexCateOfferUi>div:first-child>div:last-child,.imageGallery .imgItem .imgBg,.img-box .img-bg-layer,.img-zhe,.img-mask,.product .shadow,.item .shade,.changhuo_pank,img~div:empty,[style*=background]~div:empty,.lazyload-wrapper~div:empty,.MainPic--mask--Yn060WJ',
+        pointerAuto: '.Comments--sortBy--8g0CtV0:after'
       },
       srcMatching: [
         {
@@ -3382,11 +3417,10 @@ const tools = {
       tabUrl = new URL(tabUrl);
       imgSrc = imgSrc.replace(/\b(gif)v\b/, 'gif'); // Replace 'gifv' suffix used by Tumblr with 'gif' as otherwise it causes downloading problems in Firefox.
 
-      // For Firefox when not using original filename.
-      const filename =
-          !chrome.downloads.onDeterminingFilename && !/<O>/.test(PHOTOSHOW_CONFIGS.fileNaming?.pattern || '<O>')
-            ? this.getDownloadFilename(tabUrl.hostname, imgSrc, imgTitle)
-            : undefined,
+      // Gotcha: Firefox does not have downloads.onDeterminingFilename API.
+      const filename = !chrome.downloads.onDeterminingFilename
+          ? this.getDownloadFilename(tabUrl.hostname, imgSrc, imgTitle)
+          : undefined,
         alwaysAsk = PHOTOSHOW_CONFIGS.fileNaming?.alwaysAsk || false;
 
       if (
