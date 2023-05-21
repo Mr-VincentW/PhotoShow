@@ -237,6 +237,8 @@
  *                                            // Bug Fix: Image download stopped working for unknown websites (GitHub issue #117).
  * @version 4.23.0.0 | 2023-04-30 | Vincent   // Updates: Better support for taobao, tieba.baidu.com, Instagram (GitHub issue #120);
  *                                            // Updates: Support aewtogether.org, allelitewrestling.com, and kanald.com.tr, radyod.com (GitHub issue #118).
+ * @version 4.24.0.0 | 2023-05-21 | Vincent   // Updates: Support whitelist mode (GitHub issue #19, #121);
+ *                                            // Updates: Support e-TALENTA, fox.com, fox.com.tr (GitHub issue #122).
  */
 
 // TODO: Extract websiteConfig to independent files and import them (after porting to webpack).
@@ -727,8 +729,6 @@ const websiteConfig = {
                 trigger.closest('[data-thread-id]').data('thread-id') ||
                 new URLSearchParams(location.search).get('tid') ||
                 (/\/\/tieba\.baidu\.com\/p\/(\d+)/.test(location.href) ? RegExp.$1 : '');
-
-            console.log('TID', tid);
 
             return tid
               ? new Promise((resolve, reject) => {
@@ -1422,6 +1422,12 @@ const websiteConfig = {
       processor: '$1'
     }
   },
+  '(?:.+\\.)?e-talenta\\.eu': {
+    srcMatching: {
+      srcRegExp: '(media\\.e-talenta\\.eu/foto/)\\d+/\\d+/(\\d+@IMG@.*)',
+      processor: '$1$2'
+    }
+  },
   'e621\\.net': {
     srcMatching: {
       srcRegExp: '(//static\\d*\\.e621\\.net/data/)(?:crop|preview|sample)/(.+)(@IMG@)',
@@ -1725,6 +1731,26 @@ const websiteConfig = {
         processor: '$1_h$2'
       }
     ]
+  },
+  '(?:.+\\.)?fox\\.com': {
+    amendStyles: {
+      pointerNone: '[class*="Overlay__"],[class*="overlay__"]',
+      pointerAuto: '[role="button"]'
+    },
+    srcMatching: {
+      srcRegExp: '(\\w+\\.foxdcg\\.com/.+@IMG@).*',
+      processor: '$1'
+    }
+  },
+  '(?:.+\\.)?fox\\.com\\.tr': {
+    amendStyles: {
+      pointerNone: '.gallery-image-container .controls',
+      pointerAuto: '.gallery-image-container .controls a'
+    },
+    srcMatching: {
+      srcRegExp: '(.+/)(?:posters|thumbnail)(/.+)',
+      processor: '$1cover$2'
+    }
   },
   '(?:.+\\.)?xda-developers\\.com': {
     amendStyles: {
@@ -3375,7 +3401,8 @@ const websiteConfig = {
 };
 
 let WEBSITE_INFO = {},
-  DISABLED_WEBSITES = [],
+  BLOCKLIST = [],
+  WHITELIST = [],
   TAB_ID_REFERER_MAPPTING = {},
   DOWNLOAD_ITMES = {},
   PHOTOSHOW_CONFIGS = {},
@@ -3533,8 +3560,7 @@ var photoShow = {
 
     if (!WEBSITE_INFO[urlHostname]) {
       WEBSITE_INFO[urlHostname] = {
-        isWebsiteUnknown: true,
-        isPhotoShowEnabled: !DISABLED_WEBSITES.includes(urlHostname)
+        isWebsiteUnknown: true
       };
 
       for (const website in websiteConfig) {
@@ -3542,7 +3568,7 @@ var photoShow = {
           WEBSITE_INFO[urlHostname].isWebsiteUnknown = false;
           WEBSITE_INFO[urlHostname].websiteConfig = websiteConfig[website];
           WEBSITE_INFO[urlHostname].websiteConfig.srcMatching = [].concat(
-            WEBSITE_INFO[urlHostname].websiteConfig.srcMatching || {}
+            WEBSITE_INFO[urlHostname].websiteConfig.srcMatching || []
           );
 
           for (const matchingRule of WEBSITE_INFO[urlHostname].websiteConfig.srcMatching) {
@@ -3571,6 +3597,10 @@ var photoShow = {
         }
       }
     }
+
+    WEBSITE_INFO[urlHostname].isPhotoShowEnabled = PHOTOSHOW_CONFIGS.whitelistMode
+      ? WHITELIST.includes(urlHostname)
+      : !BLOCKLIST.includes(urlHostname);
 
     return WEBSITE_INFO[urlHostname];
   },
@@ -3763,17 +3793,27 @@ function setPhotoShowState(tabUrl, isPhotoShowEnabled) {
   var urlHostname = tools.getUrlHostname(tabUrl);
 
   if (WEBSITE_INFO[urlHostname]) {
-    var newDisabledWebsitesList = DISABLED_WEBSITES.slice(),
-      urlHostnameIndex = newDisabledWebsitesList.indexOf(urlHostname);
+    if (PHOTOSHOW_CONFIGS.whitelistMode) {
+      var newWhitelist = WHITELIST.slice(),
+        urlHostnameIndex = newWhitelist.indexOf(urlHostname);
 
-    !!isPhotoShowEnabled ^ !!~urlHostnameIndex ||
-      (~urlHostnameIndex
-        ? newDisabledWebsitesList.splice(urlHostnameIndex, 1)
-        : newDisabledWebsitesList.push(urlHostname));
+      !isPhotoShowEnabled ^ !!~urlHostnameIndex ||
+        (~urlHostnameIndex ? newWhitelist.splice(urlHostnameIndex, 1) : newWhitelist.push(urlHostname));
 
-    chrome.storage.sync.set({
-      disabledWebsites: newDisabledWebsitesList
-    });
+      chrome.storage.sync.set({
+        whitelist: newWhitelist
+      });
+    } else {
+      var newBlocklist = BLOCKLIST.slice(),
+        urlHostnameIndex = newBlocklist.indexOf(urlHostname);
+
+      !!isPhotoShowEnabled ^ !!~urlHostnameIndex ||
+        (~urlHostnameIndex ? newBlocklist.splice(urlHostnameIndex, 1) : newBlocklist.push(urlHostname));
+
+      chrome.storage.sync.set({
+        blocklist: newBlocklist
+      });
+    }
   }
 }
 
@@ -3908,11 +3948,19 @@ chrome.runtime.onConnect.addListener(function (port) {
 
 // Response to storage changes.
 chrome.storage.onChanged.addListener(changes => {
-  if (changes.disabledWebsites) {
-    DISABLED_WEBSITES = changes.disabledWebsites.newValue;
+  if (changes.blocklist) {
+    BLOCKLIST = changes.blocklist.newValue;
 
     Object.keys(WEBSITE_INFO).forEach(
-      hostname => (WEBSITE_INFO[hostname].isPhotoShowEnabled = !DISABLED_WEBSITES.includes(hostname))
+      hostname => (WEBSITE_INFO[hostname].isPhotoShowEnabled = !BLOCKLIST.includes(hostname))
+    );
+  }
+
+  if (changes.whitelist) {
+    WHITELIST = changes.whitelist.newValue;
+
+    Object.keys(WEBSITE_INFO).forEach(
+      hostname => (WEBSITE_INFO[hostname].isPhotoShowEnabled = WHITELIST.includes(hostname))
     );
   }
 
@@ -3921,6 +3969,15 @@ chrome.storage.onChanged.addListener(changes => {
 
     if (PHOTOSHOW_CONFIGS.fileNaming?.pattern !== changes.photoShowConfigs.oldValue?.fileNaming?.pattern) {
       setPhotoShowDeterminingFilenameHandler(!!PHOTOSHOW_CONFIGS.fileNaming?.pattern);
+    }
+
+    if (PHOTOSHOW_CONFIGS.whitelistMode !== changes.photoShowConfigs.oldValue?.whitelistMode) {
+      Object.keys(WEBSITE_INFO).forEach(
+        hostname =>
+          (WEBSITE_INFO[hostname].isPhotoShowEnabled = PHOTOSHOW_CONFIGS.whitelistMode
+            ? WHITELIST.includes(hostname)
+            : !BLOCKLIST.includes(hostname))
+      );
     }
   }
 
@@ -4062,13 +4119,25 @@ chrome.commands.onCommand.addListener((command, tab) => {
 });
 
 // Initialization.
-chrome.storage.sync.get(['disabledWebsites', 'photoShowConfigs', 'statistics'], response => {
+chrome.storage.sync.get(['blocklist', 'disabledWebsites', 'whitelist', 'photoShowConfigs', 'statistics'], response => {
+  // TODO: Remove 'disabledWebsites' later.
   if (!chrome.runtime.lastError && response) {
-    DISABLED_WEBSITES = response.disabledWebsites || [];
+    BLOCKLIST = response.blocklist || response.disabledWebsites || [];
+    WHITELIST = response.whitelist || [];
     PHOTOSHOW_CONFIGS = response.photoShowConfigs || {};
     statistics.init(response.statistics);
 
     setPhotoShowDeterminingFilenameHandler(!!PHOTOSHOW_CONFIGS.fileNaming?.pattern);
+
+    ////////////////////////////////////////////////////////////////////////////////
+    // Remove later.
+    if (response.disabledWebsites) {
+      chrome.storage.sync.set({
+        blocklist: BLOCKLIST
+      });
+      chrome.storage.sync.remove('disabledWebsites');
+    }
+    ////////////////////////////////////////////////////////////////////////////////
   }
 });
 

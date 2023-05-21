@@ -171,6 +171,8 @@
  * @version 4.22.0.0 | 2023-03-23 | Vincent   // Updates: Add image title to download image naming patterns.
  * @version 4.22.1.0 | 2023-03-30 | Vincent   // Updates: Add general matching rules for Shopify images.
  * @version 4.22.2.0 | 2023-03-30 | Vincent   // Bug Fix: Image rotation stoped working since update 4.21.0.0.
+ * @version 4.24.0.0 | 2023-05-21 | Vincent   // Updates: Support whitelist mode (GitHub issue #19, #121);
+ *                                            // Updates: Add general matching rules for MerlinCDN images.
  */
 
 // TODO: Extract common tool methods to external modules.
@@ -505,6 +507,7 @@
         );
       },
       developerModeSuspension: true, // Developer mode suspension.
+      whitelistMode: false, // Whitelist mode.
       hotkeys: {
         // Hotkey toggles.
         closeViewer: {
@@ -560,6 +563,11 @@
             // Shopify images.
             // TODO: @IMG@
             srcRegExp: '(cdn\\.shopify\\.com/s/files/.+)_.*(\\.(?:jpe?g|gifv?|pn[gj]|bmp|webp|svg).*)',
+            processor: '$1$2'
+          },
+          {
+            // MerlinCDN images.
+            srcRegExp: '(.+?\\.merlincdn\\.net/)(?:resize|crop)/\\d+x\\d+/(.+\\.(?:jpe?g|gifv?|pn[gj]|bmp|webp|svg))',
             processor: '$1$2'
           }
         ];
@@ -2078,7 +2086,7 @@
 
     // Response to storage change event.
     chrome.storage.onChanged.addListener(changes => {
-      if (['disabledWebsites', 'photoShowConfigs'].some(item => Object.keys(changes).includes(item))) {
+      if (['blocklist', 'whitelist', 'photoShowConfigs'].some(item => Object.keys(changes).includes(item))) {
         photoShow.updateStateAndConfigs();
       }
     });

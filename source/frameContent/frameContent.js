@@ -23,6 +23,7 @@
  * @version 4.11.0.0 | 2021-10-21 | Vincent   // Bug Fix: A dom mutation event error.
  * @version 4.12.0.0 | 2021-11-07 | Vincent   // Updates: Allow user to suspend PhotoShow when in developer mode, in response to user feedback.
  * @version 4.14.0.0 | 2021-12-14 | Vincent   // Updates: Allow unblocking pseudo elements for some special websites, in response to user feedback.
+ * @version 4.24.0.0 | 2023-05-21 | Vincent   // Updates: Support whitelist mode (GitHub issue #19, #121).
  */
 
 (($, isInFrame) => {
@@ -223,7 +224,7 @@
 
     // Response to storage change event.
     chrome.storage.onChanged.addListener(changes => {
-      if (['disabledWebsites', 'photoShowConfigs'].some(item => Object.keys(changes).includes(item))) {
+      if (['blocklist', 'whitelist', 'photoShowConfigs'].some(item => Object.keys(changes).includes(item))) {
         photoShow.updateState();
       }
     });

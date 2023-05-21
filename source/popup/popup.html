@@ -34,6 +34,7 @@
  * @version 4.15.1.0 | 2022-03-30 | Vincent   // Updates: Add config items for file-naming-always-ask settings.
  * @version 4.16.0.0 | 2022-04-10 | Vincent   // Updates: Reshape the config items structure.
  * @version 4.20.0.0 | 2023-02-05 | Vincent   // Updates: Allow enabling/disabling image anti-aliasing (GitHub issue #90).
+ * @version 4.24.0.0 | 2023-05-21 | Vincent   // Updates: Support whitelist mode (GitHub issue #19, #121).
 -->
 
 <html>
@@ -51,6 +52,7 @@
     <div id="stateToggle" class="state-toggle">
       <em class="icon icon-bubble-check state-icon"></em>
       <h3 id="stateMsg"></h3>
+      <em id="whitelistModeTag"></em>
       <span id="stateToggleBtn" class="state-toggle-btn"></span>
     </div>
     <div class="settings" id="settings">
@@ -61,6 +63,15 @@
         </dt>
         <dd class="checkboxes">
           <label><input type="checkbox" checked /><span id="worksEverywhereDesc"></span></label>
+        </dd>
+      </dl>
+      <dl class="desc" config-item="whitelistMode" id="whitelistModeToggleSection">
+        <dt>
+          <em class="icon icon-whitelist-mode"></em>
+          <h3></h3>
+        </dt>
+        <dd class="checkboxes">
+          <label><input type="checkbox" /><span id="whitelistModeToggleDesc"></span></label>
         </dd>
       </dl>
       <dl class="desc activation-mode" config-item="activationMode" id="activationModeSection">

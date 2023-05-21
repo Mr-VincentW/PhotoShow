@@ -38,6 +38,8 @@
  * @version 4.22.0.0 | 2023-03-23 | Vincent   // Updates: Add 'fileNamingPatternDesc_imageTitleOrDesc';
  *                                            // Updates: Remove 'fileNamingExampleFilename'.
  * @version 4.22.1.0 | 2023-03-30 | Vincent   // Updates: Update 'extensionUpdateDate' and 'fileNamingPatternDesc_imageTitleOrDesc'.
+ * @version 4.24.0.0 | 2023-05-21 | Vincent   // Updates: Optimise all messages;
+ *                                            // Updates: Add 'whitelist mode' related items.
  */
 
 {
@@ -45,21 +47,21 @@
   // General information.
   "extensionName": {
     "message": "PhotoShow",
-    "description": "Name of the extension which is supposed to be translated into a target language, ideally keeping semantically consistent and phonetically similar to its English version."
+    "description": "Name of the extension which should be translated into the target language, while maintaining semantic consistency and phonetic similarity to its English version."
   },
   "extensionDesc": {
-    "message": "View high-definition images by hovering mouse on thumbnails, for all your beloved websites and you.",
-    "description": "Description of the extension displaying on the browser extension management page and in the extension store etc., limited to 132 characters."
+    "message": "View high-definition images by hovering mouse over thumbnails, for all your favorite websites and you.",
+    "description": "Description of the extension displayed on the browser extension management page and in the extension store, limited to 132 characters."
   },
   "extensionKeyboardShortcutDesc_toggle": {
     "message": "Enable/disable PhotoShow for the current site.",
-    "description": "Extension keyboard shortcut description which appears on chrome://extensions/shortcuts."
+    "description": "Extension keyboard shortcut description appearing on chrome://extensions/shortcuts."
   },
 
   ////////////////////////////////////////////////////////////////////////////////
-  // Information displayed in image viewer, context menu or global messages.
+  // Information displayed in image viewer, context menu, or global messages.
   "contextMenuTitle_open": {
-    "message": "Open HD image in new tab (Tab)",
+    "message": "Open HD image in a new tab (Tab)",
     "description": "Context menu item."
   },
   "contextMenuTitle_save": {
@@ -72,15 +74,15 @@
   },
   "globalMsg_imgWillOpenInNewTab": {
     "message": "HD image will open in a new tab soon.",
-    "description": "Global messages."
+    "description": "Global message."
   },
   "globalMsg_imgWillStartDownloading": {
     "message": "HD image download will start soon.",
-    "description": "Global messages."
+    "description": "Global message."
   },
   "globalMsg_imgSrcCopied": {
     "message": "HD image address has been copied.",
-    "description": "Global messages."
+    "description": "Global message."
   },
 
   ////////////////////////////////////////////////////////////////////////////////
@@ -88,7 +90,7 @@
   // Header section:
   "photoShowEnabledMsg": {
     "message": "PhotoShow is enabled on this website.",
-    "description": "Message displayed when PhotoShow is enabled for current website."
+    "description": "Message displayed when PhotoShow is enabled for the current website."
   },
   "photoShowEnabledMsg_basic": {
     "message": "PhotoShow offers basic support on this website.",
@@ -96,7 +98,7 @@
   },
   "photoShowDisabledMsg": {
     "message": "PhotoShow is disabled on this website.",
-    "description": "Message displayed when PhotoShow is disabled for current website."
+    "description": "Message displayed when PhotoShow is disabled for the current website."
   },
   "photoShowShutdownMsg": {
     "message": "Support for unknown websites is turned off.",
@@ -108,19 +110,19 @@
   },
   "photoShowUnavailableMsg": {
     "message": "PhotoShow does not support the current website.",
-    "description": "Message displayed when PhotoShow can not work on certain websites."
+    "description": "Message displayed when PhotoShow cannot work on certain websites."
   },
   "extensionUpdateDate": {
     "message": "Last updated: ",
-    "description": "Update time of current installed version of PhotoShow."
+    "description": "Update time of the currently installed version of PhotoShow."
   },
   "stateToggleOnTitle": {
     "message": "Click to disable PhotoShow on this website",
-    "description": "Mouse-hovering tip for PhotoShow toggle button when it is 'ON'."
+    "description": "Mouse-hovering tip for the PhotoShow toggle button when it is 'ON'."
   },
   "stateToggleOffTitle": {
     "message": "Click to enable PhotoShow on this website",
-    "description": "Mouse-hovering tip for PhotoShow toggle button when it is 'OFF'."
+    "description": "Mouse-hovering tip for the PhotoShow toggle button when it is 'OFF'."
   },
 
   // Section WORKS EVERYWHERE:
@@ -129,7 +131,17 @@
     "description": "Section title."
   },
   "worksEverywhereDesc": {
-    "message": "Enable basic support on unknown websites, displaying original images when their intrinsic sizes are larger than displayed",
+    "message": "Enable basic support for unknown websites by displaying the original images when their actual dimensions are larger than the dimensions in which they are displayed.",
+    "description": "Setting item description."
+  },
+
+  // Section WHITELIST MODE TOGGLE:
+  "whitelistModeToggleHeader": {
+    "message": "WHITELIST MODE",
+    "description": "Section title."
+  },
+  "whitelistModeToggleDesc": {
+    "message": "Enable PhotoShow only on specified websites (disabled for all websites by default).",
     "description": "Setting item description."
   },
 
@@ -140,11 +152,11 @@
   },
   "activationModeDesc": {
     "message": "Mouse hover",
-    "description": "Description for the operation of triggerring a image viewer display."
+    "description": "Description for the operation of triggering the image viewer display."
   },
   "activationModeOption_None": {
     "message": "None",
-    "description": "Description of the option that requires no other operations when triggering the image viewer display (only mouse hover required)."
+    "description": "Description of the option that requires no other operations to trigger the image viewer display (only mouse hover is required)."
   },
 
   // Section ACTIVATION EXEMPTION:
@@ -153,7 +165,7 @@
     "description": "Section title."
   },
   "activationExemptionDesc": {
-    "message": "DO NOT activate when thumbnails are larger than 25% of the viewport",
+    "message": "DO NOT activate when thumbnails are larger than 25% of the viewport.",
     "description": "Setting item description."
   },
 
@@ -163,11 +175,11 @@
     "description": "Section title."
   },
   "activationDelayDesc_before": {
-    "message": "When mouse hovering on thumbnails, delay activation by",
+    "message": "Delay activation when hovering on thumbnails by",
     "description": "Setting item description."
   },
   "activationDelayDesc_after": {
-    "message": "ms",
+    "message": "ms.",
     "description": "Setting item description."
   },
 
@@ -181,7 +193,7 @@
     "description": "Mode name."
   },
   "viewModeOptionTitle_auto": {
-    "message": "The viewer automatically adapts its size to the available space on one side of the source thumbnail",
+    "message": "The viewer automatically adjusts its size to fit the available space on one side of the source thumbnail.",
     "description": "Corresponding mouse-hovering tip."
   },
   "viewModeOption_mini": {
@@ -189,7 +201,7 @@
     "description": "Mode name."
   },
   "viewModeOptionTitle_mini": {
-    "message": "The viewer displays within 1/8 in area of the available space on one side of the source thumbnail",
+    "message": "The viewer takes up 1/8 of the available space on one side of the source thumbnail.",
     "description": "Corresponding mouse-hovering tip."
   },
   "viewModeOption_lite": {
@@ -197,7 +209,7 @@
     "description": "Mode name."
   },
   "viewModeOptionTitle_lite": {
-    "message": "The viewer displays within 1/4 in area of the available space on one side of the source thumbnail",
+    "message": "The viewer takes up 1/4 of the available space on one side of the source thumbnail.",
     "description": "Corresponding mouse-hovering tip."
   },
   "viewModeOption_panoramic": {
@@ -205,7 +217,7 @@
     "description": "Mode name."
   },
   "viewModeOptionTitle_panoramic": {
-    "message": "The viewer takes as large space as needed and the image displays in its original size",
+    "message": "The viewer takes up as much space as needed, displaying the image in its original dimensions.",
     "description": "Corresponding mouse-hovering tip."
   },
 
@@ -237,7 +249,7 @@
     "description": "Section title."
   },
   "imageSizeDisplayDesc": {
-    "message": "Display HD image size within the viewer",
+    "message": "Display the HD image dimensions within the viewer.",
     "description": "Setting item description."
   },
 
@@ -247,7 +259,7 @@
     "description": "Section title."
   },
   "shadowDisplayDesc": {
-    "message": "Display shadow between the viewer and the source thumbnail",
+    "message": "Display a shadow between the viewer and the source thumbnail.",
     "description": "Setting item description."
   },
 
@@ -257,7 +269,7 @@
     "description": "Section title."
   },
   "loadingStatusDisplayDesc": {
-    "message": "Indicate image loading status",
+    "message": "Indicate the image loading status.",
     "description": "Setting item description."
   },
 
@@ -267,7 +279,7 @@
     "description": "Section title."
   },
   "animationToggleDesc": {
-    "message": "Enable transition animation",
+    "message": "Enable transition animation.",
     "description": "Setting item description."
   },
 
@@ -277,7 +289,7 @@
     "description": "Section title."
   },
   "antialiasingToggleDesc": {
-    "message": "Enable image anti-aliasing",
+    "message": "Enable image anti-aliasing.",
     "description": "Setting item description."
   },
 
@@ -287,7 +299,7 @@
     "description": "Section title."
   },
   "contextMenuToggleDesc": {
-    "message": "Enable context menu items",
+    "message": "Enable context menu items.",
     "description": "Setting item description."
   },
 
@@ -297,7 +309,7 @@
     "description": "Section title."
   },
   "developerModeToggleDesc": {
-    "message": "Suspend PhotoShow when in developer mode (browser developer tools window open)",
+    "message": "Suspend PhotoShow when in developer mode (browser developer tools window is open).",
     "description": "Setting item description."
   },
 
@@ -307,7 +319,7 @@
     "description": "Section title."
   },
   "hotkeyToggleTitle": {
-    "message": "Click to enable/disable the hotkey(s)",
+    "message": "Click to enable/disable the hotkey(s).",
     "description": "Mouse-hovering tip for hotkey toggles."
   },
   "hotkey_closeViewer": {
@@ -423,11 +435,11 @@
     "description": "Section title."
   },
   "shareIconTitles": {
-    "message": "Contact the author,GitHub,Facebook,Twitter,Weibo,Qzone,Reddit,Tumblr",
+    "message": "Contact the author, GitHub, Facebook, Twitter, Weibo, Qzone, Reddit, Tumblr",
     "description": "Mouse-hovering tips for all the contact icons (Separated with half-width commas)."
   },
   "shareText": {
-    "message": "I've just found an excellent browser extension that works wonders on image viewing! Have a try and you'll love it too!",
+    "message": "I have just discovered an excellent browser extension that works wonders for image viewing! Give it a go, and you'll love it too!",
     "description": "Predefined post content for users to share on their social networking platforms."
   },
   "feedbackMailSubject": {
@@ -439,16 +451,16 @@
     "description": "Content of the user feedback email. (The above message does not need to be translated, but the following PLACEHOLDERS do.)",
     "placeholders": {
       "problemTitle": {
-        "content": "The problems I encountered:",
+        "content": "The issues I encountered:",
         "description": "Guide for users to describe the problems encountered when using PhotoShow."
       },
       "problemDescGuide": {
-        "content": "(Please describe the problems or your suggestions here.)",
+        "content": "(Please describe the problems or provide your suggestions here.)",
         "description": "Indicating where to write down their feedback."
       },
       "browserTitle": {
         "content": "BROWSER INFORMATION:",
-        "description": "Title of the attached information - The browser version, platform and other basic information about the user environment."
+        "description": "Title of the attached information - The browser version, platform, and other basic information about the user environment."
       },
       "photoShowVersionTitle": {
         "content": "PHOTOSHOW VERSION:",

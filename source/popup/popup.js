@@ -53,6 +53,7 @@
  * @version 4.20.0.0 | 2023-02-05 | Vincent   // Updates: Allow enabling/disabling image anti-aliasing (GitHub issue #90).
  * @version 4.22.0.0 | 2023-03-23 | Vincent   // Updates: Add image title to download image naming patterns.
  * @version 4.22.1.0 | 2023-03-30 | Vincent   // Updates: Optimize sample filename.
+ * @version 4.24.0.0 | 2023-05-21 | Vincent   // Updates: Support whitelist mode (GitHub issue #19, #121).
  */
 
 // TODO: Support customising hotkeys.
@@ -159,8 +160,14 @@ function updateStateAndConfigs(isInitializing) {
         // Update config items.
         updateConfigItems(response.photoShowConfigs);
 
-        // TODO: Remove this after refactoring with either React or VueJS.
+        // TODO: Remove these after refactoring with either React or VueJS.
         $('#fileNamingExample').text(getSampleFilename($('#fileNamingFilename').val()));
+
+        if (response.photoShowConfigs.whitelistMode) {
+          $('#whitelistModeTag').show();
+        } else {
+          $('#whitelistModeTag').hide();
+        }
       }
     );
 }
@@ -261,7 +268,7 @@ $(document)
 
 // Response to the storage change event.
 chrome.storage.onChanged.addListener(changes => {
-  if (['disabledWebsites', 'photoShowConfigs'].some(item => Object.keys(changes).includes(item))) {
+  if (['blocklist', 'whitelist', 'photoShowConfigs'].some(item => Object.keys(changes).includes(item))) {
     updateStateAndConfigs();
   }
 });
@@ -278,6 +285,8 @@ $('#name').text(
 $('#updateDate').text(chrome.i18n.getMessage('extensionUpdateDate'));
 
 [
+  'worksEverywhere',
+  'whitelistModeToggle',
   'activationMode',
   'activationExemption',
   'activationDelay',
@@ -290,7 +299,6 @@ $('#updateDate').text(chrome.i18n.getMessage('extensionUpdateDate'));
   'antialiasingToggle',
   'contextMenuToggle',
   'developerModeToggle',
-  'worksEverywhere',
   'fileNamingAlwaysAsk'
 ].forEach(item => {
   $(`#${item}Section dt h3`).text(chrome.i18n.getMessage(`${item}Header`));
