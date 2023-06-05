@@ -239,6 +239,7 @@
  *                                            // Updates: Support aewtogether.org, allelitewrestling.com, and kanald.com.tr, radyod.com (GitHub issue #118).
  * @version 4.24.0.0 | 2023-05-21 | Vincent   // Updates: Support whitelist mode (GitHub issue #19, #121);
  *                                            // Updates: Support e-TALENTA, fox.com, fox.com.tr (GitHub issue #122).
+ * @version 4.25.0.0 | 2023-06-05 | Vincent   // Updates: Resume supporting for DeviantArt, in response to user feedback.
  */
 
 // TODO: Extract websiteConfig to independent files and import them (after porting to webpack).
@@ -1023,22 +1024,27 @@ const websiteConfig = {
   },
   '(?:www|shop)\\.deviantart\\.com': {
     amendStyles: {
-      pointerNone: '._3wSWI,a[href*="/gallery/"] ._3mYQ1,.shop-header .overlay-info,.shop-header [class*=figcaption]',
+      pointerNone:
+        '._3wSWI,a[href*="/gallery/"] ._3mYQ1,.shop-header .overlay-info,.shop-header [class*=figcaption],._27wEW,._3KWP8',
       pointerAuto: '._3wSWI a,._3wSWI button,.shop-header .overlay-info a,.shop-header [class*=figcaption] a'
     },
     srcMatching: [
       {
-        selectors: 'a[data-super-full-img] img',
-        processor: trigger =>
-          trigger
-            .closest('a')
-            .data('super-full-img')
-            .replace(/,q_\d+/, ',q_100') || ''
-      },
-      {
-        selectors: 'a[data-hook="deviation_link"],a[href*="/art/"] img',
+        selectors: 'a[data-hook="deviation_link"],a[href*="/art/"] img,[data-hook="art_stage"] img',
         processor: trigger => {
-          var deviationId = /(\d+)$/.test(trigger.attr('href') || trigger.closest('a').attr('href')) ? RegExp.$1 : '';
+          var deviationId = /deviantart\.com\/.+?\/art\/.+?(\d+)$/.test(
+              trigger.attr('href') || trigger.closest('a').attr('href') || location.href
+            )
+              ? RegExp.$1
+              : '',
+            scrfToken =
+              window.scrfToken ||
+              tools
+                .getElementByTextContent('__CSRF_TOKEN__')
+                ?.textContent.match(/__CSRF_TOKEN__\s*=\s*['"]([^'"]+)['"]/)
+                ?.at(1);
+
+          window.scrfToken = scrfToken;
 
           return deviationId && (trigger.is('img') || trigger.prev().find('>img,>[style*=background]').length)
             ? new Promise((resolve, reject) => {
@@ -1047,17 +1053,21 @@ const websiteConfig = {
                   data: {
                     deviationid: deviationId,
                     type: 'art',
-                    include_session: false
+                    include_session: false,
+                    csrf_token: scrfToken
                   },
                   success: response => {
                     var mediaInfo = response?.deviation?.media,
-                      imgInfo = mediaInfo?.types.pop() || null;
+                      imgInfo =
+                        mediaInfo?.types.find(({ t }) => t === 'fullview') ||
+                        mediaInfo?.types.sort(({ h: h1, w: w1 }, { h: h2, w: w2 }) => h1 * w1 - h2 * w2).pop() ||
+                        null;
 
                     mediaInfo?.baseUri && imgInfo
                       ? resolve(
                           `${mediaInfo.baseUri}${
                             imgInfo.c
-                              ? `/${imgInfo.c
+                              ? `${imgInfo.c
                                   .replace('<prettyName>', mediaInfo.prettyName || '')
                                   .replace(/,q_\d+/, ',q_100')}`
                               : ''
@@ -1095,13 +1105,16 @@ const websiteConfig = {
                   },
                   success: response => {
                     var mediaInfo = response?.results && response.results[0].deviation.media,
-                      imgInfo = mediaInfo?.types.pop() || null;
+                      imgInfo =
+                        mediaInfo?.types.find(({ t }) => t === 'fullview') ||
+                        mediaInfo?.types.sort(({ h: h1, w: w1 }, { h: h2, w: w2 }) => h1 * w1 - h2 * w2).pop() ||
+                        null;
 
                     mediaInfo?.baseUri && imgInfo
                       ? resolve(
                           `${mediaInfo.baseUri}${
                             imgInfo.c
-                              ? `/${imgInfo.c
+                              ? `${imgInfo.c
                                   .replace('<prettyName>', mediaInfo.prettyName || '')
                                   .replace(/,q_\d+/, ',q_100')}`
                               : ''
@@ -1116,26 +1129,8 @@ const websiteConfig = {
         }
       },
       {
-        srcRegExp: '(//a\\.deviantart\\.net/avatars)(?:-\\w+)?(/.+@IMG@).*',
-        processor: (trigger, src, srcRegExpObj) => {
-          if (srcRegExpObj.test(src)) {
-            var userId =
-              trigger.closest('[data-userid]').data('userid') || trigger.closest('[gmi-userid]').attr('gmi-userid');
-
-            src =
-              tools.cacheImage(userId) ||
-              tools
-                .detectImage(`${RegExp.$1}-original${RegExp.$2}`, `${RegExp.$1}-big${RegExp.$2}`)
-                .then(imgInfo => tools.cacheImage(userId, imgInfo.src));
-          } else {
-            src = '';
-          }
-
-          return src;
-        }
-      },
-      {
-        srcRegExp: 'www\\.da-files\\.com/.+@IMG@'
+        srcRegExp: '(//a\\.deviantart\\.net/avatars-)(?:\\w+)?(/.+@IMG@).*',
+        processor: '$1big$2'
       }
     ]
   },

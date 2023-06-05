@@ -173,6 +173,8 @@
  * @version 4.22.2.0 | 2023-03-30 | Vincent   // Bug Fix: Image rotation stoped working since update 4.21.0.0.
  * @version 4.24.0.0 | 2023-05-21 | Vincent   // Updates: Support whitelist mode (GitHub issue #19, #121);
  *                                            // Updates: Add general matching rules for MerlinCDN images.
+ * @version 4.25.0.0 | 2023-06-05 | Vincent   // Updates: Add 'getElementByTextContent' tool method;
+ *                                            // Updates: Stop blocking hotkey keyboard events triggering normal typing actions even when the image viewer is displaying, in response to user feedback.
  */
 
 // TODO: Extract common tool methods to external modules.
@@ -369,6 +371,15 @@
 
       (document.head || document.documentElement).appendChild(script);
       script.remove();
+    },
+    getElementByTextContent: function (keyword, tagName = 'script') {
+      return document.evaluate(
+        `//${tagName || '*'}[contains(text(),"${keyword}")]`,
+        document,
+        null,
+        XPathResult.FIRST_ORDERED_NODE_TYPE,
+        null
+      ).singleNodeValue;
     }
   };
 
@@ -643,9 +654,11 @@
 
               if (isViewerActive) {
                 if((eventKey === 'TAB' && ${this.config.hotkeys.openImageInNewTab.isEnabled} ||
-                  eventKey === 'C' && ${this.config.hotkeys.copyImageAddress.isEnabled} && !(e.ctrlKey && e.shiftKey) ||
-                  eventKey === 'S' && ${this.config.hotkeys.saveImage.isEnabled} ||
-                  eventKey === '${this.config.activationMode?.toUpperCase()}') && ((!isActiveElementAnInput&& !window.getSelection().toString()) || hasImgShown)) {
+                  eventKey === 'C' && ${
+                    this.config.hotkeys.copyImageAddress.isEnabled
+                  } && !(e.ctrlKey && e.shiftKey) && !isActiveElementAnInput ||
+                  eventKey === 'S' && ${this.config.hotkeys.saveImage.isEnabled} && !isActiveElementAnInput ||
+                  eventKey === '${this.config.activationMode?.toUpperCase()}') && ((!isActiveElementAnInput && !window.getSelection().toString()) || hasImgShown)) {
                   e.preventDefault();
                 }
 
