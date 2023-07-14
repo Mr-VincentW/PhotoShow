@@ -240,6 +240,8 @@
  * @version 4.24.0.0 | 2023-05-21 | Vincent   // Updates: Support whitelist mode (GitHub issue #19, #121);
  *                                            // Updates: Support e-TALENTA, fox.com, fox.com.tr (GitHub issue #122).
  * @version 4.25.0.0 | 2023-06-05 | Vincent   // Updates: Resume supporting for DeviantArt, in response to user feedback.
+ * @version 4.26.0.0 | 2023-07-05 | Vincent   // Updates: Better support for weibo and Pinterest;
+ *                                            // Updates: Support sellersuniononline and xiaohongshu, in response to user feedback.
  */
 
 // TODO: Extract websiteConfig to independent files and import them (after porting to webpack).
@@ -2536,7 +2538,7 @@ const websiteConfig = {
   '(?:.+\\.)?pinterest(?:\\.(?:com|[a-z]{2}))+': {
     amendStyles: {
       pointerAuto: 'button,[role="button"],a',
-      pointerNone: 'img~.MIw.QLY.Rym.ojN.p6V,[data-test-id="pointer-events-wrapper"],.MIw.QLY.Rym.ojN.p6V.prG.Hsu'
+      pointerNone: 'img~.MIw.QLY.Rym.ojN.p6V,[data-test-id="pointer-events-wrapper"],.MIw.QLY.Rym.ojN.p6V.Hsu'
     },
     srcMatching: {
       selectors: 'a,img,[data-test-id="pinWrapper"]',
@@ -2706,6 +2708,12 @@ const websiteConfig = {
         processor: '$1'
       }
     ]
+  },
+  '(?:.+\\.)?sellersuniononline\\.com': {
+    srcMatching: {
+      srcRegExp: '(.+?@IMG@).*',
+      processor: '$1'
+    }
   },
   'soutushenqi\\.com': {
     amendStyles: {
@@ -3106,7 +3114,16 @@ const websiteConfig = {
             : ''
       }
     ],
-    xhrDownload: ['wx1.sinaimg.cn', 'wx2.sinaimg.cn', 'wx3.sinaimg.cn', 'wx4.sinaimg.cn']
+    xhrDownload: [
+      'wx1.sinaimg.cn',
+      'wx2.sinaimg.cn',
+      'wx3.sinaimg.cn',
+      'wx4.sinaimg.cn',
+      'tvax1.sinaimg.cn',
+      'tvax2.sinaimg.cn',
+      'tvax3.sinaimg.cn',
+      'tvax4.sinaimg.cn'
+    ]
   },
   'mp\\.weixin\\.qq\\.com': {
     srcMatching: [
@@ -3132,6 +3149,15 @@ const websiteConfig = {
       srcRegExp: '(//upload\\.wikimedia\\.org/.*?)\\bthumb/(.+?@IMG@).*',
       processor: (trigger, src, srcRegExpObj) =>
         srcRegExpObj.test(src || trigger.attr('href')) ? RegExp.$1 + RegExp.$2 : ''
+    }
+  },
+  '(?:.+\\.)?xiaohongshu\\.com': {
+    amendStyles: {
+      pointerAuto: '.xgplayer-playbackrate ul:after,.xgplayer-slider:after'
+    },
+    srcMatching: {
+      srcRegExp: '(.+?\\.xhscdn\\.com/[^?]+).*',
+      processor: '$1'
     }
   },
   'konachan\\.(?:com|net)|yande\\.re': {

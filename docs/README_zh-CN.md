@@ -117,7 +117,7 @@
 
 2.  **购物 / 出行 / 服务 类：**
 
-    Alibaba、AliExpress、Amazon、Andino、Apple、Apple App Store、Best Buy、Briscoes、Countdown、coupang、DHgate、eBay、Etsy、Google Play、Google Store、instacart、Kmart、Myprotein、Newegg、noel leeming、NZSALE、PBTech、Target、TheMarket、thewarehouse、Torpedo7、Trade Me、TreatMe、Walmart、warehouse stationery、Yelp
+    Alibaba、AliExpress、Amazon、Andino、Apple、Apple App Store、Best Buy、Briscoes、Countdown、coupang、DHgate、eBay、Etsy、Google Play、Google Store、instacart、Kmart、Myprotein、Newegg、noel leeming、NZSALE、PBTech、sellersuniononline、Target、TheMarket、thewarehouse、Torpedo7、Trade Me、TreatMe、Walmart、warehouse stationery、Yelp
 
     携程、当当、大众点评、多看、京东、一号店、马蜂窝、猫眼电影、美团、小米、小米有品、苏宁易购、天猫、淘宝、一淘、1688、阿里妈妈、阿里健康大药房、飞猪、途牛、搜款网、网商园
 
@@ -137,7 +137,7 @@
 
     Acfun、Bandcamp、Discogs、Dizilah、Encyclopaedia Metallum、Fandango、Flixster、fox.com、fox.com.tr、kanald.com.tr、Pornhub、radyod.com、Rotten Tomatoes、TikTok、YouTube
 
-    bilibili、抖音、斗鱼、好看视频、爱奇艺、快手、西瓜视频、MX 动漫、优酷、土豆
+    bilibili、抖音、斗鱼、好看视频、爱奇艺、快手、西瓜视频、小红书、MX 动漫、优酷、土豆
 
 如果上述列表中不包含您所钟爱的网站，欢迎[向作者反馈](#%E8%81%94%E7%B3%BB%E4%BD%9C%E8%80%85)以获取更多支持。
 <br />
