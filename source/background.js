@@ -242,6 +242,8 @@
  * @version 4.25.0.0 | 2023-06-05 | Vincent   // Updates: Resume supporting for DeviantArt, in response to user feedback.
  * @version 4.26.0.0 | 2023-07-05 | Vincent   // Updates: Better support for weibo and Pinterest;
  *                                            // Updates: Support sellersuniononline and xiaohongshu, in response to user feedback.
+ * @version 4.27.0.0 | 2023-07-21 | Vincent   // Updates: Resume supporting for DeviantArt, in response to user feedback;
+ *                                            // Updates: Support iHerb.
  */
 
 // TODO: Extract websiteConfig to independent files and import them (after porting to webpack).
@@ -1034,11 +1036,9 @@ const websiteConfig = {
       {
         selectors: 'a[data-hook="deviation_link"],a[href*="/art/"] img,[data-hook="art_stage"] img',
         processor: trigger => {
-          var deviationId = /deviantart\.com\/.+?\/art\/.+?(\d+)$/.test(
+          var { deviationId, userName } = /deviantart\.com\/(?<userName>.+?)\/art\/.+?(?<deviationId>\d+)$/.exec(
               trigger.attr('href') || trigger.closest('a').attr('href') || location.href
-            )
-              ? RegExp.$1
-              : '',
+            )?.groups,
             scrfToken =
               window.scrfToken ||
               tools
@@ -1054,6 +1054,7 @@ const websiteConfig = {
                   dataType: 'json',
                   data: {
                     deviationid: deviationId,
+                    username: userName,
                     type: 'art',
                     include_session: false,
                     csrf_token: scrfToken
@@ -1954,6 +1955,26 @@ const websiteConfig = {
       {
         srcRegExp: '(.*\\.(huabanimg|b\\d+\\.upaiyun)\\.com/\\w+-\\w{6})_/?(?:fw|sq)/?\\d+.*',
         processor: '$1'
+      }
+    ]
+  },
+  '(?:.+\\.)?iherb\\.com': {
+    srcMatching: [
+      {
+        selectors: 'img, .absolute-link-wrapper',
+        srcRegExp: '(.+?\\.images-iherb\\.com/.+?/)\\w(/.+@IMG@)',
+        processor: (trigger, src, srcRegExpObj) =>
+          srcRegExpObj.test(src || tools.getLargestImgSrc(trigger.find('img'))) ? `${RegExp.$1}l${RegExp.$2}` : ''
+      },
+      {
+        selectors: 'img, .absolute-link-wrapper, .article-preview',
+        srcRegExp: '(.+?\\.images-iherb\\.com/.+?-)small(@IMG@)',
+        processor: (trigger, src, srcRegExpObj) =>
+          srcRegExpObj.test(src || tools.getLargestImgSrc(trigger.find('img'))) ? `${RegExp.$1}large${RegExp.$2}` : ''
+      },
+      {
+        srcRegExp: '(.+?\\.(?:amazonaws|images-iherb)\\.com/.+?/)\\w(@IMG@)',
+        processor: '$1l$2'
       }
     ]
   },
