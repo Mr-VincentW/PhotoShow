@@ -125,7 +125,7 @@ Hereby is a list of part of the websites (hostnames) that **PhotoShow** currentl
 
 5.  **VIDEOS / MUSIC:**
 
-    Acfun, Bandcamp, bilibili, Discogs, Dizilah, douyin.com, douyu.com, Encyclopaedia Metallum, Fandango, Flixster, fox.com, fox.com.tr, haokan.baidu.com, iqiyi.com, ixigua.com, kanald.com.tr, moegirl, mxdm8.com, kuaishou.com, Pornhub, radyod.com, Rotten Tomatoes, TikTok, xiaohongshu, YOUKU, YouTube
+    Acfun, Bandcamp, bilibili, Discogs, Dizilah, douyin.com, douyu.com, Encyclopaedia Metallum, Fandango, Flixster, fox.com, fox.com.tr, haokan.baidu.com, iqiyi.com, ixigua.com, kanald.com.tr, kinopoisk.ru, moegirl, mxdm8.com, kuaishou.com, Pornhub, radyod.com, Rotten Tomatoes, TikTok, xiaohongshu, YOUKU, YouTube
 
 If you can't find your favourite websites in the above list, it is always welcome to [contact the author](#contact) to get more support.
 <br />

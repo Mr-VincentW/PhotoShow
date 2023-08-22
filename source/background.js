@@ -244,6 +244,8 @@
  *                                            // Updates: Support sellersuniononline and xiaohongshu, in response to user feedback.
  * @version 4.27.0.0 | 2023-07-21 | Vincent   // Updates: Resume supporting for DeviantArt, in response to user feedback;
  *                                            // Updates: Support iHerb.
+ * @version 4.28.0.0 | 2023-08-22 | Vincent   // Updates: Better support for douyin.com, dribbble;
+ *                                            // Updates: Support kinopoisk.ru.
  */
 
 // TODO: Extract websiteConfig to independent files and import them (after porting to webpack).
@@ -256,7 +258,6 @@
 // TODO: gamer.com.tw uses YouTube image.
 // TODO: duckduckgo.com uses Bing image.
 // TODO: Image viewer positioning issue on https://m.xiaomiyoupin.com/w/universal?_rt=weex&pageid=5545&sign=e34c2d8dde5fe25ef83112cbaa154e76&pdl=jianyu&spmref=YouPinPC.$Home$.list.0.86425397
-// TODO: Bulk download.
 // TODO: Some abstraction is needed for onXhrLoad, like providing a url filter, unifying try...catch, removing 'data-photoshow-hd-src' when PhotoShow is toggled off, etc.
 // TODO: After 'data-photoshow-hd-src' is removed by toggling off PhotoShow, it won't work when PhotoShow's toggled on again. Need other ways to cache data.
 // TODO: Prefix 'img,[style*=background]' by default as selectors for all matching rules.
@@ -264,6 +265,7 @@
 // TODO: Figure out a better way to do ignoreHDSrcCaching. (This rule should be applied at rule level instead of website level.)
 // TODO: Twitter, 'use orig/4096x4096' to replace 'large'.
 // TODO: Capture XHRs with the original capability of browser extensions instead of manually hacking, since this might miss some XHRs.
+// TODO: https://www.kinopoisk.ru/film/1395369/ Click on videos, newly created iframe doesn't get PhotoShow installed.
 
 // Website info structure:
 // {
@@ -1303,12 +1305,12 @@ const websiteConfig = {
   },
   '(?:.+\\.)?douyin\\.com': {
     amendStyles: {
-      pointerNone:
-        '._46cb4690b43b2c3500c78191b9c87d80-scss~*,._49ee5f1e4cac7106a58702ced0e36540-scss,._5b630f3ad5eb8d49496dc2895ca5ebdc-scss'
+      pointerAuto: '.xgplayer-controls *:after',
+      pointerNone: '.FqCNyt2u,.xgplayer.no-controls'
     },
     srcMatching: {
-      srcRegExp: 'p\\d+.*(\\.douyinpic\\.com/.+?~).+?(\\.image|@IMG@).*',
-      processor: 'p3$1noop$2'
+      srcRegExp: '(.*\\.douyinpic\\.com/)aweme/\\d+x\\d+/(aweme-avatar/.*)(@IMG@).*',
+      processor: '$1$2~noop$3'
     }
   },
   '(?:.+\\.)?douyu\\.com': {
@@ -1330,23 +1332,18 @@ const websiteConfig = {
   },
   'dribbble\\.com': {
     amendStyles: {
-      pointerNone: '.dribbble-over,.dribbble-video'
+      pointerNone: '.dribbble-over:not(a),.dribbble-video'
     },
     srcMatching: [
       {
-        srcRegExp: '(cdn\\.dribbble\\.com/.+)(?:_teaser|_\\d+x)(@IMG@)',
-        processor: '$1$2'
-      },
-      {
-        srcRegExp: '(cdn\\.dribbble\\.com/.+)/thumbnail/(.+)',
-        processor: '$1/$2'
+        selectors: 'img, .dribbble-link',
+        srcRegExp: '(//cdn\\.dribbble\\.com/userupload/.+@IMG@).*',
+        processor: (trigger, src, srcRegExpObj) =>
+          srcRegExpObj.test(src || tools.getLargestImgSrc(trigger.parent().find('img'))) ? RegExp.$1 : ''
       },
       {
         srcRegExp: '(cdn\\.dribbble\\.com/users/\\d+/avatars/)(?:mini|small|normal)(/(?:.+@IMG@|data))',
         processor: '$1original$2'
-      },
-      {
-        srcRegExp: 'cdn\\.dribbble\\.com/.+@IMG@.*'
       }
     ]
   },
@@ -2323,6 +2320,94 @@ const websiteConfig = {
       processor: (trigger, src, srcRegExpObj) =>
         srcRegExpObj.test(src || trigger.find('img').attr('src')) ? `${RegExp.$1}0x0${RegExp.$2}` : ''
     }
+  },
+  '(?:.+\\.)?kinopoisk\\.ru': {
+    srcMatching: [
+      {
+        selectors: 'img,[class*="image__"]',
+        srcRegExp: '(//avatars\\.mds\\.yandex\\.net/get-(?:kinopoisk-image|ott)/.+/)\\d*x?\\d*',
+        processor: (trigger, src, srcRegExpObj) =>
+          srcRegExpObj.test(src)
+            ? tools.detectImage(`${RegExp.$1}3840x`, `${RegExp.$1}1920x`).then(imgInfo => imgInfo.src)
+            : ''
+      },
+      {
+        srcRegExp: '(//avatars\\.mds\\.yandex\\.net/get-bunker/.+/)\\d*x?\\d*',
+        processor: '$1384x384'
+      },
+      {
+        selectors: 'a[href^="/film/"] img',
+        processor: (trigger, src) => {
+          const parseFilmData = doc => {
+            const pageProps = JSON.parse(doc.querySelector('#__NEXT_DATA__')?.textContent || '{}').props,
+              imageBaseUrl =
+                pageProps?.apolloState.data[
+                  pageProps?.apolloState.data.ROOT_QUERY[`film({"id":${pageProps?.initialProps.pageProps.filmId}})`]
+                    .__ref
+                ]?.poster?.avatarsUrl || '';
+
+            return imageBaseUrl ? `${imageBaseUrl}/3840x` : src;
+          };
+
+          return document.querySelector('#__NEXT_DATA__')
+            ? parseFilmData(document)
+            : new Promise((resolve, reject) => {
+                $.ajax(trigger.closest('a').attr('href'), {
+                  dataType: 'html',
+                  success: response => {
+                    try {
+                      resolve(parseFilmData(new DOMParser().parseFromString(response, 'text/html')));
+                    } catch (error) {
+                      reject(error);
+                    }
+                  },
+                  error: reject
+                });
+              });
+        }
+      },
+      {
+        selectors: 'a[href^="/picture/"] img',
+        processor: (trigger, src) => {
+          const pageProps = JSON.parse(document.querySelector('#__NEXT_DATA__')?.textContent || '{}').props,
+            imageBaseUrl =
+              Object.entries(
+                pageProps.apolloState.data[
+                  pageProps.apolloState.data.ROOT_QUERY[`movie({"id":${pageProps.initialProps.pageProps.movieId}})`]
+                    .__ref
+                ] || {}
+              ).reduce(
+                (acc, [key, value]) =>
+                  /^images:/.test(key) && value.items?.length
+                    ? {
+                        ...acc,
+                        ...value.items.reduce(
+                          (items, { id, image: { avatarsUrl } }) => ({ ...items, [id]: avatarsUrl }),
+                          {}
+                        )
+                      }
+                    : acc,
+                {}
+              )[
+                trigger
+                  .closest('a')
+                  .attr('href')
+                  .match(/\/picture\/(\d+)/)
+                  ?.at(1)
+              ] || '';
+
+          return imageBaseUrl ? `${imageBaseUrl}/3840x` : src;
+        }
+      },
+      {
+        selectors: '.styles_previewInfo__fZqll',
+        processor: trigger => tools.getLargestImgSrc(trigger.parent().find('.styles_previewImg__zhMic'))
+      },
+      {
+        selectors: 'a[href]:empty',
+        processor: trigger => tools.getLargestImgSrc(trigger.parent().find('img'))
+      }
+    ]
   },
   'www\\.kmart\\.com': {
     srcMatching: {
