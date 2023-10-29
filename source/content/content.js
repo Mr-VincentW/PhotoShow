@@ -175,6 +175,7 @@
  *                                            // Updates: Add general matching rules for MerlinCDN images.
  * @version 4.25.0.0 | 2023-06-05 | Vincent   // Updates: Add 'getElementByTextContent' tool method;
  *                                            // Updates: Stop blocking hotkey keyboard events triggering normal typing actions even when the image viewer is displaying, in response to user feedback.
+ * @version 4.29.0.0 | 2023-10-29 | Vincent   // Bug Fix: Fix an iframe related issue.
  */
 
 // TODO: Extract common tool methods to external modules.
@@ -1412,7 +1413,7 @@
             this.mouseOriClientPos.x = this.mouseClientPos.x = e.clientX;
             this.mouseOriClientPos.y = this.mouseClientPos.y = e.clientY;
 
-            if (e.target && e.target.ownerDocument.defaultView !== window.top) {
+            if (e.target?.ownerDocument?.defaultView && e.target.ownerDocument.defaultView !== window.top) {
               var frameRect = tools.getBoundingClientRectToTopWin(e.target.ownerDocument.defaultView.frameElement);
               this.mouseClientPos.x += frameRect.left;
               this.mouseClientPos.y += frameRect.top;

@@ -246,6 +246,7 @@
  *                                            // Updates: Support iHerb.
  * @version 4.28.0.0 | 2023-08-22 | Vincent   // Updates: Better support for douyin.com, dribbble;
  *                                            // Updates: Support kinopoisk.ru.
+ * @version 4.29.0.0 | 2023-10-29 | Vincent   // Updates: Support afdian.net, huya.com, JustWatch, and Microsoft Teams.
  */
 
 // TODO: Extract websiteConfig to independent files and import them (after porting to webpack).
@@ -501,6 +502,33 @@ const websiteConfig = {
     srcMatching: {
       srcRegExp: '(nmbimg\\.fastmirror\\.org/)thumb(/.+@IMG@)',
       processor: '$1image$2'
+    }
+  },
+  'afdian\\.net': {
+    amendStyles: {
+      pointerNone: '.article-cover-layer,.img-pre~*'
+    },
+    srcMatching: {
+      selectors: 'img,.vm-video-player',
+      srcRegExp: '(//pic\\d*\\.afdiancdn\\.com/.+@IMG@).*',
+      processor: (trigger, src, srcRegExpObj) =>
+        srcRegExpObj.test(src || trigger.find('img').attr('src')) ? RegExp.$1.replace(/\.gif(\..+)$/, '$1.gif') : ''
+    },
+    onXhrLoad: (url, response) => {
+      if (/api\/post\/get-rec-list/.test(url)) {
+        try {
+          // TODO: Replace the timeout with a more reliable way of caching.
+          setTimeout(() => {
+            JSON.parse(response).data?.list?.forEach(({ post_id, pics }) => {
+              document
+                .querySelector(`.feed-content a[href$="${post_id}"]`)
+                ?.closest('.feed-content')
+                ?.querySelectorAll('.img-list .img-box .img-pre')
+                .forEach((img, i) => img.setAttribute('data-photoshow-hd-src', pics[i]));
+            });
+          }, 500);
+        } catch (error) {}
+      }
     }
   },
   '(?:.+\\.)?allhistory\\.com': {
@@ -944,6 +972,9 @@ const websiteConfig = {
     ]
   },
   '(?:.+\\.)?briscoes\\.co\\.nz': {
+    amendStyles: {
+      pointerNone: '.klevuProductOverlay'
+    },
     srcMatching: {
       selectors: 'img,.productItem-image',
       srcRegExp: '(.+/productimages/.+@IMG@).*',
@@ -1955,6 +1986,21 @@ const websiteConfig = {
       }
     ]
   },
+  '(?:.+\\.)?huya\\.com': {
+    amendStyles: {
+      pointerNone: 'a>img~*,.img-box~*,.video-info>img~*,.video-cover~*'
+    },
+    srcMatching: [
+      {
+        srcRegExp: '(.+/cdnimage/.+?@IMG@).*',
+        processor: '$1'
+      },
+      {
+        srcRegExp: '(.+)x-oss-process=[^&]*&?(.*)',
+        processor: '$1$2'
+      }
+    ]
+  },
   '(?:.+\\.)?iherb\\.com': {
     srcMatching: [
       {
@@ -2309,6 +2355,35 @@ const websiteConfig = {
       }
     ]
   },
+  '(?:.+\\.)?justwatch\\.com': {
+    amendStyles: {
+      pointerAuto: '.title-poster__image'
+    },
+    srcMatching: [
+      {
+        srcRegExp: '(images\\.justwatch\\.com/poster/\\d+/)s\\d+(/.+)',
+        processor: '$1s718$2'
+      },
+      {
+        selectors: '.youtube-player__play-button',
+        processor: (trigger, _, srcRegExpObj) => {
+          const src = trigger.next('.youtube-player__image-preview-container').find('img').attr('src');
+
+          return /(\/\/.+?\/backdrop\/\d+\/)s\d+(\/.+)/.test(src)
+            ? `${RegExp.$1}s1920${RegExp.$2}`
+            : /(\/\/img\.youtube\.com\/vi.*?\/.+?\/).+?(\..+)/.test(src) // TODO: YouTube images.
+            ? tools
+                .detectImage(
+                  `${RegExp.$1}maxresdefault${RegExp.$2}`,
+                  `${RegExp.$1}hqdefault${RegExp.$2}`,
+                  img => img.width == 120 && img.height == 90
+                )
+                .then(imgInfo => imgInfo.src)
+            : '';
+        }
+      }
+    ]
+  },
   '(?:.+\\.)?(?:kanald\\.com\\.tr|radyod\\.com)': {
     amendStyles: {
       pointerNone: '.img-wrap :not(img,.bg-image),.list-item-btn',
@@ -2420,6 +2495,15 @@ const websiteConfig = {
     srcMatching: {
       srcRegExp: '(.+@IMG@)\\?.*',
       processor: '$1'
+    }
+  },
+  'teams\\.live\\.com': {
+    amendStyles: {
+      pointerNone: 'img[itemtype*="Emoji"]'
+    },
+    srcMatching: {
+      selectors: 'img',
+      processor: (trigger, src) => trigger.data('gallery-src') || trigger.data('orig-src') || src
     }
   },
   '(?:.+\\.)?lofter\\.com': {
