@@ -176,6 +176,7 @@
  * @version 4.25.0.0 | 2023-06-05 | Vincent   // Updates: Add 'getElementByTextContent' tool method;
  *                                            // Updates: Stop blocking hotkey keyboard events triggering normal typing actions even when the image viewer is displaying, in response to user feedback.
  * @version 4.29.0.0 | 2023-10-29 | Vincent   // Bug Fix: Fix an iframe related issue.
+ * @version 4.30.0.0 | 2023-11-10 | Vincent   // Updates: Add meta (command) key on Mac for activationMode (GitHub issue #130).
  */
 
 // TODO: Extract common tool methods to external modules.
@@ -386,7 +387,6 @@
 
   const POSITIONS = ['top', 'right', 'bottom', 'left'],
     POS_FOR_KEYCODE = POSITIONS.concat(POSITIONS).slice(3, 7),
-    MODIFIER_KEYS = Array(16).concat(['shift', 'ctrl', 'alt']),
     VIEW_MODES = {
       a: {
         name: 'auto',
@@ -460,7 +460,7 @@
       },
       isWebsiteUnknown: true,
       activationDelay: 200,
-      activationMode: '', // Activation mode ('', 'shift', 'ctrl', 'alt').
+      activationMode: '', // Activation mode ('', 'shift', 'ctrl', 'alt', 'meta' on Mac).
       activationExemption: false, // Activation exemption.
       _viewMode: VIEW_MODES['a'], // View mode.
       get viewMode() {
@@ -1822,7 +1822,8 @@
         case 'SHIFT':
         case 'CONTROL':
         case 'ALT':
-          if (!this.isModifierKeyDown && e.which == $.inArray(photoShow.config.activationMode, MODIFIER_KEYS)) {
+        case 'META':
+          if (!this.isModifierKeyDown && eventKey === photoShow.config.activationMode?.toUpperCase()) {
             this.isModifierKeyDown = true;
             $('[photoshow-trigger-blocked]').removeAttr('photoshow-trigger-blocked');
             this.update();
@@ -1955,15 +1956,16 @@
     keyupAction: function (e) {
       this.maskAcceleration = 0;
 
-      switch (e.key?.toUpperCase()) {
+      const eventKey = e.key?.toUpperCase();
+
+      switch (eventKey) {
         case 'SHIFT':
         case 'CONTROL':
         case 'ALT':
+        case 'META':
           this.isModifierKeyDown = false;
 
-          this.curTrigger &&
-            e.which == $.inArray(photoShow.config.activationMode, MODIFIER_KEYS) &&
-            this.mouseLeaveAction();
+          this.curTrigger && eventKey === photoShow.config.activationMode?.toUpperCase() && this.mouseLeaveAction();
 
           break;
 

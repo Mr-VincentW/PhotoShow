@@ -54,6 +54,7 @@
  * @version 4.22.0.0 | 2023-03-23 | Vincent   // Updates: Add image title to download image naming patterns.
  * @version 4.22.1.0 | 2023-03-30 | Vincent   // Updates: Optimize sample filename.
  * @version 4.24.0.0 | 2023-05-21 | Vincent   // Updates: Support whitelist mode (GitHub issue #19, #121).
+ * @version 4.30.0.0 | 2023-11-10 | Vincent   // Updates: Add meta (command) key on Mac for activationMode (GitHub issue #130).
  */
 
 // TODO: Support customising hotkeys.
@@ -305,6 +306,11 @@ $('#updateDate').text(chrome.i18n.getMessage('extensionUpdateDate'));
   $(`#${item}Desc`).text(chrome.i18n.getMessage(`${item}Desc`));
 });
 $('#activationModeOption_None').text(chrome.i18n.getMessage('activationModeOption_None'));
+
+if (!navigator.platform?.startsWith('Mac')) {
+  $('#activationModeOption_Meta').remove();
+}
+
 $('#activationDelayDesc_before').text(chrome.i18n.getMessage('activationDelayDesc_before'));
 $('#activationDelayDesc_after').text(chrome.i18n.getMessage('activationDelayDesc_after'));
 

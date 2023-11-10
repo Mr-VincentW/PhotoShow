@@ -247,6 +247,8 @@
  * @version 4.28.0.0 | 2023-08-22 | Vincent   // Updates: Better support for douyin.com, dribbble;
  *                                            // Updates: Support kinopoisk.ru.
  * @version 4.29.0.0 | 2023-10-29 | Vincent   // Updates: Support afdian.net, huya.com, JustWatch, and Microsoft Teams.
+ * @version 4.30.0.0 | 2023-11-10 | Vincent   // Updates: Better support for bilibili, in response to user feedback.
+ *                                            // Updates: Add meta (command) key on Mac for activationMode (GitHub issue #130).
  */
 
 // TODO: Extract websiteConfig to independent files and import them (after porting to webpack).
@@ -897,16 +899,12 @@ const websiteConfig = {
             : ''
       },
       {
-        srcRegExp: '(//patchwiki\\.biligame\\.com/.+/)\\d+(px-.+@IMG@)',
-        processor: (trigger, src, srcRegExpObj) =>
-          srcRegExpObj.test(src)
-            ? tools
-                .detectImage(`${RegExp.$1}180${RegExp.$2}`, `${RegExp.$1}60${RegExp.$2}`)
-                .then(imgInfo => imgInfo.src)
-            : ''
+        srcRegExp: '(patchwiki\\.biligame\\.com/images/.+?/)thumb/(.+?@IMG@).*',
+        processor: '$1$2'
       },
       {
-        srcRegExp: 'patchwiki\\.biligame\\.com/.+@IMG@'
+        srcRegExp: '(.+\\.bili(?:game|img)\\.com/.+@IMG@).*',
+        processor: '$1'
       }
     ]
   },
@@ -4331,9 +4329,8 @@ chrome.commands.onCommand.addListener((command, tab) => {
 
 // Initialization.
 chrome.storage.sync.get(['blocklist', 'disabledWebsites', 'whitelist', 'photoShowConfigs', 'statistics'], response => {
-  // TODO: Remove 'disabledWebsites' later.
   if (!chrome.runtime.lastError && response) {
-    BLOCKLIST = response.blocklist || response.disabledWebsites || [];
+    BLOCKLIST = response.blocklist || [];
     WHITELIST = response.whitelist || [];
     PHOTOSHOW_CONFIGS = response.photoShowConfigs || {};
     statistics.init(response.statistics);
@@ -4342,13 +4339,22 @@ chrome.storage.sync.get(['blocklist', 'disabledWebsites', 'whitelist', 'photoSho
 
     ////////////////////////////////////////////////////////////////////////////////
     // Remove later.
-    if (response.disabledWebsites) {
+    if (PHOTOSHOW_CONFIGS.activationMode) {
       chrome.storage.sync.set({
-        blocklist: BLOCKLIST
+        photoShowConfigs: {
+          ...PHOTOSHOW_CONFIGS,
+          activationMode:
+            PHOTOSHOW_CONFIGS.activationMode === 'ctrl'
+              ? 'Control'
+              : PHOTOSHOW_CONFIGS.activationMode.replace(/^(\w)/, initial => initial.toUpperCase())
+        }
       });
-      chrome.storage.sync.remove('disabledWebsites');
     }
     ////////////////////////////////////////////////////////////////////////////////
+
+    if (!navigator.platform?.startsWith('Mac') && PHOTOSHOW_CONFIGS.activationMode === 'Meta') {
+      PHOTOSHOW_CONFIGS.activationMode = '';
+    }
   }
 });
 

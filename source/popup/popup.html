@@ -35,6 +35,7 @@
  * @version 4.16.0.0 | 2022-04-10 | Vincent   // Updates: Reshape the config items structure.
  * @version 4.20.0.0 | 2023-02-05 | Vincent   // Updates: Allow enabling/disabling image anti-aliasing (GitHub issue #90).
  * @version 4.24.0.0 | 2023-05-21 | Vincent   // Updates: Support whitelist mode (GitHub issue #19, #121).
+ * @version 4.30.0.0 | 2023-11-10 | Vincent   // Updates: Add meta (command) key on Mac for activationMode (GitHub issue #130).
 -->
 
 <html>
@@ -85,9 +86,12 @@
             <input type="radio" name="activationModeRadio" checked value="" />
             <span id="activationModeOption_None"></span>
           </label>
-          <label><input type="radio" name="activationModeRadio" value="shift" /><span>Shift</span></label>
-          <label><input type="radio" name="activationModeRadio" value="ctrl" /><span>Ctrl</span></label>
-          <label><input type="radio" name="activationModeRadio" value="alt" /><span>Alt</span></label>
+          <label><input type="radio" name="activationModeRadio" value="Shift" /><span>Shift</span></label>
+          <label><input type="radio" name="activationModeRadio" value="Control" /><span>Control</span></label>
+          <label><input type="radio" name="activationModeRadio" value="Alt" /><span>Alt</span></label>
+          <label id="activationModeOption_Meta"
+            ><input type="radio" name="activationModeRadio" value="Meta" /><span>&#8984;</span></label
+          >
         </dd>
       </dl>
       <dl class="desc" config-item="activationExemption" id="activationExemptionSection">
