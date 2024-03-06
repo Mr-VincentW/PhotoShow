@@ -249,6 +249,7 @@
  * @version 4.29.0.0 | 2023-10-29 | Vincent   // Updates: Support afdian.net, huya.com, JustWatch, and Microsoft Teams.
  * @version 4.30.0.0 | 2023-11-10 | Vincent   // Updates: Better support for bilibili, in response to user feedback.
  *                                            // Updates: Add meta (command) key on Mac for activationMode (GitHub issue #130).
+ * @version 4.31.0.0 | 2024-03-06 | Vincent   // Updates: Better support for twitter, in response to user feedback (GitHub issue #138).
  */
 
 // TODO: Extract websiteConfig to independent files and import them (after porting to webpack).
@@ -266,7 +267,6 @@
 // TODO: Prefix 'img,[style*=background]' by default as selectors for all matching rules.
 // TODO: Handle invalid download filename.
 // TODO: Figure out a better way to do ignoreHDSrcCaching. (This rule should be applied at rule level instead of website level.)
-// TODO: Twitter, 'use orig/4096x4096' to replace 'large'.
 // TODO: Capture XHRs with the original capability of browser extensions instead of manually hacking, since this might miss some XHRs.
 // TODO: https://www.kinopoisk.ru/film/1395369/ Click on videos, newly created iframe doesn't get PhotoShow installed.
 
@@ -1835,7 +1835,8 @@ const websiteConfig = {
         srcRegExp: '((?:avatars\\d*|marketplace-screenshots)\\.githubusercontent\\.com/[^?]+).*',
         processor: '$1'
       }
-    ]
+    ],
+    xhrDownload: 'private-user-images.githubusercontent.com'
   },
   '(?:play|store)\\.google\\.com': {
     amendStyles: {
@@ -3169,8 +3170,8 @@ const websiteConfig = {
   '(?:(?:.+\\.)?twitter|www\\.twipu)\\.com': {
     amendStyles: {
       pointerNone:
-        '.PlayableMedia-player [data-testid="posterPlayBtn"],.PlayableMedia-player [data-testid="poster"]~div,.LastSeenProfiles__shadow,.css-1dbjc4n.r-u8s1d:empty:not(.r-1loqt21)', // :not(.r-1loqt21): filter out video controller
-      pointerAuto: '.MomentMediaItem'
+        '.PlayableMedia-player [data-testid="posterPlayBtn"],.PlayableMedia-player [data-testid="poster"]~div,.LastSeenProfiles__shadow,.css-175oi2r.r-sdzlij.r-1udh08x.r-u8s1d.r-1wyvozj.r-1v2oles.r-desppf:last-child,.css-175oi2r.r-1awozwy.r-6koalj.r-1pi2tsx.r-1777fci.r-xyw6el,.css-1dbjc4n.r-u8s1d:empty:not(.r-1loqt21)', // :not(.r-1loqt21): filter out video controller
+      pointerAuto: '.MomentMediaItem,.css-175oi2r.r-sdzlij.r-1udh08x.r-633pao.r-u8s1d.r-1wyvozj.r-1v2oles.r-desppf'
     },
     srcMatching: [
       {
@@ -3183,7 +3184,7 @@ const websiteConfig = {
       },
       {
         srcRegExp: '(\\w+\\.twimg\\.com/media/.+?)(?:@IMG@:\\w+)?(.+[?&]name=)[^&]+(.*)',
-        processor: '$1$2large$3'
+        processor: '$1$2orig$3'
       },
       {
         srcRegExp: '(\\w+\\.twimg\\.com/.+\\?format=.*&name=).+',
