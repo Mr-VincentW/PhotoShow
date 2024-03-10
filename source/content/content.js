@@ -177,6 +177,8 @@
  *                                            // Updates: Stop blocking hotkey keyboard events triggering normal typing actions even when the image viewer is displaying, in response to user feedback.
  * @version 4.29.0.0 | 2023-10-29 | Vincent   // Bug Fix: Fix an iframe related issue.
  * @version 4.30.0.0 | 2023-11-10 | Vincent   // Updates: Add meta (command) key on Mac for activationMode (GitHub issue #130).
+ * @version 4.32.0.0 | 2024-03-10 | Vincent   // Updates: Stop parsing images from browser extensions (GitHub issue #140);
+ *                                            // Updates: Stop highjacking all pseudo elements (GitHub issue #141).
  */
 
 // TODO: Extract common tool methods to external modules.
@@ -592,6 +594,10 @@
           ) {
             let targetSrc = tools.getLargestImgSrc(element),
               srcRegExpObj = srcMatchingRule.srcRegExp ? new RegExp(srcMatchingRule.srcRegExp, 'i') : undefined;
+
+            if (/(?:chrome|moz)-extension:\/\//.test(targetSrc)) {
+              break;
+            }
 
             if (/^(?:function|\(?[\w,\s]*\)?\s*=>)/.test(srcMatchingRule.processor)) {
               imgSrc = eval(`(${srcMatchingRule.processor})`).call(element, target, targetSrc, srcRegExpObj) || '';
@@ -1507,17 +1513,6 @@
             })()
           );
           this._bindEvent('window', 'blur', this.winBlurAction);
-
-          // Add amend styles.
-          photoShow.websiteConfig = {
-            ...photoShow.websiteConfig,
-            amendStyles: {
-              ...(photoShow.websiteConfig.amendStyles || {}),
-              pointerNone: (photoShow.websiteConfig.amendStyles?.pointerNone === 'none' ? [] : ['*:before,*:after'])
-                .concat(photoShow.websiteConfig.amendStyles?.pointerNone || [])
-                .join(',')
-            }
-          };
 
           for (let styleName in photoShow.websiteConfig.amendStyles) {
             tools.addStyle(styleName, photoShow.websiteConfig.amendStyles[styleName]);

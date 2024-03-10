@@ -250,6 +250,8 @@
  * @version 4.30.0.0 | 2023-11-10 | Vincent   // Updates: Better support for bilibili, in response to user feedback.
  *                                            // Updates: Add meta (command) key on Mac for activationMode (GitHub issue #130).
  * @version 4.31.0.0 | 2024-03-06 | Vincent   // Updates: Better support for twitter, in response to user feedback (GitHub issue #138).
+ * @version 4.32.0.0 | 2024-03-10 | Vincent   // Updates: Remove redundant configuration for Figma;
+ *                                            // Updates: Better support for countdown.
  */
 
 // TODO: Extract websiteConfig to independent files and import them (after porting to webpack).
@@ -1023,17 +1025,23 @@ const websiteConfig = {
       processor: 'image$1$2'
     }
   },
-  'shop\\.countdown\\.co\\.nz': {
+  '(?:.+\\.)?countdown\\.co\\.nz': {
     //TODO: detect 'large', fallback to 'big'
-    srcMatching: {
-      srcRegExp: '(//static.countdown.co.nz/assets/product-images/)\\w+(/\\w+@IMG@).*',
-      processor: (trigger, src, srcRegExpObj) =>
-        srcRegExpObj.test(src)
-          ? tools
-              .detectImage(`${RegExp.$1}zoom${RegExp.$2}`, `${RegExp.$1}large${RegExp.$2}`)
-              .then(imgInfo => imgInfo.src)
-          : ''
-    }
+    srcMatching: [
+      {
+        srcRegExp: '(assets\\.woolworths\\.com\\.au/images/.+?@IMG@(?:\\?impolicy=[^&]+)?).*',
+        processor: '$1'
+      },
+      {
+        srcRegExp: '(//static.countdown.co.nz/assets/product-images/)\\w+(/\\w+@IMG@).*',
+        processor: (trigger, src, srcRegExpObj) =>
+          srcRegExpObj.test(src)
+            ? tools
+                .detectImage(`${RegExp.$1}zoom${RegExp.$2}`, `${RegExp.$1}large${RegExp.$2}`)
+                .then(imgInfo => imgInfo.src)
+            : ''
+      }
+    ]
   },
   '(?:.+\\.)?c?trip\\.com': {
     amendStyles: {
@@ -1690,11 +1698,6 @@ const websiteConfig = {
         processor: '$&'
       }
     ]
-  },
-  '(?:www\\.)?figma\\.com': {
-    amendStyles: {
-      pointerNone: 'none' // Figma.com makes use of pseudo elements in an unusual way (as menu item labels), needing to remove the default blocking of them.
-    }
   },
   '(?:www\\.)?flickr\\.com': {
     amendStyles: {
