@@ -252,6 +252,8 @@
  * @version 4.31.0.0 | 2024-03-06 | Vincent   // Updates: Better support for twitter, in response to user feedback (GitHub issue #138).
  * @version 4.32.0.0 | 2024-03-10 | Vincent   // Updates: Remove redundant configuration for Figma;
  *                                            // Updates: Better support for countdown.
+ * @version 4.33.0.0 | 2024-03-24 | Vincent   // Updates: Better support for Flickr (GitHub issue #142), jd.com, PBTech, taobao, and YouTube;
+ *                                            // Updates: Support newworld.co.nz and YouTube Music.
  */
 
 // TODO: Extract websiteConfig to independent files and import them (after porting to webpack).
@@ -1701,28 +1703,34 @@ const websiteConfig = {
   },
   '(?:www\\.)?flickr\\.com': {
     amendStyles: {
-      pointerNone: '.facade-of-protection-neue,.photo-list-tag-view .overlay'
+      pointerNone: '.facade-of-protection-neue,.photo-list-tag-view .overlay,.spaceball,.context-thumb:after'
     },
     srcMatching: [
       {
         selectors:
           'img,[style*=background],.photo-list-description-view,.photo-list-gallery-photo-view .photo-container,.photo-list-photo-container,.photo-list-gallery-container .tile-container',
-        srcRegExp: '//.+\\.static\\.?flickr\\.com/(?:\\d+/)+(\\d+)_.+@IMG@',
+        srcRegExp: '(//.+\\.static\\.?flickr\\.com/(?:\\d+/)+(\\d+)_.+?)(?:_\\w)?(@IMG@)',
         processor: (trigger, src, srcRegExpObj) => {
-          var apiKey =
-              window.photoShowFlickrApiKey ||
-              (/site_key\s*=\s*"(\w+)"/.test($('script:contains("site_key")').text()) ? RegExp.$1 : ''),
-            photoId = srcRegExpObj.test(
+          var thumbnailSrc =
               decodeURIComponent(src) ||
-                tools.getLargestImgSrc(trigger) ||
-                tools.getLargestImgSrc(trigger.find('.photo,.tile-cover,img'))
-            )
-              ? RegExp.$1
-              : '';
+              tools.getLargestImgSrc(trigger) ||
+              tools.getLargestImgSrc(trigger.find('.photo,.tile-cover,img')),
+            apiKey =
+              window.photoShowFlickrApiKey ||
+              (/"?(?:api|site)_key"?\s*[:=]\s*"(\w+)"/.test(
+                $('script:contains("api_key"),script:contains("site_key")').text()
+              )
+                ? RegExp.$1
+                : ''),
+            csrf =
+              window.photoShowFlickrCsrf ||
+              (/csrf=([^&]+)/.test($('[data-track="footer-language"]').attr('href')) ? RegExp.$1 : ''),
+            photoId = srcRegExpObj.test(thumbnailSrc) ? RegExp.$2 : '';
 
-          return apiKey && photoId
+          return apiKey && csrf && photoId
             ? new Promise(resolve => {
                 window.photoShowFlickrApiKey = apiKey;
+                window.photoShowFlickrCsrf = csrf;
 
                 chrome.runtime.sendMessage(
                   {
@@ -1734,7 +1742,7 @@ const websiteConfig = {
                         photo_id: photoId,
                         method: 'flickr.photos.getInfo',
                         api_key: apiKey,
-                        csrf: /csrf=([^&]+)/.test($('[data-track="footer-language"]').attr('href')) ? RegExp.$1 : '',
+                        csrf,
                         format: 'json',
                         nojsoncallback: 1
                       }
@@ -1744,6 +1752,8 @@ const websiteConfig = {
                     resolve(response?.photo?.sizes?.size?.filter(medium => medium.media == 'photo').pop().source || '')
                 );
               })
+            : srcRegExpObj.test(thumbnailSrc)
+            ? thumbnailSrc.replace(srcRegExpObj, `${RegExp.$1}_b${RegExp.$3}`)
             : '';
         }
       },
@@ -2335,7 +2345,7 @@ const websiteConfig = {
   '(?:.+\\.)?(jd|yhd|tuniu)\\.(?:com|hk)': {
     amendStyles: {
       pointerNone:
-        '.d-soldout,.pic .picmask,.pic .words,.pic .sta,.gallery-mask,.gallery-thumb-play,.photograph .mask,a.pro_pic>:not(img),.pro_item .pro_pic>:not(a)'
+        '.d-soldout,.pic .picmask,.pic .words,.pic .sta,.gallery-mask,.gallery-thumb-play,.photograph .mask,a.pro_pic>:not(img),.pro_item .pro_pic>:not(a),.jqZoomPup'
     },
     srcMatching: [
       {
@@ -2654,6 +2664,18 @@ const websiteConfig = {
       }
     ]
   },
+  '(?:.+\\.)?newworld\\.co\\.nz': {
+    srcMatching: [
+      {
+        srcRegExp: '(\\w+\\.fsimg\\.co\\.nz/.+?/image/)\\d+x\\d+(/.+@IMG@).*',
+        processor: '$1master$2'
+      },
+      {
+        srcRegExp: '(\\w+\\.fsimg\\.co\\.nz/.+@IMG@).*',
+        processor: '$1'
+      }
+    ]
+  },
   '(?:.+\\.)?nga\\.cn|nga\\.178\\.com': {
     srcMatching: {
       srcRegExp: '(img\\d*\\.nga\\.178\\.com/.+?@IMG@).*',
@@ -2719,8 +2741,8 @@ const websiteConfig = {
   'www\\.pbtech\\.(?:com|co\\.nz)': {
     srcMatching: [
       {
-        srcRegExp: '(www\\.pbtech\\.(?:com/au|co\\.nz)/)thumbs(/.+?@IMG@).*',
-        processor: '$1imgprod$2'
+        srcRegExp: '(www\\.pbtech\\.(?:com/au|co\\.nz)/)thumbs(?:/\\d+)?(/.+?)@IMG@.*',
+        processor: '$1imgprod/default/$2.webp'
       },
       {
         srcRegExp: 'www\\.pbtech\\.(?:com/au|co\\.nz)/imgprod/.+@IMG@'
@@ -3026,7 +3048,7 @@ const websiteConfig = {
     {
       amendStyles: {
         pointerNone:
-          '.mask,.itemSoldout .product-mask,.ju-itemlist .link-box .detail,.tb-img li span,.offerImg .offerMask,.NervModuleKjIndexCateOfferUi>div:first-child>div:last-child,.imageGallery .imgItem .imgBg,.img-box .img-bg-layer,.img-zhe,.img-mask,.product .shadow,.item .shade,.changhuo_pank,img~div:empty,[style*=background]~div:empty,.lazyload-wrapper~div:empty,.MainPic--mask--Yn060WJ',
+          ':before,:after,.mask,.itemSoldout .product-mask,.ju-itemlist .link-box .detail,.tb-img li span,.offerImg .offerMask,.NervModuleKjIndexCateOfferUi>div:first-child>div:last-child,.imageGallery .imgItem .imgBg,.img-box .img-bg-layer,.img-zhe,.img-mask,.product .shadow,.item .shade,.changhuo_pank,img~div:empty,[style*=background]~div:empty,.lazyload-wrapper~div:empty,[class^="MainPic--mask"]',
         pointerAuto: '.Comments--sortBy--8g0CtV0:after'
       },
       srcMatching: [
@@ -3517,7 +3539,7 @@ const websiteConfig = {
       }
     ]
   },
-  'www\\.youtube\\.com': {
+  '(?:.+\\.)?youtube\\.com': {
     amendStyles: {
       pointerNone:
         'a.ytd-thumbnail>:not(yt-image),a.ytd-playlist-thumbnail>:not(#playlist-thumbnails),#label-container,[page-subtype="home"] .ytd-rich-grid-media yt-image',
@@ -3526,13 +3548,14 @@ const websiteConfig = {
     srcMatching: [
       {
         selectors:
-          'img,[style*=background-image],.ytp-cued-thumbnail-overlay-image,.ytp-videowall-still-info,.ytp-ce-covering-overlay,#player-container,.ytd-playlist-thumbnail',
+          'img,[style*=background-image],.ytp-cued-thumbnail-overlay-image,.ytp-videowall-still-info,.ytp-ce-covering-overlay,#player-container,.ytd-playlist-thumbnail,.thumbnail-overlay',
         srcRegExp: '(//i\\d*\\.ytimg\\.com/vi.*?/.+/).+(@IMG@)',
         processor: (trigger, src, srcRegExpObj) =>
           srcRegExpObj.test(
             src ||
               tools.getLargestImgSrc(trigger.siblings('[class*="-image"]')) ||
-              tools.getLargestImgSrc(trigger.closest('a').find('.ytd-thumbnail img'))
+              tools.getLargestImgSrc(trigger.closest('a').find('.ytd-thumbnail img')) ||
+              tools.getLargestImgSrc(trigger.parent().find('ytmusic-thumbnail-renderer img'))
           )
             ? tools
                 .detectImage(
@@ -3547,13 +3570,14 @@ const websiteConfig = {
         srcRegExp: 'i\\d*\\.ytimg\\.com/.+@IMG@.*'
       },
       {
-        srcRegExp: '(yt\\d+\\.ggpht\\.com/.+[/=][sw])\\d+-.*',
-        processor: '$10'
-      },
-      {
-        srcRegExp: '(lh\\d+\\.googleusercontent\\.com/[^=]+=).*',
-        processor: '$1w0' // TODO: Google images, duplicated, need to be removed.
-      }
+        selectors: '.thumbnail-overlay,.yt-simple-endpoint',
+        srcRegExp: '(.+?\\.(?:googleusercontent|ggpht)\\.com/[^=]+=).*',
+        processor: (trigger, _, srcRegExpObj) => {
+          const src = tools.getLargestImgSrc(trigger.parent().find('ytmusic-thumbnail-renderer img'));
+
+          return srcRegExpObj.test(src) ? `${RegExp.$1}w0` : src || '';
+        }
+      } // TODO: Google images, duplicated, need to be removed.
     ],
     ignoreHDSrcCaching: true
   },

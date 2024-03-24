@@ -179,6 +179,8 @@
  * @version 4.30.0.0 | 2023-11-10 | Vincent   // Updates: Add meta (command) key on Mac for activationMode (GitHub issue #130).
  * @version 4.32.0.0 | 2024-03-10 | Vincent   // Updates: Stop parsing images from browser extensions (GitHub issue #140);
  *                                            // Updates: Stop highjacking all pseudo elements (GitHub issue #141).
+ * @version 4.33.0.0 | 2024-03-24 | Vincent   // Updates: Better support for Flickr (GitHub issue #142), jd.com, PBTech, taobao, and YouTube;
+ *                                            // Updates: Support newworld.co.nz and YouTube Music.
  */
 
 // TODO: Extract common tool methods to external modules.
@@ -315,6 +317,7 @@
           target.attr('src') ||
           ''
         )
+          .trim()
           .split(/,\s*(?=(?:\w+:)?\/\/)/)
           .sort(
             (src1, src2) =>
@@ -583,6 +586,11 @@
             // MerlinCDN images.
             srcRegExp: '(.+?\\.merlincdn\\.net/)(?:resize|crop)/\\d+x\\d+/(.+\\.(?:jpe?g|gifv?|pn[gj]|bmp|webp|svg))',
             processor: '$1$2'
+          },
+          {
+            // Google user content images.
+            srcRegExp: '(.+?\\.(?:googleusercontent|ggpht)\\.com/[^=]+=).*',
+            processor: '$1w0'
           }
         ];
 
