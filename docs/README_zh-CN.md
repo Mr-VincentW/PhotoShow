@@ -25,7 +25,7 @@
 您可以通过各大浏览器应用市场（点击下列图标直达）搜索并安装**浮图秀**：
 
 <p align="center">
-  <a href="https://chrome.google.com/webstore/detail/photoshow/mgpdnhlllbpncjpgokgfogidhoegebod/" title="谷歌 Chrome"><img src="resources/Browser_Chrome.png" alt="谷歌 Chrome" /></a>&emsp;
+  <a href="https://chromewebstore.google.com/detail/photoshow/mgpdnhlllbpncjpgokgfogidhoegebod" title="谷歌 Chrome"><img src="resources/Browser_Chrome.png" alt="谷歌 Chrome" /></a>&emsp;
   <a href="https://addons.mozilla.org/firefox/addon/photoshow/" title="Mozilla 火狐"><img src="resources/Browser_Firefox.png" alt="Mozilla 火狐" /></a>&emsp;
   <a href="https://microsoftedge.microsoft.com/addons/detail/afdelcfalkgcfelngdclbaijgeaklbjk" title="微软 Edge"><img src="resources/Browser_Edge.png" alt="微软 Edge" /></a>
 </p>
