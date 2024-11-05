@@ -5,6 +5,8 @@
 # PhotoShow
 
 **PhotoShow** is a browser extension helping you view high-definition images by hovering mouse on image thumbnails, greatly improving your productivity and online-life experience.
+
+*(Note: This extension is being actively maintained and keeps evolving, although the code in this repo has stopped being updated after version 4.36.0.)*
 <br />
 <br />
 
@@ -12,10 +14,10 @@
 
 - [Install PhotoShow](#install-photoshow)
 - [How to Use it](#how-to-use-it)
-- [Websites That Are Supported](#websites-that-are-supported)
+- [Websites That Are Tailored For](#websites-that-are-tailored-for)
 - [What is ongoing](#what-is-ongoing)
 - [How to Contribute](#how-to-contribute)
-- [Privacy Policy & Terms of Use & License](#privacy-policy--terms-of-use--license)
+- [Privacy Policy & Terms of Use](#privacy-policy--terms-of-use)
 - [Contact](#contact)
   <br />
   <br />
@@ -101,9 +103,9 @@ By the way, all these settings will be automatically synced with your other brow
 <br />
 <br />
 
-## Supported Websites
+## Websites That Are Tailored For
 
-**PhotoShow** is continuously enlarging the list of websites it supports. This is also one of the most important reasons why eventually it chose to embrace the open-source community after so many years it was created. (Please refer to see [How to Contribute](#how-to-contribute).)
+**PhotoShow** works on all sites by default and is continuously enlarging the list of websites that have been tailored for. This is also one of the most important reasons why eventually it chose to embrace the open-source community after so many years it was created. (Please refer to see [How to Contribute](#how-to-contribute).)
 
 Hereby is a list of part of the websites (hostnames) that **PhotoShow** currently supports:
 
@@ -160,17 +162,19 @@ Thank you all in advance!
 <br />
 <br />
 
-## Privacy Policy & Terms of Use & License
+## Privacy Policy & Terms of Use
 
-Don't worry, it's pretty short and clear.
+The author and all contributors of **PhotoShow** are not responsible for any loss, personal information leak, disputes and/or any consequences caused by illegal download, use of resources (including but not limited to images) of any websites you visit. In no event shall we be liable for any claims, penalties, loss, damage or expenses, howsoever arising, out of or in connection with your use of **PhotoShow**.
 
-**PhotoShow** only works in the local browser environment, all the permissions it asks when being installed are only for image preview, download and other related features.
+**PhotoShow** only works in the local browser environment, all the permissions it asks when being installed are only for image preview and download. For version 3.0 and later, the 'Access your data for all websites' permission is asked so that you will no longer be disturbed by permission alert when **PhotoShow** updates to support more websites. Downloading images asks for 'Download files' permission, and PhotoShow doesn't trace or read your download history.
 
-All the developers and contributors **DO NOT** collect any of your personal data and are not responsible for any loss, harm, personal information leak, disputes and/or any consequences caused by your download, use of resources (including but not limited to images) of any websites. Installing and using **PhotoShow** is deemed as your acceptance of the above terms.
+Starting from version 4.50.0 (released on November 4th, 2024), **PhotoShow anonymously** tracks basic usage actions to improve user experience and functionality. No personal data or identifiable information is collected, ensuring your privacy remains protected.
 
-We reserve the right to change this Privacy Policy at any time without notifying you respectively. Any amended Privacy Policy will be posted on relevant websites. This Privacy Policy was last updated on November 7th, 2021 and replaces any other versions previously applicable from this date.
+We reserve the right to change this Privacy Policy at any time without notifying you respectively. Any amended Privacy Policy will be posted on relevant websites. This Privacy Policy was last updated on November 4th, 2024 and replaces any other versions previously applicable from this date.
 
-**PhotoShow** is delivered under the [MIT License](../LICENSE). The current version also includes [jQuery](https://jquery.com/) under the terms of [jQuery License](https://jquery.org/license/).
+Installing and using **PhotoShow** is deemed as your acceptance of the above terms.
+
+**PhotoShow** (earlier than 4.37.0) is delivered under the [MIT License](../LICENSE). The current version also includes [jQuery](https://jquery.com/) under the terms of [jQuery License](https://jquery.org/license/).
 <br />
 <br />
 
