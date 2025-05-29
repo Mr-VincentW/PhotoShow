@@ -164,15 +164,7 @@ Thank you all in advance!
 
 ## Privacy Policy & Terms of Use
 
-The author and all contributors of **PhotoShow** are not responsible for any loss, personal information leak, disputes and/or any consequences caused by illegal download, use of resources (including but not limited to images) of any websites you visit. In no event shall we be liable for any claims, penalties, loss, damage or expenses, howsoever arising, out of or in connection with your use of **PhotoShow**.
-
-**PhotoShow** only works in the local browser environment, all the permissions it asks when being installed are only for image preview and download. For version 3.0 and later, the 'Access your data for all websites' permission is asked so that you will no longer be disturbed by permission alert when **PhotoShow** updates to support more websites. Downloading images asks for 'Download files' permission, and PhotoShow doesn't trace or read your download history.
-
-Starting from version 4.50.0 (released on November 4th, 2024), **PhotoShow anonymously** tracks basic usage actions to improve user experience and functionality. No personal data or identifiable information is collected, ensuring your privacy remains protected.
-
-We reserve the right to change this Privacy Policy at any time without notifying you respectively. Any amended Privacy Policy will be posted on relevant websites. This Privacy Policy was last updated on November 4th, 2024 and replaces any other versions previously applicable from this date.
-
-Installing and using **PhotoShow** is deemed as your acceptance of the above terms.
+Read _Privacy Policy & Terms_ of Use [here](https://www.photoshow.cool/terms)
 
 **PhotoShow** (earlier than 4.37.0) is delivered under the [MIT License](../LICENSE). The current version also includes [jQuery](https://jquery.com/) under the terms of [jQuery License](https://jquery.org/license/).
 <br />
