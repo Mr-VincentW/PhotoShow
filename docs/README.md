@@ -1,175 +1,193 @@
-![PhotoShow Poster](resources/Poster_EN.png)
+![PhotoShow Poster](resources/banner--en.png)
 
-#### :link: [中文版](README_zh-CN.md)
+<div align="right">
+  
+:link: [简体中文](README--zh-cn.md) &emsp; :link: [繁體中文](README--zh-tw.md)
+
+</div>
 
 # PhotoShow
 
-**PhotoShow** is a browser extension helping you view high-definition images by hovering mouse on image thumbnails, greatly improving your productivity and online-life experience.
+**PhotoShow** is a browser extension that lets you view and download high-definition images simply by hovering over thumbnails or links. It works seamlessly across all your favourite websites.
 
-*(Note: This extension is being actively maintained and keeps evolving, although the code in this repo has stopped being updated after version 4.36.0.)*
+> :information_source: _Note: The source code in this repo is no longer updated since migrating to Extension Manifest V3. PhotoShow is actively maintained and keeps evolving._
+
 <br />
 <br />
 
 ## In this article
 
-- [Install PhotoShow](#install-photoshow)
-- [How to Use it](#how-to-use-it)
-- [Websites That Are Tailored For](#websites-that-are-tailored-for)
-- [What is ongoing](#what-is-ongoing)
-- [How to Contribute](#how-to-contribute)
-- [Privacy Policy & Terms of Use](#privacy-policy--terms-of-use)
-- [Contact](#contact)
-  <br />
-  <br />
+- :rocket: [Install PhotoShow](#rocket-install-photoshow)
+- :fire: [Daily-Use Features](#fire-daily-use-features)
+- :gear: [Make It Your Own](#gear-make-it-your-own)
+- :question: [FAQ](#question-faq)
+- :lady_beetle: [Found a Bug?](#lady_beetle-found-a-bug)
+- :memo: [Terms & Privacy Policy](#memo-terms--privacy-policy)
+- :speech_balloon: [Contact Author](#speech_balloon-contact-author)
 
-## Install PhotoShow
-
-You may search and install the certain version of **PhotoShow** for your browsers from their extensions (add-ons) web stores (click the icons below):
-
-<p align="center">
-  <a href="https://chromewebstore.google.com/detail/photoshow/mgpdnhlllbpncjpgokgfogidhoegebod" title="Google Chrome"><img src="resources/Browser_Chrome.png" alt="Google Chrome" /></a>&emsp;
-  <a href="https://addons.mozilla.org/firefox/addon/photoshow/" title="Mozilla Firefox"><img src="resources/Browser_Firefox.png" alt="Mozilla Firefox" /></a>&emsp;
-  <a href="https://microsoftedge.microsoft.com/addons/detail/afdelcfalkgcfelngdclbaijgeaklbjk" title="Microsoft Edge"><img src="resources/Browser_Edge.png" alt="Microsoft Edge" /></a>
-</p>
 <br />
 <br />
 
-## How to Use it
+## :rocket: Install PhotoShow
 
-It's pretty easy - for websites that are supported by **PhotoShow** (Listed [here](#websites-that-are-supported)), hover your mouse on an image thumbnail, if **PhotoShow** can parse its URL, a viewer with a high-definition image will show alongside. For websites unknown to PhotoShow, by default, if an image is displayed in a smaller-than-intrinsic size on page, PhotoShow will display the original image.
+**PhotoShow** is proudly **featured** in all major browser stores! Install it for your browser here:
 
-<p align="center"><img src="resources/SPEC_1.png" align="center" alt="PhotoShow - View HD images" /></p>
-<br />
+- <img width="24" align="center" src="resources/logo-chrome.png" alt="Google Chrome" /> [Google Chrome](https://chromewebstore.google.com/detail/photoshow/mgpdnhlllbpncjpgokgfogidhoegebod)
+- <img width="24" align="center" src="resources/logo-edge.png" alt="Microsoft Edge" /> [Microsoft Edge](https://microsoftedge.microsoft.com/addons/detail/afdelcfalkgcfelngdclbaijgeaklbjk)
+- <img width="24" align="center" src="resources/logo-firefox.png" alt="Mozilla Firefox" /> [Mozilla Firefox](https://addons.mozilla.org/firefox/addon/photoshow/)
 
-While viewing HD images with **PhotoShow**, you could also -
-
-1.  **ROTATE IMAGES:** This is especially useful for viewing photos that are posted without their orientations correctly adjusted.
-
-    (Please note that the figure below is only for demonstrating purpose, with no source thumbnails _without their orientation correctly adjusted_.)
-
-<p align="center"><img src="resources/SPEC_2.png" align="center" alt="PhotoShow - Rotate images" /></p>
-<br />
-
-2.  **SWITCH VIEW MODE:** There are four view modes -
-
-    - **Auto:** The viewer automatically adapts its size to the available space on one side of the source thumbnail, as is the default view mode.
-    - **Mini:** The viewer displays within 1/8 in area of the available space on one side of the source thumbnail.
-    - **Light:** The viewer displays within 1/4 in area of the available space on one side of the source thumbnail.
-    - **Panoramic:** The viewer takes as large space as needed on one side of the source thumbnail and the image displays in its original size.
-
-    If you think that the image viewer covers too much content of the original page, the **Mini** or **Light** mode might soothe you.
-
-    When the image is partially displayed in the image viewer (may happen in **Auto** or **Panoramic** mode), a mask indicating the visible area will be displayed over the source thumbnail. You may scroll the image in the viewer with your mouse or via hotkeys (specified in **PhotoShow**'s popup window) and the visible area over the thumbnail will move synchronously. This is designed for inspecting image detail or browsing long pictures (such as articles delivered by images). However, please keep in mind that the hotkeys' directions are consistent with the directions that the image scrolls in the viewer rather than the moving directions of the visible area indicator - yes, they can be different if image rotations are applied.
-
-<p align="center"><img src="resources/SPEC_3.png" align="center" alt="PhotoShow - Switch view mode" /></p>
-<br />
-
-3.  **DOWNLOAD IMAGES:**
-    For those who wanna collect all the fantastic pictures in the world to their own galleries, just press hotkey `S` and your browser will start to download the HD image for the thumbnail under your mouse.
-
-<p align="center"><img src="resources/SPEC_4_EN.png" align="center" alt="PhotoShow - Download images" /></p>
-<br />
-
-4.  **CONTEXT MENU:**
-    Still feel dissatisfied with the small viewer overlay? Well, right-click on a thumbnail and **PhotoShow** offers a context menu item for opening the HD image in a new tab. You may start to download it or copy its address via context menu items here as well. (These actions can also be triggered via hotkeys.)
-
-<p align="center"><img src="resources/SPEC_5_EN.png" align="center" alt="PhotoShow - Context menu" /></p>
-<br />
-
-**More Settings:**
-More settings are provided in the popup window, click the **PhotoShow** icon in your browser's toolbar and here you can -
-
-- **Turn on/off PhotoShow for particular websites**: Switch the toggle button and **PhotoShow** will be enabled/disabled for websites of current hostname.
-- **Toggle support for unknown websites**: PhotoShow offers basic support for its unknown websites by default - displaying original images when their intrinsic sizes are larger than they're displayed. You can toggle this behaviour here.
-- **Set activation mode**: Displaying an HD image every time you hang your mouse over a thumbnail on a page might be disturbing. With this setting, you can choose to bind an "auxiliary key" for triggering the image viewer displaying - press it when you wanna see the HD images.
-- **Toggle activation exemption**: Allow to disable the HD image viewer when image thumbnails are larger than 25% of the viewport.
-- **Set activation delay**: Allow to set how long will it be before the HD image viewer displays when mouse hovering on thumbnails.
-- **Toggle view mode**: Choose the default view mode you love!
-- **Set viewer location**: Specify on which directions (relative to the source thumbnail) the HD image viewer is allowed to popup. PhotoShow will intelligently choose the best location among the ticked ones in which the HD images can get their largest display.
-- **Toggle image size display**: If you are curious about the original size of the HD image, use this to toggle the image size tag displayed in the bottom-right corner of the image viewer.
-- **Toggle shadow display**: If you just can't stand the dark shade between the image viewer and its source thumbnail, "KAPOW"!
-- **Toggle loading states display**: Allow to disable image loading states indicator (a spinner or cross icon displayed over the thumbnails).
-- **Toggle animation display**: Allow to disable all the transition animation for the HD image viewer.
-- **Toggle image anti-aliasing**: Allow to enable/disable image anti-aliasing.
-- **Toggle context menu**: Allow to disable PhotoShow context menu items.
-- **Toggle developer mode**: If you happen to be implenmenting some great ideas on your pages, you probably don't want the injected content or hotkey system from PhotoShow to distract you from your creativity, then here you go.
-- **Check and toggle the shortcuts**: If you happen to forget the hotkeys or their actions, here's the right place to go. Of course you may also disable some of them as you wish.
-- **File Naming**: Here you may customise the image filenames for downloading.
-- **Make everything better**: Feel free to give your feedback should you have any advice or brilliant ideas. It would, of course, be appreciated if you could share **PhotoShow** with anyone you love!
-
-By the way, all these settings will be automatically synced with your other browser account data should it be permitted, as is a browser behavior. PhotoShow itself doesn't upload or store any of these data. (Please refer to [Privacy Policy & Terms of Use & License](#privacy-policy--terms-of-use--license).)
-
-<p align="center"><img src="resources/SPEC_6_EN.png" align="center" alt="PhotoShow - Settings" /></p>
 <br />
 <br />
 
-## Websites That Are Tailored For
+## :fire: Daily-Use Features
 
-**PhotoShow** works on all sites by default and is continuously enlarging the list of websites that have been tailored for. This is also one of the most important reasons why eventually it chose to embrace the open-source community after so many years it was created. (Please refer to see [How to Contribute](#how-to-contribute).)
+Pretty straightforward—visit a site, hover over thumbnails or image links, and PhotoShow will detect and display the high-definition version for you.
 
-Hereby is a list of part of the websites (hostnames) that **PhotoShow** currently supports:
+<p align="center"><img width="600" src="resources/spec__view-images--en.png" alt="PhotoShow - View Images" /></p>
+<br />
 
-1.  **DESIGN / PHOTOGRAPH / GRAPHICS:**
+You can also:
 
-    123rf, 500px, ArtStation, Behance, CNU, DeviantArt, Dribbble, Figma, Flickr, iStock, meiye.com, Pexels, Pinterest, pixiv, POCO, VCG.COM, WikiArt, Unsplash, zhisheji
+1. **Download Images:** Press `S` to save images directly into your collection.
+   <p align="center"><img width="600" src="resources/spec__download-images--en.png" alt="PhotoShow - Download Images" /></p>
 
-2.  **SHOPPING / TRADING / SERVICES:**
+2. **Copy Images:** Press `Alt` + `C` to copy an image for editing or pasting into chats.
+   <p align="center"><img width="600" src="resources/spec__copy-images--en.png" alt="PhotoShow - Copy Images" /></p>
 
-    Alibaba, AliExpress, Alimama, Amazon, Andino, Apple, Apple App Store, Best Buy, Briscoes, Bunnings, Ctrip, Countdown, coupang, DHgate, dianping.com, eBay, Etsy, Google Play, Google Store, iHerb, instacart, JD, Kmart, mafengwo.cn, maoyan.com, meituan.com, Myprotein, Newegg, New World, noel leeming, NZSALE, PBTech, sellersuniononline, suning, Taobao, Target, TheMarket, thewarehouse, Tmall, Torpedo7, Trade Me, TreatMe, vvic.com, Walmart, warehouse stationery, wsy.com, Yelp
+3. **Rotate & Flip Images:** Fix unexpected orientations with:
+   - Rotate: `Shift` + `Ctrl` + `←` / `→`
+   - Flip: `Alt` + `Ctrl` + `←` / `→`
+   <p align="center"><img width="600" src="resources/spec__rotate-images--en.png" alt="PhotoShow - Rotate & Flip Images" /></p>
 
-3.  **SEARCHING / KNOWLEDGE / EXPERTISE:**
+   > :bulb: Tips:
+   >
+   > - Downloaded or copied images keep any rotations or flips you apply.
 
-    ACP Journals, allhistory.com, Baidu, Baidu Baike, Baidu Map, Bing, Google, Google books, Google Map, GitHub, JAMA Network, JavBus, NEJM, RazorSQL, soutushenqi.com, Wiki, Yandex, yiigle.com
+<br />
 
-4.  **NEWS / SOCIAL NETWORKING / FORUMS:**
+PhotoShow also includes a unique **scrolling mode** for **ultra-wide** and **ultra-tall** images. Instead of shrinking them, it shows part of the HD image and overlays a **viewport mask** on the thumbnail, acting like a magnifier. Moving your mouse over the thumbnail navigates through the entire image.
 
-    115.com, adnmb2.com, aewtogether.org, afdian.net, allelitewrestling.com, Bangumi, cangku.icu, Duitang, e621.net, e-TALENTA, Facebook, gamer.com.tw, IMDb, Imgur, Instagram, Jandan, Konachan, LOFTER, Microsoft Teams, Mikan, music.163.com, nga.cn, njpwworld.com, Qzone, Reddit, TapTap, toutiao.com, Tumblr, TweetDeck, Twipu, Twitter, Sina weibo, wattpad, WeChat webpages, web-zones.ru, XDA, yande.re
+<p align="center"><img width="600" src="resources/spec__view-ultra-wide-or-tall-images--en.png" alt="PhotoShow - View Ultra-Wide or Ultra-Tall Images" /></p>
+<br />
 
-5.  **VIDEOS / MUSIC:**
+For **Panoramic** view, you can navigate in all directions with the same viewport system.
 
-    Acfun, Bandcamp, bilibili, Discogs, Dizilah, douyin.com, douyu.com, Encyclopaedia Metallum, Fandango, Flixster, fox.com, fox.com.tr, haokan.baidu.com, huya.com, iqiyi.com, ixigua.com, JustWatch, kanald.com.tr, kinopoisk.ru, moegirl, mxdm8.com, kuaishou.com, Pornhub, radyod.com, Rotten Tomatoes, TikTok, xiaohongshu, YOUKU, YouTube
+<p align="center"><img width="600" src="resources/spec__view-image-details--en.png" alt="PhotoShow - View Image Details" /></p>
 
-If you can't find your favourite websites in the above list, it is always welcome to [contact the author](#contact) to get more support.
+> :bulb: Navigation shortcuts:
+>
+> - `←` / `→` / `↑` / `↓`: Move pixel by pixel (accelerates when held).
+> - `Home` / `End`: Jump to top/bottom (ultra-tall images).
+> - `PgUp` / `PgDn`: Scroll by viewport height (ultra-tall images).
+
+<br />
+
+### View Modes
+
+Choose from five modes:
+
+- **Auto (A):** Fits image to viewer location, enabling "**scrolling mode**" if needed.
+- **Fit (F):** Fits image fully, disabling "**scrolling mode**."
+- **Lite (L):** Viewer takes up to 1/4 of the screen, "**scrolling mode**" enabled.
+- **Mini (M):** Viewer takes up to 1/8 of the screen, "**scrolling mode**" enabled.
+- **Panoramic (P):** Displays original size, prioritising "**scrolling mode**."
+
+> :bulb: Tips:
+>
+> - Use the shortcut letter in parentheses to switch modes.
+> - Press `V` to toggle between the last two modes.
+> - These shortcuts are disabled by default but can be enabled in settings.
+
 <br />
 <br />
 
-## What is ongoing
+## :gear: Make It Your Own
 
-**PhotoShow** keeps optimising its functionality while enlarging its websites support list. This is why you might have already noticed that it's being updated frequently.
-These days, a "big" plan is taking place as **PhotoShow** is going to be refactored for better development experience for the contributors and introducing some new features as well. Here is a rough **ONGOING LIST** from the project and functional perspectives where you may find something worth looking forward to.
+PhotoShow offers flexible settings at two levels:
 
-- [ ] Refactor.
-- [x] Support all websites, displaying original images (if their intrinsic sizes are larger than they are displayed) for those not in the websites support list.
-- [ ] Add an extension `OPTIONS` page for more complex settings.
-- [x] Add animation toggle configuration (allow users to turn off all the animation).
-- [ ] Support customising hotkeys.
-- [ ] Preload images (ideally, only for the thumbnails near the mouse cursor).
-- [ ] Optimise image loading speed by automatically picking proper image sources according to their final displaying dimensions.
-- [ ] Support zooming with mouse wheel.
-- [ ] Support fullscreen mode and allow the viewer to be nailed.
+- **Global Settings:** Apply to all sites (found in the extension **Options** page).
+- **Site-Specific Settings:** Apply to a single site (accessible via the toolbar popup).
 
-  This also explains why the `master` branch contains no code and the current version of the **PhotoShow** project is under the `archive` branch.
-  <br />
-  <br />
+**Site settings** override **global ones**. This dual-level design gives you full control.
 
-## How to Contribute
+<p align="center"><img width="600" src="resources/spec__settings--en.png" alt="PhotoShow - Settings" /></p>
+<br />
 
-It is gratefully welcome to help to make **PhotoShow** better! However, as it is in refactoring nowadays, updates for functionalities are not encouraged temporarily. You may still contribute parsing rules for new websites or maybe some great ideas.
+### Key options include:
 
-Another task where **help is badly needed** is that the UI of **PhotoShow** needs to be translated into more languages (also including optimising existing language packages) so as to help more people in the world. The `i18n` files have already been well prepared with every item explained in detail. Are you willing to help?
+- **Whitelist Mode:** Disable PhotoShow globally, then enable per site with its popup toggle.
+- **Viewer Trigger:** Require an assist key press to show the viewer.
+- **Thumbnail Types** & **Viewer Exceptions:** Control which thumbnails trigger the viewer.
+- **Viewer Location:** Default is beside the thumbnail, but you can allow fullscreen by choosing `centre`.
+- **Image Info Display:** Show captions, dimensions, formats, or file sizes.
+- **New Tab Opening Behaviour:** Choose whether new image tabs open in the foreground or background.
+- **Transition Animation:** Smooth animations, or reduce/disable them.
+- **Keyboard Shortcuts:** Enable/disable specific shortcuts.
+- **Image Download:** Customise filenames with placeholders (e.g. `my images/<H>/<I>`).
+- **Assistance & Enhancements:** Extra tools like marking viewed images or enabling/disabling context menu items.
+- **Transfer Settings:** Export/import your settings to move them between devices or for reporting bugs.
 
-Thank you all in advance!
+<br />
+
+> :information_source: Notes:
+>
+> - Global settings sync with your browser profile (if enabled in your browser's settings).
+> - Site-specific settings are stored locally due to extension data limits.
+> - Export/import covers both types of settings.
+
+> :bulb: Tips:
+>
+> - File naming can include **paths**, e.g. `my images/<H>/<I>` → `default download folder/my images/(hostname)/(image caption)`.
+
 <br />
 <br />
 
-## Privacy Policy & Terms of Use
+## :question: FAQ
 
-Read _Privacy Policy & Terms_ of Use [here](https://www.photoshow.cool/terms)
+- **Why don’t file naming settings work?**  
+  Other extensions may rename downloads too. If filenames aren’t applied, check whether another extension is overriding them.
 
-**PhotoShow** (earlier than 4.37.0) is delivered under the [MIT License](../LICENSE). The current version also includes [jQuery](https://jquery.com/) under the terms of [jQuery License](https://jquery.org/license/).
+- **How do I save WebP as JPG?**  
+  In **Image Download** settings, select `jpg` as the file extension. PhotoShow converts the format automatically when saving.
+
+- **How do I view fullscreen images?**  
+  Enable the `centre` option in **Viewer Location**.
+
+- **Can the viewer stay on screen after moving the mouse away?**  
+  PhotoShow is designed for a quick “fast-in–fast-out” experience, so images close when you move away. However, this feature is planned for future updates.
+
+- **What else are on the roadmap?**  
+  PhotoShow will eventually support
+
+  - [ ] zooming with the mouse wheel
+  - [ ] switching between images in galleries/carousels
+  - [ ] customizing shortcuts
+  - [ ] viewing videos within the viewer
+
+  Stay tuned! :smiley:
+
 <br />
 <br />
 
-## Contact
+## :lady_beetle: Found a Bug?
 
-:e-mail: [Vincent W.](mailto:vincentwang863@gmail.com?subject=PhotoShow%20User%20Feedback%20from%20GitHub)
+PhotoShow is regularly updated, but occasional bugs may appear, especially since it’s carefully hand-crafted for hundreds of sites.
+
+Please report bugs or request features on the [Issues](../../../issues) page (preferred) or via email. To help us:
+
+- Fill in as much detail as possible using the issue templates.
+- Search existing issues before opening a new one.
+
+<br />
+<br />
+
+## :memo: Terms & Privacy Policy
+
+See [Privacy Policy & Terms of Use](https://www.photoshow.cool/terms).
+
+<br />
+<br />
+
+## :speech_balloon: Contact Author
+
+:email: [Send Email](mailto:vincentwang863@gmail.com?subject=PhotoShow%20User%20Feedback%20-%20GitHub)
