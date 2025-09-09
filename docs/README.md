@@ -8,7 +8,7 @@
 
 # PhotoShow
 
-**PhotoShow** is a browser extension that lets you view and download high-definition images simply by hovering over thumbnails or links. It works seamlessly across all your favourite websites.
+**PhotoShow** is a browser extension that lets you view and download high-definition images simply by hovering over thumbnails or links. It works seamlessly across all your favorite websites.
 
 > :information_source: _Note: The source code in this repo is no longer updated since migrating to Extension Manifest V3. PhotoShow is actively maintained and keeps evolving._
 
@@ -55,6 +55,7 @@ You can also:
    <p align="center"><img width="600" src="resources/spec__copy-images--en.png" alt="PhotoShow - Copy Images" /></p>
 
 3. **Rotate & Flip Images:** Fix unexpected orientations with:
+
    - Rotate: `Shift` + `Ctrl` + `←` / `→`
    - Flip: `Alt` + `Ctrl` + `←` / `→`
    <p align="center"><img width="600" src="resources/spec__rotate-images--en.png" alt="PhotoShow - Rotate & Flip Images" /></p>
@@ -86,11 +87,11 @@ For **Panoramic** view, you can navigate in all directions with the same viewpor
 
 Choose from five modes:
 
-- **Auto (A):** Fits image to viewer location, enabling "**scrolling mode**" if needed.
-- **Fit (F):** Fits image fully, disabling "**scrolling mode**."
+- **Auto (A):** Fits image to selected viewer positions, enabling "**scrolling mode**" if needed.
+- **Fit (F):** Fits image fully, disabling "**scrolling mode**".
 - **Lite (L):** Viewer takes up to 1/4 of the screen, "**scrolling mode**" enabled.
 - **Mini (M):** Viewer takes up to 1/8 of the screen, "**scrolling mode**" enabled.
-- **Panoramic (P):** Displays original size, prioritising "**scrolling mode**."
+- **Panoramic (P):** Displays images at original size, prioritizing "**scrolling mode**".
 
 > :bulb: Tips:
 >
@@ -118,9 +119,9 @@ PhotoShow offers flexible settings at two levels:
 - **Whitelist Mode:** Disable PhotoShow globally, then enable per site with its popup toggle.
 - **Viewer Trigger:** Require an assist key press to show the viewer.
 - **Thumbnail Types** & **Viewer Exceptions:** Control which thumbnails trigger the viewer.
-- **Viewer Location:** Default is beside the thumbnail, but you can allow fullscreen by choosing `centre`.
+- **Viewer Positions:** Default is beside the thumbnail, but you can allow fullscreen by choosing `center`.
 - **Image Info Display:** Show captions, dimensions, formats, or file sizes.
-- **New Tab Opening Behaviour:** Choose whether new image tabs open in the foreground or background.
+- **New Tab Opening Behavior:** Choose whether new image tabs open in the foreground or background.
 - **Transition Animation:** Smooth animations, or reduce/disable them.
 - **Keyboard Shortcuts:** Enable/disable specific shortcuts.
 - **Image Download:** Customise filenames with placeholders (e.g. `my images/<H>/<I>`).
@@ -147,14 +148,30 @@ PhotoShow offers flexible settings at two levels:
 - **Why don’t file naming settings work?**  
   Other extensions may rename downloads too. If filenames aren’t applied, check whether another extension is overriding them.
 
+- **Why does PhotoShow seem unable to remember my last image saving location?**  
+  PhotoShow does remember the saving location you configure in its **Image Download** settings. This location is always based on your browser/system’s default download folder.
+
+  What may look like "not remembering" happens if you manually select a folder **outside the default download folder** during a download. For security reasons, extensions cannot reuse such folders automatically.
+
+  If you prefer to pick a folder freely each time, you can enable the "**Always ask before downloading**" option.
+
+- **Why am I asked to choose a download location every time?**  
+  By default, PhotoShow saves images automatically to your browser’s/system’s default download folder, which you can configure in the Image Download settings.
+
+  If you are prompted to choose a location every time, try these steps:
+
+  - Turn off the "**Always ask before downloading**" option in PhotoShow’s Image Download settings.
+  - Turn off any similar "always ask" options in your browser’s own download settings.
+  - Check if you have other extensions that manage downloads and adjust their settings if needed.
+
 - **How do I save WebP as JPG?**  
   In **Image Download** settings, select `jpg` as the file extension. PhotoShow converts the format automatically when saving.
 
 - **How do I view fullscreen images?**  
-  Enable the `centre` option in **Viewer Location**.
+  Enable the `centre` option in **Viewer Positions**.
 
 - **Can the viewer stay on screen after moving the mouse away?**  
-  PhotoShow is designed for a quick “fast-in–fast-out” experience, so images close when you move away. However, this feature is planned for future updates.
+  PhotoShow is designed for a quick "fast-in–fast-out" experience, so images close when you move away. However, this feature is planned for future updates.
 
 - **What else are on the roadmap?**  
   PhotoShow will eventually support
