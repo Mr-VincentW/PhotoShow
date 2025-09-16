@@ -116,17 +116,18 @@ PhotoShow offers flexible settings at two levels:
 
 ### Key options include:
 
-- **Whitelist Mode:** Disable PhotoShow globally, then enable per site with its popup toggle.
-- **Viewer Trigger:** Require an assist key press to show the viewer.
-- **Thumbnail Types** & **Viewer Exceptions:** Control which thumbnails trigger the viewer.
-- **Viewer Positions:** Default is beside the thumbnail, but you can allow fullscreen by choosing `center`.
-- **Image Info Display:** Show captions, dimensions, formats, or file sizes.
-- **New Tab Opening Behavior:** Choose whether new image tabs open in the foreground or background.
-- **Transition Animation:** Smooth animations, or reduce/disable them.
-- **Keyboard Shortcuts:** Enable/disable specific shortcuts.
-- **Image Download:** Customise filenames with placeholders (e.g. `my images/<H>/<I>`).
-- **Assistance & Enhancements:** Extra tools like marking viewed images or enabling/disabling context menu items.
-- **Transfer Settings:** Export/import your settings to move them between devices or for reporting bugs.
+- **Whitelist Mode**: Disable PhotoShow globally, then enable per site with its popup toggle.
+- **Viewer Trigger**: Require an assist key press to show the viewer.
+- **Thumbnail Types** & **Viewer Exceptions**: Control which thumbnails trigger the viewer.
+- **Viewer Positions**: Default is beside the thumbnail, but you can allow fullscreen by choosing `center`.
+- **Image Info Display**: Show image captions, dimensions, formats, or file sizes.
+- **New Tab Opening Behavior**: Choose whether new image tabs open in the foreground or background.
+- **Transition Animation**: Smooth animations, or reduce/disable them.
+- **Viewer Color Scheme**: Choose either `light` or `dark` theme for the viewer.
+- **Keyboard Shortcuts**: Enable/disable specific shortcuts.
+- **Image Download**: Customize filenames with placeholders (e.g. `my images/<H>/<I>`).
+- **Assistance & Enhancements**: Extra tools like marking viewed images or enabling/disabling context menu items.
+- **Settings Management**: Export/import your settings to transfer between devices, or reset either global or site-specific settings.
 
 <br />
 
