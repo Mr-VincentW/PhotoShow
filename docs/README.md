@@ -133,12 +133,13 @@ PhotoShow offers flexible settings at two levels:
 
 > :information_source: Notes:
 >
-> - Global settings sync with your browser profile (if enabled in your browser's settings).
-> - Site-specific settings are stored locally due to extension data limits.
-> - Export/import covers both types of settings.
+> - Global settings are synced with your browser profile by default (this can be disabled in the browser's settings).
+> - Site-specific settings are stored locally, due to technical limitations.
+> - Export and import include both types of settings.
 
 > :bulb: Tips:
 >
+> - When the viewer is centered in the viewport, ultra-tall or ultra-wide images will not use "**scroll mode**". To make it work in those cases, enable all **Viewer Positions** options. PhotoShow will then automatically select the most suitable position, maximizing viewer size and applying the mode when needed.
 > - File naming can include **paths**, e.g. `my images/<H>/<I>` → `default download folder/my images/(hostname)/(image caption)`.
 
 <br />
@@ -169,10 +170,10 @@ PhotoShow offers flexible settings at two levels:
   In **Image Download** settings, select `jpg` as the file extension. PhotoShow converts the format automatically when saving.
 
 - **How do I view fullscreen images?**  
-  Enable the `centre` option in **Viewer Positions**.
+  Enable the `center` option in **Viewer Positions**.
 
 - **Can the viewer stay on screen after moving the mouse away?**  
-  PhotoShow is designed for a quick "fast-in–fast-out" experience, so images close when you move away. However, this feature is planned for future updates.
+  Not yet. PhotoShow is designed for a quick, clean “fast-in fast-out” experience, so the viewer closes automatically when your mouse leaves. A future update will add more options for this behavior.
 
 - **What else are on the roadmap?**  
   PhotoShow will eventually support
