@@ -125,7 +125,7 @@ PhotoShow offers flexible settings at two levels:
 - **Transition Animation**: Smooth animations, or reduce/disable them.
 - **Viewer Color Scheme**: Choose either `light` or `dark` theme for the viewer.
 - **Keyboard Shortcuts**: Enable/disable specific shortcuts.
-- **Image Download**: Customize filenames with placeholders (e.g. `my images/<H>/<I>`).
+- **Image Download**: Customize filenames with placeholders (e.g. `my images/<H>/<c>`).
 - **Assistance & Enhancements**: Extra tools like marking viewed images or enabling/disabling context menu items.
 - **Settings Management**: Export/import your settings to transfer between devices, or reset either global or site-specific settings.
 
@@ -140,7 +140,7 @@ PhotoShow offers flexible settings at two levels:
 > :bulb: Tips:
 >
 > - When the viewer is centered in the viewport, ultra-tall or ultra-wide images will not use "**scroll mode**". To make it work in those cases, enable all **Viewer Positions** options. PhotoShow will then automatically select the most suitable position, maximizing viewer size and applying the mode when needed.
-> - File naming can include **paths**, e.g. `my images/<H>/<I>` → `default download folder/my images/(hostname)/(image caption)`.
+> - File naming can include **paths**, e.g. `my images/<H>/<c>` → `default download folder/my images/(hostname)/(image caption)`.
 
 <br />
 <br />
