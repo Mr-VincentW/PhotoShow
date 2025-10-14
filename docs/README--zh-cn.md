@@ -43,22 +43,22 @@
 
 非常简单——访问网站，鼠标悬停在缩略图或图片链接上，浮图秀会自动探测并显示高清图片。
 
-<p align="center"><img width="600" src="resources/spec__view-images--zh-cn.png" alt="浮图秀 - 查看图片" /></p>
+<p align="center"><img width="640" src="resources/spec__view-images--zh-cn.png" alt="浮图秀 - 查看图片" /></p>
 <br />
 
 您还可以：
 
 1. **下载图片：** 按 `S` 一键下载。
-   <p align="center"><img width="600" src="resources/spec__download-images--zh-cn.png" alt="浮图秀 - 下载图片" /></p>
+   <p align="center"><img width="640" src="resources/spec__download-images--zh-cn.png" alt="浮图秀 - 下载图片" /></p>
 
 2. **复制图片：** 按 `Alt` + `C` 复制图片以便编辑或粘贴到聊天。
-   <p align="center"><img width="600" src="resources/spec__copy-images--zh-cn.png" alt="浮图秀 - 复制图片" /></p>
+   <p align="center"><img width="640" src="resources/spec__copy-images--zh-cn.png" alt="浮图秀 - 复制图片" /></p>
 
 3. **旋转 & 翻转图片：** 修正方向问题：
 
    - 旋转：`Shift` + `Ctrl` + `←` / `→`
    - 翻转：`Alt` + `Ctrl` + `←` / `→`
-   <p align="center"><img width="600" src="resources/spec__rotate-images--zh-cn.png" alt="浮图秀 - 旋转与翻转图片" /></p>
+   <p align="center"><img width="640" src="resources/spec__rotate-images--zh-cn.png" alt="浮图秀 - 旋转与翻转图片" /></p>
 
    > :bulb: 小技巧：
    >
@@ -68,12 +68,12 @@
 
 浮图秀提供独特的**滚动模式**来查看**超宽**或**超高**图片。此种模式下图片不会被缩小，而是在大图浮窗内显示局部并在缩略图上显示**导航器**，如同放大镜效果。移动鼠标即可查看整张图片。
 
-<p align="center"><img width="600" src="resources/spec__view-ultra-wide-or-tall-images--zh-cn.png" alt="浮图秀 - 查看超宽/超高图片" /></p>
+<p align="center"><img width="640" src="resources/spec__view-ultra-wide-or-tall-images--zh-cn.png" alt="浮图秀 - 查看超宽/超高图片" /></p>
 <br />
 
 在**全景模式**下，您可以用同样的导航系统在各方向自由探索。
 
-<p align="center"><img width="600" src="resources/spec__view-image-details--zh-cn.png" alt="浮图秀 - 查看图片细节" /></p>
+<p align="center"><img width="640" src="resources/spec__view-image-details--zh-cn.png" alt="浮图秀 - 查看图片细节" /></p>
 
 > :bulb: 导航快捷键：
 >
@@ -111,7 +111,7 @@
 
 **站点设置**会覆盖**全局设置**，双层设计实现灵活控制。
 
-<p align="center"><img width="600" src="resources/spec__settings--zh-cn.png" alt="浮图秀 - 设置" /></p>
+<p align="center"><img width="640" src="resources/spec__settings--zh-cn.png" alt="浮图秀 - 设置" /></p>
 <br />
 
 ### 主要选项包括：
@@ -148,21 +148,23 @@
 - **为什么文件命名设置不起作用？**  
   其他扩展可能也会修改下载文件名。若未生效，请检查是否有其他扩展覆盖。
 
-- **为什么浮图秀好像不能记住我上次保存图片的位置？**  
-  浮图秀会记住您在**图片下载**设置中配置的保存路径，而该路径始终基于浏览器/系统的默认下载目录。
-
-  如果您在下载时手动选择了**默认下载目录之外**的路径，就可能觉得“没有被记住”——出于安全原因，扩展程序不能在之后自动复用这些路径。
-
-  若您希望每次自由选择保存位置，可以启用“**每次下载前询问**”选项。
-
 - **为什么每次下载图片都要让我选择保存位置？**  
   默认情况下，浮图秀会自动将图片保存到浏览器/系统的默认下载目录，您可以在**图片下载**设置中配置此目录。
+
+  <p align="center"><img width="612" src="resources/spec__image-download-settings--zh-cn.png" alt="浮图秀 - 图片下载设置" /></p>
 
   如果您每次都被要求选择保存位置，请尝试以下步骤：
 
   - 关闭浮图秀**图片下载**设置中的“**每次下载前询问**”选项。
   - 关闭浏览器自身下载设置中的类似“总是询问”的选项。
   - 检查是否安装了管理下载的其他扩展程序，并相应调整他们的设置。
+
+- **为什么浮图秀好像不能记住我上次保存图片的位置？**  
+  浮图秀会记住您在**图片下载**设置中配置的保存路径，而该路径始终基于浏览器/系统的默认下载目录。
+
+  如果您在下载时手动选择了**默认下载目录之外**的路径，就可能觉得“没有被记住”——出于安全原因，扩展程序不能在之后自动复用这些路径。
+
+  若您希望每次自由选择保存位置，可以启用“**每次下载前询问**”选项。
 
 - **如何将 WebP 保存为 JPG？**  
   在**图片下载**设置中选择 `jpg` 作为文件扩展名。浮图秀会自动转换格式。

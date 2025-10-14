@@ -43,22 +43,22 @@
 
 非常簡單——訪問網站，滑鼠懸停在縮圖或圖片連結上，浮圖秀會自動檢測並顯示高畫質圖片。
 
-<p align="center"><img width="600" src="resources/spec__view-images--zh-tw.png" alt="浮圖秀 - 檢視圖片" /></p>
+<p align="center"><img width="640" src="resources/spec__view-images--zh-tw.png" alt="浮圖秀 - 檢視圖片" /></p>
 <br />
 
 您還可以：
 
 1. **下載圖片：** 按 `S` 一鍵下載。
-   <p align="center"><img width="600" src="resources/spec__download-images--zh-tw.png" alt="浮圖秀 - 下載圖片" /></p>
+   <p align="center"><img width="640" src="resources/spec__download-images--zh-tw.png" alt="浮圖秀 - 下載圖片" /></p>
 
 2. **複製圖片：** 按 `Alt` + `C` 複製圖片以便編輯或貼到聊天。
-   <p align="center"><img width="600" src="resources/spec__copy-images--zh-tw.png" alt="浮圖秀 - 複製圖片" /></p>
+   <p align="center"><img width="640" src="resources/spec__copy-images--zh-tw.png" alt="浮圖秀 - 複製圖片" /></p>
 
 3. **旋轉 & 翻轉圖片：** 修正方向問題：
 
    - 旋轉：`Shift` + `Ctrl` + `←` / `→`
    - 翻轉：`Alt` + `Ctrl` + `←` / `→`
-   <p align="center"><img width="600" src="resources/spec__rotate-images--zh-tw.png" alt="浮圖秀 - 旋轉與翻轉圖片" /></p>
+   <p align="center"><img width="640" src="resources/spec__rotate-images--zh-tw.png" alt="浮圖秀 - 旋轉與翻轉圖片" /></p>
 
    > :bulb: 小技巧：
    >
@@ -68,12 +68,12 @@
 
 浮圖秀提供獨特的**捲動模式**來檢視**超寬**或**超高**圖片。此模式下圖片不會被縮小，而是在大圖浮窗內顯示局部並在縮圖上顯示**導航器**，如同放大鏡效果。移動滑鼠即可檢視整張圖片。
 
-<p align="center"><img width="600" src="resources/spec__view-ultra-wide-or-tall-images--zh-tw.png" alt="浮圖秀 - 檢視超寬/超高圖片" /></p>
+<p align="center"><img width="640" src="resources/spec__view-ultra-wide-or-tall-images--zh-tw.png" alt="浮圖秀 - 檢視超寬/超高圖片" /></p>
 <br />
 
 在**全景模式**下，您可以用同樣的導航系統在各方向自由探索。
 
-<p align="center"><img width="600" src="resources/spec__view-image-details--zh-tw.png" alt="浮圖秀 - 檢視圖片細節" /></p>
+<p align="center"><img width="640" src="resources/spec__view-image-details--zh-tw.png" alt="浮圖秀 - 檢視圖片細節" /></p>
 
 > :bulb: 導航快捷鍵：
 >
@@ -111,7 +111,7 @@
 
 **網站設定**會覆蓋**全域設定**，雙層設計實現靈活控制。
 
-<p align="center"><img width="600" src="resources/spec__settings--zh-tw.png" alt="浮圖秀 - 設定" /></p>
+<p align="center"><img width="640" src="resources/spec__settings--zh-tw.png" alt="浮圖秀 - 設定" /></p>
 <br />
 
 ### 主要選項包括：
@@ -150,21 +150,23 @@
 - **為什麼檔名設定不起作用？**  
   其他擴充功能也可能修改下載檔名，若未生效，請檢查是否有其他擴充功能覆蓋。
 
-- **為什麼浮圖秀好像不能記住我上次儲存圖片的位置？**  
-  浮圖秀會記住您在**圖片下載**設定中配置的儲存路徑，而該路徑始終基於瀏覽器/系統的預設下載資料夾。
-
-  如果您在下載時手動選擇了**預設下載資料夾之外**的路徑，就可能覺得「沒有被記住」——出於安全原因，擴充功能不能在之後自動重複使用這些路徑。
-
-  若您希望每次自由選擇儲存位置，可以啟用「**每次下載前詢問**」選項。
-
 - **為什麼每次下載圖片都要我選擇儲存位置？**  
   預設情況下，浮圖秀會自動將圖片儲存到瀏覽器/系統的預設下載資料夾，您可以在**圖片下載**設定中調整此路徑。
+
+  <p align="center"><img width="612" src="resources/spec__image-download-settings--zh-tw.png" alt="浮圖秀 - 圖片下載設定" /></p>
 
   如果您每次都被要求選擇儲存位置，請嘗試以下步驟：
 
   - 關閉浮圖秀**圖片下載**設定中的「**每次下載前詢問**」選項。
   - 關閉瀏覽器本身下載設定中的類似「總是詢問」選項。
   - 檢查是否安裝了管理下載的其他擴充功能，並相應調整他們的設定。
+
+- **為什麼浮圖秀好像不能記住我上次儲存圖片的位置？**  
+  浮圖秀會記住您在**圖片下載**設定中配置的儲存路徑，而該路徑始終基於瀏覽器/系統的預設下載資料夾。
+
+  如果您在下載時手動選擇了**預設下載資料夾之外**的路徑，就可能覺得「沒有被記住」——出於安全原因，擴充功能不能在之後自動重複使用這些路徑。
+
+  若您希望每次自由選擇儲存位置，可以啟用「**每次下載前詢問**」選項。
 
 - **如何將 WebP 保存為 JPG？**  
   在**圖片下載**設定中選擇 `jpg` 作為檔案副檔名。浮圖秀會自動轉換格式。

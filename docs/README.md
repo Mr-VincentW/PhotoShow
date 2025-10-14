@@ -43,22 +43,22 @@
 
 Pretty straightforward—visit a site, hover over thumbnails or image links, and PhotoShow will detect and display the high-definition version for you.
 
-<p align="center"><img width="600" src="resources/spec__view-images--en.png" alt="PhotoShow - View Images" /></p>
+<p align="center"><img width="640" src="resources/spec__view-images--en.png" alt="PhotoShow - View Images" /></p>
 <br />
 
 You can also:
 
 1. **Download Images:** Press `S` to save images directly into your collection.
-   <p align="center"><img width="600" src="resources/spec__download-images--en.png" alt="PhotoShow - Download Images" /></p>
+   <p align="center"><img width="640" src="resources/spec__download-images--en.png" alt="PhotoShow - Download Images" /></p>
 
 2. **Copy Images:** Press `Alt` + `C` to copy an image for editing or pasting into chats.
-   <p align="center"><img width="600" src="resources/spec__copy-images--en.png" alt="PhotoShow - Copy Images" /></p>
+   <p align="center"><img width="640" src="resources/spec__copy-images--en.png" alt="PhotoShow - Copy Images" /></p>
 
 3. **Rotate & Flip Images:** Fix unexpected orientations with:
 
    - Rotate: `Shift` + `Ctrl` + `←` / `→`
    - Flip: `Alt` + `Ctrl` + `←` / `→`
-   <p align="center"><img width="600" src="resources/spec__rotate-images--en.png" alt="PhotoShow - Rotate & Flip Images" /></p>
+   <p align="center"><img width="640" src="resources/spec__rotate-images--en.png" alt="PhotoShow - Rotate & Flip Images" /></p>
 
    > :bulb: Tips:
    >
@@ -68,12 +68,12 @@ You can also:
 
 PhotoShow also includes a unique **scrolling mode** for **ultra-wide** and **ultra-tall** images. Instead of shrinking them, it shows part of the HD image and overlays a **viewport mask** on the thumbnail, acting like a magnifier. Moving your mouse over the thumbnail navigates through the entire image.
 
-<p align="center"><img width="600" src="resources/spec__view-ultra-wide-or-tall-images--en.png" alt="PhotoShow - View Ultra-Wide or Ultra-Tall Images" /></p>
+<p align="center"><img width="640" src="resources/spec__view-ultra-wide-or-tall-images--en.png" alt="PhotoShow - View Ultra-Wide or Ultra-Tall Images" /></p>
 <br />
 
 For **Panoramic** view, you can navigate in all directions with the same viewport system.
 
-<p align="center"><img width="600" src="resources/spec__view-image-details--en.png" alt="PhotoShow - View Image Details" /></p>
+<p align="center"><img width="640" src="resources/spec__view-image-details--en.png" alt="PhotoShow - View Image Details" /></p>
 
 > :bulb: Navigation shortcuts:
 >
@@ -111,7 +111,7 @@ PhotoShow offers flexible settings at two levels:
 
 **Site settings** override **global ones**. This dual-level design gives you full control.
 
-<p align="center"><img width="600" src="resources/spec__settings--en.png" alt="PhotoShow - Settings" /></p>
+<p align="center"><img width="640" src="resources/spec__settings--en.png" alt="PhotoShow - Settings" /></p>
 <br />
 
 ### Key options include:
@@ -150,21 +150,23 @@ PhotoShow offers flexible settings at two levels:
 - **Why don’t file naming settings work?**  
   Other extensions may rename downloads too. If filenames aren’t applied, check whether another extension is overriding them.
 
-- **Why does PhotoShow seem unable to remember my last image saving location?**  
-  PhotoShow does remember the saving location you configure in its **Image Download** settings. This location is always based on your browser/system’s default download folder.
-
-  What may look like "not remembering" happens if you manually select a folder **outside the default download folder** during a download. For security reasons, extensions cannot reuse such folders automatically.
-
-  If you prefer to pick a folder freely each time, you can enable the "**Always ask before downloading**" option.
-
 - **Why am I asked to choose a download location every time?**  
-  By default, PhotoShow saves images automatically to your browser’s/system’s default download folder, which you can configure in the Image Download settings.
+  By default, PhotoShow saves images automatically to your browser’s/system’s default download folder, which can be configured in the **Image Download** settings.
+
+  <p align="center"><img width="612" src="resources/spec__image-download-settings--en.png" alt="PhotoShow - Image Download Settings" /></p>
 
   If you are prompted to choose a location every time, try these steps:
 
   - Turn off the "**Always ask before downloading**" option in PhotoShow’s Image Download settings.
   - Turn off any similar "always ask" options in your browser’s own download settings.
   - Check if you have other extensions that manage downloads and adjust their settings if needed.
+
+- **Why does PhotoShow seem unable to remember my last image saving location?**  
+  PhotoShow does remember the saving location you configure in its **Image Download** settings. This location is always based on your browser/system’s default download folder.
+
+  What may look like "not remembering" happens if you manually select a folder **outside the default download folder** during a download. For security reasons, extensions cannot reuse such folders automatically.
+
+  If you prefer to pick a folder freely each time, you can enable the "**Always ask before downloading**" option.
 
 - **How do I save WebP as JPG?**  
   In **Image Download** settings, select `jpg` as the file extension. PhotoShow converts the format automatically when saving.
