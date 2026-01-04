@@ -1,7 +1,7 @@
 ---
 name: Bug report
 about: Report a bug or exception
-title: '[BUG]'
+title: '[BUG] '
 labels: bug
 ---
 
@@ -15,19 +15,19 @@ A clear and concise description of what the bug is.
 2. Mouse hover over...
 3. Observe...
 
-## :camera: Screenshots:
-
-If necessary, add screenshots or screen recordings to help explain the issue.
-
 ## :white_check_mark: Expected behavior:
 
 A clear and concise description of what is expected to happen.
 
+## :camera: Screenshots:
+
+If necessary, add screenshots or screen recordings to help explain the issue.
+
 ## :computer: Environment:
 
-- PhotoShow Version: (e.g., 4.74.0)
-- Browser: (e.g., Chrome 139.0.0.0)
-- OS: (e.g., Windows 10)
+- **PhotoShow Version:** (e.g., 4.74.0)
+- **Browser:** (e.g., Chrome 139.0.0.0)
+- **OS:** (e.g., Windows 10)
 
 (you may instead paste your exported PhotoShow settings here.)
 

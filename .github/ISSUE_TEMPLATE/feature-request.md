@@ -1,7 +1,7 @@
 ---
 name: Feature request
 about: Suggest an idea or feature
-title: '[FEATURE]'
+title: '[FEATURE] '
 labels: enhancement
 ---
 
@@ -11,7 +11,7 @@ A clear and concise description of the feature you would like to see.
 
 ## :dart: Motivation / Use Case
 
-Explain **why this feature is needed** and what problem it solves.
+Explain **why this feature is needed** or what problem it solves.
 
 ## :brain: Proposed Solution
 

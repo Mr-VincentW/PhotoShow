@@ -1,7 +1,7 @@
 ---
 name: 功能建议
 about: 提议一个功能或特性
-title: '[FEATURE]'
+title: '[FEATURE] '
 labels: enhancement
 ---
 
@@ -11,7 +11,7 @@ labels: enhancement
 
 ## :dart: 用例描述
 
-描述**为何需要该功能**及其解决的问题或需求痛点。
+描述**为何需要该功能**或其解决的问题或需求痛点。
 
 ## :brain: 建议的解决方案
 
