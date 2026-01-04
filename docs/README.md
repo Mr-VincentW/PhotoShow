@@ -194,7 +194,9 @@ PhotoShow offers flexible settings at two levels:
 
 PhotoShow is regularly updated, but occasional bugs may appear, especially since it’s carefully hand-crafted for hundreds of sites.
 
-Please report bugs or request features on the [Issues](../../../issues) page (preferred) or via email. To help us:
+Please discuss, report bugs or request features on [Discord Community](https://discord.com/invite/U7cSS4bDfU) (preferred), the [GitHub Issues](../../../issues) page or via email.
+
+To help us, please:
 
 - Fill in as much detail as possible using the issue templates.
 - Search existing issues before opening a new one.
