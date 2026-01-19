@@ -51,7 +51,7 @@
 1. **下载图片：** 按 `S` 一键下载。
    <p align="center"><img width="640" src="resources/spec__download-images--zh-cn.png" alt="浮图秀 - 下载图片" /></p>
 
-2. **复制图片：** 按 `Alt` + `C` 复制图片以便编辑或粘贴到聊天。
+2. **复制图片：** 按 `C` 复制图片以便编辑或粘贴到聊天。
    <p align="center"><img width="640" src="resources/spec__copy-images--zh-cn.png" alt="浮图秀 - 复制图片" /></p>
 
 3. **旋转 & 翻转图片：** 修正方向问题：

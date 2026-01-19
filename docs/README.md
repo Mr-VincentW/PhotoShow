@@ -51,7 +51,7 @@ You can also:
 1. **Download Images:** Press `S` to save images directly into your collection.
    <p align="center"><img width="640" src="resources/spec__download-images--en.png" alt="PhotoShow - Download Images" /></p>
 
-2. **Copy Images:** Press `Alt` + `C` to copy an image for editing or pasting into chats.
+2. **Copy Images:** Press `C` to copy an image for editing or pasting into chats.
    <p align="center"><img width="640" src="resources/spec__copy-images--en.png" alt="PhotoShow - Copy Images" /></p>
 
 3. **Rotate & Flip Images:** Fix unexpected orientations with:
