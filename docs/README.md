@@ -147,6 +147,21 @@ PhotoShow offers flexible settings at two levels:
 
 ## :question: FAQ
 
+- **Why does “NVIDIA RTX VSR” stop working when PhotoShow is enabled, and how can it be fixed?**  
+  This can happen because some of PhotoShow’s visual effects—particularly background blur—are GPU-intensive and may interfere with how NVIDIA RTX Video Super Resolution (VSR) is applied. When these effects are active, VSR may not engage as expected.
+
+  To resolve this, enable the option that simplifies visual effects:
+
+  - Go to **PhotoShow Settings (Options page)**
+  - Turn on “**Reduce performance impact by simplifying visual effects**”
+
+  You can find this option at:
+
+  - **Utilities** → **Other Settings** (prior to version 4.87.0)
+  - **Appearance** → **Viewer Style** (since version 4.87.0)
+
+  After enabling the option, refresh the page or restart your browser to ensure the change takes effect if necessary.
+
 - **Why don’t file naming settings work?**  
   Other extensions may rename downloads too. If filenames aren’t applied, check whether another extension is overriding them.
 
