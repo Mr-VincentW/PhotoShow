@@ -62,7 +62,7 @@ You can also:
 
    > :bulb: Tips:
    >
-   > - Downloaded or copied images keep any rotations or flips you apply.
+   > - Rotations and flips applied to the image are preserved when copying, downloading, or opening it in a new tab.
 
 <br />
 
@@ -85,13 +85,30 @@ For **Panoramic** view, you can navigate in all directions with the same viewpor
 
 ### View Modes
 
-Choose from five modes:
+Choose from six modes:
 
-- **Auto (A):** Fits image to selected viewer positions, enabling "**scrolling mode**" if needed.
-- **Fit (F):** Fits image fully, disabling "**scrolling mode**".
-- **Lite (L):** Viewer takes up to 1/4 of the screen, "**scrolling mode**" enabled.
-- **Mini (M):** Viewer takes up to 1/8 of the screen, "**scrolling mode**" enabled.
-- **Panoramic (P):** Displays images at original size, prioritizing "**scrolling mode**".
+- **Auto (A):**
+
+  The viewer is sized to fit the selected available positions, maximizing the displayed image size.
+- **Fit (F):**
+
+  The viewer is sized to fit within the selected available positions while ensuring the entire image remains fully visible, without requiring scrolling.
+- **Panoramic (P):**
+
+  The viewer is sized to display the image at its original size, filling the selected available positions as much as needed.
+- **Lite (L):**
+
+  The viewer is sized so that the shorter side of the image does not exceed 800 px, while fitting within the selected available positions.
+- **Mini (M):**
+
+  The viewer is sized so that the shorter side of the image does not exceed 500 px, while fitting within the selected available positions.
+- **Tiny (T):**
+
+  The viewer is sized so that the shorter side of the image does not exceed 300 px, while fitting within the selected available positions.
+
+> :information_source: Note:
+>
+> View modes other than “**Fit**” may enable image scrolling or navigation when needed (e.g., for large or ultra-wide/tall images). When this happens, the viewer is automatically positioned around the thumbnail to support those interactions.
 
 > :bulb: Tips:
 >
