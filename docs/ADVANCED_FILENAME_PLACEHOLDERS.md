@@ -15,6 +15,8 @@ Advanced filename placeholders are intended for power users who need greater fle
 
 ### 1. URL Search Parameter Placeholders
 
+`PhotoShow 4.88.0 +`
+
 Extract values from the current page URL's search parameters.
 
 #### Syntax
@@ -41,6 +43,8 @@ Then:
 Typical use cases include search keywords, product identifiers, category names, and other information encoded in page URLs.
 
 ### 2. CSS Selector Placeholders
+
+`PhotoShow 4.90.0 +`
 
 Extract text or attribute values from the current webpage using CSS selectors.
 
@@ -156,6 +160,8 @@ Typical use cases include extracting product names, post titles, authors, image 
 ---
 
 ## :wrench: Placeholder Modifiers
+
+`PhotoShow 4.91.0 +`
 
 Placeholder modifiers transform the values produced by filename placeholders before they are inserted into the generated filename.
 

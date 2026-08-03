@@ -158,6 +158,7 @@ PhotoShow offers flexible settings at two levels:
 >
 > - When the viewer is centered in the viewport, ultra-tall or ultra-wide images will not use "**scroll mode**". To make it work in those cases, enable all **Viewer Positions** options. PhotoShow will then automatically select the most suitable position, maximizing viewer size and applying the mode when needed.
 > - File naming can include **paths**, e.g. `my images/<H>/<c>` → `default download folder/my images/(hostname)/(image caption)`.
+> - For more information about **advanced filename placeholders**, please refer to [Using Advanced Filename Placeholders and Placeholder Modifiers](./ADVANCED_FILENAME_PLACEHOLDERS.md).
 
 <br />
 <br />
