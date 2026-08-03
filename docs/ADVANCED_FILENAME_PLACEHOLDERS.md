@@ -184,7 +184,7 @@ Examples:
 | `lower` | Converts the value to lowercase. |
 | `upper` | Converts the value to uppercase. |
 
-### Numeric Modifier
+#### Numeric Modifier
 
 The numeric modifier limits the amount of data produced by a filename placeholder.
 
