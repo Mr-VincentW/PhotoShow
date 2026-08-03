@@ -4,7 +4,7 @@ PhotoShow allows downloaded images to be named using a customizable **filename p
 
 This guide covers:
 
-- **[Advanced filename placeholders](#label-advanced-filename-placeholders)**, which extract values from URL search parameters and webpage content.
+- **[Advanced filename placeholders](#label-advanced-filename-placeholders)**, which extract values from **URL search parameters** and **webpage content**.
 - **[Placeholder modifiers](#wrench-placeholder-modifiers)**, which transform supported placeholder values before they are inserted into the generated filename.
 
 ---
@@ -151,7 +151,7 @@ Examples:
 <@[alt]>
 ```
 
-Typical use cases include extracting product names, post titles, authors, image `alt` text, meta tag values, and custom `data-*` attributes.
+Typical use cases include extracting product names, post titles, authors, image `alt` text, `<meta>` tag values, and custom `data-*` attributes.
 
 ---
 
