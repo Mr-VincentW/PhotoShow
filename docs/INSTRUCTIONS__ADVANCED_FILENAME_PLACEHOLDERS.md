@@ -4,8 +4,8 @@ PhotoShow allows downloaded images to be named using a customizable **filename p
 
 This guide covers:
 
-- **Advanced filename placeholders**, which extract values from URL search parameters and webpage content.
-- **Placeholder modifiers**, which transform supported placeholder values before they are inserted into the generated filename.
+- **[Advanced filename placeholders](#label-advanced-filename-placeholders)**, which extract values from URL search parameters and webpage content.
+- **[Placeholder modifiers](#wrench-placeholder-modifiers)**, which transform supported placeholder values before they are inserted into the generated filename.
 
 ---
 
