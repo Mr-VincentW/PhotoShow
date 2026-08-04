@@ -7,11 +7,14 @@ This guide covers:
 - **[Advanced filename placeholders](#label-advanced-filename-placeholders)**, which extract values from **URL search parameters** and **webpage content**.
 - **[Placeholder modifiers](#wrench-placeholder-modifiers)**, which transform supported placeholder values before they are inserted into the generated filename.
 
----
+<br />
+<br />
 
 ## :label: Advanced Filename Placeholders
 
-Advanced filename placeholders are intended for power users who need greater flexibility when generating download filenames.
+Advanced filename placeholders allow download filenames to include information **extracted from the webpage**.
+
+<br />
 
 ### 1. URL Search Parameter Placeholders
 
@@ -30,17 +33,19 @@ Extract values from the current page URL's search parameters.
 Assume the current page URL is:
 
 ```text
-https://example.com/search?q=cats&page=2
+https://example.com/gallery?tag=cats&tag=black&sort=newest
 ```
 
 Then:
 
 ```text
-<?q>       → cats
-<?page>    → 2
+<?tag>    → cats,black
+<?sort>   → newest
 ```
 
 Typical use cases include search keywords, product identifiers, category names, and other information encoded in page URLs.
+
+<br />
 
 ### 2. CSS Selector Placeholders
 
@@ -157,7 +162,8 @@ Examples:
 
 Typical use cases include extracting product names, post titles, authors, image `alt` text, `<meta>` tag values, and custom `data-*` attributes.
 
----
+<br />
+<br />
 
 ## :wrench: Placeholder Modifiers
 
@@ -166,6 +172,8 @@ Typical use cases include extracting product names, post titles, authors, image 
 Placeholder modifiers transform the values produced by filename placeholders before they are inserted into the generated filename.
 
 > :information_source: Modifiers are supported by text-based filename placeholders. Placeholders that produce numeric values (such as `<y>` for **year** or `<iW>` for **image width**) do not support modifiers.
+
+<br />
 
 ### Syntax
 
@@ -181,6 +189,8 @@ Examples:
 <?id|upper>
 <{h1}|100|lower>
 ```
+
+<br />
 
 ### Supported Modifiers
 
@@ -212,16 +222,13 @@ The following patterns produce:
 
 This avoids producing broken or meaningless partial path segments while remaining consistent with the purpose of these placeholders.
 
-### Modifier Normalization
+<br>
 
-When editing filename patterns, PhotoShow automatically simplifies redundant or conflicting modifiers.
-
-Examples:
-
-```text
-<c|80|upper|40> → <c|40|upper>
-
-<c|upper|40|lower> → <c|40|lower>
-```
-
-This helps keep filename patterns concise without changing the resulting behavior.
+> :information_source: When editing filename patterns, PhotoShow automatically simplifies redundant or conflicting modifiers, keeping filename patterns concise without changing the resulting behavior.
+>
+> Examples:
+>
+> ```text
+> <c|80|upper|40> → <c|40|upper>
+> <c|upper|40|lower> → <c|40|lower>
+> ```
