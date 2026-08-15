@@ -170,13 +170,12 @@ PhotoShow offers flexible settings at two levels:
 
   To resolve this, enable the option that simplifies visual effects:
 
-  - Go to **PhotoShow Settings (Options page)**
-  - Turn on “**Reduce performance impact by simplifying visual effects**”
+  1. Go to **PhotoShow Settings (Options page)**
+  2. Enable:
 
-  You can find this option at:
-
-  - **Utilities** → **Other Settings** (prior to version 4.87.0)
-  - **Appearance** → **Viewer Style** (since version 4.87.0)
+     - **Utilities** → **Other Settings** → “**Reduce performance impact by simplifying visual effects**” (prior to version 4.87.0) or
+     - **Appearance** → **Viewer Style** → “**Reduce performance impact by simplifying visual effects**” (since version 4.87.0) or
+     - **Utilities** → **Performance Optimisations** → “**Simplify viewer visual effects**” (since version 4.91.0)
 
   After enabling the option, refresh the page or restart your browser to ensure the change takes effect if necessary.
 
