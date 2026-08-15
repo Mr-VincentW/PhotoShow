@@ -5,7 +5,7 @@ PhotoShow allows downloaded images to be named using a customizable **filename p
 This guide covers:
 
 - **[Advanced filename placeholders](#label-advanced-filename-placeholders)**, which extract values from **URL search parameters** and **webpage content**.
-- **[Placeholder modifiers](#wrench-placeholder-modifiers)**, which transform supported placeholder values before they are inserted into the generated filename.
+- **[Placeholder modifiers](#paintbrush-placeholder-modifiers)**, which transform supported placeholder values before they are inserted into the generated filename.
 
 <br />
 <br />
@@ -165,7 +165,7 @@ Typical use cases include extracting product names, post titles, authors, image 
 <br />
 <br />
 
-## :wrench: Placeholder Modifiers
+## :paintbrush: Placeholder Modifiers
 
 `PhotoShow 4.91.0 +`
 

@@ -5,7 +5,7 @@
 本指南介绍：
 
 - **[高级文件名替换符](#label-%E9%AB%98%E7%BA%A7%E6%96%87%E4%BB%B6%E5%90%8D%E6%9B%BF%E6%8D%A2%E7%AC%A6)**：从 **URL 搜索参数**或**页面内容**中提取信息。
-- **[替换符修饰器](#wrench-%E6%9B%BF%E6%8D%A2%E7%AC%A6%E4%BF%AE%E9%A5%B0%E5%99%A8)**：在将支持的文件名替换符值插入生成的文件名之前，对其进行转换。
+- **[替换符修饰器](#paintbrush-%E6%9B%BF%E6%8D%A2%E7%AC%A6%E4%BF%AE%E9%A5%B0%E5%99%A8)**：在将支持的文件名替换符值插入生成的文件名之前，对其进行转换。
 
 <br />
 <br />
@@ -165,7 +165,7 @@ https://example.com/gallery?tag=cats&tag=black&sort=newest
 <br />
 <br />
 
-## :wrench: 替换符修饰器
+## :paintbrush: 替换符修饰器
 
 `浮图秀 4.91.0 +`
 

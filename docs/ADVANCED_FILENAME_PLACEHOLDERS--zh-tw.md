@@ -5,7 +5,7 @@
 本指南介紹：
 
 - **[進階檔名替代符](#label-%E9%80%B2%E9%9A%8E%E6%AA%94%E5%90%8D%E6%9B%BF%E4%BB%A3%E7%AC%A6)**：從 **URL 搜尋參數**或**頁面內容**中擷取資訊。
-- **[替代符修飾器](#wrench-%E6%9B%BF%E4%BB%A3%E7%AC%A6%E4%BF%AE%E9%A3%BE%E5%99%A8)**：在將支援的檔名替代符值插入產生的檔名之前，對其進行轉換。
+- **[替代符修飾器](#paintbrush-%E6%9B%BF%E4%BB%A3%E7%AC%A6%E4%BF%AE%E9%A3%BE%E5%99%A8)**：在將支援的檔名替代符值插入產生的檔名之前，對其進行轉換。
 
 <br />
 <br />
@@ -165,7 +165,7 @@ https://example.com/gallery?tag=cats&tag=black&sort=newest
 <br />
 <br />
 
-## :wrench: 替代符修飾器
+## :paintbrush: 替代符修飾器
 
 `浮圖秀 4.91.0 +`
 
