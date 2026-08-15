@@ -136,14 +136,16 @@ PhotoShow offers flexible settings at two levels:
 - **Whitelist Mode**: Disable PhotoShow globally, then enable per site with its popup toggle.
 - **Viewer Trigger**: Require an assist key press to show the viewer.
 - **Thumbnail Types** & **Viewer Exceptions**: Control which thumbnails trigger the viewer.
-- **Viewer Positions**: Default is beside the thumbnail, but you can allow fullscreen by choosing `center`.
+- **Viewer Color Scheme** & **Viewer Style**: Choose either `light` or `dark` theme as well as styles for the viewer.
+- **Transition Animation**: Smooth animations, or reduce/disable them.
+- **View Modes**: Change viewer size and the interaction mode.
+- **Viewer Positions**: Default is beside the thumbnail, but you can allow fullscreen by choosing `Overlap`.
 - **Image Info Display**: Show image captions, dimensions, formats, or file sizes.
 - **New Tab Opening Behavior**: Choose whether new image tabs open in the foreground or background.
-- **Transition Animation**: Smooth animations, or reduce/disable them.
-- **Viewer Color Scheme**: Choose either `light` or `dark` theme for the viewer.
 - **Keyboard Shortcuts**: Enable/disable specific shortcuts.
 - **Image Download**: Customize filenames with placeholders (e.g. `my images/<H>/<c>`).
 - **Assistance & Enhancements**: Extra tools like marking viewed images or enabling/disabling context menu items.
+- **Performance Optimisations**: Improve performance by disabling features that may require more system resources.
 - **Settings Management**: Export/import your settings to transfer between devices, or reset either global or site-specific settings.
 
 <br />
@@ -204,7 +206,11 @@ PhotoShow offers flexible settings at two levels:
   In **Image Download** settings, select `jpg` as the file extension. PhotoShow converts the format automatically when saving.
 
 - **How do I view fullscreen images?**  
-  Enable the `center` option in **Viewer Positions**.
+  Enable the `Overlap` option under **Viewer Positions**. This allows the image viewer to overlap the thumbnail and use up to the entire screen for displaying the image.
+
+  > :information_source: Note:
+  >
+  > **View Modes** other than “**Fit**” may enable image scrolling or navigation when needed (e.g., for large or ultra-wide/tall images). When this happens, the viewer is positioned around the thumbnail to support those interactions and therefore may not expand to fullscreen.
 
 - **Can the viewer stay on screen after moving the mouse away?**  
   Not yet. PhotoShow is designed for a quick, clean “fast-in fast-out” experience, so the viewer closes automatically when your mouse leaves. A future update will add more options for this behavior.
