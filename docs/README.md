@@ -89,22 +89,22 @@ Choose from six modes:
 
 - **Auto (A):**
 
-  The viewer is sized to fit the selected available positions, maximizing the displayed image size.
+  The viewer is sized to fit the available selected position that maximizes the displayed image size, with scrolling enabled for ultra-wide or ultra-tall images.
 - **Fit (F):**
 
-  The viewer is sized to fit within the selected available positions while ensuring the entire image remains fully visible, without requiring scrolling.
+  Like “Auto”, but keeps the entire image visible without requiring scrolling or navigation.
 - **Panoramic (P):**
 
-  The viewer is sized to display the image at its original size, filling the selected available positions as much as needed.
+  Displays the image at its original size in the viewer, with image navigation enabled as needed.
 - **Lite (L):**
 
-  The viewer is sized so that the shorter side of the image does not exceed 800 px, while fitting within the selected available positions.
+  Like “Auto”, but limits the shorter side of the viewer to 800 px.
 - **Mini (M):**
 
-  The viewer is sized so that the shorter side of the image does not exceed 500 px, while fitting within the selected available positions.
+  Like “Auto”, but limits the shorter side of the viewer to 500 px.
 - **Tiny (T):**
 
-  The viewer is sized so that the shorter side of the image does not exceed 300 px, while fitting within the selected available positions.
+  Like “Auto”, but limits the shorter side of the viewer to 300 px.
 
 > :information_source: Note:
 >
