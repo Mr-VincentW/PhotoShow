@@ -10,7 +10,8 @@
 
 **PhotoShow** is a browser extension that lets you view and download high-definition images simply by hovering over thumbnails or links. It works seamlessly across all your favorite websites.
 
-> :information_source: _Note: The source code in this repo is no longer updated since migrating to Extension Manifest V3. PhotoShow is actively maintained and keeps evolving._
+> [!NOTE]
+> The source code in this repo is no longer updated since migrating to Extension Manifest V3. PhotoShow is actively maintained and keeps evolving.
 
 <br />
 <br />
@@ -60,9 +61,8 @@ You can also:
    - Flip: `Alt` + `Ctrl` + `←` / `→`
    <p align="center"><img width="640" src="resources/spec__rotate-images--en.png" alt="PhotoShow - Rotate & Flip Images" /></p>
 
-   > :bulb: Tips:
-   >
-   > - Rotations and flips applied to the image are preserved when copying, downloading, or opening it in a new tab.
+> [!TIP]
+> Rotations and flips applied to the image are preserved when copying, downloading, or opening it in a new tab.
 
 <br />
 
@@ -75,8 +75,8 @@ For **Panoramic** view, you can navigate in all directions with the same viewpor
 
 <p align="center"><img width="640" src="resources/spec__view-image-details--en.png" alt="PhotoShow - View Image Details" /></p>
 
-> :bulb: Navigation shortcuts:
->
+> [!TIP]
+> **Navigation shortcuts:**
 > - `←` / `→` / `↑` / `↓`: Move pixel by pixel (accelerates when held).
 > - `Home` / `End`: Jump to top/bottom (ultra-tall images).
 > - `PgUp` / `PgDn`: Scroll by viewport height (ultra-tall images).
@@ -106,12 +106,10 @@ Choose from six modes:
 
   Like “Auto”, but limits the shorter side of the viewer to 300 px.
 
-> :information_source: Note:
->
+> [!NOTE]
 > View modes other than “**Fit**” may enable image scrolling or navigation when needed (e.g., for large or ultra-wide/tall images). When this happens, the viewer is automatically positioned around the thumbnail to support those interactions.
 
-> :bulb: Tips:
->
+> [!TIP]
 > - Use the shortcut letter in parentheses to switch modes.
 > - Press `V` to toggle between the last two modes.
 > - These shortcuts are disabled by default but can be enabled in settings.
@@ -150,14 +148,12 @@ PhotoShow offers flexible settings at two levels:
 
 <br />
 
-> :information_source: Notes:
->
+> [!NOTE]
 > - Global settings are synced with your browser profile by default (this can be disabled in the browser's settings).
 > - Site-specific settings are stored locally, due to technical limitations.
 > - Export and import include both types of settings.
 
-> :bulb: Tips:
->
+> [!TIP]
 > - When the viewer is centered in the viewport, ultra-tall or ultra-wide images will not use "**scroll mode**". To make it work in those cases, enable all **Viewer Positions** options. PhotoShow will then automatically select the most suitable position, maximizing viewer size and applying the mode when needed.
 > - File naming can include **paths**, e.g. `my images/<H>/<c>` → `default download folder/my images/(hostname)/(image caption)`.
 > - For more information about **advanced filename placeholders**, please refer to [Using Advanced Filename Placeholders and Placeholder Modifiers](./ADVANCED_FILENAME_PLACEHOLDERS.md).

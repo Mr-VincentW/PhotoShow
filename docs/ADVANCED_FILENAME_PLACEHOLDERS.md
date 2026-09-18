@@ -171,7 +171,8 @@ Typical use cases include extracting product names, post titles, authors, image 
 
 Placeholder modifiers transform the values produced by filename placeholders before they are inserted into the generated filename.
 
-> :information_source: Modifiers are supported by text-based filename placeholders. Placeholders that produce numeric values (such as `<y>` for **year** or `<iW>` for **image width**) do not support modifiers.
+> [!NOTE]
+> Modifiers are supported by text-based filename placeholders. Placeholders that produce numeric values (such as `<y>` for **year** or `<iW>` for **image width**) do not support modifiers.
 
 <br />
 
@@ -224,7 +225,8 @@ This avoids producing broken or meaningless partial path segments while remainin
 
 <br>
 
-> :information_source: When editing filename patterns, PhotoShow automatically simplifies redundant or conflicting modifiers, keeping filename patterns concise without changing the resulting behavior.
+> [!TIP]
+> When editing filename patterns, PhotoShow automatically simplifies redundant or conflicting modifiers, keeping filename patterns concise without changing the resulting behavior.
 >
 > Examples:
 >
