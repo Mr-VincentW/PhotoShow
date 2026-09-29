@@ -18,7 +18,7 @@
 
 ### 1. URL 搜尋參數替代符
 
-`浮圖秀 4.88.0 +`
+![Static Badge](https://img.shields.io/badge/%E6%B5%AE%E5%9C%96%E7%A7%80-4.88.0+-FAFAFA)
 
 從目前頁面 URL 的搜尋參數中擷取資訊。
 
@@ -49,7 +49,7 @@ https://example.com/gallery?tag=cats&tag=black&sort=newest
 
 ### 2. CSS 選擇器替代符
 
-`浮圖秀 4.90.0 +`
+![Static Badge](https://img.shields.io/badge/%E6%B5%AE%E5%9C%96%E7%A7%80-4.90.0+-FAFAFA)
 
 使用 CSS 選擇器從目前頁面中擷取文字或屬性值。
 
@@ -167,7 +167,7 @@ https://example.com/gallery?tag=cats&tag=black&sort=newest
 
 ## :paintbrush: 替代符修飾器
 
-`浮圖秀 4.91.0 +`
+![Static Badge](https://img.shields.io/badge/%E6%B5%AE%E5%9C%96%E7%A7%80-4.91.0+-FAFAFA)
 
 替代符修飾器可在將檔名替代符產生的值插入最終檔名之前，對其進行轉換。
 

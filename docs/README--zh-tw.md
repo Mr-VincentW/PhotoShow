@@ -1,10 +1,14 @@
-![浮圖秀海報](resources/banner--zh-tw.png)
-
 <div align="right">
   
 :link: [English](README.md) &emsp; :link: [简体中文](README--zh-cn.md)
 
 </div>
+
+![浮圖秀海報](resources/banner--zh-tw.png)
+
+![Chrome 使用者](https://img.shields.io/chrome-web-store/users/mgpdnhlllbpncjpgokgfogidhoegebod?label=Chrome%20%E4%BD%BF%E7%94%A8%E8%80%85&color=%23FAFAFA)&nbsp;
+![Edge 使用者](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fmicrosoftedge.microsoft.com%2Faddons%2Fgetproductdetailsbycrxid%2Fafdelcfalkgcfelngdclbaijgeaklbjk&query=activeInstallCount&label=Edge%20%E4%BD%BF%E7%94%A8%E8%80%85&color=%23FAFAFA)&nbsp;
+![Firefox 使用者](https://img.shields.io/amo/users/photoshow?label=Firefox%20%E4%BD%BF%E7%94%A8%E8%80%85&color=%23FAFAFA)
 
 # 浮圖秀
 
@@ -31,7 +35,7 @@
 
 ## :rocket: 安裝浮圖秀
 
-**浮圖秀**已入駐各大瀏覽器應用商店並成為**推薦擴充功能**！點擊下方安裝：
+**浮圖秀**已入駐各大瀏覽器應用商店並成為**推薦擴充功能** :heart_eyes:！點擊下方安裝：
 
 - <img width="24" align="center" src="resources/logo-chrome.png" alt="Google Chrome" /> [Google Chrome](https://chromewebstore.google.com/detail/photoshow/mgpdnhlllbpncjpgokgfogidhoegebod)
 - <img width="24" align="center" src="resources/logo-edge.png" alt="Microsoft Edge" /> [Microsoft Edge](https://microsoftedge.microsoft.com/addons/detail/afdelcfalkgcfelngdclbaijgeaklbjk)

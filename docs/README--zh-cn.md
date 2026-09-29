@@ -1,10 +1,14 @@
-![浮图秀海报](resources/banner--zh-cn.png)
-
 <div align="right">
   
 :link: [English](README.md) &emsp; :link: [繁體中文](README--zh-tw.md)
 
 </div>
+
+![浮图秀海报](resources/banner--zh-cn.png)
+
+![Chrome 用户](https://img.shields.io/chrome-web-store/users/mgpdnhlllbpncjpgokgfogidhoegebod?label=Chrome%20%E7%94%A8%E6%88%B7&color=%23FAFAFA)&nbsp;
+![Edge 用户](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fmicrosoftedge.microsoft.com%2Faddons%2Fgetproductdetailsbycrxid%2Fafdelcfalkgcfelngdclbaijgeaklbjk&query=activeInstallCount&label=Edge%20%E7%94%A8%E6%88%B7&color=%23FAFAFA)&nbsp;
+![Firefox 用户](https://img.shields.io/amo/users/photoshow?label=Firefox%20%E7%94%A8%E6%88%B7&color=%23FAFAFA)
 
 # 浮图秀
 
@@ -31,7 +35,7 @@
 
 ## :rocket: 安装浮图秀
 
-**浮图秀**已入驻各大浏览器应用商店并成为**推荐扩展**！点击下方安装：
+**浮图秀**已入驻各大浏览器应用商店并成为**推荐扩展** :heart_eyes:！点击下方安装：
 
 - <img width="24" align="center" src="resources/logo-chrome.png" alt="Google Chrome" /> [Google Chrome](https://chromewebstore.google.com/detail/photoshow/mgpdnhlllbpncjpgokgfogidhoegebod)
 - <img width="24" align="center" src="resources/logo-edge.png" alt="Microsoft Edge" /> [Microsoft Edge](https://microsoftedge.microsoft.com/addons/detail/afdelcfalkgcfelngdclbaijgeaklbjk)

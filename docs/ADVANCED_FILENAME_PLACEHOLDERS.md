@@ -18,7 +18,7 @@ Advanced filename placeholders allow download filenames to include information *
 
 ### 1. URL Search Parameter Placeholders
 
-`PhotoShow 4.88.0 +`
+![Static Badge](https://img.shields.io/badge/PhotoShow-4.88.0+-FAFAFA)
 
 Extract values from the current page URL's search parameters.
 
@@ -49,7 +49,7 @@ Typical use cases include search keywords, product identifiers, category names, 
 
 ### 2. CSS Selector Placeholders
 
-`PhotoShow 4.90.0 +`
+![Static Badge](https://img.shields.io/badge/PhotoShow-4.90.0+-FAFAFA)
 
 Extract text or attribute values from the current webpage using CSS selectors.
 
@@ -167,7 +167,7 @@ Typical use cases include extracting product names, post titles, authors, image 
 
 ## :paintbrush: Placeholder Modifiers
 
-`PhotoShow 4.91.0 +`
+![Static Badge](https://img.shields.io/badge/PhotoShow-4.91.0+-FAFAFA)
 
 Placeholder modifiers transform the values produced by filename placeholders before they are inserted into the generated filename.
 

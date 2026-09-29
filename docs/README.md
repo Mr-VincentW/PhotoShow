@@ -1,10 +1,14 @@
-![PhotoShow Poster](resources/banner--en.png)
-
 <div align="right">
   
 :link: [简体中文](README--zh-cn.md) &emsp; :link: [繁體中文](README--zh-tw.md)
 
 </div>
+
+![PhotoShow Poster](resources/banner--en.png)
+
+![Chrome Users](https://img.shields.io/chrome-web-store/users/mgpdnhlllbpncjpgokgfogidhoegebod?label=Chrome%20Users&color=%23FAFAFA)&nbsp;
+![Edge Users](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fmicrosoftedge.microsoft.com%2Faddons%2Fgetproductdetailsbycrxid%2Fafdelcfalkgcfelngdclbaijgeaklbjk&query=activeInstallCount&label=Edge%20Users&color=%23FAFAFA)&nbsp;
+![Firefox Users](https://img.shields.io/amo/users/photoshow?label=Firefox%20Users&color=%23FAFAFA)
 
 # PhotoShow
 
@@ -31,7 +35,7 @@
 
 ## :rocket: Install PhotoShow
 
-**PhotoShow** is proudly **featured** in all major browser stores! Install it for your browser here:
+**PhotoShow** is proudly **featured** in all major browser stores :heart_eyes:! Install it for your browser here:
 
 - <img width="24" align="center" src="resources/logo-chrome.png" alt="Google Chrome" /> [Google Chrome](https://chromewebstore.google.com/detail/photoshow/mgpdnhlllbpncjpgokgfogidhoegebod)
 - <img width="24" align="center" src="resources/logo-edge.png" alt="Microsoft Edge" /> [Microsoft Edge](https://microsoftedge.microsoft.com/addons/detail/afdelcfalkgcfelngdclbaijgeaklbjk)

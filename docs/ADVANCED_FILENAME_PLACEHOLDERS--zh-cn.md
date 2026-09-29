@@ -18,7 +18,7 @@
 
 ### 1. URL 搜索参数替换符
 
-`浮图秀 4.88.0 +`
+![Static Badge](https://img.shields.io/badge/%E6%B5%AE%E5%9B%BE%E7%A7%80-4.88.0+-FAFAFA)
 
 从当前页面 URL 的搜索参数中提取信息。
 
@@ -49,7 +49,7 @@ https://example.com/gallery?tag=cats&tag=black&sort=newest
 
 ### 2. CSS 选择器替换符
 
-`浮图秀 4.90.0 +`
+![Static Badge](https://img.shields.io/badge/%E6%B5%AE%E5%9B%BE%E7%A7%80-4.90.0+-FAFAFA)
 
 使用 CSS 选择器从当前页面中提取文本或属性值。
 
@@ -167,7 +167,7 @@ https://example.com/gallery?tag=cats&tag=black&sort=newest
 
 ## :paintbrush: 替换符修饰器
 
-`浮图秀 4.91.0 +`
+![Static Badge](https://img.shields.io/badge/%E6%B5%AE%E5%9B%BE%E7%A7%80-4.91.0+-FAFAFA)
 
 替换符修饰器可在将文件名替换符生成的值插入最终文件名之前，对其进行转换。
 
