@@ -35,7 +35,7 @@
 
 ## :rocket: 安裝浮圖秀
 
-**浮圖秀**已入駐各大瀏覽器應用商店並成為**推薦擴充功能** :heart_eyes:！點擊下方安裝：
+**浮圖秀**已入駐各大瀏覽器應用商店，點擊下方安裝：
 
 - <img width="24" align="center" src="resources/logo-chrome.png" alt="Google Chrome" /> [Google Chrome](https://chromewebstore.google.com/detail/photoshow/mgpdnhlllbpncjpgokgfogidhoegebod)
 - <img width="24" align="center" src="resources/logo-edge.png" alt="Microsoft Edge" /> [Microsoft Edge](https://microsoftedge.microsoft.com/addons/detail/afdelcfalkgcfelngdclbaijgeaklbjk)

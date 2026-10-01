@@ -35,7 +35,7 @@
 
 ## :rocket: 安装浮图秀
 
-**浮图秀**已入驻各大浏览器应用商店并成为**推荐扩展** :heart_eyes:！点击下方安装：
+**浮图秀**已入驻各大浏览器应用商店，点击下方安装：
 
 - <img width="24" align="center" src="resources/logo-chrome.png" alt="Google Chrome" /> [Google Chrome](https://chromewebstore.google.com/detail/photoshow/mgpdnhlllbpncjpgokgfogidhoegebod)
 - <img width="24" align="center" src="resources/logo-edge.png" alt="Microsoft Edge" /> [Microsoft Edge](https://microsoftedge.microsoft.com/addons/detail/afdelcfalkgcfelngdclbaijgeaklbjk)

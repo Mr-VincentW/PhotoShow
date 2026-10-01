@@ -35,7 +35,7 @@
 
 ## :rocket: Install PhotoShow
 
-**PhotoShow** is proudly **featured** in all major browser stores :heart_eyes:! Install it for your browser here:
+**PhotoShow** is published in all major browser stores. Install it for your browser here:
 
 - <img width="24" align="center" src="resources/logo-chrome.png" alt="Google Chrome" /> [Google Chrome](https://chromewebstore.google.com/detail/photoshow/mgpdnhlllbpncjpgokgfogidhoegebod)
 - <img width="24" align="center" src="resources/logo-edge.png" alt="Microsoft Edge" /> [Microsoft Edge](https://microsoftedge.microsoft.com/addons/detail/afdelcfalkgcfelngdclbaijgeaklbjk)
