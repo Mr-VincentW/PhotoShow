@@ -158,7 +158,9 @@ PhotoShow offers flexible settings at two levels:
 > - Export and import include both types of settings.
 
 > [!TIP]
-> - When the viewer is centered in the viewport, ultra-tall or ultra-wide images will not use "**scroll mode**". To make it work in those cases, enable all **Viewer Positions** options. PhotoShow will then automatically select the most suitable position, maximizing viewer size and applying the mode when needed.
+> - If only the “**Overlap**” **Viewer Position** is enabled, image scrolling or navigation will not be available for ultra-tall or ultra-wide images. To enable these interactions, select at least one additional **Viewer Position**.
+>
+>   PhotoShow will then automatically choose the most suitable position, maximizing the viewer size while enabling image scrolling or navigation when needed.
 > - File naming can include **paths**, e.g. `my images/<H>/<c>` → `default download folder/my images/(hostname)/(image caption)`.
 > - For more information about **advanced filename placeholders**, please refer to [Using Advanced Filename Placeholders and Placeholder Modifiers](./ADVANCED_FILENAME_PLACEHOLDERS.md).
 
@@ -191,16 +193,16 @@ PhotoShow offers flexible settings at two levels:
 
   If you are prompted to choose a location every time, try these steps:
 
-  - Turn off the "**Always ask before downloading**" option in PhotoShow’s Image Download settings.
-  - Turn off any similar "always ask" options in your browser’s own download settings.
+  - Turn off the “**Always ask before downloading**” option in PhotoShow’s Image Download settings.
+  - Turn off any similar “always ask” options in your browser’s own download settings.
   - Check if you have other extensions that manage downloads and adjust their settings if needed.
 
 - **Why does PhotoShow seem unable to remember my last image saving location?**  
   PhotoShow does remember the saving location you configure in its **Image Download** settings. This location is always based on your browser/system’s default download folder.
 
-  What may look like "not remembering" happens if you manually select a folder **outside the default download folder** during a download. For security reasons, extensions cannot reuse such folders automatically.
+  What may look like “not remembering” happens if you manually select a folder **outside the default download folder** during a download. For security reasons, extensions cannot reuse such folders automatically.
 
-  If you prefer to pick a folder freely each time, you can enable the "**Always ask before downloading**" option.
+  If you prefer to pick a folder freely each time, you can enable the “**Always ask before downloading**” option.
 
 - **How do I save WebP as JPG?**  
   In **Image Download** settings, select `jpg` as the file extension. PhotoShow converts the format automatically when saving.
