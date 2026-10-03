@@ -2261,7 +2261,7 @@ const websiteConfig = {
           document.querySelector('meta[content^="instagram://user?username="]')?.content
         )
       ) {
-        fetch(`/api/v1/users/web_profile_info/?username=${RegExp.$1}`, {
+        fetch(`/api/v1/users/web_profile_info/?username=${encodeURIComponent(RegExp.$1)}`, {
           headers: {
             'photoshow-added-user-agent': `${navigator.userAgent} Instagram 272.0.0`
           }
